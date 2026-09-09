@@ -1216,15 +1216,19 @@ function makeMoveBtn(san, ply){
 }
 
 function highlightMoveList(){
+  var listEl = document.getElementById('move-list');
   document.querySelectorAll('.move-btn').forEach(function(btn){
     var isActive = parseInt(btn.dataset.ply, 10) === moveIndex;
     btn.classList.toggle('active', isActive);
-    /* keep the current move in view as you step through with the arrow
-       keys. "center" (rather than "nearest") scrolls the move-list box on
-       every single step, not just once the move is about to leave the
-       visible area — {block} only ever affects the move-list box itself,
-       never the whole page. */
-    if(isActive) btn.scrollIntoView({ block: 'center' });
+    /* keep the current move in view as you step through — scrolled by
+       hand (setting scrollTop on the move-list box directly) rather than
+       via scrollIntoView, which per spec walks up and scrolls EVERY
+       scrollable ancestor it can find, including the page itself; setting
+       scrollTop touches only this one box, so the page never moves. */
+    if(isActive && listEl){
+      var target = btn.offsetTop - (listEl.clientHeight / 2) + (btn.offsetHeight / 2);
+      listEl.scrollTop = Math.max(0, target);
+    }
   });
 }
 
