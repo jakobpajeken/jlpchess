@@ -896,6 +896,15 @@ function openGameForm(idx){
     '<button type="button" class="btn" id="gf-cancel">Abbrechen</button>' +
     '</div></form>';
   document.getElementById('gf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+  document.getElementById('gf-title-translate').addEventListener('click', async function(){
+    var btn = this;
+    var en = document.getElementById('gf-title-en').value.trim();
+    if(!en){ showToast('Bitte zuerst einen englischen Titel eingeben.', true); return; }
+    btn.disabled = true;
+    try{ document.getElementById('gf-title-de').value = await translateEnToDe(en); }
+    catch(err){ showToast('Übersetzung fehlgeschlagen.', true); }
+    btn.disabled = false;
+  });
   document.getElementById('game-form').addEventListener('submit', async function(e){
     e.preventDefault();
     var titleEn = document.getElementById('gf-title-en').value.trim();
