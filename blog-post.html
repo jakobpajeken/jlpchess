@@ -355,24 +355,29 @@ var pieceFallbackGlyph = {
 
 var embeddedGameWidgets = []; /* { titleEl, title, fallbackTitle } — re-translated on lang toggle */
 
+function isJakobBlack(headers){
+  return !!(headers && headers.black && /pajeken/i.test(headers.black));
+}
 function createGameWidget(container, game){
   container.classList.add('embedded-game');
+  container.tabIndex = 0; /* focusable, so arrow keys can target this specific widget when several are on one page */
   container.innerHTML =
     '<div class="board-wrap">' +
-      '<div class="player-label player-black"><span class="side-dot"></span><span data-role="black-name">Black</span></div>' +
+      '<div class="player-label" data-role="player-top"><span class="side-dot"></span><span data-role="top-name">Black</span></div>' +
       '<div class="board-frame">' +
-        '<div class="ranks-col" aria-hidden="true"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div>' +
+        '<div class="ranks-col" data-role="ranks" aria-hidden="true"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div>' +
         '<div class="board-and-files">' +
           '<div class="chess-board" aria-label="Chess board"></div>' +
-          '<div class="files-row" aria-hidden="true"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div>' +
+          '<div class="files-row" data-role="files" aria-hidden="true"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div>' +
         '</div>' +
       '</div>' +
-      '<div class="player-label player-white"><span class="side-dot"></span><span data-role="white-name">White</span></div>' +
+      '<div class="player-label" data-role="player-bottom"><span class="side-dot"></span><span data-role="bottom-name">White</span></div>' +
       '<div class="board-nav">' +
         '<button type="button" data-nav="start">|«</button>' +
         '<button type="button" data-nav="prev">«</button>' +
         '<button type="button" data-nav="next">»</button>' +
         '<button type="button" data-nav="end">»|</button>' +
+        '<button type="button" data-nav="flip" aria-label="Flip board" title="Flip board">⇅</button>' +
       '</div>' +
     '</div>' +
     '<div class="game-meta">' +
@@ -387,10 +392,16 @@ function createGameWidget(container, game){
   var titleEl = container.querySelector('[data-role="title"]');
   var infoEl = container.querySelector('[data-role="info"]');
   var errorEl = container.querySelector('[data-role="error"]');
-  var whiteNameEl = container.querySelector('[data-role="white-name"]');
-  var blackNameEl = container.querySelector('[data-role="black-name"]');
+  var topEl = container.querySelector('[data-role="player-top"]');
+  var bottomEl = container.querySelector('[data-role="player-bottom"]');
+  var topNameEl = container.querySelector('[data-role="top-name"]');
+  var bottomNameEl = container.querySelector('[data-role="bottom-name"]');
+  var ranksEl = container.querySelector('[data-role="ranks"]');
+  var filesEl = container.querySelector('[data-role="files"]');
 
   var engine = null, historyVerbose = [], moveIndex = 0;
+  var orientation = 'white'; /* 'white' = normal view, 'black' = flipped */
+  var whiteName = 'White', blackName = 'Black';
 
   function buildBoardSquares(){
     boardEl.innerHTML = '';
@@ -419,23 +430,52 @@ function createGameWidget(container, game){
   function renderPosition(fen){
     var rows = fen.split(' ')[0].split('/');
     var squares = boardEl.children;
+    var flipped = orientation === 'black';
     for(var r = 0; r < 8; r++){
       var col = 0;
       for(var i = 0; i < rows[r].length; i++){
         var ch = rows[r][i];
         if(/\d/.test(ch)){
           var empty = parseInt(ch, 10);
-          for(var e = 0; e < empty; e++){ squares[r * 8 + col].innerHTML = ''; col++; }
+          for(var e = 0; e < empty; e++){
+            var emptyIdx = flipped ? (7 - r) * 8 + (7 - col) : r * 8 + col;
+            squares[emptyIdx].innerHTML = '';
+            col++;
+          }
         } else {
           var isWhite = ch === ch.toUpperCase();
           var pieceKey = (isWhite ? 'w' : 'b') + ch.toUpperCase();
-          var sqEl = squares[r * 8 + col];
+          var pieceIdx = flipped ? (7 - r) * 8 + (7 - col) : r * 8 + col;
+          var sqEl = squares[pieceIdx];
           sqEl.innerHTML = '';
           sqEl.appendChild(makePieceEl(pieceKey, isWhite));
           col++;
         }
       }
     }
+  }
+  function renderCoordinates(){
+    var flipped = orientation === 'black';
+    var ranks = flipped ? ['1','2','3','4','5','6','7','8'] : ['8','7','6','5','4','3','2','1'];
+    var files = flipped ? ['h','g','f','e','d','c','b','a'] : ['a','b','c','d','e','f','g','h'];
+    if(ranksEl) ranksEl.innerHTML = ranks.map(function(r){ return '<span>' + r + '</span>'; }).join('');
+    if(filesEl) filesEl.innerHTML = files.map(function(f){ return '<span>' + f + '</span>'; }).join('');
+  }
+  function applyPlayerLabels(){
+    if(!topEl || !bottomEl) return;
+    var flipped = orientation === 'black';
+    topEl.classList.remove('player-black', 'player-white');
+    bottomEl.classList.remove('player-black', 'player-white');
+    topEl.classList.add(flipped ? 'player-white' : 'player-black');
+    bottomEl.classList.add(flipped ? 'player-black' : 'player-white');
+    if(topNameEl) topNameEl.textContent = flipped ? whiteName : blackName;
+    if(bottomNameEl) bottomNameEl.textContent = flipped ? blackName : whiteName;
+  }
+  function setOrientation(newOrientation){
+    orientation = newOrientation;
+    renderCoordinates();
+    if(engine) renderPosition(engine.fen());
+    applyPlayerLabels();
   }
   function makeMoveBtn(san, ply){
     var btn = document.createElement('button');
