@@ -1244,7 +1244,7 @@ function makeMoveBtn(san, ply){
   btn.className = 'move-btn';
   btn.textContent = san;
   btn.dataset.ply = ply;
-  btn.addEventListener('click', function(){ goToPly(ply); });
+  btn.addEventListener('click', function(){ manualGoToPly(ply); });
   return btn;
 }
 
@@ -1405,13 +1405,15 @@ function initGamesWidget(){
 
   var btnStart = document.getElementById('nav-start');
   var btnPrev = document.getElementById('nav-prev');
+  var btnPlay = document.getElementById('nav-play');
   var btnNext = document.getElementById('nav-next');
   var btnEnd = document.getElementById('nav-end');
   var btnFlip = document.getElementById('nav-flip');
-  if(btnStart) btnStart.addEventListener('click', function(){ goToPly(0); });
-  if(btnPrev) btnPrev.addEventListener('click', function(){ goToPly(Math.max(0, moveIndex - 1)); });
-  if(btnNext) btnNext.addEventListener('click', function(){ goToPly(Math.min(historyVerbose.length, moveIndex + 1)); });
-  if(btnEnd) btnEnd.addEventListener('click', function(){ goToPly(historyVerbose.length); });
+  if(btnStart) btnStart.addEventListener('click', function(){ manualGoToPly(0); });
+  if(btnPrev) btnPrev.addEventListener('click', function(){ manualGoToPly(Math.max(0, moveIndex - 1)); });
+  if(btnPlay) btnPlay.addEventListener('click', function(){ togglePlay(); });
+  if(btnNext) btnNext.addEventListener('click', function(){ manualGoToPly(Math.min(historyVerbose.length, moveIndex + 1)); });
+  if(btnEnd) btnEnd.addEventListener('click', function(){ manualGoToPly(historyVerbose.length); });
   if(btnFlip) btnFlip.addEventListener('click', function(){ setOrientation(boardOrientation === 'black' ? 'white' : 'black'); });
 
   /* Adding games is restricted: this panel only unhides for whoever opens
