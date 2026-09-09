@@ -1040,8 +1040,10 @@ function openBlogForm(idx){
     var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
     var before = bodyTextarea.value.slice(0, start);
     var after = bodyTextarea.value.slice(end);
-    var needsLeadingBreak = before.length && !/\n\s*\n$/.test(before);
-    var needsTrailingBreak = after.length && !/^\s*\n/.test(after);
+    /* needs a full BLANK line (two newlines), not just one — see the
+       matching comment on the image-insert handler above for why */
+    var needsLeadingBreak = before.length && (before.match(/\n*$/) || [''])[0].length < 2;
+    var needsTrailingBreak = after.length && (after.match(/^\n*/) || [''])[0].length < 2;
     var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
     bodyTextarea.value = before + insertText + after;
     var caretPos = (before + insertText).length;
