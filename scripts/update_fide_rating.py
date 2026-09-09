@@ -79,16 +79,39 @@ def extract_world_rank(html: str) -> int:
     return int(match.group(1))
 
 
+def load_existing() -> dict:
+    try:
+        with open(OUTPUT_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
 def main() -> None:
     html = fetch_html(PROFILE_URL)
     rating = extract_classical_rating(html)
     world_rank = extract_world_rank(html)
 
     now = datetime.date.today()
+    current_period = now.strftime("%Y-%b")
+
+    existing = load_existing()
+    prev_peak = existing.get("peak")
+    prev_peak_period = existing.get("peakPeriod")
+    if isinstance(prev_peak, int) and prev_peak >= rating:
+        # no new high this month — keep the existing peak and the period
+        # it was actually reached in
+        peak, peak_period = prev_peak, (prev_peak_period or current_period)
+    else:
+        # either no peak recorded yet, or this month's rating is a new high
+        peak, peak_period = rating, current_period
+
     data = {
         "classical": rating,
         "worldRank": world_rank,
-        "period": now.strftime("%Y-%b"),
+        "peak": peak,
+        "peakPeriod": peak_period,
+        "period": current_period,
         "source": PROFILE_URL,
         "updated": now.isoformat(),
     }
@@ -97,7 +120,10 @@ def main() -> None:
         json.dump(data, f, indent=2)
         f.write("\n")
 
-    print(f"Updated {OUTPUT_PATH} -> classical={rating}, worldRank={world_rank}")
+    print(
+        f"Updated {OUTPUT_PATH} -> classical={rating}, worldRank={world_rank}, "
+        f"peak={peak} ({peak_period})"
+    )
 
 
 if __name__ == "__main__":
