@@ -280,10 +280,28 @@ function applyLang(lang){
     refreshEmbeddedGameTitles();
   }
 }
+/* ?lang=de / ?lang=en in the URL — lets a link to this post open directly
+   in a given language (e.g. blog-post.html?slug=x&lang=de), same idea as
+   on index.html. Takes priority over the remembered choice; the URL is
+   only rewritten to include it once the visitor actually switches. */
+function updateUrlLang(lang){
+  try{
+    var url = new URL(location.href);
+    url.searchParams.set('lang', lang);
+    history.replaceState(null, '', url.pathname + url.search + url.hash);
+  }catch(e){}
+}
 document.querySelectorAll('.langtoggle button').forEach(function(btn){
-  btn.addEventListener('click', function(){ applyLang(btn.getAttribute('data-lang')); });
+  btn.addEventListener('click', function(){
+    var lang = btn.getAttribute('data-lang');
+    applyLang(lang);
+    updateUrlLang(lang);
+  });
 });
 (function(){
+  var urlLang = null;
+  try{ urlLang = new URLSearchParams(location.search).get('lang'); }catch(e){}
+  if(urlLang === 'de' || urlLang === 'en'){ applyLang(urlLang); return; }
   var saved = null;
   try{ saved = localStorage.getItem('jlp-lang'); }catch(e){}
   if(saved === 'de') applyLang('de');
