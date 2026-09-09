@@ -627,6 +627,13 @@ function createGameWidget(container, game){
   container.querySelector('[data-nav="prev"]').addEventListener('click', function(){ goToPly(Math.max(0, moveIndex - 1)); });
   container.querySelector('[data-nav="next"]').addEventListener('click', function(){ goToPly(Math.min(historyVerbose.length, moveIndex + 1)); });
   container.querySelector('[data-nav="end"]').addEventListener('click', function(){ goToPly(historyVerbose.length); });
+  container.querySelector('[data-nav="flip"]').addEventListener('click', function(){ setOrientation(orientation === 'black' ? 'white' : 'black'); });
+  container.addEventListener('keydown', function(e){
+    var tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+    if(tag === 'input' || tag === 'textarea') return;
+    if(e.key === 'ArrowLeft'){ goToPly(Math.max(0, moveIndex - 1)); e.preventDefault(); }
+    else if(e.key === 'ArrowRight'){ goToPly(Math.min(historyVerbose.length, moveIndex + 1)); e.preventDefault(); }
+  });
   return { ok: true };
 }
 /* Testimonial quotes and game titles can be stored either as a plain
