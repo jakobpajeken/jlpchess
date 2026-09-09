@@ -936,7 +936,7 @@ document.querySelectorAll('[data-goto-tab]').forEach(function(el){
     showTab(el.getAttribute('data-goto-tab'));
   });
 });
-/* deep link support, e.g. coaching.html#blog coming back from a blog post */
+/* deep link support, e.g. index.html#blog coming back from a blog post */
 (function(){
   var hashTab = location.hash.replace('#', '');
   if(hashTab && document.getElementById(hashTab) && document.querySelector('.tabbar button[data-tab="' + hashTab + '"]')){
