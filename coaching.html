@@ -1087,9 +1087,11 @@ function highlightMoveList(){
     var isActive = parseInt(btn.dataset.ply, 10) === moveIndex;
     btn.classList.toggle('active', isActive);
     /* keep the current move in view as you step through with the arrow
-       keys — "nearest" only scrolls the move-list box itself, not the
-       whole page */
-    if(isActive) btn.scrollIntoView({ block: 'nearest' });
+       keys. "center" (rather than "nearest") scrolls the move-list box on
+       every single step, not just once the move is about to leave the
+       visible area — {block} only ever affects the move-list box itself,
+       never the whole page. */
+    if(isActive) btn.scrollIntoView({ block: 'center' });
   });
 }
 
