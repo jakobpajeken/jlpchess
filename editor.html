@@ -661,11 +661,15 @@ function calcReadTime(paragraphs, lang){
   var mins = Math.max(1, Math.round(words / 200));
   return lang === 'de' ? (mins + ' Min. Lesezeit') : (mins + ' min read');
 }
-/* ---------- machine translation (English -> German), via the free MyMemory
-   API — used by the "Ins Deutsche übersetzen" button. Results are always
-   editable afterward; this is a starting point, not a final translation. ---- */
+/* ---------- machine translation (English -> German), via Google Translate's
+   public (unofficial, no API key) endpoint — used by the "Ins Deutsche
+   übersetzen" button. Results are always editable afterward; this is a
+   starting point, not a final translation.
+   (MyMemory's free API was tried first, but its crowdsourced translation
+   memory can return confidently-wrong, completely unrelated text for
+   ordinary sentences — not usable as a silent default.) ---- */
 function splitForTranslation(text, maxLen){
-  maxLen = maxLen || 450;
+  maxLen = maxLen || 1800; /* Google's endpoint handles full paragraphs fine; this is just a safety cap for pathologically long text */
   if(text.length <= maxLen) return [text];
   var sentences = text.match(/[^.!?]+[.!?]+(\s+|$)|[^.!?]+$/g) || [text];
   var chunks = [], cur = '';
@@ -679,14 +683,15 @@ function splitForTranslation(text, maxLen){
 async function translateChunk(text){
   var trimmed = text.trim();
   if(!trimmed) return '';
-  var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(trimmed) + '&langpair=en|de';
+  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=de&dt=t&q=' + encodeURIComponent(trimmed);
   var resp = await fetch(url);
   if(!resp.ok) throw new Error('Übersetzungsdienst nicht erreichbar (HTTP ' + resp.status + ').');
   var data = await resp.json();
-  var translated = data && data.responseData && data.responseData.translatedText;
-  if(!translated || /MYMEMORY WARNING|INVALID LANGPAIR|NO QUERY SPECIFIED/i.test(translated)){
-    throw new Error('Übersetzungsdienst hat keine Übersetzung geliefert (Limit erreicht?).');
+  if(!Array.isArray(data) || !Array.isArray(data[0])){
+    throw new Error('Übersetzungsdienst hat keine Übersetzung geliefert.');
   }
+  var translated = data[0].map(function(seg){ return (seg && seg[0]) || ''; }).join('');
+  if(!translated.trim()) throw new Error('Übersetzungsdienst hat keine Übersetzung geliefert.');
   return translated;
 }
 async function translateEnToDe(text){
