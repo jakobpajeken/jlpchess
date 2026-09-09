@@ -1133,20 +1133,20 @@ function renderPosition(fen){
     var col = 0;
     for(var i = 0; i < rows[r].length; i++){
       var ch = rows[r][i];
-      /* flipped = 180° rotation of the board (both rank and file reversed),
-         which is what "viewing from Black's side" actually looks like */
-      var idx = flipped ? (7 - r) * 8 + (7 - col) : r * 8 + col;
       if(/\d/.test(ch)){
         var empty = parseInt(ch, 10);
         for(var e = 0; e < empty; e++){
-          idx = flipped ? (7 - r) * 8 + (7 - col) : r * 8 + col;
-          squares[idx].innerHTML = '';
+          /* flipped = 180° rotation of the board (both rank and file
+             reversed), which is what "viewing from Black's side" looks like */
+          var emptyIdx = flipped ? (7 - r) * 8 + (7 - col) : r * 8 + col;
+          squares[emptyIdx].innerHTML = '';
           col++;
         }
       } else {
         var isWhite = ch === ch.toUpperCase();
         var pieceKey = (isWhite ? 'w' : 'b') + ch.toUpperCase();
-        var sqEl = squares[idx];
+        var pieceIdx = flipped ? (7 - r) * 8 + (7 - col) : r * 8 + col;
+        var sqEl = squares[pieceIdx];
         sqEl.innerHTML = '';
         sqEl.appendChild(makePieceEl(pieceKey, isWhite));
         col++;
