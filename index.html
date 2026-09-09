@@ -1341,11 +1341,7 @@ function loadGameObject(g){
   var infoEl = document.getElementById('game-info');
   var resolvedTitle = pickLang(g.title) || (whiteName + ' vs ' + blackName);
   if(titleEl) titleEl.textContent = resolvedTitle;
-  var infoBits = [];
-  if(headers.event) infoBits.push(headers.event);
-  if(headers.date && headers.date.indexOf('?') === -1) infoBits.push(formatPgnDate(headers.date));
-  if(headers.result) infoBits.push(headers.result);
-  if(infoEl) infoEl.textContent = g.meta || infoBits.join(' · ');
+  if(infoEl) infoEl.textContent = buildGameInfoText(headers, g.meta);
 
   var err = document.getElementById('pgn-error');
   if(err) err.textContent = '';
