@@ -1292,6 +1292,7 @@ function parsePgnHeaders(pgnText){
 }
 
 function loadGameObject(g){
+  stopPlay();
   currentGame = g;
   gameEngine = new Chess();
   var ok = gameEngine.load_pgn(g.pgn, { sloppy: true });
@@ -1573,10 +1574,10 @@ document.addEventListener('keydown', function(e){
   if(tag === 'input' || tag === 'textarea') return;
   if(!gameEngine) return;
   if(e.key === 'ArrowLeft'){
-    goToPly(Math.max(0, moveIndex - 1));
+    manualGoToPly(Math.max(0, moveIndex - 1));
     e.preventDefault();
   } else if(e.key === 'ArrowRight'){
-    goToPly(Math.min(historyVerbose.length, moveIndex + 1));
+    manualGoToPly(Math.min(historyVerbose.length, moveIndex + 1));
     e.preventDefault();
   }
 });
