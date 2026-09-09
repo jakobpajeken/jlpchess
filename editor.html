@@ -129,6 +129,52 @@
   .cover-preview img{width:100%;height:100%;object-fit:cover;display:block;}
   .cover-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
   .inline-image-row{display:flex;align-items:center;gap:8px;}
+  .translate-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 8px;}
+  .translate-row .status{font-size:0.82rem;color:var(--ivory-dim);}
+
+  /* live PGN preview in the "Partie" sub-form — same visual design as the
+     Partienachspiel tool on the career page, so you can see right away
+     whether a pasted PGN actually loads before saving the post. */
+  .game-preview{margin-top:6px;padding:20px;background:var(--surface);border:1px solid var(--line);
+    display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start;}
+  .game-preview .board-wrap{display:flex;flex-direction:column;gap:8px;align-items:center;}
+  .game-preview .player-label{font-family:'Spectral',serif;font-size:1rem;color:var(--ivory);
+    display:flex;align-items:center;gap:8px;width:min(260px,70vw);}
+  .game-preview .player-label .side-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .game-preview .player-label.player-black .side-dot{background:var(--piece-black);border:1px solid var(--ivory-dim);}
+  .game-preview .player-label.player-white .side-dot{background:var(--piece-white);}
+  .game-preview .board-frame{display:flex;gap:5px;}
+  .game-preview .ranks-col{display:flex;flex-direction:column;
+    height:min(260px,70vw);width:12px;font-size:0.62rem;color:var(--ivory-dim);text-align:center;}
+  .game-preview .ranks-col span{flex:1;display:flex;align-items:center;justify-content:center;}
+  .game-preview .board-and-files{display:flex;flex-direction:column;gap:3px;}
+  .game-preview .chess-board{width:min(260px,70vw);aspect-ratio:1;display:grid;
+    grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border:1px solid var(--line);}
+  .game-preview .files-row{display:flex;width:min(260px,70vw);}
+  .game-preview .files-row span{flex:1;text-align:center;font-size:0.62rem;color:var(--ivory-dim);}
+  .game-preview .chess-square{display:flex;align-items:center;justify-content:center;user-select:none;}
+  .game-preview .chess-square.light{background:var(--sq-light);}
+  .game-preview .chess-square.dark{background:var(--sq-dark);}
+  .game-preview .piece-img{width:94%;height:94%;display:block;pointer-events:none;}
+  .game-preview .piece-fallback{font-size:clamp(14px,3.4vw,20px);line-height:1;user-select:none;}
+  .game-preview .piece-fallback.piece-w{color:var(--piece-white);
+    text-shadow:-1px -1px 0 var(--piece-black),1px -1px 0 var(--piece-black),-1px 1px 0 var(--piece-black),1px 1px 0 var(--piece-black);}
+  .game-preview .piece-fallback.piece-b{color:var(--piece-black);
+    text-shadow:-1px -1px 0 var(--piece-white),1px -1px 0 var(--piece-white),-1px 1px 0 var(--piece-white),1px 1px 0 var(--piece-white);}
+  .game-preview .board-nav{display:flex;gap:6px;margin-top:2px;}
+  .game-preview .board-nav button{background:none;border:1px solid var(--line);color:var(--ivory-dim);
+    padding:5px 10px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.8rem;}
+  .game-preview .board-nav button:hover{color:var(--gold-bright);border-color:var(--gold);}
+  .game-preview .game-title{font-family:'Spectral',serif;font-size:1.2rem;margin-bottom:4px;color:var(--ivory);}
+  .game-preview .game-info{font-size:0.78rem;color:var(--ivory-dim);margin-bottom:12px;}
+  .game-preview .pgn-error{font-size:0.82rem;color:var(--err);min-height:1.2em;}
+  .game-preview .move-list{display:flex;flex-wrap:wrap;gap:3px 8px;max-height:160px;overflow-y:auto;font-size:0.82rem;}
+  .game-preview .move-num{color:var(--ivory-dim);margin-right:2px;}
+  .game-preview .move-btn{background:none;border:none;color:var(--ivory-dim);cursor:pointer;
+    font-family:'Inter',sans-serif;font-size:0.82rem;padding:1px 4px;}
+  .game-preview .move-btn:hover{color:var(--ivory);}
+  .game-preview .move-btn.active{color:var(--gold-bright);background:rgba(168,130,60,0.14);}
+  @media (max-width:600px){.game-preview{grid-template-columns:1fr;}.game-preview .board-wrap{align-items:flex-start;}}
 
   .toast{
     position:fixed;bottom:24px;right:24px;padding:14px 20px;background:var(--surface-raised);
