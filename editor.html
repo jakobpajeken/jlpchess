@@ -1098,26 +1098,29 @@ function openBlogForm(idx){
 
   document.getElementById('blog-form').addEventListener('submit', async function(e){
     e.preventDefault();
-    var title = document.getElementById('bf-title').value.trim();
-    if(!title){ showToast('Bitte einen Titel eingeben.', true); return; }
-    var bodyText = document.getElementById('bf-body').value.trim();
+    var titleEn = document.getElementById('bf-title-en').value.trim();
+    if(!titleEn){ showToast('Bitte einen englischen Titel eingeben.', true); return; }
+    var bodyEnText = document.getElementById('bf-body-en').value.trim();
+    var bodyDeText = document.getElementById('bf-body-de').value.trim();
+    var bodyEnList = bodyEnText ? bodyEnText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+    var bodyDeList = bodyDeText ? bodyDeText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
     var submitBtn = e.target.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     try{
       var imagePath = p.image || '';
       if(coverRemoved) imagePath = '';
-      else if(pendingCoverFile) imagePath = await saveImageFile(pendingCoverFile, title);
+      else if(pendingCoverFile) imagePath = await saveImageFile(pendingCoverFile, titleEn);
       var entry = {
-        title: title,
-        slug: editing ? (p.slug || uniqueSlug(title, idx)) : uniqueSlug(title, null),
-        category: document.getElementById('bf-category').value.trim(),
-        date: document.getElementById('bf-date').value.trim(),
-        readtime: document.getElementById('bf-readtime').value.trim(),
+        title: joinLangValue(titleEn, document.getElementById('bf-title-de').value),
+        slug: editing ? (p.slug || uniqueSlug(titleEn, idx)) : uniqueSlug(titleEn, null),
+        category: joinLangValue(document.getElementById('bf-category-en').value, document.getElementById('bf-category-de').value),
+        date: document.getElementById('bf-date').value,
         image: imagePath,
-        excerpt: document.getElementById('bf-excerpt').value.trim(),
-        lead: document.getElementById('bf-lead').value.trim(),
-        body: bodyText ? bodyText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [],
-        quote: document.getElementById('bf-quote').value.trim(),
+        imageCredit: document.getElementById('bf-cover-credit').value.trim(),
+        excerpt: joinLangValue(document.getElementById('bf-excerpt-en').value, document.getElementById('bf-excerpt-de').value),
+        lead: joinLangValue(document.getElementById('bf-lead-en').value, document.getElementById('bf-lead-de').value),
+        body: { en: bodyEnList, de: bodyDeList },
+        quote: joinLangValue(document.getElementById('bf-quote-en').value, document.getElementById('bf-quote-de').value),
         games: postGames
       };
       if(editing) blogPosts[idx] = entry; else blogPosts.push(entry);
