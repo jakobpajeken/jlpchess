@@ -265,6 +265,7 @@ function applyLang(lang){
   });
   document.documentElement.lang = lang;
   try{ localStorage.setItem('jlp-lang', lang); }catch(e){}
+  if(typeof refreshEmbeddedGameTitles === 'function') refreshEmbeddedGameTitles();
 }
 document.querySelectorAll('.langtoggle button').forEach(function(btn){
   btn.addEventListener('click', function(){ applyLang(btn.getAttribute('data-lang')); });
