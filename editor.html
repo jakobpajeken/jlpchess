@@ -631,8 +631,12 @@ function openBlogForm(idx){
     var editingGame = gIdx != null;
     var g = editingGame ? postGames[gIdx] : { id: makeGameId(), title: '', meta: '', pgn: '' };
     var titleSplit = splitLangValue(g.title);
+    /* a plain <div>, not a <form> — this sits inside the outer #blog-form,
+       and browsers silently drop a nested <form> tag (forms cannot nest),
+       so the "save" action here is a regular button with a click handler
+       rather than a submit event. */
     gamesFormSlot.innerHTML =
-      '<form class="entry-form" id="bf-game-form">' +
+      '<div class="entry-form" id="bf-game-form">' +
       '<h3>' + (editingGame ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
       '<div class="form-row">' +
       '<div class="field"><label>Titel (Englisch)</label><input type="text" id="bfg-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan"></div>' +
@@ -642,12 +646,11 @@ function openBlogForm(idx){
       '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. — aus deiner Schach-App oder Turnierseite kopieren.</span>' +
       '<textarea id="bfg-pgn" class="tall mono" placeholder="[Event &quot;...&quot;]&#10;[White &quot;...&quot;]&#10;[Black &quot;...&quot;]&#10;...&#10;1. e4 e5 2. Nf3 ...">' + escapeHtml(g.pgn) + '</textarea></div>' +
       '<div class="form-actions">' +
-      '<button type="submit" class="btn solid">Übernehmen</button>' +
+      '<button type="button" class="btn solid" id="bfg-save">Übernehmen</button>' +
       '<button type="button" class="btn" id="bfg-cancel">Abbrechen</button>' +
-      '</div></form>';
+      '</div></div>';
     document.getElementById('bfg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
-    document.getElementById('bf-game-form').addEventListener('submit', function(e){
-      e.preventDefault();
+    document.getElementById('bfg-save').addEventListener('click', function(){
       var titleEn = document.getElementById('bfg-title-en').value.trim();
       var entry = {
         id: g.id,
