@@ -479,11 +479,15 @@ function renderBlog(){
   list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openBlogForm(parseInt(b.dataset.edit, 10)); }); });
   list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteBlog(parseInt(b.dataset.del, 10)); }); });
 }
+function makeGameId(){
+  return 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
 function openBlogForm(idx){
   var editing = idx != null;
-  var p = editing ? blogPosts[idx] : { title:'', slug:'', category:'', date:'', readtime:'', excerpt:'', lead:'', body:[], quote:'', image:'' };
+  var p = editing ? blogPosts[idx] : { title:'', slug:'', category:'', date:'', readtime:'', excerpt:'', lead:'', body:[], quote:'', image:'', games:[] };
   var pendingCoverFile = null; /* newly picked cover photo, not saved to disk yet */
   var coverRemoved = false;
+  var postGames = (p.games || []).map(function(g){ return { id: g.id || makeGameId(), title: g.title, meta: g.meta || '', pgn: g.pgn || '' }; });
   var slot = document.getElementById('blog-form-slot');
   slot.innerHTML =
     '<form class="entry-form" id="blog-form">' +
