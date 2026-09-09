@@ -500,7 +500,7 @@ function createGameWidget(container, game){
   container.querySelector('[data-nav="end"]').addEventListener('click', function(){ goToPly(historyVerbose.length); });
 }
 function refreshEmbeddedGameTitles(){
-  embeddedGameWidgets.forEach(function(w){
+  (embeddedGameWidgets || []).forEach(function(w){
     w.titleEl.textContent = pickLang(w.title) || w.fallbackTitle;
   });
 }
