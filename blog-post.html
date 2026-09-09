@@ -268,7 +268,15 @@ function applyLang(lang){
   });
   document.documentElement.lang = lang;
   try{ localStorage.setItem('jlp-lang', lang); }catch(e){}
-  if(typeof refreshEmbeddedGameTitles === 'function') refreshEmbeddedGameTitles();
+  /* the loaded post's title/category/date/read time/body/quote are all
+     language-dependent now (translated body, formatted date), so the whole
+     post is re-rendered rather than patched — simpler and always correct,
+     at the small cost of resetting any embedded game's move navigation */
+  if(loadedRealPost && currentRealPost && typeof renderRealPost === 'function'){
+    renderRealPost(currentRealPost);
+  } else if(typeof refreshEmbeddedGameTitles === 'function'){
+    refreshEmbeddedGameTitles();
+  }
 }
 document.querySelectorAll('.langtoggle button').forEach(function(btn){
   btn.addEventListener('click', function(){ applyLang(btn.getAttribute('data-lang')); });
