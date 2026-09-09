@@ -1055,6 +1055,15 @@ var currentGame = null;
 var historyVerbose = [];
 var moveIndex = 0;
 var gameEngine = null;
+/* 'white' = normal view (White at the bottom); 'black' = flipped (Black at
+   the bottom). Defaults to flipped automatically whenever Jakob is playing
+   Black, and can be overridden per game with the flip button. */
+var boardOrientation = 'white';
+var currentWhiteName = 'White';
+var currentBlackName = 'Black';
+function isJakobBlack(headers){
+  return !!(headers && headers.black && /pajeken/i.test(headers.black));
+}
 
 /* Simpler Lichess piece design ("merida" — cleaner, flatter shapes than
    the more ornate default cburnett set; GPLv2+ licensed, safe for this
