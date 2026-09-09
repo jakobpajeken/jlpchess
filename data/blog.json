@@ -1,19 +1,41 @@
 [
   {
-    "title": "SMUK SKAK GM 2026 in Skanderborg",
+    "title": {
+      "en": "SMUK SKAK GM 2026 in Skanderborg",
+      "de": "SMUK SKAK GM 2026 in Skanderborg"
+    },
     "slug": "smuk-skak-gm-2026-in-skanderborg",
-    "category": "Turnierbericht",
-    "date": "09.09.2026",
-    "readtime": "3 min",
+    "category": {
+      "en": "Tournament Report",
+      "de": "Turnierbericht"
+    },
+    "date": "2026-09-09",
     "image": "images/blog/smuk-skak-gm-2026-in-skanderborg-1788970051319.jpg",
-    "excerpt": "From losing my very first game to winning the tournament — and a final round I will certainly never forget.",
-    "lead": "Winning the Smuk Skak GM Tournament in Skanderborg for the second year in a row was a very special result for me — especially considering how the tournament started.",
-    "body": [
-      "In the very first round, I lost to Nikola Kanov from Bulgaria, putting myself under pressure right from the beginning.",
-      "What followed was a great comeback. I managed to recover quickly, win several important games, and work my way back to the top of the standings. With each round, my confidence grew, and suddenly I found myself fighting for first place again. My personal highlight was the game in Round 3.",
-      "[game:gmtua19khyeo6]\nThe final round was absolutely crazy. I had a chance to secure a GM norm, but after a long and extremely complicated game against Gergely Aczel, I reached a point where I honestly thought I was going to lose and was ready to give up. Then, completely unexpectedly, I got one more chance. I managed to turn the game around and fight my way back into it — only for the game to eventually end in a draw.",
-      "Missing the norm was obviously disappointing, but after the way the tournament had started, winning the tournament outright with 6½/9 made the result all the more satisfying. **To go from losing my first game to coming back and winning the tournament for the second year in a row made this one particularly memorable.**"
-    ],
+    "imageCredit": "",
+    "excerpt": {
+      "en": "From losing my very first game to winning the tournament — and a final round I will certainly never forget.",
+      "de": "Von der Niederlage meines allerersten Spiels bis zum Gewinn des Turniers – und einer Endrunde, die ich sicherlich nie vergessen werde."
+    },
+    "lead": {
+      "en": "Winning the Smuk Skak GM Tournament in Skanderborg for the second year in a row was a very special result for me — especially considering how the tournament started.",
+      "de": "Das zweite Jahr in Folge das Smuk Skak GM-Turnier in Skanderborg zu gewinnen, war für mich ein ganz besonderes Ergebnis – vor allem, wenn man bedenkt, wie das Turnier begann."
+    },
+    "body": {
+      "en": [
+        "In the very first round, I lost to Nikola Kanov from Bulgaria, putting myself under pressure right from the beginning.",
+        "What followed was a great comeback. I managed to recover quickly, win several important games, and work my way back to the top of the standings. With each round, my confidence grew, and suddenly I found myself fighting for first place again. My personal highlight was the game in Round 3.",
+        "[game:gmtua19khyeo6]",
+        "The final round was absolutely crazy. I had a chance to secure a GM norm, but after a long and extremely complicated game against Gergely Aczel, I reached a point where I honestly thought I was going to lose and was ready to give up. Then, completely unexpectedly, I got one more chance. I managed to turn the game around and fight my way back into it — only for the game to eventually end in a draw.",
+        "Missing the norm was obviously disappointing, but after the way the tournament had started, winning the tournament outright with 6½/9 made the result all the more satisfying. **To go from losing my first game to coming back and winning the tournament for the second year in a row made this one particularly memorable.**"
+      ],
+      "de": [
+        "Gleich in der ersten Runde verlor ich gegen den Bulgaren Nikola Kanov und setzte mich damit gleich zu Beginn unter Druck.",
+        "Was folgte, war ein großartiges Comeback. Es gelang mir, mich schnell zu erholen, mehrere wichtige Spiele zu gewinnen und mich wieder an die Tabellenspitze vorzuarbeiten. Mit jeder Runde wuchs mein Selbstvertrauen und plötzlich kämpfte ich wieder um den ersten Platz. Mein persönliches Highlight war das Spiel in Runde 3.",
+        "[game:gmtua19khyeo6]",
+        "Die letzte Runde war absolut verrückt. Ich hatte die Chance, mir eine GM-Norm zu sichern, aber nach einem langen und äußerst komplizierten Spiel gegen Gergely Aczel erreichte ich einen Punkt, an dem ich ehrlich dachte, ich würde verlieren und war bereit aufzugeben. Dann bekam ich völlig unerwartet noch eine Chance. Es gelang mir, das Spiel zu drehen und mich wieder ins Spiel zu kämpfen – nur dass das Spiel schließlich unentschieden endete.",
+        "Das Verfehlen der Norm war natürlich enttäuschend, aber nachdem das Turnier so begonnen hatte, machte der Gesamtsieg mit 6½/9 das Ergebnis umso zufriedenstellender. **Dass ich von der Niederlage im ersten Spiel zum zweiten Mal in Folge zurückgekehrt bin und das Turnier gewonnen habe, hat dieses Spiel besonders unvergesslich gemacht.**"
+      ]
+    },
     "quote": "",
     "games": [
       {
