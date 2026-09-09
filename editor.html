@@ -573,6 +573,98 @@ function openBlogForm(idx){
     insertImageBtn.disabled = false;
   });
 
+  /* ---- helper: insert a marker string into the body textarea at the cursor, with blank-line spacing ---- */
+  function insertMarkerIntoBody(marker){
+    var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
+    var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
+    var before = bodyTextarea.value.slice(0, start);
+    var after = bodyTextarea.value.slice(end);
+    var needsLeadingBreak = before.length && !/\n\s*\n$/.test(before);
+    var needsTrailingBreak = after.length && !/^\s*\n/.test(after);
+    var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
+    bodyTextarea.value = before + insertText + after;
+    var caretPos = (before + insertText).length;
+    bodyTextarea.focus();
+    bodyTextarea.setSelectionRange(caretPos, caretPos);
+  }
+
+  /* ---- games embedded in this post (design follows the "Partienachspiel"
+     tool on the career page; can be inserted at any point in the body text
+     via the [game:ID] marker, parallel to the image marker above) ---- */
+  var gamesListEl = document.getElementById('bf-games-list');
+  var gamesFormSlot = document.getElementById('bf-games-form-slot');
+  function renderPostGames(){
+    if(!postGames.length){ gamesListEl.innerHTML = '<div class="empty-note">Noch keine Partien in diesem Beitrag.</div>'; return; }
+    gamesListEl.innerHTML = '';
+    postGames.forEach(function(g, gIdx){
+      var row = document.createElement('div');
+      row.className = 'item-row';
+      row.innerHTML =
+        '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(g.title) || '(ohne Titel)') + '</div>' +
+        '<div class="item-sub">' + escapeHtml(g.meta || '') + '</div></div>' +
+        '<div class="item-actions">' +
+        '<button type="button" class="btn small" data-insert="' + gIdx + '">In Text einfügen</button>' +
+        '<button type="button" class="btn small" data-edit="' + gIdx + '">Bearbeiten</button>' +
+        '<button type="button" class="btn small danger" data-del="' + gIdx + '">Löschen</button>' +
+        '</div>';
+      gamesListEl.appendChild(row);
+    });
+    gamesListEl.querySelectorAll('[data-insert]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var g = postGames[parseInt(b.dataset.insert, 10)];
+        insertMarkerIntoBody('[game:' + g.id + ']');
+        showToast('Partie in Text eingefügt ✓');
+      });
+    });
+    gamesListEl.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openPostGameForm(parseInt(b.dataset.edit, 10)); }); });
+    gamesListEl.querySelectorAll('[data-del]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var gIdx = parseInt(b.dataset.del, 10);
+        if(!confirm('Diese Partie wirklich aus dem Beitrag entfernen?')) return;
+        postGames.splice(gIdx, 1);
+        renderPostGames();
+        showToast('Partie entfernt. Eine vorhandene [game:...]-Markierung im Text bitte manuell löschen.');
+      });
+    });
+  }
+  function openPostGameForm(gIdx){
+    var editingGame = gIdx != null;
+    var g = editingGame ? postGames[gIdx] : { id: makeGameId(), title: '', meta: '', pgn: '' };
+    var titleSplit = splitLangValue(g.title);
+    gamesFormSlot.innerHTML =
+      '<form class="entry-form" id="bf-game-form">' +
+      '<h3>' + (editingGame ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
+      '<div class="form-row">' +
+      '<div class="field"><label>Titel (Englisch)</label><input type="text" id="bfg-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan"></div>' +
+      '<div class="field"><label>Titel (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Titel auch auf Deutsch angezeigt werden soll.</span><input type="text" id="bfg-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Pflichtsieg gegen GM Iniyan"></div>' +
+      '</div>' +
+      '<div class="field"><label>Kurzbeschreibung (optional)</label><input type="text" id="bfg-meta" value="' + escapeHtml(g.meta) + '" placeholder="z. B. Riga Tech op-A · Runde 9"></div>' +
+      '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. — aus deiner Schach-App oder Turnierseite kopieren.</span>' +
+      '<textarea id="bfg-pgn" class="tall mono" placeholder="[Event &quot;...&quot;]&#10;[White &quot;...&quot;]&#10;[Black &quot;...&quot;]&#10;...&#10;1. e4 e5 2. Nf3 ...">' + escapeHtml(g.pgn) + '</textarea></div>' +
+      '<div class="form-actions">' +
+      '<button type="submit" class="btn solid">Übernehmen</button>' +
+      '<button type="button" class="btn" id="bfg-cancel">Abbrechen</button>' +
+      '</div></form>';
+    document.getElementById('bfg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
+    document.getElementById('bf-game-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      var titleEn = document.getElementById('bfg-title-en').value.trim();
+      var entry = {
+        id: g.id,
+        title: joinLangValue(titleEn, document.getElementById('bfg-title-de').value) || 'Unbenannte Partie',
+        meta: document.getElementById('bfg-meta').value.trim(),
+        pgn: document.getElementById('bfg-pgn').value.trim()
+      };
+      if(!entry.pgn){ showToast('Bitte einen PGN-Text einfügen.', true); return; }
+      if(editingGame) postGames[gIdx] = entry; else postGames.push(entry);
+      gamesFormSlot.innerHTML = '';
+      renderPostGames();
+      showToast('Partie übernommen ✓ (wird beim Speichern des Beitrags mitgespeichert)');
+    });
+  }
+  document.getElementById('bf-games-add-btn').addEventListener('click', function(){ openPostGameForm(null); });
+  renderPostGames();
+
   document.getElementById('blog-form').addEventListener('submit', async function(e){
     e.preventDefault();
     var title = document.getElementById('bf-title').value.trim();
