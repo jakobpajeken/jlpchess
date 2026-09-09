@@ -666,6 +666,89 @@ async function deleteTesti(idx){
   try{ await writeJson('testimonials.json', testimonials); renderTesti(); showToast('Testimonial gelöscht.'); }
   catch(err){ showToast('Löschen fehlgeschlagen.', true); }
 }
+
+/* ============================================================
+   ERFOLGE (Career results: titles/norms, team, national, full list)
+   ============================================================ */
+var RESULTS_META = {
+  titles: { label: 'Normen & Titel', listId: 'er-titles-list', addBtnId: 'er-titles-add', formSlotId: 'er-titles-form-slot' },
+  team: { label: 'Mannschaftserfolge', listId: 'er-team-list', addBtnId: 'er-team-add', formSlotId: 'er-team-form-slot' },
+  national: { label: 'Nationale Erfolge', listId: 'er-national-list', addBtnId: 'er-national-add', formSlotId: 'er-national-form-slot' },
+  full: { label: 'Weiterer Turniererfolg', listId: 'er-full-list', addBtnId: 'er-full-add', formSlotId: 'er-full-form-slot' }
+};
+function renderResultsList(cat){
+  var meta = RESULTS_META[cat];
+  var list = document.getElementById(meta.listId);
+  var arr = results[cat] || [];
+  if(!arr.length){ list.innerHTML = '<div class="empty-note">Noch keine Einträge. Die Website zeigt bis dahin ihre eingebauten Standardeinträge.</div>'; return; }
+  list.innerHTML = '';
+  arr.forEach(function(entry, idx){
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML =
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(entry)) + '</div></div>' +
+      '<div class="item-actions">' +
+      '<button type="button" class="btn small" data-edit-result="' + cat + ':' + idx + '">Bearbeiten</button>' +
+      '<button type="button" class="btn small danger" data-del-result="' + cat + ':' + idx + '">Löschen</button>' +
+      '</div>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll('[data-edit-result]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var parts = b.dataset.editResult.split(':');
+      openResultForm(parts[0], parseInt(parts[1], 10));
+    });
+  });
+  list.querySelectorAll('[data-del-result]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var parts = b.dataset.delResult.split(':');
+      deleteResultEntry(parts[0], parseInt(parts[1], 10));
+    });
+  });
+}
+function renderAllResultLists(){
+  Object.keys(RESULTS_META).forEach(renderResultsList);
+}
+function openResultForm(cat, idx){
+  var editing = idx != null;
+  var meta = RESULTS_META[cat];
+  var current = editing ? results[cat][idx] : '';
+  var split = splitLangValue(current);
+  var slot = document.getElementById(meta.formSlotId);
+  slot.innerHTML =
+    '<form class="entry-form" id="result-form-' + cat + '">' +
+    '<h3>' + (editing ? 'Eintrag bearbeiten' : 'Neuer Eintrag') + ' &mdash; ' + meta.label + '</h3>' +
+    '<div class="field"><label>Text (Englisch)</label><input type="text" id="rf-en" value="' + escapeHtml(split.en) + '" placeholder="z. B. 2026 — Winner, Example Open"></div>' +
+    '<div class="field"><label>Text (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Text auch auf Deutsch angezeigt werden soll.</span><input type="text" id="rf-de" value="' + escapeHtml(split.de) + '" placeholder="z. B. 2026 — Sieger, Beispiel-Open"></div>' +
+    '<div class="form-actions">' +
+    '<button type="submit" class="btn solid">Speichern</button>' +
+    '<button type="button" class="btn" id="rf-cancel">Abbrechen</button>' +
+    '</div></form>';
+  document.getElementById('rf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+  document.getElementById('result-form-' + cat).addEventListener('submit', async function(e){
+    e.preventDefault();
+    var en = document.getElementById('rf-en').value.trim();
+    var de = document.getElementById('rf-de').value.trim();
+    if(!en && !de){ showToast('Bitte einen Text eingeben.', true); return; }
+    var value = joinLangValue(en, de);
+    if(editing) results[cat][idx] = value; else results[cat].push(value);
+    try{
+      await writeJson('results.json', results);
+      slot.innerHTML = '';
+      renderResultsList(cat);
+      showToast('Gespeichert ✓');
+    }catch(err){ showToast('Speichern fehlgeschlagen.', true); }
+  });
+}
+async function deleteResultEntry(cat, idx){
+  if(!confirm('Diesen Eintrag wirklich löschen?')) return;
+  results[cat].splice(idx, 1);
+  try{ await writeJson('results.json', results); renderResultsList(cat); showToast('Gelöscht.'); }
+  catch(err){ showToast('Löschen fehlgeschlagen.', true); }
+}
+Object.keys(RESULTS_META).forEach(function(cat){
+  document.getElementById(RESULTS_META[cat].addBtnId).addEventListener('click', function(){ openResultForm(cat, null); });
+});
 </script>
 </body>
 </html>
