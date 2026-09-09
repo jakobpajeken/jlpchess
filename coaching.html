@@ -1278,8 +1278,40 @@ function loadTestimonialsData(){
       /* data/testimonials.json missing or blocked — fallback cards stay */
     });
 }
+/* ---------- career results, loaded from data/results.json ---------- */
+var resultsData = null;
+var RESULTS_LIST_IDS = {
+  titles: 'results-titles-list',
+  team: 'results-team-list',
+  national: 'results-national-list',
+  full: 'results-full-list'
+};
+function renderResultsCategory(cat){
+  if(!resultsData || !Array.isArray(resultsData[cat]) || !resultsData[cat].length) return; /* keep the fallback entries already in the HTML */
+  var listEl = document.getElementById(RESULTS_LIST_IDS[cat]);
+  if(!listEl) return;
+  var tag = cat === 'full' ? 'p' : 'li';
+  listEl.innerHTML = resultsData[cat].map(function(entry){
+    return '<' + tag + '>' + escapeHtml(pickLang(entry)) + '</' + tag + '>';
+  }).join('');
+}
+function renderAllResults(){
+  Object.keys(RESULTS_LIST_IDS).forEach(renderResultsCategory);
+}
+function loadResultsData(){
+  fetch('data/results.json', { cache: 'no-store' })
+    .then(function(r){ if(!r.ok) throw new Error('no data file'); return r.json(); })
+    .then(function(data){
+      resultsData = data;
+      renderAllResults();
+    })
+    .catch(function(){
+      /* data/results.json missing or blocked — fallback entries in the HTML stay */
+    });
+}
 loadBlogData();
 loadTestimonialsData();
+loadResultsData();
 
 /* keyboard navigation: left/right arrows step through the loaded game
    while the Career tab is open and no text field is focused */
