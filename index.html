@@ -35,12 +35,6 @@
   h1,h2,h3{font-family:'Spectral',serif;font-weight:500;margin:0;color:var(--ivory);}
   a{color:inherit;}
   .wrap{max-width:var(--max);margin:0 auto;padding:0 32px;}
-  .eyebrow{
-    font-family:'Spectral SC',serif;font-weight:500;color:var(--gold-bright);
-    font-size:0.92rem;display:flex;align-items:center;gap:12px;margin-bottom:18px;
-  }
-  .eyebrow .rule{width:30px;height:1px;background:var(--gold);display:inline-block;}
-
   /* header */
   header{
     position:sticky;top:0;z-index:30;background:rgba(28,27,24,0.88);
@@ -49,10 +43,7 @@
   nav.wrap{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;}
   .brand{font-family:'Spectral',serif;font-size:1.1rem;}
   .brand em{font-style:normal;color:var(--gold-bright);}
-  .navlinks{display:flex;gap:30px;list-style:none;margin:0;padding:0;align-items:center;}
-  .navlinks a{text-decoration:none;font-size:0.92rem;color:var(--ivory-dim);transition:color .2s;}
-  .navlinks a:hover{color:var(--gold-bright);}
-  .navlinks a:focus-visible,button:focus-visible,summary:focus-visible{outline:1px solid var(--gold-bright);outline-offset:3px;}
+  button:focus-visible,summary:focus-visible{outline:1px solid var(--gold-bright);outline-offset:3px;}
   .langtoggle{
     display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden;
   }
@@ -61,7 +52,6 @@
     font-size:0.82rem;padding:6px 12px;cursor:pointer;letter-spacing:0.03em;
   }
   .langtoggle button.active{background:var(--gold);color:var(--ink);}
-  @media (max-width:840px){.navlinks a{display:none;}}
 
   /* tab bar */
   .tabbar-outer{
