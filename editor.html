@@ -401,9 +401,6 @@ var pieceFallbackGlyph = {
 /* ---------- live PGN preview widget for the "Partie" sub-form ----------
    Same rendering approach as the embedded game-replay widget in
    blog-post.html, so what you see here matches what visitors will see. */
-function pieceImgUrl(pieceKey){
-  return PIECE_SVG_DATA[pieceKey] || '';
-}
 /* strips comments, ; line-comments, ( ) variations and $NAG codes before
    handing the move text to chess.js — real PGNs copied from lichess/
    chess.com commonly include these, and the bundled chess.js version
