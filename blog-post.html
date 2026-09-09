@@ -487,7 +487,7 @@ function createGameWidget(container, game){
     btn.className = 'move-btn';
     btn.textContent = san;
     btn.dataset.ply = ply;
-    btn.addEventListener('click', function(){ goToPly(ply); });
+    btn.addEventListener('click', function(){ manualGoToPly(ply); });
     return btn;
   }
   function renderMoveList(){
@@ -509,7 +509,14 @@ function createGameWidget(container, game){
     container.querySelectorAll('.move-btn').forEach(function(btn){
       var isActive = parseInt(btn.dataset.ply, 10) === moveIndex;
       btn.classList.toggle('active', isActive);
-      if(isActive) btn.scrollIntoView({ block: 'center' });
+      /* keep the current move in view by setting scrollTop on the
+         move-list box directly, rather than scrollIntoView — which per
+         spec scrolls EVERY scrollable ancestor it finds, including the
+         page itself; this way only the box moves, never the page */
+      if(isActive){
+        var target = btn.offsetTop - (listEl.clientHeight / 2) + (btn.offsetHeight / 2);
+        listEl.scrollTop = Math.max(0, target);
+      }
     });
   }
   function goToPly(ply){
@@ -518,6 +525,36 @@ function createGameWidget(container, game){
     moveIndex = ply;
     renderPosition(engine.fen());
     highlightMoveList();
+  }
+  function stopPlay(){
+    if(playInterval){ clearInterval(playInterval); playInterval = null; }
+    updatePlayButton();
+  }
+  function startPlay(){
+    if(playInterval) return;
+    if(moveIndex >= historyVerbose.length) goToPly(0);
+    playInterval = setInterval(function(){
+      if(moveIndex >= historyVerbose.length){ stopPlay(); return; }
+      goToPly(moveIndex + 1);
+    }, PLAY_MOVE_MS);
+    updatePlayButton();
+  }
+  function togglePlay(){
+    if(playInterval) stopPlay(); else startPlay();
+  }
+  function updatePlayButton(){
+    var btn = container.querySelector('[data-nav="play"]');
+    if(!btn) return;
+    var playing = !!playInterval;
+    btn.textContent = playing ? '❚❚' : '▶';
+    btn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+    btn.title = playing ? 'Pause' : 'Play';
+  }
+  /* manual navigation always stops any running auto-play first, so it
+     never fights with a move the user just clicked */
+  function manualGoToPly(ply){
+    stopPlay();
+    goToPly(ply);
   }
   function formatPgnDate(d){
     var parts = d.split('.');
