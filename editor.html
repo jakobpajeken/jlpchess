@@ -806,8 +806,8 @@ function renderBlog(){
     row.innerHTML =
       '<div class="item-main">' +
       (p.image ? '<img class="item-thumb" src="' + escapeHtml(p.image) + '" alt="">' : '') +
-      '<div class="item-info"><div class="item-title">' + escapeHtml(p.title || '(ohne Titel)') + '</div>' +
-      '<div class="item-sub">' + escapeHtml(p.date || '') + (p.date && p.excerpt ? ' · ' : '') + escapeHtml(p.excerpt || '') + '</div></div>' +
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + '</div>' +
+      '<div class="item-sub">' + escapeHtml(formatBlogDate(p.date, 'de')) + (p.date && p.excerpt ? ' · ' : '') + escapeHtml(previewLang(p.excerpt) || '') + '</div></div>' +
       '</div>' +
       '<div class="item-actions">' +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
