@@ -116,14 +116,16 @@
   /* about */
   .about-greeting{font-weight:700;font-style:italic;font-size:18px;line-height:1.5;color:var(--ivory);max-width:70ch;margin:0 0 40px;}
   .about-stack{display:flex;flex-direction:row;align-items:flex-start;gap:40px;max-width:960px;}
-  .about-portrait{aspect-ratio:4/5;width:340px;flex-shrink:0;background:linear-gradient(160deg,var(--surface-raised),var(--surface));
+  .about-portrait-wrap{width:340px;flex-shrink:0;}
+  .about-portrait{aspect-ratio:4/5;width:100%;background:linear-gradient(160deg,var(--surface-raised),var(--surface));
     border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
     color:var(--ivory-dim);font-size:0.82rem;text-align:center;overflow:hidden;}
   .about-portrait:not(:has(img)){padding:22px;}
   .about-portrait img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block;}
+  .photo-credit{font-size:0.72rem;color:var(--ivory-dim);opacity:0.75;margin-top:8px;text-align:right;}
   .about-text{min-width:0;}
   .about-text p{margin:0 0 17px;color:var(--ivory-dim);max-width:60ch;}
-  @media (max-width:760px){.about-stack{flex-direction:column;}.about-portrait{width:100%;max-width:340px;}}
+  @media (max-width:760px){.about-stack{flex-direction:column;}.about-portrait-wrap{width:100%;max-width:340px;}}
   .about-text p:last-child{margin-bottom:0;}
   .about-text strong{color:var(--ivory);font-weight:500;}
 
@@ -360,7 +362,10 @@
     </div>
     <p class="about-greeting" data-i18n="about.sub">Hello! I'm Jakob Leon Pajeken, an International Master and dedicated chess coach, currently rated <span id="fide-rating-sub">2482</span> FIDE with two GM norms.</p>
     <div class="about-stack">
-      <div class="about-portrait"><img src="profile.jpg" alt="Jakob Pajeken at a chess tournament, making a move on the board"></div>
+      <div class="about-portrait-wrap">
+        <div class="about-portrait"><img src="profile.jpg" alt="Jakob Pajeken at a chess tournament, making a move on the board"></div>
+        <div class="photo-credit" data-i18n="about.photocredit">Photo: Claus Qvist Jessen</div>
+      </div>
       <div class="about-text">
         <p data-i18n="about.p1">Chess has been a part of my life since I was five years old – and over the years, it has grown from a childhood passion into both my profession and my way of life.</p>
         <p data-i18n="about.p2">I discovered chess through my father, <strong>FM Wolfgang Pajeken</strong>, who introduced me to the game at an early age and played an important role in shaping my development as a chess player.</p>
