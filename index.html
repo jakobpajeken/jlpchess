@@ -1265,18 +1265,21 @@ function loadGameObject(g){
   historyVerbose = gameEngine.history({ verbose: true });
   gameEngine.reset();
   moveIndex = 0;
-  renderPosition(gameEngine.fen());
-  renderMoveList();
 
   var headers = parsePgnHeaders(g.pgn);
   var whiteName = headers.white || 'White';
   var blackName = headers.black || 'Black';
   if(headers.whiteelo) whiteName += ' (' + headers.whiteelo + ')';
   if(headers.blackelo) blackName += ' (' + headers.blackelo + ')';
-  var wEl = document.getElementById('player-white-name');
-  var bEl = document.getElementById('player-black-name');
-  if(wEl) wEl.textContent = whiteName;
-  if(bEl) bEl.textContent = blackName;
+  currentWhiteName = whiteName;
+  currentBlackName = blackName;
+  /* whenever Jakob is playing Black, default to viewing the board from
+     Black's side — the flip button can still override this per game */
+  boardOrientation = isJakobBlack(headers) ? 'black' : 'white';
+  renderCoordinates();
+  renderPosition(gameEngine.fen());
+  applyPlayerLabels();
+  renderMoveList();
 
   var titleEl = document.getElementById('game-title');
   var infoEl = document.getElementById('game-info');
