@@ -505,6 +505,16 @@
       <h2 data-i18n="results.heading">My chess career</h2>
       <p data-i18n="results.sub">A coach's credibility starts at the board. Selected results from an active playing career.</p>
     </div>
+
+    <!-- Peak classical rating, kept in sync with the FIDE rating/world-rank
+         automation: on the 1st of each month, scripts/update_fide_rating.py
+         compares the freshly-fetched current rating against this stored
+         peak and only overwrites it if the new rating is actually higher. -->
+    <div class="peak-rating">
+      <span class="figure" id="peak-rating-figure">2483</span>
+      <span class="peak-label"><span data-i18n="results.peaklabel">Peak FIDE rating</span> · <span id="peak-rating-period">August 2026</span></span>
+    </div>
+
     <div class="results-highlights">
       <div class="res-card">
         <h3 data-i18n="results.g1title">Titles &amp; norms</h3>
