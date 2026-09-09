@@ -624,8 +624,17 @@ function createGameWidget(container, game){
   titleEl.textContent = pickLang(game.title) || fallbackTitle;
   embeddedGameWidgets.push({ titleEl: titleEl, title: game.title, fallbackTitle: fallbackTitle });
 
+  /* the tournament name gets "(Round N)" / "(Runde N)" appended, right
+     between the tournament name and the date, whenever the PGN has one */
   var infoBits = [];
-  if(headers.event) infoBits.push(headers.event);
+  if(headers.event){
+    var eventBit = headers.event;
+    var round = headers.round && headers.round.trim();
+    if(round && round !== '?'){
+      eventBit += ' (' + (document.documentElement.lang === 'de' ? 'Runde' : 'Round') + ' ' + round + ')';
+    }
+    infoBits.push(eventBit);
+  }
   if(headers.date && headers.date.indexOf('?') === -1) infoBits.push(formatPgnDate(headers.date));
   if(headers.result) infoBits.push(headers.result);
   infoEl.textContent = game.meta || infoBits.join(' · ');

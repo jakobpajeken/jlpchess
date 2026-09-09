@@ -656,8 +656,16 @@ function createGameWidget(container, game){
 
   titleEl.textContent = previewLang(game.title) || (whiteName + ' vs ' + blackName);
 
+  /* the tournament name gets "(Runde N)" appended, right between the
+     tournament name and the date, whenever the PGN has a round number —
+     this preview always shows German, matching the rest of the editor UI */
   var infoBits = [];
-  if(headers.event) infoBits.push(headers.event);
+  if(headers.event){
+    var eventBit = headers.event;
+    var round = headers.round && headers.round.trim();
+    if(round && round !== '?') eventBit += ' (Runde ' + round + ')';
+    infoBits.push(eventBit);
+  }
   if(headers.date && headers.date.indexOf('?') === -1) infoBits.push(formatPgnDate(headers.date));
   if(headers.result) infoBits.push(headers.result);
   infoEl.textContent = game.meta || infoBits.join(' · ');
