@@ -603,16 +603,17 @@ function createGameWidget(container, game){
   historyVerbose = engine.history({ verbose: true });
   engine.reset();
   moveIndex = 0;
-  renderPosition(engine.fen());
-  renderMoveList();
 
   var headers = parsePgnHeaders(game.pgn || '');
-  var whiteName = headers.white || 'White';
-  var blackName = headers.black || 'Black';
+  whiteName = headers.white || 'White';
+  blackName = headers.black || 'Black';
   if(headers.whiteelo) whiteName += ' (' + headers.whiteelo + ')';
   if(headers.blackelo) blackName += ' (' + headers.blackelo + ')';
-  whiteNameEl.textContent = whiteName;
-  blackNameEl.textContent = blackName;
+  orientation = isJakobBlack(headers) ? 'black' : 'white';
+  renderCoordinates();
+  renderPosition(engine.fen());
+  applyPlayerLabels();
+  renderMoveList();
 
   titleEl.textContent = previewLang(game.title) || (whiteName + ' vs ' + blackName);
 
