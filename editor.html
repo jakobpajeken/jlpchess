@@ -462,6 +462,8 @@ function createGameWidget(container, game){
   var engine = null, historyVerbose = [], moveIndex = 0;
   var orientation = 'white';
   var whiteName = 'White', blackName = 'Black';
+  var playInterval = null; /* set while auto-play is running, one move every 1.5s */
+  var PLAY_MOVE_MS = 1500;
 
   function buildBoardSquares(){
     boardEl.innerHTML = '';
