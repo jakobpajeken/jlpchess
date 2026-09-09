@@ -951,6 +951,22 @@ function formatPeriod(periodStr){
   var names = MONTH_NAMES[currentSiteLang()] || MONTH_NAMES.en;
   return (names[parts[1]] || parts[1]) + ' ' + parts[0];
 }
+/* blog post dates are stored as a plain ISO string ("YYYY-MM-DD") and
+   formatted per language only at display time */
+var MONTH_NAMES_FULL = {
+  en:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  de:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
+};
+function formatBlogDate(iso, lang){
+  if(!iso) return '';
+  var parts = String(iso).split('-');
+  if(parts.length !== 3) return iso;
+  var y = parseInt(parts[0], 10), m = parseInt(parts[1], 10), d = parseInt(parts[2], 10);
+  if(!y || !m || !d) return iso;
+  var names = MONTH_NAMES_FULL[lang] || MONTH_NAMES_FULL.en;
+  var month = names[m - 1] || parts[1];
+  return lang === 'de' ? (d + '. ' + month + ' ' + y) : (month + ' ' + d + ', ' + y);
+}
 function applyFideRating(){
   if(fideRatingValue != null){
     var figureEl = document.getElementById('fide-rating-figure');
@@ -1361,6 +1377,7 @@ function renderBlogGrid(){
      array, so the last entry is the most recently added one */
   var ordered = blogPostsData.slice().reverse();
   var visible = ordered.slice(0, blogVisibleCount);
+  var lang = currentSiteLang();
   grid.innerHTML = visible.map(function(post){
     var href = 'blog-post.html?slug=' + encodeURIComponent(post.slug || '');
     var imageHtml = post.image
@@ -1368,9 +1385,9 @@ function renderBlogGrid(){
       : '';
     return '<article class="blog-card">' + imageHtml +
       '<div class="blog-card-body">' +
-      '<div class="blog-date">' + escapeHtml(post.date) + '</div>' +
-      '<h3>' + escapeHtml(post.title) + '</h3>' +
-      '<p>' + escapeHtml(post.excerpt) + '</p>' +
+      '<div class="blog-date">' + escapeHtml(formatBlogDate(post.date, lang)) + '</div>' +
+      '<h3>' + escapeHtml(pickLang(post.title)) + '</h3>' +
+      '<p>' + escapeHtml(pickLang(post.excerpt)) + '</p>' +
       '<a href="' + href + '" class="blog-link">' + readMore + '</a>' +
       '</div></article>';
   }).join('');
