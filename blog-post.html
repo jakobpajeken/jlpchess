@@ -531,11 +531,27 @@ function refreshEmbeddedGameTitles(){
         if(post.lead) html += '<p class="lead">' + escapeHtml(post.lead) + '</p>';
         /* a paragraph written as ![caption](path/to/image.jpg) — inserted by
            the "Bild einfügen" button in editor.html — renders as an inline
-           photo instead of a text paragraph */
+           photo instead of a text paragraph. Likewise, a paragraph written
+           as [game:ID] — inserted by the "Partie einfügen" button — renders
+           a full game-replay widget (see createGameWidget above) in place. */
         var imageLineRe = /^!\[([^\]]*)\]\(([^)]+)\)$/;
+        var gameLineRe = /^\[game:([a-zA-Z0-9_-]+)\]$/;
+        var gameSlotCounter = 0;
+        var gameSlots = []; /* { slotId, game } — instantiated after bodyEl.innerHTML is set */
         (post.body || []).forEach(function(para){
           if(!para) return;
-          var m = imageLineRe.exec(para.trim());
+          var trimmed = para.trim();
+          var gm = gameLineRe.exec(trimmed);
+          if(gm){
+            var g = (post.games || []).filter(function(x){ return x.id === gm[1]; })[0];
+            if(g){
+              var slotId = 'embedded-game-slot-' + (gameSlotCounter++);
+              gameSlots.push({ slotId: slotId, game: g });
+              html += '<div id="' + slotId + '"></div>';
+            }
+            return;
+          }
+          var m = imageLineRe.exec(trimmed);
           if(m){
             html += '<figure class="article-figure"><img src="' + escapeHtml(m[2]) + '" alt="' + escapeHtml(m[1]) + '">' +
               (m[1] ? '<figcaption>' + escapeHtml(m[1]) + '</figcaption>' : '') + '</figure>';
@@ -545,6 +561,10 @@ function refreshEmbeddedGameTitles(){
         });
         if(post.quote) html += '<blockquote>' + escapeHtml(post.quote) + '</blockquote>';
         bodyEl.innerHTML = html;
+        gameSlots.forEach(function(slot){
+          var slotEl = document.getElementById(slot.slotId);
+          if(slotEl) createGameWidget(slotEl, slot.game);
+        });
       }
     })
     .catch(function(){
