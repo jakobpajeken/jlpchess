@@ -139,13 +139,27 @@
   @media (max-width:840px){.pt-grid{grid-template-columns:1fr;}}
 
   /* coaching offer */
-  .offer-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .offer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
   .offer-card{background:var(--ink);padding:34px;}
   .offer-card h3{font-size:1.375rem;margin-bottom:10px;}
   .offer-card p{margin:0 0 12px;color:var(--ivory-dim);font-size:0.95rem;}
   .offer-card p:last-child{margin-bottom:0;}
   .offer-card strong{color:var(--ivory);font-weight:500;}
   @media (max-width:840px){.offer-grid{grid-template-columns:1fr;}}
+
+  /* standalone "training games & matches" callout — deliberately outside
+     the regular offer-grid, with a gold border instead of a plain hairline
+     one, so it reads as its own, separately bookable thing rather than a
+     fourth item in the "how I coach" set above it */
+  .training-game-box{
+    margin-top:1px;background:var(--surface-raised);border:1px solid var(--gold);
+    padding:40px 44px;
+  }
+  .training-game-box h3{font-family:'Spectral',serif;font-size:1.5rem;color:var(--gold-bright);margin-bottom:16px;}
+  .training-game-box p{margin:0 0 14px;color:var(--ivory-dim);max-width:70ch;}
+  .training-game-box p:last-child{margin-bottom:0;}
+  .training-game-box strong{color:var(--ivory);font-weight:500;}
+  @media (max-width:840px){.training-game-box{padding:30px 26px;}}
 
   /* results */
   .results-highlights{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:8px;}
