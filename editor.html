@@ -977,8 +977,14 @@ function openBlogForm(idx){
       var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
       var before = bodyTextarea.value.slice(0, start);
       var after = bodyTextarea.value.slice(end);
-      var needsLeadingBreak = before.length && !/\n\s*\n$/.test(before);
-      var needsTrailingBreak = after.length && !/^\s*\n/.test(after);
+      /* a paragraph break needs a BLANK line (two newlines), not just one —
+         checking for only one newline (as this used to) misfires whenever
+         the cursor sits right before a normal line wrap inside an existing
+         paragraph, gluing the marker onto the following text with just a
+         single \n; the marker's own regex requires it on its own paragraph,
+         so a marker inserted that way silently failed to ever render. */
+      var needsLeadingBreak = before.length && (before.match(/\n*$/) || [''])[0].length < 2;
+      var needsTrailingBreak = after.length && (after.match(/^\n*/) || [''])[0].length < 2;
       var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
       bodyTextarea.value = before + insertText + after;
       var caretPos = (before + insertText).length;
