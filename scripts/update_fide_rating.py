@@ -2,7 +2,11 @@
 """
 Fetches the current classical (standard) FIDE rating and world ranking
 (among active players) for Jakob Leon Pajeken (FIDE ID 12942839) and
-writes both to rating.json in the repo root.
+writes both to rating.json in the repo root — along with the career-peak
+classical rating, which is only updated when the freshly-fetched rating
+is actually higher than the one already stored (the peak itself isn't
+something FIDE's profile page shows directly; it's just carried forward
+from run to run and bumped whenever a new high is reached).
 
 Meant to be run monthly by the accompanying GitHub Actions workflow
 (.github/workflows/update-fide-rating.yml), but can also be run by hand:
