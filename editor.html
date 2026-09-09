@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<!--
+  WEBSITE-EDITOR
+  ==============
+  Lokales Werkzeug zum Pflegen von coaching.html, ganz ohne Code zu
+  schreiben. Schreibt direkt in die drei Dateien im data/-Ordner:
+  games.json, blog.json, testimonials.json — genau die Dateien, aus denen
+  sich coaching.html und blog-post.html ihre Inhalte laden.
+
+  Benutzung: diese Datei per Doppelklick öffnen (Chrome oder Edge), oben
+  auf "Website-Ordner öffnen" klicken und den Ordner auswählen, in dem
+  auch coaching.html liegt. Der Browser fragt einmalig um Erlaubnis.
+
+  Warum das nur mit Chrome/Edge geht: Dieses Tool nutzt die "File System
+  Access API" des Browsers, um Dateien direkt auf der Festplatte zu lesen
+  und zu schreiben. Firefox und Safari unterstützen das (Stand jetzt)
+  nicht.
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Website-Editor — Jakob Leon Pajeken</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1b18;
+    --surface:#232019;
+    --surface-raised:#2a261e;
+    --ivory:#ece5d4;
+    --ivory-dim:#bcb3a0;
+    --gold:#a8823c;
+    --gold-bright:#c9a05c;
+    --line:rgba(236,229,212,0.13);
+    --ok:#7fae7a;
+    --err:#e08a63;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--ink);color:var(--ivory);
+    font-family:'Inter',sans-serif;font-size:15px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Spectral',serif;font-weight:600;margin:0;color:var(--ivory);}
+  .wrap{max-width:920px;margin:0 auto;padding:0 28px;}
+  header{padding:36px 0 24px;border-bottom:1px solid var(--line);}
+  header h1{font-size:1.7rem;}
+  header p{color:var(--ivory-dim);margin:10px 0 0;max-width:62ch;}
+
+  .status-bar{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    margin:22px 0;padding:16px 18px;background:var(--surface);border:1px solid var(--line);
+  }
+  .status-bar .folder-name{color:var(--gold-bright);font-family:'Spectral',serif;}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;padding:10px 18px;font-size:0.9rem;
+    border:1px solid var(--gold);color:var(--ivory);background:none;cursor:pointer;
+    font-family:'Inter',sans-serif;transition:background .15s,color .15s;border-radius:2px;
+  }
+  .btn:hover{background:rgba(168,130,60,0.14);}
+  .btn.solid{background:var(--gold);color:var(--ink);border-color:var(--gold);}
+  .btn.solid:hover{background:var(--gold-bright);border-color:var(--gold-bright);}
+  .btn.small{padding:6px 12px;font-size:0.8rem;}
+  .btn.danger{border-color:#8a4a3a;color:#e08a63;}
+  .btn.danger:hover{background:rgba(224,138,99,0.12);}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+  .unsupported{
+    margin:22px 0;padding:18px 20px;border:1px solid var(--err);background:rgba(224,138,99,0.08);
+    color:var(--ivory);
+  }
+
+  main[hidden], .unsupported[hidden]{display:none;}
+
+  .tabbar{display:flex;gap:4px;margin:32px 0 0;border-bottom:1px solid var(--line);}
+  .tabbar button{
+    background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;
+    font-size:0.94rem;padding:12px 18px;cursor:pointer;border-bottom:2px solid transparent;
+  }
+  .tabbar button.active{color:var(--gold-bright);border-bottom-color:var(--gold);}
+
+  .panel{padding:28px 0 60px;display:none;}
+  .panel.active{display:block;}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;}
+  .panel-head p{color:var(--ivory-dim);margin:4px 0 0;font-size:0.88rem;}
+
+  .item-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:8px;}
+  .item-row{background:var(--surface);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+  .item-row .item-main{display:flex;align-items:center;gap:14px;min-width:0;}
+  .item-row .item-thumb{width:64px;height:44px;object-fit:cover;flex-shrink:0;background:var(--surface-raised);}
+  .item-row .item-info{min-width:0;}
+  .item-row .item-title{font-family:'Spectral',serif;font-size:1.02rem;color:var(--ivory);}
+  .item-row .item-sub{font-size:0.82rem;color:var(--ivory-dim);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:56ch;}
+  .item-row .item-actions{display:flex;gap:8px;flex-shrink:0;}
+  .empty-note{color:var(--ivory-dim);font-size:0.9rem;padding:20px 0;font-style:italic;}
+
+  form.entry-form{
+    margin-top:20px;padding:22px;background:var(--surface-raised);border:1px solid var(--line);
+    display:flex;flex-direction:column;gap:14px;
+  }
+  form.entry-form h3{font-size:1rem;color:var(--gold-bright);}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{font-size:0.82rem;color:var(--ivory-dim);}
+  .field .hint{font-size:0.76rem;color:var(--ivory-dim);opacity:0.75;}
+  .field input[type="text"],
+  .field input[type="date"],
+  .field textarea{
+    background:var(--surface);border:1px solid var(--line);color:var(--ivory);
+    font-family:'Inter',sans-serif;font-size:0.9rem;padding:10px 12px;resize:vertical;
+  }
+  .field textarea{min-height:70px;}
+  .field textarea.tall{min-height:140px;}
+  .field textarea.mono{font-family:ui-monospace,'Cascadia Code',Consolas,monospace;font-size:0.82rem;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:600px){.form-row{grid-template-columns:1fr;}}
+  .form-actions{display:flex;gap:10px;margin-top:6px;}
+
+  .cover-preview{width:220px;max-width:100%;aspect-ratio:16/9;background:var(--surface);
+    border:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center;
+    color:var(--ivory-dim);font-size:0.78rem;text-align:center;}
+  .cover-preview img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cover-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .inline-image-row{display:flex;align-items:center;gap:8px;}
+
+  .toast{
+    position:fixed;bottom:24px;right:24px;padding:14px 20px;background:var(--surface-raised);
+    border:1px solid var(--line);border-left:3px solid var(--ok);color:var(--ivory);
+    font-size:0.88rem;z-index:50;max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  }
+  .toast.err{border-left-color:var(--err);}
+  .toast[hidden]{display:none;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Website-Editor</h1>
+    <p>Partien, Blogposts und Stimmen von Schülern pflegen — ohne Code. Änderungen hier landen direkt in den Dateien im <code>data/</code>-Ordner deiner Website.</p>
+  </header>
+
+  <div id="unsupported" class="unsupported" hidden>
+    Dein Browser unterstützt die Funktion, mit der dieses Tool Dateien direkt speichert, leider nicht.
+    Bitte öffne diese Seite in <strong>Chrome</strong> oder <strong>Edge</strong> auf dem Desktop.
+  </div>
+
+  <div class="status-bar" id="status-bar">
+    <button type="button" class="btn solid" id="pick-folder">📁 Website-Ordner öffnen</button>
+    <span id="folder-status" style="color:var(--ivory-dim);">Noch kein Ordner ausgewählt — wähle den Ordner mit <code>coaching.html</code> darin.</span>
+  </div>
+
+  <main id="main" hidden>
+    <nav class="tabbar" role="tablist">
+      <button type="button" data-panel="games" class="active">Partien</button>
+      <button type="button" data-panel="blog">Blog</button>
+      <button type="button" data-panel="testi">Testimonials</button>
+    </nav>
+
+    <!-- ===================== PARTIEN ===================== -->
+    <section class="panel active" id="panel-games">
+      <div class="panel-head">
+        <div>
+          <h2>Partien</h2>
+          <p>Erscheinen im Career-Tab unter „My most memorable games". PGN einfach aus deiner Schach-Software oder von einer Turnierseite kopieren.</p>
+        </div>
+        <button type="button" class="btn" id="games-add-btn">+ Neue Partie</button>
+      </div>
+      <div class="item-list" id="games-list"></div>
+      <div id="games-form-slot"></div>
+    </section>
+
+    <!-- ===================== BLOG ===================== -->
+    <section class="panel" id="panel-blog">
+      <div class="panel-head">
+        <div>
+          <h2>Blog</h2>
+          <p>Erscheinen als Karten im Blog-Tab. Jeder Beitrag bekommt automatisch eine eigene Seite.</p>
+        </div>
+        <button type="button" class="btn" id="blog-add-btn">+ Neuer Beitrag</button>
+      </div>
+      <div class="item-list" id="blog-list"></div>
+      <div id="blog-form-slot"></div>
+    </section>
+
+    <!-- ===================== TESTIMONIALS ===================== -->
+    <section class="panel" id="panel-testi">
+      <div class="panel-head">
+        <div>
+          <h2>Testimonials</h2>
+          <p>Erscheinen unter „What students say" im Coaching-Tab.</p>
+        </div>
+        <button type="button" class="btn" id="testi-add-btn">+ Neues Testimonial</button>
+      </div>
+      <div class="item-list" id="testi-list"></div>
+      <div id="testi-form-slot"></div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ============================================================
+   Datei-Zugriff (File System Access API)
+   ============================================================ */
+var dirHandle = null;
+var dataHandle = null;
+var supported = 'showDirectoryPicker' in window;
+
+if(!supported){
+  document.getElementById('unsupported').hidden = false;
+  document.getElementById('pick-folder').disabled = true;
+}
+
+function showToast(msg, isErr){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isErr ? ' err' : '');
+  t.hidden = false;
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(function(){ t.hidden = true; }, 3200);
+}
+
+async function readJson(name){
+  try{
+    var fh = await dataHandle.getFileHandle(name);
+    var file = await fh.getFile();
+    var text = await file.text();
+    var parsed = JSON.parse(text || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(e){
+    return [];
+  }
+}
+async function writeJson(name, data){
+  var fh = await dataHandle.getFileHandle(name, { create: true });
+  var writable = await fh.createWritable();
+  await writable.write(JSON.stringify(data, null, 2) + '\n');
+  await writable.close();
+}
+
+var games = [], blogPosts = [], testimonials = [];
+
+document.getElementById('pick-folder').addEventListener('click', async function(){
+  try{
+    dirHandle = await window.showDirectoryPicker();
+    /* sanity check: does this folder actually contain coaching.html? */
+    var looksRight = false;
+    try{ await dirHandle.getFileHandle('coaching.html'); looksRight = true; }catch(e){}
+    dataHandle = await dirHandle.getDirectoryHandle('data', { create: true });
+    games = await readJson('games.json');
+    blogPosts = await readJson('blog.json');
+    testimonials = await readJson('testimonials.json');
+    renderGames(); renderBlog(); renderTesti();
+    document.getElementById('main').hidden = false;
+    document.getElementById('folder-status').innerHTML =
+      'Ordner: <span class="folder-name">' + escapeHtml(dirHandle.name) + '</span>' +
+      (looksRight ? '' : ' — <span style="color:var(--err);">Achtung: hier wurde keine coaching.html gefunden. Richtiger Ordner?</span>');
+    showToast('Ordner geöffnet.');
+  }catch(e){
+    if(e && e.name === 'AbortError') return; /* user cancelled the picker */
+    showToast('Ordner konnte nicht geöffnet werden.', true);
+  }
+});
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+/* Testimonial quotes and game titles can be stored either as a plain
+   string (shown as-is in both languages) or as {en, de} once a real
+   translation has been added. These two helpers convert between that and
+   the pair of EN/DE form fields. */
+function splitLangValue(val){
+  if(val && typeof val === 'object') return { en: val.en || '', de: val.de || '' };
+  return { en: val || '', de: '' };
+}
+function joinLangValue(en, de){
+  en = (en || '').trim();
+  de = (de || '').trim();
+  return de ? { en: en, de: de } : en;
+}
+function previewLang(val){
+  if(val && typeof val === 'object') return val.de || val.en || '';
+  return val || '';
+}
+function slugify(s){
+  return String(s || '')
+    .toLowerCase()
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+function uniqueSlug(base, excludeIndex){
+  var slug = slugify(base) || 'beitrag';
+  var i = 2;
+  while(blogPosts.some(function(p, idx){ return p.slug === slug && idx !== excludeIndex; })){
+    slug = slugify(base) + '-' + i;
+    i++;
+  }
+  return slug;
+}
+/* Saves an uploaded image into images/blog/ next to coaching.html and
+   returns the relative path to store in blog.json (e.g. "images/blog/
+   my-post-1234.jpg") — that path is what coaching.html and blog-post.html
+   use directly as an <img src>. */
+async function saveImageFile(file, hintName){
+  var imagesDir = await dirHandle.getDirectoryHandle('images', { create: true });
+  var blogImagesDir = await imagesDir.getDirectoryHandle('blog', { create: true });
+  var extMatch = /\.[a-zA-Z0-9]+$/.exec(file.name || '');
+  var ext = extMatch ? extMatch[0].toLowerCase() : '.jpg';
+  var base = slugify(hintName || file.name.replace(/\.[^.]+$/, '')) || 'bild';
+  var filename = base + '-' + Date.now() + ext;
+  var fh = await blogImagesDir.getFileHandle(filename, { create: true });
+  var writable = await fh.createWritable();
+  await writable.write(file);
+  await writable.close();
+  return 'images/blog/' + filename;
+}
+
+/* ============================================================
+   Tabs
+   ============================================================ */
+document.querySelectorAll('.tabbar button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tabbar button').forEach(function(b){ b.classList.toggle('active', b === btn); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('active', p.id === 'panel-' + btn.dataset.panel); });
+  });
+});
+
+/* ============================================================
+   PARTIEN
+   ============================================================ */
+function renderGames(){
+  var list = document.getElementById('games-list');
+  if(!games.length){ list.innerHTML = '<div class="empty-note">Noch keine Partien. Die Website zeigt bis dahin ihre eingebauten Beispielpartien.</div>'; return; }
+  list.innerHTML = '';
+  games.forEach(function(g, idx){
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML =
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(g.title) || '(ohne Titel)') + '</div>' +
+      '<div class="item-sub">' + escapeHtml(g.meta || '') + '</div></div>' +
+      '<div class="item-actions">' +
+      '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
+      '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
+      '</div>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openGameForm(parseInt(b.dataset.edit, 10)); }); });
+  list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteGame(parseInt(b.dataset.del, 10)); }); });
+}
+function openGameForm(idx){
+  var editing = idx != null;
+  var g = editing ? games[idx] : { title: '', meta: '', pgn: '' };
+  var titleSplit = splitLangValue(g.title);
+  var slot = document.getElementById('games-form-slot');
+  slot.innerHTML =
+    '<form class="entry-form" id="game-form">' +
+    '<h3>' + (editing ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Titel (Englisch)</label><input type="text" id="gf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan"></div>' +
+    '<div class="field"><label>Titel (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Titel auch auf Deutsch angezeigt werden soll.</span><input type="text" id="gf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Pflichtsieg gegen GM Iniyan"></div>' +
+    '</div>' +
+    '<div class="field"><label>Kurzbeschreibung (optional)</label><input type="text" id="gf-meta" value="' + escapeHtml(g.meta) + '" placeholder="z. B. Riga Tech op-A · Runde 9"></div>' +
+    '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. — aus deiner Schach-App oder Turnierseite kopieren.</span>' +
+    '<textarea id="gf-pgn" class="tall mono" placeholder="[Event &quot;...&quot;]&#10;[White &quot;...&quot;]&#10;[Black &quot;...&quot;]&#10;...&#10;1. e4 e5 2. Nf3 ...">' + escapeHtml(g.pgn) + '</textarea></div>' +
+    '<div class="form-actions">' +
+    '<button type="submit" class="btn solid">Speichern</button>' +
+    '<button type="button" class="btn" id="gf-cancel">Abbrechen</button>' +
+    '</div></form>';
+  document.getElementById('gf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+  document.getElementById('game-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var titleEn = document.getElementById('gf-title-en').value.trim();
+    var entry = {
+      title: joinLangValue(titleEn, document.getElementById('gf-title-de').value) || 'Unbenannte Partie',
+      meta: document.getElementById('gf-meta').value.trim(),
+      pgn: document.getElementById('gf-pgn').value.trim()
+    };
+    if(!entry.pgn){ showToast('Bitte einen PGN-Text einfügen.', true); return; }
+    if(editing) games[idx] = entry; else games.push(entry);
+    try{
+      await writeJson('games.json', games);
+      slot.innerHTML = '';
+      renderGames();
+      showToast('Partie gespeichert ✓');
+    }catch(err){ showToast('Speichern fehlgeschlagen.', true); }
+  });
+}
+document.getElementById('games-add-btn').addEventListener('click', function(){ openGameForm(null); });
+async function deleteGame(idx){
+  if(!confirm('Diese Partie wirklich löschen?')) return;
+  games.splice(idx, 1);
+  try{ await writeJson('games.json', games); renderGames(); showToast('Partie gelöscht.'); }
+  catch(err){ showToast('Löschen fehlgeschlagen.', true); }
+}
+
+/* ============================================================
+   BLOG
+   ============================================================ */
+function renderBlog(){
+  var list = document.getElementById('blog-list');
+  if(!blogPosts.length){ list.innerHTML = '<div class="empty-note">Noch keine Beiträge. Die Website zeigt bis dahin ihre Platzhalter-Karten.</div>'; return; }
+  list.innerHTML = '';
+  blogPosts.forEach(function(p, idx){
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML =
+      '<div class="item-main">' +
+      (p.image ? '<img class="item-thumb" src="' + escapeHtml(p.image) + '" alt="">' : '') +
+      '<div class="item-info"><div class="item-title">' + escapeHtml(p.title || '(ohne Titel)') + '</div>' +
+      '<div class="item-sub">' + escapeHtml(p.date || '') + (p.date && p.excerpt ? ' · ' : '') + escapeHtml(p.excerpt || '') + '</div></div>' +
+      '</div>' +
+      '<div class="item-actions">' +
+      '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
+      '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
+      '</div>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openBlogForm(parseInt(b.dataset.edit, 10)); }); });
+  list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteBlog(parseInt(b.dataset.del, 10)); }); });
+}
+function openBlogForm(idx){
+  var editing = idx != null;
+  var p = editing ? blogPosts[idx] : { title:'', slug:'', category:'', date:'', readtime:'', excerpt:'', lead:'', body:[], quote:'', image:'' };
+  var pendingCoverFile = null; /* newly picked cover photo, not saved to disk yet */
+  var coverRemoved = false;
+  var slot = document.getElementById('blog-form-slot');
+  slot.innerHTML =
+    '<form class="entry-form" id="blog-form">' +
+    '<h3>' + (editing ? 'Beitrag bearbeiten' : 'Neuer Beitrag') + '</h3>' +
+    '<div class="field"><label>Titel</label><input type="text" id="bf-title" value="' + escapeHtml(p.title) + '" placeholder="z. B. Drei Eröffnungsfehler, die ich ständig sehe"></div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Kategorie</label><input type="text" id="bf-category" value="' + escapeHtml(p.category) + '" placeholder="z. B. Eröffnungen"></div>' +
+    '<div class="field"><label>Datum</label><input type="text" id="bf-date" value="' + escapeHtml(p.date) + '" placeholder="z. B. März 2026"></div>' +
+    '</div>' +
+    '<div class="field"><label>Lesezeit (optional)</label><input type="text" id="bf-readtime" value="' + escapeHtml(p.readtime) + '" placeholder="z. B. 5 Min. Lesezeit"></div>' +
+    '<div class="field"><label>Titelfoto (optional)</label><span class="hint">Erscheint als Vorschaubild auf der Karte im Blog-Tab und oben im Beitrag.</span>' +
+    '<div class="cover-row">' +
+    '<div class="cover-preview" id="bf-cover-preview">' + (p.image ? '<img src="' + escapeHtml(p.image) + '" alt="">' : 'Kein Titelfoto') + '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px;">' +
+    '<input type="file" id="bf-cover-file" accept="image/*">' +
+    '<button type="button" class="btn small" id="bf-cover-remove"' + (p.image ? '' : ' hidden') + '>Titelfoto entfernen</button>' +
+    '</div></div></div>' +
+    '<div class="field"><label>Vorschautext (auf der Karte im Blog-Tab)</label><textarea id="bf-excerpt" placeholder="Ein bis zwei Sätze, die zum Weiterlesen einladen.">' + escapeHtml(p.excerpt) + '</textarea></div>' +
+    '<div class="field"><label>Einleitungssatz (optional, wird größer dargestellt)</label><textarea id="bf-lead">' + escapeHtml(p.lead) + '</textarea></div>' +
+    '<div class="field"><label>Text</label><span class="hint">Jeden Absatz durch eine Leerzeile trennen. Mit dem Knopf fügst du an der Cursor-Position ein Bild ein.</span>' +
+    '<div class="inline-image-row"><button type="button" class="btn small" id="bf-insert-image">🖼 Bild in Text einfügen</button>' +
+    '<input type="file" id="bf-body-image-file" accept="image/*" hidden></div>' +
+    '<textarea id="bf-body" class="tall">' + escapeHtml((p.body || []).join('\n\n')) + '</textarea></div>' +
+    '<div class="field"><label>Hervorgehobenes Zitat (optional)</label><textarea id="bf-quote">' + escapeHtml(p.quote) + '</textarea></div>' +
+    '<div class="form-actions">' +
+    '<button type="submit" class="btn solid">Speichern</button>' +
+    '<button type="button" class="btn" id="bf-cancel">Abbrechen</button>' +
+    '</div></form>';
+  document.getElementById('bf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+
+  /* ---- cover photo picking ---- */
+  var coverPreview = document.getElementById('bf-cover-preview');
+  var coverRemoveBtn = document.getElementById('bf-cover-remove');
+  document.getElementById('bf-cover-file').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if(!file) return;
+    pendingCoverFile = file;
+    coverRemoved = false;
+    coverPreview.innerHTML = '<img src="' + URL.createObjectURL(file) + '" alt="">';
+    coverRemoveBtn.hidden = false;
+  });
+  coverRemoveBtn.addEventListener('click', function(){
+    pendingCoverFile = null;
+    coverRemoved = true;
+    coverPreview.innerHTML = 'Kein Titelfoto';
+    coverRemoveBtn.hidden = true;
+    document.getElementById('bf-cover-file').value = '';
+  });
+
+  /* ---- inline image insertion into the body text ---- */
+  var bodyTextarea = document.getElementById('bf-body');
+  var insertImageBtn = document.getElementById('bf-insert-image');
+  var bodyImageFile = document.getElementById('bf-body-image-file');
+  insertImageBtn.addEventListener('click', function(){ bodyImageFile.click(); });
+  bodyImageFile.addEventListener('change', async function(e){
+    var file = e.target.files && e.target.files[0];
+    bodyImageFile.value = '';
+    if(!file) return;
+    if(!dirHandle){ showToast('Kein Ordner geöffnet.', true); return; }
+    var caption = window.prompt('Bildunterschrift (optional, kann leer bleiben):', '') || '';
+    insertImageBtn.disabled = true;
+    try{
+      var path = await saveImageFile(file, caption || document.getElementById('bf-title').value || 'bild');
+      var marker = '![' + caption.replace(/[[\]]/g, '') + '](' + path + ')';
+      var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
+      var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
+      var before = bodyTextarea.value.slice(0, start);
+      var after = bodyTextarea.value.slice(end);
+      var needsLeadingBreak = before.length && !/\n\s*\n$/.test(before);
+      var needsTrailingBreak = after.length && !/^\s*\n/.test(after);
+      var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
+      bodyTextarea.value = before + insertText + after;
+      var caretPos = (before + insertText).length;
+      bodyTextarea.focus();
+      bodyTextarea.setSelectionRange(caretPos, caretPos);
+      showToast('Bild eingefügt ✓');
+    }catch(err){ showToast('Bild konnte nicht gespeichert werden.', true); }
+    insertImageBtn.disabled = false;
+  });
+
+  document.getElementById('blog-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var title = document.getElementById('bf-title').value.trim();
+    if(!title){ showToast('Bitte einen Titel eingeben.', true); return; }
+    var bodyText = document.getElementById('bf-body').value.trim();
+    var submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    try{
+      var imagePath = p.image || '';
+      if(coverRemoved) imagePath = '';
+      else if(pendingCoverFile) imagePath = await saveImageFile(pendingCoverFile, title);
+      var entry = {
+        title: title,
+        slug: editing ? (p.slug || uniqueSlug(title, idx)) : uniqueSlug(title, null),
+        category: document.getElementById('bf-category').value.trim(),
+        date: document.getElementById('bf-date').value.trim(),
+        readtime: document.getElementById('bf-readtime').value.trim(),
+        image: imagePath,
+        excerpt: document.getElementById('bf-excerpt').value.trim(),
+        lead: document.getElementById('bf-lead').value.trim(),
+        body: bodyText ? bodyText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [],
+        quote: document.getElementById('bf-quote').value.trim()
+      };
+      if(editing) blogPosts[idx] = entry; else blogPosts.push(entry);
+      await writeJson('blog.json', blogPosts);
+      slot.innerHTML = '';
+      renderBlog();
+      showToast('Beitrag gespeichert ✓');
+    }catch(err){
+      showToast('Speichern fehlgeschlagen.', true);
+      submitBtn.disabled = false;
+    }
+  });
+}
+document.getElementById('blog-add-btn').addEventListener('click', function(){ openBlogForm(null); });
+async function deleteBlog(idx){
+  if(!confirm('Diesen Beitrag wirklich löschen?')) return;
+  blogPosts.splice(idx, 1);
+  try{ await writeJson('blog.json', blogPosts); renderBlog(); showToast('Beitrag gelöscht.'); }
+  catch(err){ showToast('Löschen fehlgeschlagen.', true); }
+}
+
+/* ============================================================
+   TESTIMONIALS
+   ============================================================ */
+function renderTesti(){
+  var list = document.getElementById('testi-list');
+  if(!testimonials.length){ list.innerHTML = '<div class="empty-note">Noch keine Testimonials. Die Website zeigt bis dahin ihre Platzhalter-Karten.</div>'; return; }
+  list.innerHTML = '';
+  testimonials.forEach(function(t, idx){
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML =
+      '<div class="item-info"><div class="item-title">' + escapeHtml(t.who || '(ohne Namen)') + '</div>' +
+      '<div class="item-sub">' + escapeHtml(previewLang(t.quote) || '') + '</div></div>' +
+      '<div class="item-actions">' +
+      '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
+      '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
+      '</div>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openTestiForm(parseInt(b.dataset.edit, 10)); }); });
+  list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteTesti(parseInt(b.dataset.del, 10)); }); });
+}
+function openTestiForm(idx){
+  var editing = idx != null;
+  var t = editing ? testimonials[idx] : { quote: '', who: '' };
+  var quoteSplit = splitLangValue(t.quote);
+  var slot = document.getElementById('testi-form-slot');
+  slot.innerHTML =
+    '<form class="entry-form" id="testi-form">' +
+    '<h3>' + (editing ? 'Testimonial bearbeiten' : 'Neues Testimonial') + '</h3>' +
+    '<div class="field"><label>Zitat (Englisch)</label><textarea id="tf-quote-en" placeholder="Was hat sich im Spiel oder im Training verändert?">' + escapeHtml(quoteSplit.en) + '</textarea></div>' +
+    '<div class="field"><label>Zitat (Deutsch, optional)</label><span class="hint">Leer lassen, wenn das englische Zitat auch auf Deutsch angezeigt werden soll — z. B. wenn der Schüler es auf Deutsch geschrieben hat, trag es hier statt oben ein.</span><textarea id="tf-quote-de">' + escapeHtml(quoteSplit.de) + '</textarea></div>' +
+    '<div class="field"><label>Von</label><input type="text" id="tf-who" value="' + escapeHtml(t.who) + '" placeholder="z. B. Anna, 1650 Elo"></div>' +
+    '<div class="form-actions">' +
+    '<button type="submit" class="btn solid">Speichern</button>' +
+    '<button type="button" class="btn" id="tf-cancel">Abbrechen</button>' +
+    '</div></form>';
+  document.getElementById('tf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+  document.getElementById('testi-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var quoteEn = document.getElementById('tf-quote-en').value.trim();
+    var quoteDe = document.getElementById('tf-quote-de').value.trim();
+    if(!quoteEn && !quoteDe){ showToast('Bitte ein Zitat eingeben.', true); return; }
+    var entry = { quote: joinLangValue(quoteEn, quoteDe), who: document.getElementById('tf-who').value.trim() };
+    if(editing) testimonials[idx] = entry; else testimonials.push(entry);
+    try{
+      await writeJson('testimonials.json', testimonials);
+      slot.innerHTML = '';
+      renderTesti();
+      showToast('Testimonial gespeichert ✓');
+    }catch(err){ showToast('Speichern fehlgeschlagen.', true); }
+  });
+}
+document.getElementById('testi-add-btn').addEventListener('click', function(){ openTestiForm(null); });
+async function deleteTesti(idx){
+  if(!confirm('Dieses Testimonial wirklich löschen?')) return;
+  testimonials.splice(idx, 1);
+  try{ await writeJson('testimonials.json', testimonials); renderTesti(); showToast('Testimonial gelöscht.'); }
+  catch(err){ showToast('Löschen fehlgeschlagen.', true); }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IM Jakob Leon Pajeken — Chess Coaching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500;600;700&family=Spectral+SC:wght@500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<style>
+  :root{
+    --ink:#1c1b18;
+    --surface:#232019;
+    --surface-raised:#2a261e;
+    --ivory:#ece5d4;
+    --ivory-dim:#bcb3a0;
+    --gold:#a8823c;
+    --gold-bright:#c9a05c;
+    --line:rgba(236,229,212,0.13);
+    --max:1080px;
+    /* chessboard — checked for contrast, see note below */
+    --sq-light:#d9cba8;
+    --sq-dark:#b3875a;   /* light brown, so black pieces stay visible */
+    --piece-white:#fbf8f2; /* bright, per request */
+    --piece-black:#171310;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--ink);color:var(--ivory);
+    font-family:'Inter',sans-serif;font-size:16px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Spectral',serif;font-weight:500;margin:0;color:var(--ivory);}
+  a{color:inherit;}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 32px;}
+  .eyebrow{
+    font-family:'Spectral SC',serif;font-weight:500;color:var(--gold-bright);
+    font-size:0.92rem;display:flex;align-items:center;gap:12px;margin-bottom:18px;
+  }
+  .eyebrow .rule{width:30px;height:1px;background:var(--gold);display:inline-block;}
+
+  /* header */
+  header{
+    position:sticky;top:0;z-index:30;background:rgba(28,27,24,0.88);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  }
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;}
+  .brand{font-family:'Spectral',serif;font-size:1.1rem;}
+  .brand em{font-style:normal;color:var(--gold-bright);}
+  .navlinks{display:flex;gap:30px;list-style:none;margin:0;padding:0;align-items:center;}
+  .navlinks a{text-decoration:none;font-size:0.92rem;color:var(--ivory-dim);transition:color .2s;}
+  .navlinks a:hover{color:var(--gold-bright);}
+  .navlinks a:focus-visible,button:focus-visible,summary:focus-visible{outline:1px solid var(--gold-bright);outline-offset:3px;}
+  .langtoggle{
+    display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden;
+  }
+  .langtoggle button{
+    background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;
+    font-size:0.82rem;padding:6px 12px;cursor:pointer;letter-spacing:0.03em;
+  }
+  .langtoggle button.active{background:var(--gold);color:var(--ink);}
+  @media (max-width:840px){.navlinks a{display:none;}}
+
+  /* tab bar */
+  .tabbar-outer{
+    position:sticky;top:64px;z-index:20;background:var(--ink);
+    border-bottom:1px solid var(--line);
+  }
+  .tabbar{
+    display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .tabbar::-webkit-scrollbar{display:none;}
+  .tabbar button{
+    flex-shrink:0;background:none;border:none;border-bottom:2px solid transparent;
+    color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.9rem;
+    padding:16px 18px;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s;
+  }
+  .tabbar button:hover{color:var(--ivory);}
+  .tabbar button.active{color:var(--gold-bright);border-bottom-color:var(--gold);}
+  .tabpanel{display:none;}
+  .tabpanel.active-panel{display:block;}
+
+  /* hero */
+  .hero{padding:104px 0 88px;border-bottom:1px solid var(--line);}
+  .hero-grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:48px;align-items:center;}
+  h1.name{font-size:clamp(2.3rem,4.6vw,3.5rem);line-height:1.12;max-width:20ch;}
+  h1.name .accent{color:var(--gold-bright);}
+  h1.name .tagline{
+    display:block;font-size:0.32em;font-weight:400;color:var(--gold-bright);
+    margin-top:14px;letter-spacing:0.01em;
+  }
+  .hero-cta{margin-top:34px;display:flex;gap:16px;flex-wrap:wrap;}
+  .btn{display:inline-block;padding:13px 26px;font-size:0.94rem;text-decoration:none;
+    border:1px solid var(--gold);color:var(--ivory);transition:background .2s,color .2s;cursor:pointer;
+    font-family:'Inter',sans-serif;background:none;}
+  .btn.solid{background:var(--gold);color:var(--ink);border-color:var(--gold);}
+  .btn.solid:hover{background:var(--gold-bright);border-color:var(--gold-bright);}
+  .btn:not(.solid):hover{background:rgba(168,130,60,0.14);}
+  .hero-stats{display:flex;flex-direction:column;gap:24px;border-left:1px solid var(--line);padding-left:34px;}
+  .stat .figure{font-family:'Spectral',serif;font-size:2rem;color:var(--gold-bright);line-height:1;}
+  .stat .label{font-size:0.84rem;color:var(--ivory-dim);margin-top:6px;}
+
+  section{padding:84px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .section-head{display:grid;grid-template-columns:0.8fr 1.2fr;gap:40px;margin-bottom:48px;}
+  .section-head h2{font-size:clamp(1.6rem,2.8vw,2.15rem);max-width:13ch;}
+  .best-games .section-head h2{max-width:none;white-space:nowrap;}
+  .section-head p{color:var(--ivory-dim);max-width:54ch;margin:0;}
+  .section-head.single{grid-template-columns:1fr;}
+  @media (max-width:840px){.section-head,.hero-grid{grid-template-columns:1fr;}
+    .hero-stats{border-left:none;padding-left:0;border-top:1px solid var(--line);padding-top:26px;flex-direction:row;flex-wrap:wrap;}}
+
+  /* about */
+  .about-greeting{font-weight:700;font-style:italic;font-size:18px;line-height:1.5;color:var(--ivory);max-width:70ch;margin:0 0 40px;}
+  .about-stack{display:flex;flex-direction:row;align-items:flex-start;gap:40px;max-width:960px;}
+  .about-portrait{aspect-ratio:4/5;width:340px;flex-shrink:0;background:linear-gradient(160deg,var(--surface-raised),var(--surface));
+    border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+    color:var(--ivory-dim);font-size:0.82rem;text-align:center;overflow:hidden;}
+  .about-portrait:not(:has(img)){padding:22px;}
+  .about-portrait img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block;}
+  .about-text{min-width:0;}
+  .about-text p{margin:0 0 17px;color:var(--ivory-dim);max-width:60ch;}
+  @media (max-width:760px){.about-stack{flex-direction:column;}.about-portrait{width:100%;max-width:340px;}}
+  .about-text p:last-child{margin-bottom:0;}
+  .about-text strong{color:var(--ivory);font-weight:500;}
+
+  /* problem / transformation */
+  .pt-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);}
+  .pt-col{background:var(--ink);padding:38px 34px;}
+  .pt-col h3{font-size:1.15rem;margin-bottom:18px;}
+  .pt-col ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;}
+  .pt-col li{color:var(--ivory-dim);font-size:0.96rem;padding-left:20px;position:relative;}
+  .pt-col.before li::before{content:"–";position:absolute;left:0;color:var(--ivory-dim);}
+  .pt-col.after li::before{content:"–";position:absolute;left:0;color:var(--gold-bright);}
+  .pt-col.after h3{color:var(--gold-bright);}
+  @media (max-width:840px){.pt-grid{grid-template-columns:1fr;}}
+
+  /* coaching offer */
+  .offer-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .offer-card{background:var(--ink);padding:34px;}
+  .offer-card h3{font-size:1.1rem;margin-bottom:10px;}
+  .offer-card p{margin:0;color:var(--ivory-dim);font-size:0.95rem;}
+  @media (max-width:840px){.offer-grid{grid-template-columns:1fr;}}
+
+  /* results */
+  .results-highlights{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:8px;}
+  .res-card{background:var(--ink);padding:30px 28px;}
+  .res-card h3{font-size:1.02rem;margin-bottom:14px;color:var(--gold-bright);}
+  .res-card ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;}
+  .res-card li{font-size:0.9rem;color:var(--ivory-dim);}
+  @media (max-width:840px){.results-highlights{grid-template-columns:1fr;}}
+  details.full-results{margin-top:36px;border-top:1px solid var(--line);padding-top:22px;}
+  details.full-results summary{cursor:pointer;font-family:'Spectral',serif;color:var(--gold-bright);font-size:1.02rem;list-style:none;}
+  details.full-results summary::-webkit-details-marker{display:none;}
+  details.full-results summary::before{content:"+ ";}
+  details.full-results[open] summary::before{content:"– ";}
+  .full-list{columns:2;column-gap:48px;margin-top:24px;}
+  .full-list p{margin:0 0 11px;font-size:0.89rem;color:var(--ivory-dim);break-inside:avoid;}
+  .full-list strong{color:var(--ivory);font-weight:500;}
+  @media (max-width:640px){.full-list{columns:1;}}
+
+  /* testimonials */
+  .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .testi-card{background:var(--ink);padding:32px;display:flex;flex-direction:column;gap:16px;}
+  .testi-card .quote{font-family:'Spectral',serif;font-size:1.05rem;font-style:italic;color:var(--ivory);flex-grow:1;}
+  .testi-card .who{font-size:0.84rem;color:var(--ivory-dim);}
+  @media (max-width:840px){.testi-grid{grid-template-columns:1fr;}}
+
+  /* blog */
+  .blog-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);}
+  .blog-card{background:var(--ink);display:flex;align-items:stretch;}
+  .blog-card-image{width:280px;flex-shrink:0;overflow:hidden;background:var(--surface);}
+  .blog-card-image img{width:100%;height:100%;object-fit:cover;display:block;min-height:220px;}
+  .blog-card-body{padding:32px;display:flex;flex-direction:column;gap:12px;flex:1;min-width:0;justify-content:center;}
+  .blog-date{font-size:0.8rem;color:var(--gold-bright);font-family:'Spectral SC',serif;}
+  .blog-card h3{font-size:1.4rem;line-height:1.25;}
+  .blog-card p{margin:0;color:var(--ivory-dim);font-size:0.96rem;line-height:1.6;}
+  .blog-link{font-size:0.88rem;color:var(--gold-bright);text-decoration:none;align-self:flex-start;margin-top:4px;}
+  .blog-link:hover{text-decoration:underline;}
+  .blog-loadmore-wrap{display:flex;justify-content:center;margin-top:28px;}
+  @media (max-width:720px){
+    .blog-card{flex-direction:column;}
+    .blog-card-image{width:100%;height:200px;}
+    .blog-card-image img{min-height:0;}
+    .blog-card-body{padding:26px;}
+  }
+
+  /* best games widget */
+  .best-games{margin-top:64px;border-top:1px solid var(--line);padding-top:56px;}
+  /* generic subsection divider, e.g. process/testimonials folded into the coaching tab */
+  .tab-subsection{margin-top:64px;border-top:1px solid var(--line);padding-top:56px;}
+  .games-controls-top{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;}
+  .games-controls-top select{
+    background:var(--surface);border:1px solid var(--line);color:var(--ivory);
+    font-family:'Inter',sans-serif;font-size:0.9rem;padding:11px 14px;min-width:220px;
+  }
+  .paste-panel{margin-bottom:26px;display:flex;flex-direction:column;gap:10px;max-width:560px;}
+  .paste-panel label{font-size:0.82rem;color:var(--ivory-dim);}
+  .paste-panel input[type="text"],
+  .paste-panel textarea{
+    background:var(--surface);border:1px solid var(--line);color:var(--ivory);
+    font-family:'Inter',sans-serif;font-size:0.86rem;padding:12px;resize:vertical;
+  }
+  .pgn-error{font-size:0.84rem;color:#e08a63;min-height:1.2em;}
+  .games-layout{display:grid;grid-template-columns:auto 1fr;gap:44px;align-items:start;}
+  .board-wrap{display:flex;flex-direction:column;gap:10px;align-items:center;}
+  .player-label{
+    font-family:'Spectral',serif;font-size:1.3rem;color:var(--ivory);
+    display:flex;align-items:center;gap:9px;width:min(440px,90vw);
+  }
+  .player-label .side-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+  #player-white-name,#player-black-name{font-size:1.15em;}
+  .player-label.player-black .side-dot{background:var(--piece-black);border:1px solid var(--ivory-dim);}
+  .player-label.player-white .side-dot{background:var(--piece-white);}
+  .board-frame{display:flex;gap:6px;}
+  .ranks-col{display:flex;flex-direction:column;
+    height:min(440px,90vw);width:16px;font-size:0.72rem;color:var(--ivory-dim);text-align:center;}
+  .ranks-col span{flex:1;display:flex;align-items:center;justify-content:center;}
+  .board-and-files{display:flex;flex-direction:column;gap:4px;}
+  .chess-board{
+    width:min(440px,90vw);aspect-ratio:1;display:grid;
+    grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);
+    border:1px solid var(--line);
+  }
+  .files-row{display:flex;width:min(440px,90vw);}
+  .files-row span{flex:1;text-align:center;font-size:0.72rem;color:var(--ivory-dim);}
+  .chess-square{display:flex;align-items:center;justify-content:center;user-select:none;}
+  .chess-square.light{background:var(--sq-light);}
+  .chess-square.dark{background:var(--sq-dark);}
+  .piece-img{width:94%;height:94%;display:block;pointer-events:none;}
+  .piece-fallback{
+    font-size:clamp(20px,4.4vw,30px);line-height:1;user-select:none;
+  }
+  .piece-fallback.piece-w{
+    color:var(--piece-white);
+    text-shadow:-1px -1px 0 var(--piece-black), 1px -1px 0 var(--piece-black),
+      -1px 1px 0 var(--piece-black), 1px 1px 0 var(--piece-black);
+  }
+  .piece-fallback.piece-b{
+    color:var(--piece-black);
+    text-shadow:-1px -1px 0 var(--piece-white), 1px -1px 0 var(--piece-white),
+      -1px 1px 0 var(--piece-white), 1px 1px 0 var(--piece-white);
+  }
+  .board-nav{display:flex;gap:8px;margin-top:4px;}
+  .board-nav button{
+    background:none;border:1px solid var(--line);color:var(--ivory-dim);
+    padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.9rem;
+  }
+  .board-nav button:hover{color:var(--gold-bright);border-color:var(--gold);}
+  .game-title{font-family:'Spectral',serif;font-size:2.15rem;margin-bottom:6px;}
+  .game-info{font-size:0.88rem;color:var(--ivory-dim);margin-bottom:18px;}
+  .move-list{display:flex;flex-wrap:wrap;gap:4px 10px;max-height:260px;overflow-y:auto;font-size:0.92rem;}
+  .move-num{color:var(--ivory-dim);margin-right:2px;}
+  .move-btn{
+    background:none;border:none;color:var(--ivory-dim);cursor:pointer;
+    font-family:'Inter',sans-serif;font-size:0.92rem;padding:2px 5px;
+  }
+  .move-btn:hover{color:var(--ivory);}
+  .move-btn.active{color:var(--gold-bright);background:rgba(168,130,60,0.14);}
+  @media (max-width:720px){.games-layout{grid-template-columns:1fr;}.board-wrap{align-items:flex-start;}}
+
+  /* process */
+  .steps{border-top:1px solid var(--line);}
+  .step-row{display:grid;grid-template-columns:70px 1fr;gap:28px;padding:26px 0;border-bottom:1px solid var(--line);}
+  .step-num{font-family:'Spectral',serif;font-size:1.3rem;color:var(--gold-bright);}
+  .step-row h3{font-size:1.05rem;margin-bottom:6px;}
+  .step-row p{margin:0;color:var(--ivory-dim);font-size:0.94rem;max-width:60ch;}
+
+  /* cta */
+  .cta-section{text-align:left;}
+  .cta-box{background:var(--surface-raised);border:1px solid var(--line);padding:56px;display:grid;grid-template-columns:1.2fr 0.8fr;gap:40px;align-items:center;}
+  .cta-box h2{font-size:clamp(1.7rem,3vw,2.2rem);max-width:14ch;margin-bottom:14px;}
+  .cta-box p{margin:0;color:var(--ivory-dim);max-width:44ch;}
+  .cta-actions{display:flex;flex-direction:column;gap:14px;align-items:flex-start;}
+  .whatsapp-link{font-size:0.85rem;color:var(--gold-bright);text-decoration:underline;text-underline-offset:3px;}
+  .whatsapp-link:hover{color:var(--ivory);}
+  @media (max-width:840px){.cta-box{grid-template-columns:1fr;padding:36px 28px;}}
+
+  footer{padding:32px 0;}
+  footer .wrap{display:flex;justify-content:space-between;color:var(--ivory-dim);font-size:0.82rem;flex-wrap:wrap;gap:10px;}
+
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none !important;}}
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="brand">IM Jakob Leon <em>Pajeken</em></div>
+    <div class="langtoggle">
+      <button type="button" data-lang="en" class="active">EN</button>
+      <button type="button" data-lang="de">DE</button>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1 class="name" data-i18n="hero.title">Jakob Leon <span class="accent">Pajeken</span> — Chess &amp; Coaching<span class="tagline">International Master · Tournament Player · Coach</span></h1>
+      <div class="hero-cta">
+        <a href="#" class="btn solid" data-goto-tab="contact" data-i18n="hero.cta1">Book a first session</a>
+        <a href="#" class="btn" data-goto-tab="coaching" data-i18n="hero.cta2">See how I coach</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="figure" id="fide-rating-figure">2482</div><div class="label" data-i18n="hero.stat1">FIDE rating</div></div>
+      <div class="stat"><div class="figure" data-i18n="hero.stat2fig">2 GM norms</div><div class="label" data-i18n="hero.stat2">Towards the Grandmaster title</div></div>
+      <div class="stat"><div class="figure" data-i18n="hero.stat3fig">5+ years</div><div class="label" data-i18n="hero.stat3">Coaching experience</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="tabbar-outer">
+  <div class="wrap">
+    <nav class="tabbar" role="tablist">
+      <button type="button" role="tab" data-tab="about" class="active" data-i18n="nav.about">About me</button>
+      <button type="button" role="tab" data-tab="career" data-i18n="nav.career">Career</button>
+      <button type="button" role="tab" data-tab="blog" data-i18n="nav.blog">Blog</button>
+      <button type="button" role="tab" data-tab="coaching" data-i18n="nav.coaching">Coaching</button>
+      <button type="button" role="tab" data-tab="contact" data-i18n="nav.contact">Contact</button>
+    </nav>
+  </div>
+</div>
+
+<section id="about" class="tabpanel active-panel">
+  <div class="wrap">
+    <div class="section-head single" style="margin-bottom:20px;">
+      <h2 data-i18n="about.heading">About me</h2>
+    </div>
+    <p class="about-greeting" data-i18n="about.sub">Hello! I'm Jakob Leon Pajeken, an International Master and dedicated chess coach, currently rated <span id="fide-rating-sub">2482</span> FIDE with two GM norms.</p>
+    <div class="about-stack">
+      <div class="about-portrait"><img src="profile.jpg" alt="Jakob Pajeken at a chess tournament, making a move on the board"></div>
+      <div class="about-text">
+        <p data-i18n="about.p1">Chess has been a part of my life since I was five years old – and over the years, it has grown from a childhood passion into both my profession and my way of life.</p>
+        <p data-i18n="about.p2">I discovered chess through my father, <strong>FM Wolfgang Pajeken</strong>, who introduced me to the game at an early age and played an important role in shaping my development as a chess player.</p>
+        <p data-i18n="about.p3">Since then, I have built my own path in chess, with <strong>more than 30 tournament victories</strong> and countless experiences both at the board and as a coach. While I am proud of what I have achieved so far, my own chess journey is far from over. I continue to work every day on improving my game and taking the next steps in my development.</p>
+        <p data-i18n="about.p4">As a passionate tournament player and chess trainer, I enjoy looking at the game from both perspectives: the challenge of competing at the board and the process of understanding, explaining and improving chess. On this website, I share my chess journey, experiences and thoughts about the game, while also offering individual chess lessons and training games in both English and German.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="coaching" class="tabpanel">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 data-i18n="coaching.heading">How I coach</h2>
+      <p data-i18n="coaching.sub">Individual sessions built around your games, your openings, and your independent training.</p>
+    </div>
+
+    <div class="pt-grid">
+      <div class="pt-col before">
+        <h3 data-i18n="problem.beforetitle">Without a structured plan</h3>
+        <ul>
+          <li data-i18n="problem.before1">You know roughly what you're bad at, but not why it keeps happening.</li>
+          <li data-i18n="problem.before2">Openings are a patchwork of videos and half-remembered lines.</li>
+          <li data-i18n="problem.before3">Studying between games feels aimless, so it happens less and less.</li>
+          <li data-i18n="problem.before4">Feedback on your games is generic, not specific to your mistakes.</li>
+        </ul>
+      </div>
+      <div class="pt-col after">
+        <h3 data-i18n="problem.aftertitle">With targeted coaching</h3>
+        <ul>
+          <li data-i18n="problem.after1">Your games are analysed for root causes, not just move-by-move errors.</li>
+          <li data-i18n="problem.after2">A repertoire built for your style, understood rather than memorised.</li>
+          <li data-i18n="problem.after3">Clear homework and training methods for the days between sessions.</li>
+          <li data-i18n="problem.after4">You learn how to train yourself — not just what to do in the next lesson.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="offer-grid" style="margin-top:56px;">
+      <div class="offer-card">
+        <h3 data-i18n="coaching.c1title">One-on-one lessons</h3>
+        <p data-i18n="coaching.c1body">Regular individual sessions, online or in Hamburg, in English or German. We work through your games, your thinking process, and the specific patterns holding you back.</p>
+      </div>
+      <div class="offer-card">
+        <h3 data-i18n="coaching.c2title">Training games</h3>
+        <p data-i18n="coaching.c2body">Games played against me, followed by analysis — a direct way to test new ideas and see exactly where a plan or calculation breaks down under real pressure.</p>
+      </div>
+      <div class="offer-card">
+        <h3 data-i18n="coaching.c3title">Opening repertoire</h3>
+        <p data-i18n="coaching.c3body">A repertoire chosen for your style and level, not a generic course — built to lead into positions and strategic challenges you're actually equipped to handle.</p>
+      </div>
+      <div class="offer-card">
+        <h3 data-i18n="coaching.c4title">Independent training</h3>
+        <p data-i18n="coaching.c4body">One lesson a week is never enough on its own. I give clear guidance for the time in between: specific exercises, training methods, and homework tailored to you — because "the student thinks" beats "the coach talks."</p>
+      </div>
+    </div>
+
+    <div class="tab-subsection">
+      <div class="section-head" style="margin-bottom:32px;">
+        <h2 data-i18n="process.heading">How we'd start working together</h2>
+        <p data-i18n="process.sub">A simple process, from first contact to your first block of sessions.</p>
+      </div>
+      <div class="steps">
+        <div class="step-row">
+          <div class="step-num">01</div>
+          <div><h3 data-i18n="process.s1title">Get in touch</h3><p data-i18n="process.s1body"><strong>Send me a short introduction of yourself:</strong> your age, your current chess level, your chess goals, and what chess means to you.</p></div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">02</div>
+          <div><h3 data-i18n="process.s2title">Assessment session</h3><p data-i18n="process.s2body">We look at a few of your recent games together, so I can identify real patterns, not just the last mistake you noticed.</p></div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">03</div>
+          <div><h3 data-i18n="process.s3title">Tailored plan</h3><p data-i18n="process.s3body">Based on that, I set out where the training will focus first — openings, calculation, endgames, or how you train between sessions.</p></div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">04</div>
+          <div><h3 data-i18n="process.s4title">Regular sessions &amp; homework</h3><p data-i18n="process.s4body">Weekly (or more frequent) lessons, each followed by specific homework and exercises for the days in between.</p></div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">05</div>
+          <div><h3 data-i18n="process.s5title">Review &amp; adjust</h3><p data-i18n="process.s5body">We revisit the plan regularly and adjust it as your games change — training should follow your actual progress, not a fixed script.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-subsection">
+      <div class="section-head" style="margin-bottom:32px;">
+        <h2 data-i18n="testi.heading">What students say</h2>
+        <p data-i18n="testi.sub">The experiences of people who took the next step.</p>
+      </div>
+      <div class="testi-grid" id="testi-grid">
+        <div class="testi-card">
+          <div class="quote" data-i18n="testi.q1">Add a short quote from a student here — what changed in their game or how they train.</div>
+          <div class="who" data-i18n="testi.w1">Student name, rating or level</div>
+        </div>
+        <div class="testi-card">
+          <div class="quote" data-i18n="testi.q2">Add a short quote from a student here — what changed in their game or how they train.</div>
+          <div class="who" data-i18n="testi.w2">Student name, rating or level</div>
+        </div>
+        <div class="testi-card">
+          <div class="quote" data-i18n="testi.q3">Add a short quote from a student here — what changed in their game or how they train.</div>
+          <div class="who" data-i18n="testi.w3">Student name, rating or level</div>
+        </div>
+      </div>
+      <!-- fallback cards above; replaced by data/testimonials.json content
+           via JS below once you add real testimonials with editor.html -->
+    </div>
+  </div>
+</section>
+
+<section id="career" class="tabpanel">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 data-i18n="results.heading">My chess career</h2>
+      <p data-i18n="results.sub">A coach's credibility starts at the board. Selected results from an active playing career.</p>
+    </div>
+    <div class="results-highlights">
+      <div class="res-card">
+        <h3 data-i18n="results.g1title">Titles &amp; norms</h3>
+        <ul>
+          <li data-i18n="results.g1l1">2018 — Winner, IM tournament Norderstedt (1st IM norm)</li>
+          <li data-i18n="results.g1l2">2018 — Winner, 3rd New Chess Brains, Hamburg (2nd IM norm)</li>
+          <li data-i18n="results.g1l3">2019 — 3rd IM norm; International Master title fulfilled</li>
+          <li data-i18n="results.g1l4">2024 — 2nd place, Riga Technical University Open A (1st GM norm)</li>
+          <li data-i18n="results.g1l5">2025 — Winner, Smuk Skak GM, Skanderborg (2nd GM norm)</li>
+        </ul>
+      </div>
+      <div class="res-card">
+        <h3 data-i18n="results.g2title">National team &amp; Bundesliga</h3>
+        <ul>
+          <li data-i18n="results.g2l1">2016, 2018 — German national team, U16 Chess Olympiad</li>
+          <li data-i18n="results.g2l2">2018 — German national team, U18 Team European Championship</li>
+          <li data-i18n="results.g2l3">2019–2024 — Bundesliga player, SK Doppelbauer Kiel &amp; SG Turm Kiel (30+ games)</li>
+          <li data-i18n="results.g2l4">2023 — Winner, North German Blitz Team Championship, top board for SK Doppelbauer Kiel</li>
+        </ul>
+      </div>
+      <div class="res-card">
+        <h3 data-i18n="results.g3title">National championships</h3>
+        <ul>
+          <li data-i18n="results.g3l1">2021 — Bronze, German Rapid Championship</li>
+          <li data-i18n="results.g3l2">2023 — Bronze, German Blitz Championship</li>
+          <li data-i18n="results.g3l3">2022, 2026 — Winner, North German Blitz Championship</li>
+          <li data-i18n="results.g3l4">2024 — Winner, Schleswig-Holstein Rapid Championship</li>
+        </ul>
+      </div>
+    </div>
+
+    <details class="full-results">
+      <summary data-i18n="results.showall">View the full tournament record</summary>
+      <div class="full-list">
+        <p data-i18n="results.f1">2012 — Hamburg U10 Champion</p>
+        <p data-i18n="results.f2">2014 — German Club U12 Champion with Hamburger SK</p>
+        <p data-i18n="results.f3">2015 — 10th place, U12 World Youth Championship, Porto Carras</p>
+        <p data-i18n="results.f4">2019 — Winner, 13th Delme Open, Delmenhorst</p>
+        <p data-i18n="results.f5">2022 — 2nd place, Bamberg Open</p>
+        <p data-i18n="results.f6">2022 — Shared 1st, Böblingen Open</p>
+        <p data-i18n="results.f7">2022, 2025 — Winner, Doppelbauer Kiel Rapid Open</p>
+        <p data-i18n="results.f8">2023 — Winner, VII Turniej Klubu Marynarki Wojennej</p>
+        <p data-i18n="results.f9">2023 — Winner, Eugen Engel Memorial</p>
+        <p data-i18n="results.f10">2023 — Winner, 1st Open International Lower Saxon Bullet Championship</p>
+        <p data-i18n="results.f11">2023 — Winner, Schlacht von Dennewitz</p>
+        <p data-i18n="results.f12">2023, 2024 — Winner, Lurup Rapid Tournament</p>
+        <p data-i18n="results.f13">2023–2024 — Winner, Danish Team Championship with SK Skanderborg</p>
+        <p data-i18n="results.f14">2023 — Winner, adh-Open Rapid, Berlin (German university championship)</p>
+        <p data-i18n="results.f15">2023 — Winner, 1st St. Pauli Rapid Open</p>
+        <p data-i18n="results.f16">2024 — Winner, Schleswig-Holstein Blitz Team Championship with SK Doppelbauer Kiel</p>
+        <p data-i18n="results.f17">2024 — Winner, Anderten Open</p>
+        <p data-i18n="results.f18">2024 — Winner, 3rd Walddörfer Rapid Tournament</p>
+        <p data-i18n="results.f19">2024 — Winner, 1st Blankenese Rapid Open</p>
+        <p data-i18n="results.f20">2024 — 2nd place, FIDE 100 Years Blitz Tournament, Riga</p>
+        <p data-i18n="results.f21">2024 — Winner, 2nd Lemförde Rapid Open</p>
+        <p data-i18n="results.f22">2025 — 2nd place, North German Blitz Championship</p>
+        <p data-i18n="results.f23">2025 — Winner, 4th International Rapid Tournament Elmshorn</p>
+        <p data-i18n="results.f24">2025 — Winner, Burkhard Mentz Memorial</p>
+        <p data-i18n="results.f25">2026 — Winner, 1st Werder Bremen Rapid Open</p>
+        <p data-i18n="results.f26">2026 — Winner, SonFlow Cup / Kolding Town Championship</p>
+        <p data-i18n="results.f27">2026 — Winner, Smuk Skak GM, Skanderborg</p>
+        <p data-i18n="results.f28">2026 — 2nd place, ØBRO &amp; CXU International, Copenhagen</p>
+      </div>
+    </details>
+
+    <div class="best-games">
+      <div class="section-head" style="margin-bottom:32px;">
+        <h2 data-i18n="games.heading">My most memorable games</h2>
+        <p data-i18n="games.sub">A selection of games to play through move by move.</p>
+      </div>
+
+      <div class="games-controls-top">
+        <select id="game-select" aria-label="Select a game"></select>
+      </div>
+
+      <div id="admin-tools" hidden>
+        <div class="games-controls-top">
+          <button type="button" id="toggle-paste" class="btn" data-i18n="games.pastebtn">Paste your own PGN</button>
+        </div>
+        <div id="paste-panel" class="paste-panel" hidden>
+          <label for="pgn-title-input" data-i18n="games.titlelabel">Game title (optional)</label>
+          <input type="text" id="pgn-title-input" data-i18n-placeholder="games.titleplaceholder" placeholder="e.g. Round 5 vs. Smith, Elmshorn 2026">
+          <label for="pgn-input" data-i18n="games.pgnlabel">PGN</label>
+          <textarea id="pgn-input" rows="5" data-i18n-placeholder="games.pasteplaceholder" placeholder="Paste a PGN here, e.g. starting with [Event &quot;...&quot;] ... 1. e4 e5 2. Nf3 ..."></textarea>
+          <button type="button" id="load-pgn" class="btn solid" data-i18n="games.loadbtn">Load game</button>
+          <div id="pgn-error" class="pgn-error"></div>
+        </div>
+      </div>
+
+      <div class="games-layout">
+        <div class="board-wrap">
+          <div class="player-label player-black" id="player-black"><span class="side-dot"></span><span id="player-black-name">Black</span></div>
+          <div class="board-frame">
+            <div class="ranks-col" aria-hidden="true">
+              <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+            </div>
+            <div class="board-and-files">
+              <div id="chess-board" class="chess-board" aria-label="Chess board"></div>
+              <div class="files-row" aria-hidden="true">
+                <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+              </div>
+            </div>
+          </div>
+          <div class="player-label player-white" id="player-white"><span class="side-dot"></span><span id="player-white-name">White</span></div>
+          <div class="board-nav">
+            <button type="button" id="nav-start" aria-label="First move">|&laquo;</button>
+            <button type="button" id="nav-prev" aria-label="Previous move">&laquo;</button>
+            <button type="button" id="nav-next" aria-label="Next move">&raquo;</button>
+            <button type="button" id="nav-end" aria-label="Last move">&raquo;|</button>
+          </div>
+        </div>
+        <div class="game-meta">
+          <div id="game-title" class="game-title"></div>
+          <div id="game-info" class="game-info"></div>
+          <div id="move-list" class="move-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="blog" class="tabpanel">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 data-i18n="blog.heading">Blog</h2>
+      <p data-i18n="blog.sub">Placeholder space — swap these three cards for your own posts on openings, tournaments, or training ideas.</p>
+    </div>
+    <div class="blog-list" id="blog-grid">
+      <article class="blog-card">
+        <div class="blog-card-body">
+          <div class="blog-date" data-i18n="blog.p1date">Add a date</div>
+          <h3 data-i18n="blog.p1title">Add a post title here</h3>
+          <p data-i18n="blog.p1excerpt">A short excerpt of the post goes here — a sentence or two that makes someone want to read on.</p>
+          <a href="blog-post.html" class="blog-link" data-i18n="blog.readmore">Read more →</a>
+        </div>
+      </article>
+      <article class="blog-card">
+        <div class="blog-card-body">
+          <div class="blog-date" data-i18n="blog.p2date">Add a date</div>
+          <h3 data-i18n="blog.p2title">Add a post title here</h3>
+          <p data-i18n="blog.p2excerpt">A short excerpt of the post goes here — a sentence or two that makes someone want to read on.</p>
+          <a href="blog-post.html" class="blog-link" data-i18n="blog.readmore">Read more →</a>
+        </div>
+      </article>
+      <article class="blog-card">
+        <div class="blog-card-body">
+          <div class="blog-date" data-i18n="blog.p3date">Add a date</div>
+          <h3 data-i18n="blog.p3title">Add a post title here</h3>
+          <p data-i18n="blog.p3excerpt">A short excerpt of the post goes here — a sentence or two that makes someone want to read on.</p>
+          <a href="blog-post.html" class="blog-link" data-i18n="blog.readmore">Read more →</a>
+        </div>
+      </article>
+    </div>
+    <div class="blog-loadmore-wrap" id="blog-loadmore-wrap" hidden>
+      <button type="button" class="btn" id="blog-loadmore" data-i18n="blog.loadmore">Older posts</button>
+    </div>
+    <!-- The three cards above are the fallback shown only when data/blog.json
+         can't be loaded (opened as a local file) or is empty. Once you add
+         real posts with editor.html, JS below replaces this grid's content
+         with cards generated from data/blog.json — newest first, 3 at a
+         time, with "Older posts" revealing more. -->
+  </div>
+</section>
+
+<section id="contact" class="cta-section tabpanel">
+  <div class="wrap">
+    <div class="cta-box">
+      <div>
+        <h2 data-i18n="cta.heading">Ready to train with a clear plan?</h2>
+        <p data-i18n="cta.sub">Send me a message about your chess background and what you're working towards — I'll get back to you with a suggestion for how to start.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="mailto:jakobpajeken@gmail.com" class="btn solid" data-i18n="cta.button">Send an email</a>
+        <!-- wa.me opens straight into a chat in the WhatsApp app if it's
+             installed, otherwise it falls back to WhatsApp Web. -->
+        <a href="https://wa.me/4917663258882" target="_blank" rel="noopener" class="whatsapp-link" data-i18n="cta.orDm">or message me on WhatsApp (+49 176 63258882) for a fast reply</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Jakob Leon Pajeken</span>
+    <span data-i18n="footer.note">Tournament results and ratings as reported by the player</span>
+  </div>
+</footer>
+
+<script>
+const i18n = {
+  "nav.about":{en:"About me",de:"Über mich"},
+  "nav.coaching":{en:"Coaching",de:"Training"},
+  "nav.career":{en:"Career",de:"Werdegang"},
+  "nav.blog":{en:"Blog",de:"Blog"},
+  "nav.contact":{en:"Contact",de:"Kontakt"},
+  "hero.title":{en:'Jakob Leon <span class="accent">Pajeken</span> — Chess &amp; Coaching<span class="tagline">International Master · Tournament Player · Coach</span>',de:'Jakob Leon <span class="accent">Pajeken</span> — Schach &amp; Coaching<span class="tagline">Internationaler Meister · Turnierspieler · Trainer</span>'},
+  "hero.cta1":{en:"Book a first session",de:"Erste Stunde anfragen"},
+  "hero.cta2":{en:"See how I coach",de:"Meine Trainingsweise"},
+  "hero.stat1":{en:"FIDE rating",de:"FIDE-Elo"},
+  "hero.stat2fig":{en:"2 GM norms",de:"2 GM-Normen"},
+  "hero.stat2":{en:"Towards the Grandmaster title",de:"Auf dem Weg zum GM-Titel"},
+  "hero.stat3fig":{en:"5+ years",de:"5+ Jahre"},
+  "hero.stat3":{en:"Coaching experience",de:"Trainererfahrung"},
+  "about.heading":{en:"About me",de:"Über mich"},
+  "about.sub":{en:'Hello! I\'m Jakob Leon Pajeken, an International Master and dedicated chess coach, currently rated <span id="fide-rating-sub">2482</span> FIDE with two GM norms.',de:'Hallo! Mein Name ist Jakob Leon Pajeken. Ich bin Internationaler Meister und leidenschaftlicher Schachtrainer. Aktuell habe ich eine FIDE-Elo von <span id="fide-rating-sub">2482</span> und zwei Großmeisternormen.'},
+  "about.p1":{en:"Chess has been a part of my life since I was five years old – and over the years, it has grown from a childhood passion into both my profession and my way of life.",de:"Schach ist seit meinem fünften Lebensjahr Teil meines Lebens – und hat sich im Laufe der Jahre von einer Kindheitsleidenschaft zu meinem Beruf und meiner Lebensweise entwickelt."},
+  "about.p2":{en:'I discovered chess through my father, <strong>FM Wolfgang Pajeken</strong>, who introduced me to the game at an early age and played an important role in shaping my development as a chess player.',de:'Zum Schach kam ich durch meinen Vater, <strong>FM Wolfgang Pajeken</strong>, der mich schon früh an das Spiel heranführte und meine Entwicklung als Schachspieler maßgeblich mitgeprägt hat.'},
+  "about.p3":{en:"Since then, I have built my own path in chess, with more than 30 tournament victories and countless experiences both at the board and as a coach. While I am proud of what I have achieved so far, my own chess journey is far from over. I continue to work every day on improving my game and taking the next steps in my development.",de:"Seitdem habe ich meinen eigenen Weg im Schach verfolgt, mit mehr als 30 Turniersiegen und unzähligen Erfahrungen – sowohl am Brett als auch als Trainer. Auch wenn ich stolz auf das bisher Erreichte bin, ist meine schachliche Reise noch lange nicht zu Ende. Ich arbeite täglich weiter daran, mein Spiel zu verbessern und den nächsten Schritt in meiner Entwicklung zu gehen."},
+  "about.p4":{en:"As a passionate tournament player and chess trainer, I enjoy looking at the game from both perspectives: the challenge of competing at the board and the process of understanding, explaining and improving chess. On this website, I share my chess journey, experiences and thoughts about the game, while also offering individual chess lessons and training games in both English and German.",de:"Als leidenschaftlicher Turnierspieler und Schachtrainer schätze ich beide Perspektiven auf das Spiel: die Herausforderung des Wettkampfs am Brett und den Prozess, Schach zu verstehen, zu erklären und weiterzuentwickeln. Auf dieser Website teile ich meinen schachlichen Weg, meine Erfahrungen und Gedanken zum Spiel – und biete außerdem Einzelunterricht und Trainingspartien auf Englisch und Deutsch an."},
+  "problem.heading":{en:"Where most self-taught improvement stalls",de:"Woran Eigentraining meistens scheitert"},
+  "problem.sub":{en:"One lesson a week isn't the plan — it's one part of it. The rest happens in how you train in between.",de:"Eine Stunde pro Woche ist nicht der ganze Plan — sondern nur ein Teil davon. Der Rest entscheidet sich im Training dazwischen."},
+  "problem.beforetitle":{en:"Without a structured plan",de:"Ohne strukturierten Plan"},
+  "problem.before1":{en:"You know roughly what you're bad at, but not why it keeps happening.",de:"Du weißt ungefähr, wo deine Schwächen liegen, aber nicht, warum sie sich wiederholen."},
+  "problem.before2":{en:"Openings are a patchwork of videos and half-remembered lines.",de:"Eröffnungen sind ein Flickwerk aus Videos und halb erinnerten Varianten."},
+  "problem.before3":{en:"Studying between games feels aimless, so it happens less and less.",de:"Training zwischen den Partien wirkt ziellos — und passiert deshalb immer seltener."},
+  "problem.before4":{en:"Feedback on your games is generic, not specific to your mistakes.",de:"Feedback zu deinen Partien bleibt allgemein, statt auf deine konkreten Fehler einzugehen."},
+  "problem.aftertitle":{en:"With targeted coaching",de:"Mit gezieltem Training"},
+  "problem.after1":{en:"Your games are analysed for root causes, not just move-by-move errors.",de:"Deine Partien werden auf Ursachen hin analysiert, nicht nur Zug für Zug auf Fehler."},
+  "problem.after2":{en:"A repertoire built for your style, understood rather than memorised.",de:"Ein Repertoire für deinen Stil — verstanden statt nur auswendig gelernt."},
+  "problem.after3":{en:"Clear homework and training methods for the days between sessions.",de:"Klare Hausaufgaben und Trainingsmethoden für die Tage zwischen den Stunden."},
+  "problem.after4":{en:"You learn how to train yourself — not just what to do in the next lesson.",de:"Du lernst, dich selbst zu trainieren — nicht nur, was in der nächsten Stunde ansteht."},
+  "coaching.heading":{en:"How I coach",de:"Meine Trainingsweise"},
+  "coaching.sub":{en:"Individual sessions built around your games, your openings, and your independent training.",de:"Einzeltraining, aufgebaut auf deinen Partien, deinen Eröffnungen und deinem Eigentraining."},
+  "coaching.c1title":{en:"One-on-one lessons",de:"Einzelunterricht"},
+  "coaching.c1body":{en:"Regular individual sessions, online or in Hamburg, in English or German. We work through your games, your thinking process, and the specific patterns holding you back.",de:"Regelmäßiger Einzelunterricht, online oder in Hamburg, auf Englisch oder Deutsch. Wir arbeiten deine Partien, deinen Denkprozess und die Muster durch, die dich zurückhalten."},
+  "coaching.c2title":{en:"Training games",de:"Trainingspartien"},
+  "coaching.c2body":{en:"Games played against me, followed by analysis — a direct way to test new ideas and see exactly where a plan or calculation breaks down under real pressure.",de:"Partien gegen mich, gefolgt von Analyse — eine direkte Möglichkeit, neue Ideen zu testen und genau zu sehen, wo ein Plan oder eine Berechnung unter echtem Druck nicht mehr trägt."},
+  "coaching.c3title":{en:"Opening repertoire",de:"Eröffnungsrepertoire"},
+  "coaching.c3body":{en:"A repertoire chosen for your style and level, not a generic course — built to lead into positions and strategic challenges you're actually equipped to handle.",de:"Ein Repertoire, das zu deinem Stil und Niveau passt statt aus dem Baukasten — so gewählt, dass es zu Stellungen und strategischen Herausforderungen führt, die du auch wirklich bewältigen kannst."},
+  "coaching.c4title":{en:"Independent training",de:"Eigentraining"},
+  "coaching.c4body":{en:'One lesson a week is never enough on its own. I give clear guidance for the time in between: specific exercises, training methods, and homework tailored to you — because "the student thinks" beats "the coach talks."',de:'Eine Stunde pro Woche reicht allein nie aus. Ich gebe klare Anleitung für die Zeit dazwischen: konkrete Übungen, Trainingsmethoden und Hausaufgaben, zugeschnitten auf dich — denn „der Schüler denkt" schlägt „der Trainer redet".'},
+  "results.heading":{en:"My chess career",de:"Meine Schachkarriere"},
+  "results.sub":{en:"A coach's credibility starts at the board. Selected results from an active playing career.",de:"Die Glaubwürdigkeit eines Trainers beginnt am Brett. Ausgewählte Ergebnisse aus einer aktiven Turnierlaufbahn."},
+  "results.g1title":{en:"Titles & norms",de:"Titel &amp; Normen"},
+  "results.g1l1":{en:"2018 — Winner, IM tournament Norderstedt (1st IM norm)",de:"2018 — Sieger IM-Turnier Norderstedt (1. IM-Norm)"},
+  "results.g1l2":{en:"2018 — Winner, 3rd New Chess Brains, Hamburg (2nd IM norm)",de:"2018 — Sieger 3. New Chess Brains, Hamburg (2. IM-Norm)"},
+  "results.g1l3":{en:"2019 — 3rd IM norm; International Master title fulfilled",de:"2019 — 3. IM-Norm; Voraussetzungen für den IM-Titel erfüllt"},
+  "results.g1l4":{en:"2024 — 2nd place, Riga Technical University Open A (1st GM norm)",de:"2024 — 2. Platz Riga Technical University Open A (1. GM-Norm)"},
+  "results.g1l5":{en:"2025 — Winner, Smuk Skak GM, Skanderborg (2nd GM norm)",de:"2025 — Sieger Smuk Skak GM, Skanderborg (2. GM-Norm)"},
+  "results.g2title":{en:"National team & Bundesliga",de:"Nationalmannschaft &amp; Bundesliga"},
+  "results.g2l1":{en:"2016, 2018 — German national team, U16 Chess Olympiad",de:"2016, 2018 — Deutsche Nationalmannschaft, U16-Schacholympiade"},
+  "results.g2l2":{en:"2018 — German national team, U18 Team European Championship",de:"2018 — Deutsche Nationalmannschaft, U18-Mannschafts-EM"},
+  "results.g2l3":{en:"2019–2024 — Bundesliga player, SK Doppelbauer Kiel & SG Turm Kiel (30+ games)",de:"2019–2024 — Bundesligaspieler, SK Doppelbauer Kiel &amp; SG Turm Kiel (30+ Einsätze)"},
+  "results.g2l4":{en:"2023 — Winner, North German Blitz Team Championship, top board for SK Doppelbauer Kiel",de:"2023 — Sieger Norddeutsche Blitzmannschaftsmeisterschaft, Spitzenbrett SK Doppelbauer Kiel"},
+  "results.g3title":{en:"National championships",de:"Deutsche Meisterschaften"},
+  "results.g3l1":{en:"2021 — Bronze, German Rapid Championship",de:"2021 — Bronze, Deutsche Schnellschachmeisterschaft"},
+  "results.g3l2":{en:"2023 — Bronze, German Blitz Championship",de:"2023 — Bronze, Deutsche Blitzeinzelmeisterschaft"},
+  "results.g3l3":{en:"2022, 2026 — Winner, North German Blitz Championship",de:"2022, 2026 — Sieger Norddeutsche Blitz-Einzelmeisterschaft"},
+  "results.g3l4":{en:"2024 — Winner, Schleswig-Holstein Rapid Championship",de:"2024 — Sieger Schleswig-Holsteinische Landesschnellschachmeisterschaft"},
+  "results.showall":{en:"View the full tournament record",de:"Vollständige Turnierliste ansehen"},
+  "results.f1":{en:"2012 — Hamburg U10 Champion",de:"2012 — Hamburger Meister U10"},
+  "results.f2":{en:"2014 — German Club U12 Champion with Hamburger SK",de:"2014 — Deutscher Vereinsmeister U12 mit dem Hamburger SK"},
+  "results.f3":{en:"2015 — 10th place, U12 World Youth Championship, Porto Carras",de:"2015 — 10. Platz Jugend-WM U12, Porto Carras"},
+  "results.f4":{en:"2019 — Winner, 13th Delme Open, Delmenhorst",de:"2019 — Sieger 13. Delme Open, Delmenhorst"},
+  "results.f5":{en:"2022 — 2nd place, Bamberg Open",de:"2022 — 2. Platz Bamberg-Open"},
+  "results.f6":{en:"2022 — Shared 1st, Böblingen Open",de:"2022 — Böblinger Open, geteilter 1. Platz"},
+  "results.f7":{en:"2022, 2025 — Winner, Doppelbauer Kiel Rapid Open",de:"2022, 2025 — Sieger Schnellschach Open Doppelbauer Kiel"},
+  "results.f8":{en:"2023 — Winner, VII Turniej Klubu Marynarki Wojennej",de:"2023 — Sieger VII Turniej Klubu Marynarki Wojennej"},
+  "results.f9":{en:"2023 — Winner, Eugen Engel Memorial",de:"2023 — Sieger Eugen-Engel-Gedenkturnier"},
+  "results.f10":{en:"2023 — Winner, 1st Open International Lower Saxon Bullet Championship",de:"2023 — Sieger 1. Offene Internationale Niedersächsische Bulletmeisterschaft"},
+  "results.f11":{en:"2023 — Winner, Schlacht von Dennewitz",de:"2023 — Sieger Schlacht von Dennewitz"},
+  "results.f12":{en:"2023, 2024 — Winner, Lurup Rapid Tournament",de:"2023, 2024 — Sieger Luruper Schnellschachturnier"},
+  "results.f13":{en:"2023–2024 — Winner, Danish Team Championship with SK Skanderborg",de:"2023–2024 — Sieger Dänische Mannschaftsmeisterschaft mit SK Skanderborg"},
+  "results.f14":{en:"2023 — Winner, adh-Open Rapid, Berlin (German university championship)",de:"2023 — Sieger adh-Open Schnellschach, Berlin"},
+  "results.f15":{en:"2023 — Winner, 1st St. Pauli Rapid Open",de:"2023 — Sieger 1. St.-Pauli-Schnellschachopen"},
+  "results.f16":{en:"2024 — Winner, Schleswig-Holstein Blitz Team Championship with SK Doppelbauer Kiel",de:"2024 — Sieger Landesblitzmannschaftsmeisterschaft Schleswig-Holstein mit SK Doppelbauer Kiel"},
+  "results.f17":{en:"2024 — Winner, Anderten Open",de:"2024 — Sieger Anderter Open"},
+  "results.f18":{en:"2024 — Winner, 3rd Walddörfer Rapid Tournament",de:"2024 — Sieger 3. Walddörfer Schnellschachturnier"},
+  "results.f19":{en:"2024 — Winner, 1st Blankenese Rapid Open",de:"2024 — Sieger 1. Blankeneser Rapid Open"},
+  "results.f20":{en:"2024 — 2nd place, FIDE 100 Years Blitz Tournament, Riga",de:"2024 — 2. Platz FIDE-100-Jahre-Blitzturnier, Riga"},
+  "results.f21":{en:"2024 — Winner, 2nd Lemförde Rapid Open",de:"2024 — Sieger 2. Lemförder Schnellschach-Open"},
+  "results.f22":{en:"2025 — 2nd place, North German Blitz Championship",de:"2025 — 2. Platz Norddeutsche Blitz-Einzelmeisterschaft"},
+  "results.f23":{en:"2025 — Winner, 4th International Rapid Tournament Elmshorn",de:"2025 — Sieger 4. Internationales Schnellschachturnier Elmshorn"},
+  "results.f24":{en:"2025 — Winner, Burkhard Mentz Memorial",de:"2025 — Sieger Burkhard-Mentz-Memorial"},
+  "results.f25":{en:"2026 — Winner, 1st Werder Bremen Rapid Open",de:"2026 — Sieger 1. Werder Bremen Rapid-Open"},
+  "results.f26":{en:"2026 — Winner, SonFlow Cup / Kolding Town Championship",de:"2026 — Sieger SonFlow Cup / Kolding Bymesterskab"},
+  "results.f27":{en:"2026 — Winner, Smuk Skak GM, Skanderborg",de:"2026 — Sieger Smuk Skak GM, Skanderborg"},
+  "results.f28":{en:"2026 — 2nd place, ØBRO & CXU International, Copenhagen",de:"2026 — 2. Platz ØBRO &amp; CXU International, Kopenhagen"},
+  "testi.heading":{en:"What students say",de:"Stimmen von Schülern"},
+  "testi.sub":{en:"The experiences of people who took the next step.",de:"Erfahrungen von Menschen, die den nächsten Schritt gewagt haben."},
+  "testi.q1":{en:"Add a short quote from a student here — what changed in their game or how they train.",de:"Hier ein kurzes Zitat eines Schülers einfügen — was sich in seinem Spiel oder Training verändert hat."},
+  "testi.w1":{en:"Student name, rating or level",de:"Name des Schülers, Elo oder Niveau"},
+  "testi.q2":{en:"Add a short quote from a student here — what changed in their game or how they train.",de:"Hier ein kurzes Zitat eines Schülers einfügen — was sich in seinem Spiel oder Training verändert hat."},
+  "testi.w2":{en:"Student name, rating or level",de:"Name des Schülers, Elo oder Niveau"},
+  "testi.q3":{en:"Add a short quote from a student here — what changed in their game or how they train.",de:"Hier ein kurzes Zitat eines Schülers einfügen — was sich in seinem Spiel oder Training verändert hat."},
+  "testi.w3":{en:"Student name, rating or level",de:"Name des Schülers, Elo oder Niveau"},
+  "process.heading":{en:"How we'd start working together",de:"So beginnt die Zusammenarbeit"},
+  "process.sub":{en:"A simple process, from first contact to your first block of sessions.",de:"Ein einfacher Ablauf, vom ersten Kontakt bis zum ersten Trainingsblock."},
+  "process.s1title":{en:"Get in touch",de:"Kontaktaufnahme"},
+  "process.s1body":{en:"<strong>Send me a short introduction of yourself:</strong> your age, your current chess level, your chess goals, and what chess means to you.",de:"<strong>Schreib mir eine Nachricht mit einer kurzen Vorstellung von dir:</strong> deinem Alter, deinem aktuellen Schachlevel, deinen schachlichen Zielen und dem, was Schach für dich bedeutet."},
+  "process.s2title":{en:"Assessment session",de:"Einschätzungsstunde"},
+  "process.s2body":{en:"We look at a few of your recent games together, so I can identify real patterns, not just the last mistake you noticed.",de:"Wir schauen uns gemeinsam einige deiner letzten Partien an, damit ich echte Muster erkennen kann — nicht nur den letzten Fehler, der dir aufgefallen ist."},
+  "process.s3title":{en:"Tailored plan",de:"Individueller Plan"},
+  "process.s3body":{en:"Based on that, I set out where the training will focus first — openings, calculation, endgames, or how you train between sessions.",de:"Darauf aufbauend lege ich fest, worauf sich das Training zuerst konzentriert — Eröffnungen, Berechnung, Endspiele oder dein Training zwischen den Stunden."},
+  "process.s4title":{en:"Regular sessions & homework",de:"Regelmäßige Stunden &amp; Hausaufgaben"},
+  "process.s4body":{en:"Weekly (or more frequent) lessons, each followed by specific homework and exercises for the days in between.",de:"Wöchentlicher (oder häufigerer) Unterricht, jeweils gefolgt von konkreten Hausaufgaben und Übungen für die Tage dazwischen."},
+  "process.s5title":{en:"Review & adjust",de:"Überprüfen &amp; anpassen"},
+  "process.s5body":{en:"We revisit the plan regularly and adjust it as your games change — training should follow your actual progress, not a fixed script.",de:"Wir überprüfen den Plan regelmäßig und passen ihn an, wenn sich deine Partien verändern — Training sollte deinem tatsächlichen Fortschritt folgen, nicht einem festen Schema."},
+  "blog.heading":{en:"Blog",de:"Blog"},
+  "blog.sub":{en:"Placeholder space — swap these three cards for your own posts on openings, tournaments, or training ideas.",de:"Turniere – Schach – persönliche Erfahrungen."},
+  "blog.p1date":{en:"Add a date",de:"Datum einfügen"},
+  "blog.p1title":{en:"Add a post title here",de:"Hier einen Titel einfügen"},
+  "blog.p1excerpt":{en:"A short excerpt of the post goes here — a sentence or two that makes someone want to read on.",de:"Hier ein kurzer Auszug des Beitrags — ein bis zwei Sätze, die zum Weiterlesen einladen."},
+  "blog.p2date":{en:"Add a date",de:"Datum einfügen"},
+  "blog.p2title":{en:"Add a post title here",de:"Hier einen Titel einfügen"},
+  "blog.p2excerpt":{en:"A short excerpt of the post goes here — a sentence or two that makes someone want to read on.",de:"Hier ein kurzer Auszug des Beitrags — ein bis zwei Sätze, die zum Weiterlesen einladen."},
+  "blog.p3date":{en:"Add a date",de:"Datum einfügen"},
+  "blog.p3title":{en:"Add a post title here",de:"Hier einen Titel einfügen"},
+  "blog.p3excerpt":{en:"A short excerpt of the post goes here — a sentence or two that makes someone want to read on.",de:"Hier ein kurzer Auszug des Beitrags — ein bis zwei Sätze, die zum Weiterlesen einladen."},
+  "blog.readmore":{en:"Read more →",de:"Weiterlesen →"},
+  "blog.loadmore":{en:"Older posts",de:"Ältere Beiträge"},
+  "games.heading":{en:"My most memorable games",de:"Meine unvergesslichsten Partien"},
+  "games.sub":{en:"A selection of games to play through move by move.",de:"Eine Auswahl an Partien zum Durchklicken, Zug für Zug."},
+  "games.pastebtn":{en:"Paste your own PGN",de:"Eigenes PGN einfügen"},
+  "games.titlelabel":{en:"Game title (optional)",de:"Partietitel (optional)"},
+  "games.titleplaceholder":{en:"e.g. Round 5 vs. Smith, Elmshorn 2026",de:"z. B. Runde 5 gegen Schmidt, Elmshorn 2026"},
+  "games.pgnlabel":{en:"PGN",de:"PGN"},
+  "games.pasteplaceholder":{en:'Paste a PGN here, e.g. starting with [Event "..."] ... 1. e4 e5 2. Nf3 ...',de:'Hier ein PGN einfügen, z. B. beginnend mit [Event "..."] ... 1. e4 e5 2. Sf3 ...'},
+  "games.loadbtn":{en:"Load game",de:"Partie laden"},
+  "cta.heading":{en:"Ready to train with a clear plan?",de:"Bereit für Training mit klarem Plan?"},
+  "cta.sub":{en:"Send me a message about your chess background and what you're working towards — I'll get back to you with a suggestion for how to start.",de:"Schreib mir kurz etwas zu deinem schachlichen Hintergrund und deinem Ziel — ich melde mich mit einem Vorschlag für den Einstieg zurück."},
+  "cta.button":{en:"Send an email",de:"E-Mail schreiben"},
+  "cta.orDm":{en:"or message me on WhatsApp (+49 176 63258882) for a fast reply",de:"oder schreib mir auf WhatsApp (+49 176 63258882) für eine schnelle Antwort"},
+  "footer.note":{en:"Tournament results and ratings as reported by the player",de:"Turnierergebnisse und Elo-Zahlen nach Angaben des Spielers"}
+};
+
+/* Picks the right language out of a value that may be either a plain
+   string (shown as-is in every language — the old, still-supported format)
+   or a {en:"...", de:"..."} object (written by editor.html once a real
+   translation has been added). Used for testimonial quotes and game
+   titles, which — unlike the rest of the site's text — live in data files
+   rather than the i18n object above. */
+function pickLang(val){
+  if(val == null) return '';
+  if(typeof val === 'object') return val[currentSiteLang()] || val.en || val.de || '';
+  return val;
+}
+function currentSiteLang(){
+  return document.documentElement.lang === 'de' ? 'de' : 'en';
+}
+
+function setLang(lang){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(i18n[key] && i18n[key][lang] !== undefined){
+      el.innerHTML = i18n[key][lang];
+    }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(i18n[key] && i18n[key][lang] !== undefined){
+      el.setAttribute('placeholder', i18n[key][lang]);
+    }
+  });
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.langtoggle button').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+  /* re-apply the live FIDE rating, since the innerHTML swap above just
+     overwrote the placeholder span with its hardcoded fallback value */
+  applyFideRating();
+  /* re-render JSON-driven blog cards so "Read more" matches the new language */
+  if(typeof renderBlogGrid === 'function') renderBlogGrid();
+  /* re-translate testimonial quotes and the loaded game's title/select list */
+  if(typeof renderTestiGrid === 'function') renderTestiGrid();
+  if(typeof refreshGameSelectLanguage === 'function') refreshGameSelectLanguage();
+  if(typeof refreshGameTitleLanguage === 'function') refreshGameTitleLanguage();
+}
+document.querySelectorAll('.langtoggle button').forEach(function(btn){
+  btn.addEventListener('click', function(){ setLang(btn.getAttribute('data-lang')); });
+});
+/* Force the page to sync with the i18n object right from the start, so the
+   raw English text baked into the HTML (a plain-text fallback) can never
+   silently drift out of sync with i18n["..."].en — whichever one someone
+   edits, this guarantees what's on screen always matches the i18n object. */
+setLang('en');
+
+/* ---------- live classical FIDE rating ---------- */
+var fideRatingValue = null;
+function applyFideRating(){
+  if(fideRatingValue == null) return;
+  var figureEl = document.getElementById('fide-rating-figure');
+  var subEl = document.getElementById('fide-rating-sub');
+  if(figureEl) figureEl.textContent = fideRatingValue;
+  if(subEl) subEl.textContent = fideRatingValue;
+}
+function loadFideRating(){
+  fetch('rating.json', { cache: 'no-store' })
+    .then(function(res){ return res.ok ? res.json() : null; })
+    .then(function(data){
+      if(data && data.classical){
+        fideRatingValue = data.classical;
+        applyFideRating();
+      }
+    })
+    .catch(function(){
+      /* rating.json missing or blocked (e.g. opened as a local file) —
+         the hardcoded value already in the page stays as-is */
+    });
+}
+loadFideRating();
+
+function showTab(tabId){
+  document.querySelectorAll('.tabbar button[data-tab]').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+  });
+  document.querySelectorAll('.tabpanel').forEach(function(panel){
+    panel.classList.toggle('active-panel', panel.id === tabId);
+  });
+  document.querySelector('.tabbar-outer').scrollIntoView({behavior:'smooth', block:'start'});
+}
+document.querySelectorAll('.tabbar button[data-tab]').forEach(function(btn){
+  btn.addEventListener('click', function(){ showTab(btn.getAttribute('data-tab')); });
+});
+document.querySelectorAll('[data-goto-tab]').forEach(function(el){
+  el.addEventListener('click', function(e){
+    e.preventDefault();
+    showTab(el.getAttribute('data-goto-tab'));
+  });
+});
+/* deep link support, e.g. coaching.html#blog coming back from a blog post */
+(function(){
+  var hashTab = location.hash.replace('#', '');
+  if(hashTab && document.getElementById(hashTab) && document.querySelector('.tabbar button[data-tab="' + hashTab + '"]')){
+    showTab(hashTab);
+  }
+})();
+
+/* ---------- best games / PGN board viewer ---------- */
+/* This hardcoded list is only the fallback used when data/games.json can't
+   be loaded (e.g. the page is opened by double-clicking the file instead of
+   through a web server — browsers block that fetch for local files). Add
+   real games with the editor.html tool, which writes to data/games.json;
+   that file is what actually renders once the site is hosted. */
+var sampleGames = [
+  {
+    title: "Must win vs GM Iniyan",
+    meta: "",
+    pgn: '[Event "Riga Tech op-A"]\n[Site "Riga"]\n[Date "2024.08.11"]\n[Round "9"]\n[White "Pajeken, Jakob Leon"]\n[Black "Iniyan, Panneerseluam"]\n[Result "1-0"]\n[ECO "B84"]\n[WhiteElo "2416"]\n[BlackElo "2547"]\n\n1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be3 e6 7. Be2 Qc7 8. Qd2 b5 9. a3 Bb7 10. f3 Nbd7 11. O-O-O Rc8 12. g4 Ne5 13. g5 Nfd7 14. f4 Nc4 15. Bxc4 Qxc4 16. Nb3 b4 17. axb4 Qxb4 18. Qe2 Nb6 19. Bxb6 Qxb6 20. f5 Be7 21. Rhg1 O-O 22. f6 Bd8 23. Rg3 g6 24. Rh3 h5 25. Kb1 a5 26. Rd4 e5 27. Rd1 Qb4 28. Nd5 Qc4 29. Qxc4 Rxc4 30. Nd2 Rc5 31. Rc3 Rxc3 32. Nxc3 Bc7 33. Nc4 Ba6 34. Na3 Re8 35. Nab5 Bb8 36. Ka2 Rc8 37. Kb3 Rc6 38. Ka4 Kf8 39. Kxa5 Ke8 40. Rd2 Kd7 41. Nd5 Bb7 42. c4 Ra6+ 43. Kb4 Ra1 44. c5 Re1 45. Nb6+ Kc6 46. Nxd6 Ba6 47. Nxf7 Rxe4+ 48. Ka5 Bc7 49. Kxa6 Bxb6 50. Nxe5+ 1-0'
+  },
+  {
+    title: "My best sacrifice ever",
+    meta: "",
+    pgn: '[Event "Uppsala Young Champions 9th"]\n[Site "Uppsala"]\n[Date "2022.10.31"]\n[Round "5"]\n[White "Pajeken, Jakob Leon"]\n[Black "Kruckenhauser, Arthur"]\n[Result "1-0"]\n[ECO "B84"]\n[WhiteElo "2461"]\n[BlackElo "2327"]\n\n1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be2 e6 7. Be3 Qc7 8. Qd2 b5 9. a3 Bb7 10. f3 h5 11. a4 b4 12. Na2 d5 13. e5 Nfd7 14. f4 Nc5 15. O-O Ne4 16. Qe1 g5 17. Rd1 gxf4 18. Rxf4 Bg7 19. Qxb4 Bxe5 20. Nxe6 fxe6 21. Bxh5+ Kd7 22. Rf7+ Kc6 23. Qc4+ dxc4 24. Nb4# 1-0'
+  }
+];
+var currentGame = null;
+var historyVerbose = [];
+var moveIndex = 0;
+var gameEngine = null;
+
+/* Simpler Lichess piece design ("merida" — cleaner, flatter shapes than
+   the more ornate default cburnett set; GPLv2+ licensed, safe for this
+   commercial site). Embedded as inline data URIs (not loaded from a CDN)
+   so the pieces always render the same, with no external network request
+   and no dependency on how/where this page is opened. */
+var PIECE_SVG_DATA = {
+  wK:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMzc2IiB4Mj0iNzcuNjQxIiB5MT0iMzcuMzQ2IiB5Mj0iMzcuMzQ2IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yNS44MjEgMTIuMDIyaC0xLjc2di0zLjI1aC0yLjA2N2MtLjU1OCAwLS44MzgtLjI3Mi0uODM4LS44MjJ2LS4wMjVjMC0uNTQyLjI4LS44MTMuODM4LS44MTNoMi4wNjZWNS4wMDRjMC0uNTg1LjI5Ny0uODcyLjg5LS44NzIuNTc1IDAgLjg3MS4yODcuODcxLjg3MnYyLjEwOGgyLjEzNGMuNTQyIDAgLjgxMy4yNy44MTMuODEzdi4wMjVjMCAuNTUtLjI3MS44MjEtLjgxMy44MjFsLTIuMTE3LjAyNnpNMTEuMDMgMzcuNzQ0bC0uODEzLTQuNjRjLS4wMTcgMC0uMDQyLS4wMzMtLjA3Ni0uMTAxLS4wODUtLjExOS0uMzIyLS4yNzEtLjcxMS0uNDU3LS4zODEtLjE5NS0uODM4LS41MTctMS4zNDYtLjk4MmE0MS45OSA0MS45OSAwIDAgMS0xLjcwMi0xLjQ5IDguNTA5IDguNTA5IDAgMCAxLTEuMS0xLjIzN0M0LjI3MyAyNy40NSAzLjcwNSAyNS43NzIgMy41OTUgMjMuOGMtLjE3LTEuODk3LjYwMS0zLjc5NCAyLjMwMy01LjY4MiAxLjcxOS0xLjg4IDQuMDQ3LTIuNzY4IDYuOTY4LTIuNjUgMS4wOTIuMDY4IDIuMzguMzMgMy44NDQuNzk2LjQ4My4xOTUuOTc0LjM5IDEuNDgyLjU3NmwxLjQ5OC41ODRjLjI2My4xMzYuNS4yNzEuNjk1LjM5OGE0LjM4IDQuMzggMCAwIDEtLjEyNy0xLjA0MWMwLTEuMjg3LjQ1Ny0yLjM4OCAxLjM4LTMuMzAyLjkxNC0uOTA2IDIuMDIzLTEuMzcyIDMuMzEtMS4zODkgMS4yODcgMCAyLjM4OC40NjYgMy4zMDIgMS4zOC45MDYuOTE1IDEuMzYzIDIuMDE1IDEuMzYzIDMuMjg1IDAgLjI2My0uMDM0LjYxLS4xMDEgMS4wNDIuMjI4LS4xNDQuNDU3LS4yNzEuNjY5LS4zNzMuNzYyLS4zMyAxLjc2LS43MiAzLjAwNS0xLjE2IDEuNDIzLS40ODIgMi43MDEtLjc1MyAzLjg0NC0uODIxIDIuOTIxLS4xMzYgNS4yNDEuNzUzIDYuOTQzIDIuNjUgMS42NjggMS44ODggMi40NDcgMy43ODUgMi4zMjggNS42ODEtLjEyNyAxLjk3My0uNzAzIDMuNjUtMS43MSA1LjAzOC0uMzMuNDQ5LS43MDMuODYzLTEuMTE4IDEuMjUzYTQwLjUgNDAuNSAwIDAgMS0xLjY2IDEuNDczYy0uNTQxLjQ2Ni0xLjAwNy43OTYtMS4zODguOTgyLS4zOC4xODYtLjYuMzQ3LS42NjkuNDU3YS4yOTQuMjk0IDAgMCAxLS4wNS4wNzdjLS4wMTcuMDE3LS4wMjYuMDM0LS4wMjYuMDVsLS43OTYgNC42NjYgMS42NDMgNi4xMjFjLS44My43NDUtMi42ODQgMS4zNTUtNS41NTQgMS44MzctMi44NzkuNDgzLTYuMjA2LjcyLTkuOTc0LjcyLTMuODM1IDAtNy4yMTQtLjI1NC0xMC4xMTgtLjc1NC0yLjkxMi0uNTA4LTQuNzQxLTEuMTQzLTUuNDg2LTEuODk2eiIvPjxwYXRoIGZpbGw9InVybCgjYSkiIGQ9Ik0yNS43OTYgMjkuNTMyYzIuODQ1LjAzMyA1LjQ0NC4yMDMgNy44MDYuNTA4IDIuMzcuMzA0IDQuMjI1LjY5NCA1LjU2MyAxLjE1MWExMjYuMzIgMTI2LjMyIDAgMCAwIDIuMDU3LTEuNjUxIDEyLjAxOCAxMi4wMTggMCAwIDAgMS44NjMtMS44NDZjLjc4Ny0xLjAwNyAxLjE4NS0yLjMzNyAxLjE4NS0zLjk5NiAwLTEuNDgyLS4zNTYtMi43MjYtMS4wNjctMy43MTctMS4yNy0xLjg1NC0zLjIwOS0yLjc3Ny01LjgtMi43NzctMS41NTcgMC0zLjE0OS4zMjItNC43OTIuOTY1LTEuNDM5LjU4NC0yLjUzMSAxLjIyOC0zLjI2OCAxLjk0LTEuMzg4IDEuMzg4LTIuNDIxIDMuMTc0LTMuMDgyIDUuMzUtLjIyOC43NzktLjM2NCAxLjQ5LS40MDYgMi4xMjVzLS4wNiAxLjI4Ny0uMDYgMS45NDd6bS0xMy4yNSA2LjY5N2MzLjE0LS43OTYgNy4zMDYtMS4xOTQgMTIuNTA1LTEuMTk0IDUuMDg4IDAgOS4yMDMuMzggMTIuMzI3IDEuMTQzbC42MTgtMy42NWMtMy4zMjctLjg3MS03LjY3LTEuMzEyLTEzLjA0Ny0xLjMxMi01LjQxIDAtOS43NDUuNDUtMTMuMDIyIDEuMzM4em0yNS4yOTggNC40MS0uNzM3LTIuODQ0Yy0zLjI3Ni0uNzI4LTcuMzMyLTEuMDkyLTEyLjE1OC0xLjA5Mi00LjgwOSAwLTguODU2LjM2NC0xMi4xMzMgMS4wOTJsLS43ODcgMi44N2MzLjE1OC0uOTIzIDcuNDY4LTEuMzg4IDEyLjk0Ni0xLjM4OCA1LjQ0NCAwIDkuNzI4LjQ1NyAxMi44NjkgMS4zNjN6bS42NTIgMi4zMzhjLTMuMTkyLTEuMjg3LTcuNjgtMS45NC0xMy40NDUtMS45NC01Ljk4NiAwLTEwLjUxNi42NjEtMTMuNTk4IDEuOTkgMi45MTMgMS4xNTIgNy40MTcgMS43MzYgMTMuNTIyIDEuNzM2IDIuOTEyIDAgNS41NjItLjE2IDcuOTU4LS40ODMgMi40MDUtLjMyMSA0LjI1LS43NjIgNS41NjMtMS4zMDNNMjQuMDc3IDI5LjUzMmMtLjAwOC0uNjQ0LS4wMzQtMS4yODctLjA2OC0xLjkyMnMtLjE2LTEuMzQ3LS4zNzItMi4xMjZjLS42NzctMi4yMS0xLjcwMi0zLjk5Ni0zLjA4Mi01LjM1LS43MTEtLjY5NS0xLjc5NS0xLjM0Ny0zLjI2OC0xLjk0LTEuNjg1LS42Ni0zLjI4NS0uOTktNC43OTItLjk5LTIuNjA4IDAtNC41NDcuOTMxLTUuOCAyLjgwMy0uNzExLjk5LTEuMDY3IDIuMjM1LTEuMDY3IDMuNzE2IDAgMS42MjYuMzk4IDIuOTU1IDEuMTg2IDMuOTk3LjQ4Mi42MSAxLjA5MiAxLjIyNyAxLjgzNyAxLjgzN3MxLjQ0IDEuMTY4IDIuMDgzIDEuNjZjMi44OTUtMS4wNDIgNy4zNC0xLjYgMTMuMzQzLTEuNjg1bS44NzItNC42MTVjLjExOS0uNDY1LjIxMi0uNzg3LjI5Ni0uOTY1LjE3LS42NDMuMzU2LTEuMTk0LjU3Ni0xLjY0My4wOTMtLjI3OS4yMzctLjYuNDMyLS45NzMuMTg2LS4zNzMuMzktLjgwNS42MS0xLjI3OS4xMjctLjI4LjI3LS42MjYuNDE1LTEuMDMzLjE1Mi0uNDA2LjMwNC0uODA0LjQ0OC0xLjIwMi4xMzYtLjMzLjIwMy0uNjg2LjIwMy0xLjA2NyAwLS44MTMtLjI5Ni0xLjQ5OC0uODcyLTIuMDY2LS41NzUtLjU3NS0xLjI3OC0uODYzLTIuMTA4LS44NjMtMS45NjQgMC0yLjk1NS45OS0yLjk1NSAyLjk1NSAwIC4zOC4wNjguNzM2LjIwMyAxLjA2Ny4zNjUgMS4wNzUuNjQ0IDEuODIuODM5IDIuMjM1LjIyLjQ3NC40MTUuOTA2LjYgMS4yNzguMTc5LjM3My4zNC42OTQuNDY2Ljk3NC4yMi41NS4zOTggMS4wOTIuNTUgMS42NDIuMDM1LjA5NC4xMjguNDE1LjI5Ny45NCIvPjwvc3ZnPg==',
+  wQ:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMjUzIiB4Mj0iNzcuNjQxIiB5MT0iMzcuMjI0IiB5Mj0iMzcuMzQ2IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIHN0cm9rZT0iIzFmMWExNyIgc3Ryb2tlLXdpZHRoPSIuMDc2IiBkPSJNNDQuNTQxIDE0LjcyM2MtLjk0IDAtMS43NDQtLjMzLTIuNDA0LS45ODJzLS45OTEtMS40NDgtLjk5MS0yLjM5NnEwLTEuMzg0NS45OS0yLjM4OGMuNjYtLjY3NyAxLjQ2NS0xLjAwNyAyLjQwNS0xLjAwNy45MzEgMCAxLjcyNy4zMyAyLjM4OCAxLjAwNy42Ni42Ny45OSAxLjQ2NS45OSAyLjM4OCAwIC45NDgtLjMzIDEuNzQ0LS45OSAyLjM5NmEzLjI4IDMuMjggMCAwIDEtMi4zODguOTgyem0tNC4zMSAyOS4yMTljLS44MTIuNzEtMi42MzMgMS4zMDQtNS40NiAxLjc4Ni0yLjgyOC40NzQtNi4wODguNzItOS43NzEuNzItMy43NSAwLTcuMDUzLS4yNTQtOS44OTgtLjc0NS0yLjg0NC0uNS00LjY0LTEuMTE4LTUuMzg0LTEuODYzbDEuNTY2LTUuOTUyLS42OTQtMy44OTVMOC40MDUgMzAuMiA2LjI5NyAxNC43NzRsMS4yMS0uNDc0IDYuOCAxMS40NTUuMTUyLTEzLjY0IDEuNjg1LS4yOTYgNS4xODIgMTMuNzE2IDIuNzc2LTE0Ljc1N2gxLjcybDIuNzc2IDE0LjcwNkwzMy43MyAxMS44MmwxLjcxLjI5Ni4xNTMgMTMuNjQgNi44MjQtMTEuNDggMS4xNi41NDEtMi4wNTggMTUuMzU5LTIuMjEgMy43OTMtLjY5NCAzLjk0NXpNMTQuNTM1IDExLjk4OGMtLjk0OCAwLTEuNzUyLS4zMjEtMi40MTMtLjk3My0uNjYtLjY1Mi0uOTktMS40NTYtLjk5LTIuMzk2IDAtLjkyMy4zMy0xLjcxOS45OS0yLjM4czEuNDY1LS45OSAyLjQxMy0uOTljLjkyMyAwIDEuNzE5LjMzIDIuMzguOTlzLjk5IDEuNDU3Ljk5IDIuMzhjMCAuOTQtLjMzIDEuNzQ0LS45OSAyLjM5NmEzLjI2NiAzLjI2NiAwIDAgMS0yLjM4Ljk3M3pNNS40IDE0LjcyM2MtLjk0IDAtMS43MzYtLjMzLTIuMzg4LS45ODJzLS45ODItMS40NDgtLjk4Mi0yLjM5NmMwLS45MjMuMzMtMS43MTkuOTgyLTIuMzg4QzMuNjY0IDguMjggNC40NiA3Ljk1IDUuNCA3Ljk1Yy45NDggMCAxLjc0NC4zMyAyLjQxMyAxLjAwNy42Ni42Ny45OSAxLjQ2NS45OSAyLjM4OCAwIC45NDgtLjMzIDEuNzQ0LS45OSAyLjM5NmEzLjMyMyAzLjMyMyAwIDAgMS0yLjQxMy45ODJ6bTE5LjU1LTMuOTdjLS45NCAwLTEuNzQ1LS4zMy0yLjM5Ny0uOTkxLS42NTItLjY2LS45NzQtMS40NjUtLjk3NC0yLjQwNSAwLS45MzEuMzIyLTEuNzI3Ljk3NC0yLjM4N3MxLjQ1Ni0uOTkgMi4zOTYtLjk5Yy45MjMgMCAxLjcyNy4zMyAyLjM5Ni45OWEzLjIzIDMuMjMgMCAwIDEgMSAyLjM4N2MwIC45NC0uMzMgMS43NDQtMSAyLjQwNS0uNjY5LjY2LTEuNDczLjk5LTIuMzk2Ljk5em0xMC40MTMgMS4yMzVjLS45NCAwLTEuNzM2LS4zMjEtMi4zODctLjk3My0uNjUyLS42NTItLjk4My0xLjQ1Ni0uOTgzLTIuMzk2IDAtLjkyMy4zMy0xLjcxOS45ODMtMi4zOHMxLjQ0Ny0uOTkgMi4zODctLjk5Yy45NDggMCAxLjc1My4zMyAyLjQxMy45OXMuOTkgMS40NTcuOTkgMi4zOGMwIC45NC0uMzMgMS43NDQtLjk5IDIuMzk2cy0xLjQ2NS45NzMtMi40MTMuOTczeiIvPjxwYXRoIGZpbGw9InVybCgjYSkiIHN0cm9rZT0iIzFmMWExNyIgc3Ryb2tlLXdpZHRoPSIuMDc2IiBkPSJNMzguMjE3IDQzLjA0NGMtMy4wMjMtMS4yNTMtNy40MTctMS44OC0xMy4xNjYtMS44OC01Ljg3NiAwLTEwLjMxMy42NDQtMTMuMzI3IDEuOTMxIDIuODk2IDEuMTQzIDcuMzE2IDEuNzEgMTMuMjUgMS43MSAyLjg0NSAwIDUuNDQ1LS4xNTIgNy43OTgtLjQ2NSAyLjM2My0uMzE0IDQuMTc1LS43NDUgNS40NDUtMS4yOTZ6TTI0Ljk0OSA5LjAxN2MxLjExIDAgMS42Ni0uNTYgMS42Ni0xLjY2IDAtMS4wOTItLjU1LTEuNjQyLTEuNjYtMS42NDItMS4wOTIgMC0xLjYzNC41NS0xLjYzNCAxLjY0MiAwIDEuMS41NDIgMS42NiAxLjYzNCAxLjY2em0xMi42MjQgMjQuOTc2Yy0zLjE5Mi0uODEyLTcuMzY2LTEuMjEtMTIuNTIyLTEuMjEtNS4yOTIgMC05LjUxNy40MDYtMTIuNjc1IDEuMjM2bC4zNzMgMi4zNzljMy4yMTctLjc2MiA3LjMyMy0xLjE0MyAxMi4zMDItMS4xNDMgNC45NDQgMCA4Ljk3NS4zNzIgMTIuMDk5IDEuMTE3em0uNjE4LTEuNDkgMS42MTctMi44NTNhNi40MzIgNi40MzIgMCAwIDEtMi40My40NzRjLTIuMjE4IDAtMy45ODctLjg5Ny01LjMwOC0yLjctLjk5LjgyLTIuMSAxLjIzNS0zLjMyOCAxLjIzNS0xLjU4MyAwLTIuODUzLS42MTgtMy43OTMtMS44NjItMS4wNTggMS4xNi0yLjMyIDEuNzQ0LTMuNzkzIDEuNzQ0LTEuMTk0IDAtMi4yODYtLjQwNi0zLjI3Ni0xLjIyLTEuMzg5IDEuNzctMy4xODQgMi42NS01LjM4NSAyLjY1YTcuMDU1IDcuMDU1IDAgMCAxLTIuNTA2LS40NjVsMS43MzUgMi45NzJjMy4yMS0uOTIzIDcuNjItMS4zODkgMTMuMjI1LTEuMzg5IDUuNzA3IDAgMTAuMTE4LjQ3NCAxMy4yNDIgMS40MTR6bS0xMS4xMDgtNS45MjYtMi4xMDgtMTIuMTMzLTIuMTA5IDExLjk4OWMuMDUxLS4wMzQuMTYxLS4xMTkuMzQ4LS4yNTQuMzgtLjc0NS45NTYtMS4xMTggMS43MzUtMS4xMTguODQ3IDAgMS4zODkuMzczIDEuNjM0IDEuMTE4LjEwMi4xMDEuMjcxLjIzNy41LjM5OHptNi44NjYuNDc0VjE1LjU2bC00LjA5IDExLjI2MWMuMzE0LS4xMS41NzctLjI2Mi43OTctLjQ0LjMzLS40MTUuNzc5LS42MjcgMS4zMzgtLjYyNy42NiAwIDEuMTkzLjI5NyAxLjU5MS44NzIuMDQzLjA2OC4xMDIuMTM2LjE3LjIxMi4wNjcuMDc2LjEzNS4xNDQuMTk0LjIxMnptLTEzLjkzNi0uMzQ3TDE1Ljk1IDE1LjU2MnYxMS4zMzZjLjA0My0uMDY3LjExOS0uMTQ0LjIyLS4yNDUuMzMtLjY5NC44NzItMS4wNDIgMS42MzQtMS4wNDIuNjI3IDAgMS4xNDMuMjYzIDEuNTQxLjc5Ni40NDkuMTk1LjY3LjI5Ny42Ny4yOTd6bS02LjMgMS4zODhMOC4zOCAxOC44OWwxLjM2MyA4LjM4MmMuOTQuNjYgMS44NjMuOTkgMi43NTIuOTkuMzQ3IDAgLjc1My0uMDU5IDEuMjE5LS4xNjl6bTIyLjM5NS4xMTljLjM4MS4xMTguODA1LjE3OCAxLjI3LjE3OCAxLjAwOCAwIDEuOTQ4LS4zMTQgMi44MjgtLjk0bDEuMzYzLTguNTg1em0xLjQ5IDEyLjU1Ni0uNzQ1LTIuODAzYy0zLjI0Mi0uNzEtNy4yMDUtMS4wNjYtMTEuOTA0LTEuMDY2LTQuNjQ4IDAtOC42MS4zNTUtMTEuODc4IDEuMDY2bC0uNzcxIDIuODI4YzMuMDczLS45MzEgNy4yOTgtMS4zODggMTIuNjc1LTEuMzg4IDUuMjQgMCA5LjQ0OC40NDggMTIuNjIzIDEuMzYzek0xNC41MzUgMTAuMjUzYzEuMDg0IDAgMS42MzQtLjU0MiAxLjYzNC0xLjYzNHMtLjU1LTEuNjM0LTEuNjM0LTEuNjM0Yy0xLjEwOSAwLTEuNjY4LjU0Mi0xLjY2OCAxLjYzNHMuNTYgMS42MzQgMS42NjggMS42MzR6bTIwLjgyOCAwYzEuMTEgMCAxLjY2OC0uNTQyIDEuNjY4LTEuNjM0cy0uNTU5LTEuNjM0LTEuNjY4LTEuNjM0Yy0xLjA4MyAwLTEuNjM0LjU0Mi0xLjYzNCAxLjYzNHMuNTUgMS42MzQgMS42MzQgMS42MzR6TTUuNCAxMi45ODhjMS4xMDkgMCAxLjY2OC0uNTUgMS42NjgtMS42NDMgMC0xLjExLS41Ni0xLjY2LTEuNjY4LTEuNjYtMS4wODQgMC0xLjYzNC41NS0xLjYzNCAxLjY2IDAgMS4wOTIuNTUgMS42NDMgMS42MzQgMS42NDN6bTM5LjE0MSAwYzEuMDkyIDAgMS42NDMtLjU1IDEuNjQzLTEuNjQzIDAtMS4xMS0uNTUtMS42Ni0xLjY0My0xLjY2LTEuMSAwLTEuNjYuNTUtMS42NiAxLjY2IDAgMS4wOTIuNTYgMS42NDMgMS42NiAxLjY0M3oiLz48L3N2Zz4=',
+  wR:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMzc2IiB4Mj0iNzcuNjQxIiB5MT0iMzcuNDY5IiB5Mj0iMzcuNDY5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yOC40MDggOS4yMmg0LjIxNlY1LjgyNWg2Ljc5OXY5LjI5NmwtNS41MDMgNC4yNDJ2MTEuODYybDQuMjE2IDQuMjE2djUuMDhoMy43OTN2NS45MjdIOC4wNzFWNDAuNTJoMy43OTN2LTUuMDhsNC4yNDItNC4yMTZWMTkuMzYzbC01LjUwNC00LjI0MlY1LjgyNWg2Ljc3NFY5LjIyaDQuMjQyVjUuODI1aDYuNzl6Ii8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0ibTMzLjA3MyAxNy42NzggMy4xNS0yLjU1N2gtMjIuNDJsMy4xNzUgMi41NTd6bTcuMTk3IDI0LjUyOEg5Ljc1NnYyLjU1N0g0MC4yN3ptLTMuODQ0LTUuMDU1SDEzLjZ2My4zN2gyMi44MjZ6bS00LjIxNy0xNy43ODhIMTcuODE2djExLjg2MmgxNC4zOTN6bTUuNTA0LTUuOTI3VjcuNTFoLTMuMzk1djMuMzk1aC03LjY0NlY3LjUxaC0zLjM0NHYzLjM5NWgtNy42MlY3LjUxaC0zLjM5NXY1LjkyNnptLTEuOTE0IDIyLjAwNS0yLjU0OC0yLjUzMUgxNi44bC0yLjYgMi41MzF6Ii8+PC9zdmc+',
+  wB:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMTMiIHgyPSI3Ny42NDEiIHkxPSIzNy41OTIiIHkyPSIzNy40NjkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZWFyR3JhZGllbnQ+PHBhdGggZmlsbD0iIzFmMWExNyIgZD0iTTI1LjQ0NyA0Mi4wMDhjLS4yMjguOTQtLjUxNiAxLjU5Mi0uODQ2IDEuOTU2cy0uNzYyLjc0NS0xLjMxMyAxLjE0M2MtLjU5Mi40MTUtMS4yOTUuNzYyLTIuMTA4IDEuMDVzLTEuNzEuMzY0LTIuNy4yMTFsLTYuOTY5LS45NjVhMi44NTggMi44NTggMCAwIDAtLjc2MiAwYy0uMjIuMDM0LS40MzIuMDUxLS42MzUuMDUxLS4zNDcgMC0uNzg3LjA3Ni0xLjMyLjIzNy0uNTQyLjE1Mi0uOTU3LjM4MS0xLjI1NC42NzdsLTIuNDA0LTMuOTQ1Yy4yOTYtLjMzLjU1OS0uNTU5Ljc4Ny0uNjk0LjIzNy0uMTI3LjUwOC0uMjcxLjgyMS0uNDE1YTkuMTc5IDkuMTc5IDAgMCAxIDMuMDc0LS44MjJjLjQ2Ni0uMDMzLjkyMy0uMDQyIDEuMzYzLS4wMjVhOS44IDkuOCAwIDAgMCAxLjM5Ny0uMDVjLjg5LjE1MiAxLjc4Ni4yODcgMi42ODQuNDA2LjkwNi4xMjcgMS44MTIuMjU0IDIuNzE4LjM5Ljk5IDAgMS42Ni0uMTAyIDIuMDA2LS4yOTcuMTg3LS4xMDIuNDc0LS4yODguODcyLS41NS4zOTgtLjI2My43OTYtLjY1MiAxLjE5NC0xLjE2OS0uODgtLjA5My0xLjc3LS4yNjItMi42ODQtLjUwOGEyNC4wOTQgMjQuMDk0IDAgMCAxLTIuNDA0LS43NTNsMi41ODItNi40MDFjLTEuMjk1LS43NDUtMi4xOTMtMS4zMzgtMi43MS0xLjc5NWE1LjMgNS4zIDAgMCAxLTEuMjEtMS41NzVjLS40MzItLjc2Mi0uNzExLTEuNDk5LS44My0yLjIxYTkuMzQxIDkuMzQxIDAgMCAxLS4xNi0xLjkxM2MuMDE2LS45OS4yNDUtMi4wODMuNzAyLTMuMjg1LjQ1Ny0xLjE5NCAxLjMxMi0yLjI3IDIuNTY2LTMuMjFhNzkuMDkxIDc5LjA5MSAwIDAgMCAzLjA1Ni0yLjQ1NSAyNy43NDYgMjcuNzQ2IDAgMCAwIDIuOTQ2LTIuOTU0Yy0xLjIxOS0uNjI3LTEuODI4LTEuNjI2LTEuODI4LTIuOTk4IDAtLjkzLjMyMS0xLjcxOC45NzMtMi4zODcuNjUyLS42NiAxLjQ1Ny0uOTkgMi4zOTYtLjk5LjkyMyAwIDEuNzIuMzMgMi4zOC45OS42Ni42NjkuOTkgMS40NTYuOTkgMi4zODcgMCAxLjM1NS0uNjEgMi4zNTQtMS44MjkgMi45OThhMjYuNzk2IDI2Ljc5NiAwIDAgMCAyLjkxMyAyLjk1NGMuOTgyLjgzOSAyLjAxNSAxLjY2IDMuMDkgMi40NTYgMS4yMzYuOTQgMi4wODMgMi4wMTUgMi41MjMgMy4yMDkuNDQ5IDEuMjAyLjY5NCAyLjI5NC43MiAzLjI4NSAwIC41NjctLjA1IDEuMjAyLS4xNyAxLjkxM3MtLjM4IDEuNDQ4LS43OTUgMi4yMWE2LjA4NCA2LjA4NCAwIDAgMS0xLjI1MyAxLjU3NWMtLjUuNDU3LTEuMzg5IDEuMDUtMi42NjcgMS43OTVsMi41ODIgNi40YTI4LjU3IDI4LjU3IDAgMCAxLTIuNDU1Ljc1NGMtLjkxNS4yNDYtMS43ODcuNDE1LTIuNjM0LjUwOC4zODEuNTE3Ljc3MS45MDYgMS4xNjkgMS4xNjguMzk4LjI2My42OTQuNDUuODk3LjU1LjM0Ny4xOTYgMS4wMTYuMjk3IDIuMDA3LjI5N2EyNjMuMzUgMjYzLjM1IDAgMCAxIDIuNjkyLS4zOSA4MS4xMyA4MS4xMyAwIDAgMCAyLjcxOC0uNDA2Yy40NC4wNTEuODkuMDY4IDEuMzQ2LjA1MWExMy4xMiAxMy4xMiAwIDAgMSAxLjQwNi4wMjUgOS42MjcgOS42MjcgMCAwIDEgMy4wNzMuODIyYy4yOTcuMTQ0LjU2Ny4yODguODA1LjQxNS4yNDUuMTM1LjUwOC4zNjQuODA0LjY5NGwtMi40MyAzLjk0NWMtLjI5Ni0uMjk2LS43MTEtLjUyNS0xLjI1My0uNjc3LS41MzQtLjE2LS45NjUtLjIzNy0xLjI5Ni0uMjM3LS4yMiAwLS40NC0uMDE3LS42Ni0uMDVhMi43OTQgMi43OTQgMCAwIDAtLjc1MyAwbC02Ljk1Mi45NjRjLS45OS4xNTMtMS45MTMuMDg1LTIuNzYtLjE5NC0uODU1LS4yOC0xLjU1OC0uNjUyLTIuMS0xLjExOGEyMC4wNCAyMC4wNCAwIDAgMS0xLjMwMy0xLjE1MWMtLjMyMi0uMzIyLS41OTMtLjk1Ny0uODA1LTEuODk3Ii8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTI2LjMyIDM5LjE5N2MwIDEuMDkyLjI0NSAyLjAyNC43NTMgMi43OTQuNS43NyAxLjA0MSAxLjM3MiAxLjYyNiAxLjc5NS45MDUuNjY5IDIuMjM1IDEgMy45ODcgMSAuNDMyIDAgMS4yNzktLjA5NCAyLjUzMi0uMjhhNzQuNzM3IDc0LjczNyAwIDAgMSAyLjQ4LS4zNTZjLjYyNy0uMDc2IDEuMDUtLjEzNSAxLjI3LS4xODZhNi41MyA2LjUzIDAgMCAxIDEuOTgyLjA1Yy4yNjIuMDY4LjU1OS4xMjguODguMTg3YTEuNiAxLjYgMCAwIDEgLjgwNS4zOGwxLjE5NC0xLjkzYTcuMzcyIDcuMzcyIDAgMCAwLTIuMTYtLjcyYy0xLjI1Mi0uMjItMi4zNTMtLjI2Mi0zLjMwMS0uMTUxLS4yOC4wMzMtLjY0NC4xMTgtMS4xMDEuMjQ1LS40NTcuMTM2LTEuMDY3LjI2My0xLjg0Ni4zNzItMS42NzYuMjcyLTIuNTU3LjM5OS0yLjY1OC4zOTktLjY0NCAwLTEuMjAzLS4wNzctMS42ODUtLjI0NmExMC4zNyAxMC4zNyAwIDAgMS0xLjI4Ny0uNTQyYy0uODgtLjM5OC0xLjc3LTEuMzM4LTIuNjg0LTIuODF6bS0xLjc2MiAwaC0uNzk1Yy0uOTMyIDEuNDktMS44MTIgMi40My0yLjY1OSAyLjgxMS0uMzk4LjE5NS0uODMuMzczLTEuMzEyLjU0Mi0uNDgzLjE3LTEuMDMzLjI0Ni0xLjY2LjI0Ni0uMTE4IDAtLjk5OS0uMTI3LTIuNjU4LS4zOTgtLjc4OC0uMTEtMS40MjMtLjIzOC0xLjg4LS4zNzNhOC44MjggOC44MjggMCAwIDAtMS4wOTItLjI0NWMtLjk0OC0uMTEtMi4wNC0uMDY4LTMuMzAyLjE1MmE3LjA1NiA3LjA1NiAwIDAgMC0yLjEzNC43MmwxLjE5NCAxLjkzYy4xOTUtLjE5NS40NTctLjMyMi43NzktLjM4MS4zMjItLjA2LjYxOC0uMTE5Ljg4LS4xODZhNi41MyA2LjUzIDAgMCAxIDEuOTgyLS4wNTFjLjIyLjA1LjY0My4xMSAxLjI3LjE4Ni42MjYuMDc2IDEuNDY1LjE5NSAyLjUwNi4zNTYgMS4yMzYuMTg2IDIuMDgzLjI4IDIuNTMxLjI4IDEuNzM2IDAgMy4wNjUtLjMzMSAzLjk4OC0xIC41NjctLjQyMyAxLjEtMS4wMjQgMS42LTEuNzk1LjUwOC0uNzcuNzYyLTEuNzAyLjc2Mi0yLjc5NG0uODktOS4zNDdjMS42IDAgMy4xNC4xMjcgNC42MTQuMzcyIDEuNjE3LS41NzUgMi43OTQtMS40ODEgMy41MjItMi43YTYuNzQ1IDYuNzQ1IDAgMCAwIC45NC0zLjQ5N2MwLS43NjItLjE4Ny0xLjYtLjU2OC0yLjUyMy0uMzgtLjkxNS0uOTk5LTEuNzQ0LTEuODYyLTIuNDktLjk3NC0uODEyLTIuMDQtMS43MDEtMy4yLTIuNjY2YTMzLjA5MyAzMy4wOTMgMCAwIDEtMy40NDctMy4zODdjLTEuMTYgMS4yODctMi4zMTEgMi40MjEtMy40NyAzLjM4N2E0MDYuNTUgNDA2LjU1IDAgMCAwLTMuMTc2IDIuNjY3Yy0uODguNzQ1LTEuNDk5IDEuNTc0LTEuODcxIDIuNDg5LS4zNzMuOTIzLS41NTkgMS43Ni0uNTU5IDIuNTIzIDAgMS4yNy4zMDUgMi40MzguOTE0IDMuNDk3LjcxMiAxLjIxOSAxLjg5NyAyLjEyNSAzLjU0OCAyLjdhMjcuNzQ5IDI3Ljc0OSAwIDAgMSA0LjYxNC0uMzcyem0wIDQuNTEzYzEuOTM4IDAgMy43OTMuMTk0IDUuNTc5LjU3NWwtMS4xODUtMy4wNTZhMjguMjk3IDI4LjI5NyAwIDAgMC00LjM5NS0uMzQ3Yy0xLjUwNyAwLTIuOTguMTE4LTQuNDEuMzQ3bC0xLjE5NCAzLjA1NmMxLjc2OS0uMzggMy42NC0uNTc1IDUuNjA0LS41NzV6bTAtMjMuNTM4YzEuMTI2IDAgMS42ODQtLjU1OSAxLjY4NC0xLjY4NXMtLjU1OS0xLjY5My0xLjY4NS0xLjY5My0xLjY4NC41NjctMS42ODQgMS42OTMuNTU4IDEuNjg1IDEuNjg0IDEuNjg1em0wIDI3LjAwOWExOC45NyAxOC45NyAwIDAgMCAzLjI4NS0uMjhjMS4wNjYtLjE5NCAyLjEtLjQyMyAzLjA5LS42ODUtMS45NC0uNTA4LTQuMDY0LS43Ny02LjM3Ni0uNzctMi4zNDUgMC00LjQ3LjI2Mi02LjM3NS43Ny45NTcuMjYyIDEuOTczLjQ5IDMuMDQ4LjY4NmExOS40NiAxOS40NiAwIDAgMCAzLjMyNy4yNzl6bS0uODktMTQuMzM0LTIuMDY1LS4wMjZjLS41NiAwLS44MzktLjI3OS0uODM5LS44NDYgMC0uNTU5LjI4LS44MzguODM5LS44MzhoMi4wNjV2LTIuMTM0YzAtLjU3Ni4yOTctLjg3Mi44OS0uODcyLjU3NSAwIC44NzIuMjk2Ljg3Mi44NzJ2Mi4xMzRoMi4xMzNjLjU0MiAwIC44MTMuMjguODEzLjgzOCAwIC41NjctLjI3MS44NDYtLjgxMy44NDZIMjYuMzJ2Mi4wMzJjMCAuNjAyLS4yOTcuODk4LS44NzMuODk4LS41OTIgMC0uODg5LS4yOTYtLjg4OS0uODk4eiIvPjwvc3ZnPg==',
+  wN:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuNDA1IiB4Mj0iNzcuNjQxIiB5MT0iMzcuMzQ2IiB5Mj0iMzcuMzQ2IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yNi4xNzggOS4zOTVjMi42LjE3IDUuMDA0LjgzOCA3LjIyMiAyLjAxNSAyLjIxIDEuMTY5IDQuMDk4IDIuNjc2IDUuNjU2IDQuNTEzIDEuMDkyIDEuMjg3IDIuMTE3IDIuODQ1IDMuMDgyIDQuNjY1YTI4LjY4NCAyOC42ODQgMCAwIDEgMi4zMiA1Ljc3NCAzNi41MTEgMzYuNTExIDAgMCAxIDEuMjUzIDcuNDZjLjE3NyAyLjU5OS4yNjIgNS4wMTIuMjYyIDcuMjN2NS40MDJIMTUuNDY4Yy0uMTUzIDAtLjIyLS40MDctLjIxMi0xLjIxLjAwOS0uODE0LjA2LTEuNDY2LjE2LTEuOTY1LjA2LS4zOTguMjIxLS45NTcuNDY3LTEuNjg1LjI1NC0uNzI4LjY2LTEuNjA5IDEuMjQ0LTIuNjUuMjYzLS41MzQuODktMS4zMDQgMS44OC0yLjMyLjk5OS0xLjAxNiAyLjEzMy0yLjIwMSAzLjQyOS0zLjUzOS43NDUtLjc2MiAxLjMyLTEuNzE5IDEuNzQ0LTIuODc5LjQyMy0xLjE1MS42MDEtMi4yMDEuNTMzLTMuMTVhOC4zNyA4LjM3IDAgMCAxLTIuMDA2IDEuMjJjLTMuNTA1IDEuMjUzLTYuMDQ1IDMuMDczLTcuNjEyIDUuNDUyLS4xMTguMTUzLS40OS44MjItMS4xMTcgMi4wMTUtLjMzLjYyNy0uNjE4IDEuMDU5LS44NDcgMS4yODctLjMxMy4zMTQtLjc3LjQ5MS0xLjM2My41MjUtLjkyMy4wNDMtMS42NDMtLjM5OC0yLjE2LTEuMzQ2LS42OTMuMjAzLTEuMzEyLjI4OC0xLjg2Mi4yNTQtLjkyMy0uMzQ3LTEuNTkyLS43Mi0yLjAwNi0xLjExNy0uODQ3LS44NDctMS4zODktMS42ODUtMS42NTEtMi41MzJhOS40MyA5LjQzIDAgMCAxLS4zODEtMi43MjZjMC0xLjM4OS44NTUtMy4yMjYgMi41ODItNS41MTIgMi4wMTUtMi42MjUgMy4wOS00LjYzMSAzLjIxNy02LjAwMyAwLS41OTMuMDYtMS4yNjEuMTc4LTIuMDA3YTQuMTk4IDQuMTk4IDAgMCAxIC42MTgtMS40OWMuMjItLjMzLjM2NC0uNTU4LjQzMi0uNjc3LjA3Ni0uMTI3LjIxMi0uMzEzLjQxNS0uNTU5LjE0NC0uMjAzLjI3LS4zNTUuMzcyLS40NTcuMDkzLS4xMS4yMi0uMjU0LjM3My0uNDQuMTc4LS4yMTIuNDA2LS40NTcuNjk0LS43NDVhMTguMDYgMTguMDYgMCAwIDEtMS4wNjctNy40NmMzLjI4NSAxLjE2OSA2LjA1NCAzLjAxNSA4LjI4IDUuNTMuNTUxLTEuODcyIDEuNjI2LTMuMzg3IDMuMjI2LTQuNTM5IDEuMzIxLjkyMyAyLjM3MSAyLjE1IDMuMTUgMy42NjYiLz48cGF0aCBmaWxsPSJ1cmwoI2EpIiBkPSJNNDIuOTc2IDQ0LjY5M2MtLjAxNyAwIDAtLjQ0OS4wNDItMS4zNDYuMDUxLS45MDYuMDc2LTEuODguMDc2LTIuOTIxLjAxNy0yLjA2Ni4wMTctNC4yIDAtNi40MWEyNi44MzcgMjYuODM3IDAgMCAwLS44ODktNi42MTJjLS41NjctMi4xMTctMS4xODUtMy45Mi0xLjg2Mi01LjQxOS0uNjc4LTEuNDk4LTEuNDE0LTIuNzg1LTIuMjEtMy44NzgtMS4xODUtMS43ODYtMi44MTEtMy4zMDItNC44Ni00LjUzOC0yLjA0OS0xLjI0NC00LjE5LTIuMDU3LTYuNDI2LTIuNDM4LjE1Mi44MTMuMjIgMS42MDkuMjAzIDIuMzg3LS4wMzQuNTkzLS4zMTMuODktLjg0Ny44OS0uNjEgMC0uODgtLjI5Ny0uODItLjg5LjA1LTIuMTg0LS43MjktNC4wNTUtMi4zMy01LjYwNC0xLjI1MiAxLjMyLTEuOTM4IDIuODUzLTIuMDMxIDQuNjA1LS4wMzQuNTg1LS4zMy44MzktLjg5OC43Ny0uNTI1LS4wMTYtLjc4Ny0uMzItLjc4Ny0uOTE0IDAgMCAuMDE3LS4wNjcuMDQyLS4yMDMtLjY3Ny4yMi0xLjM4OC41MjUtMi4xMzMuOTIzLS40NzQuMzMtLjg2NC4yNDYtMS4xNi0uMjQ1LS4yOTctLjUtLjE3LS44OS4zOTgtMS4xNjkuNzEtLjM2NCAxLjI0NC0uNjM1IDEuNjA4LS44MjFhMTcuNjM0IDE3LjYzNCAwIDAgMC00Ljg2LTMuNTIyIDE3LjMxIDE3LjMxIDAgMCAwIDEuODg5IDYuNTI4Yy4yNzkuNDIzLjIxMS44MDQtLjIwNCAxLjEzNC0uNDY1LjM2NC0uODU1LjMxMy0xLjE2OC0uMTdhOC44NyA4Ljg3IDAgMCAxLS40OTEtLjg5N2MtLjM0Ny4zNDctLjU4NC42MS0uNjk0Ljc3LS4xMTkuMTUzLS4zMjIuNDgzLS42MS45OTEtLjI4OC41MTctLjUuOTQtLjYzNSAxLjI3LS4xNDQuNDE1LS4yMTIuNzQ1LS4xODYgMS4wMDguMDI1LjI1NC4wNS41MzMuMDY3Ljg1NWE3LjYxIDcuNjEgMCAwIDEtMS4wMDcgMi43NTIgMTMzLjcxIDEzMy43MSAwIDAgMS0xLjk5OCAzLjE1IDEyNy42MDcgMTI3LjYwNyAwIDAgMS0xLjc4NyAyLjY3NWMtLjQxNS42MDEtLjcyOCAxLjM1NC0uOTQgMi4yODYtLjE1Mi41NTktLjE1MiAxLjI0NCAwIDIuMDQuMTQ0LjgwNS40NzUgMS40MzEuOTY2IDEuODguNzYyLjc3IDEuNDk4IDEuMTI2IDIuMjEgMS4wNjcuMjI4IDAgLjU0MS0uMDkzLjkzLS4yOC4zOS0uMTc4LjY4Ny0uNTI1LjkwNy0xLjA0MS40MjMtLjk0Ljc3OS0xLjQxNCAxLjA2Ny0xLjQxNC40MDYgMCAuNjM1LjIzNy42NjguNjk0IDAgLjEwMi0uMTM1LjUxNy0uMzk3IDEuMjQ1LS4xNTMuMzMtLjM0OC42NzctLjU5MyAxLjA0MS0uMzIyLjQzMi0uNDU3LjYxLS40MjMuNTQyLjI2Mi45NDguNzAyIDEuMTEgMS4zMTIuNS4xNzgtLjE3OC4zOS0uNTI1LjYxOC0xLjAxNnEuMzU1NS0uNzUgMS4wOTItMi4wMDdjLjU4NC0uOTgyIDEuMjAyLTEuNzcgMS44NjMtMi4zODguNjYtLjYxIDEuMjQ0LTEuMTA5IDEuNzYtMS40ODEuMjk3LS4yMi42NjEtLjQ2NiAxLjA5My0uNzQ1LjQzMi0uMjg4IDEuMDA4LS41NzYgMS43MzYtLjg3Mi41NzYtLjIyOSAxLjIxOS0uNTE3IDEuOTIyLS44NTZzMS4zMjktLjc3IDEuODctMS4zMDNjLjc2My0uNzQ1IDEuMzQ3LTEuNjYgMS43NjItMi43NTIuMjItLjYxLjI5Ni0xLjM2My4yNDUtMi4yNi0uMTQ0LS41Ni4xMzYtLjgzOS44NDctLjgzOS41MzMgMCAuODMuMjcxLjg5OC44MjEgMCAxLjg2My0uNTM0IDMuNTY1LTEuNTkyIDUuMTA2LjM0NyAxLjA1OC40NCAyLjIxOC4yNyAzLjQ3MS0uMTQzIDEuMDA4LS40OTkgMi4wOTEtMS4wNSAzLjI0My0uNTU4IDEuMTQzLTEuNjc2IDIuNDIxLTMuMzYgMy44MjctMy40MyAyLjg0NS01LjA0NiA1Ljc3NC00Ljg2IDguNzhoMTIuMTc1ek05LjMzOCAyOS42MTNjLS40ODMuMjk3LS43Ny42OTUtLjg3MiAxLjE5NC4wMTcuNTQyLS4yMzcuODM5LS43NjIuODktLjU4NC4wNjctLjg4LS4xNzgtLjg5OC0uNzQ2LjA2OC0xLjA5Mi41NS0xLjk1NSAxLjQ2NS0yLjU5OS40MzItLjM0Ny44My0uMzIyIDEuMTk0LjA5My4zNjQuNDQ5LjMyMi44MzgtLjEyNyAxLjE2OXptNy4zNjYtMTEuODI3Yy4yMTIuMzMuMjk2LjY3Ny4yNDUgMS4wNDEtLjE2IDEuMDU4LS43NTMgMS40OTktMS43NiAxLjMzOGExLjU5NiAxLjU5NiAwIDAgMS0uNzItLjI5NmMtLjA2LjA3Ni0uMTYxLjI2Mi0uMjk3LjU0MS0uMTc4LjUzNC0uNTI1LjcxMi0xLjA0MS41NS0uNTA4LS4yMDItLjcxMS0uNTc1LS41OTMtMS4xMTcuNzQ1LTEuOTA1IDIuMDkxLTMuMjA5IDQuMDM5LTMuOTIuNTY3LS4xNy45NCAwIDEuMTE3LjQ5MS4yMDQuNTM0LjA1MS44OTgtLjQ0OCAxLjA5MmEyLjc0NSAyLjc0NSAwIDAgMS0uMjcxLjEzNmMtLjA4NS4wNDItLjE3LjA5My0uMjcxLjE0NCIvPjwvc3ZnPg==',
+  wP:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMTMiIHgyPSI3Ny43NjQiIHkxPSIzNy4zNDYiIHkyPSIzNy40NjkiIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoMSAwIDAgLjk3MzI0IDAgMS4yNDMpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yNSA0Ni40NDhIMTEuNjA2YTEzLjEzOSAxMy4xMzkgMCAwIDEtLjk5LTUuMDQzYzAtMi45NzUuODYzLTUuNjQ0IDIuNTk4LTguMDE4IDEuNzM2LTIuMzY1IDMuOTcxLTQuMDU0IDYuNjk3LTUuMDY3YTYuODI0IDYuODI0IDAgMCAxLTIuODYxLTIuMzk4Yy0uNzM3LTEuMDcxLTEuMS0yLjI4My0xLjEtMy42MzQgMC0xLjY5LjU3NS0zLjE1NiAxLjczNS00LjM5MiAxLjE1MS0xLjI0NCAyLjU3NC0xLjk2MSA0LjI2Ny0yLjE1LTEuMzQ2LS45ODEtMi4wMTUtMi4yODMtMi4wMTUtMy44OSAwLTEuMzUxLjQ5MS0yLjUxMyAxLjQ4Mi0zLjQ3Ny45ODItLjk2NCAyLjE3Ni0xLjQ0MiAzLjU4MS0xLjQ0MiAxLjM4OSAwIDIuNTgyLjQ3OCAzLjU3MyAxLjQ0Mi45OS45NjQgMS40OSAyLjEyNiAxLjQ5IDMuNDc3IDAgMS42MDctLjY2OSAyLjkwOS0yLjAxNSAzLjg5IDEuNjkzLjE4OSAzLjExNi45MDYgNC4yNjcgMi4xNSAxLjE2IDEuMjM2IDEuNzM2IDIuNzAzIDEuNzM2IDQuMzkyIDAgMS4zNTEtLjM3MyAyLjU2My0xLjEyNiAzLjYzNGE3LjAzNiA3LjAzNiAwIDAgMS0yLjg2MiAyLjM5OGMyLjcyNiAxLjAxMyA0Ljk2MiAyLjcwMiA2LjY5NyA1LjA2NyAxLjczNiAyLjM3NCAyLjYgNS4wNDMgMi42IDguMDE4cTAgMi42MDg1LS45NjYgNS4wNDN6Ii8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTI1IDQ0LjgwOGgxMi4xNzVhMTEuNzkgMTEuNzkgMCAwIDAgLjUyNS0zLjQwM2MwLTIuNTEzLS43MTEtNC43ODctMi4xNDItNi44MzEtMS40My0yLjA0NC0zLjI3Ny0zLjU1Mi01LjUyLTQuNTE2LTEuNTg0LS42Mi0xLjY0My0uNjU5LTEuNjQzLTEuNzM4IDAtLjg0OS41NTktMS40NzUgMS42NjgtMS44NzkgMS41MzMtMS4wNDYgMi4zMDMtMi40MyAyLjMwMy00LjE1MyAwLTEuMjQ0LS40MzItMi4zMjQtMS4yODctMy4yNjMtLjg2NC0uOTMxLTEuOTA1LTEuNDY3LTMuMTI0LTEuNjE1LTEtLjA4My0xLjQ5LS42MjYtMS40OS0xLjY0IDAtLjQ1My4xNzgtLjg3My41NDItMS4yNi44OTctLjY3NiAxLjM0Ni0xLjU1OCAxLjM0Ni0yLjY1NCAwLS44OTgtLjMzOS0xLjY3My0xLTIuMzE1LS42Ni0uNjQzLTEuNDQ3LS45NjQtMi4zNTMtLjk2NC0uOTQgMC0xLjc0NC4zMi0yLjM5Ni45NjRhMy4xMzYgMy4xMzYgMCAwIDAtLjk3NCAyLjMxNWMwIDEuMDguNDQgMS45NjEgMS4zMzggMi42NTMuMzY0LjM1NS41NDIuNzc1LjU0MiAxLjI2MSAwIDEuMDE0LS40ODMgMS41NTctMS40NjUgMS42NGE0LjkgNC45IDAgMCAwLTMuMTMzIDEuNjE1Yy0uODU1Ljk0LTEuMjc4IDIuMDE5LTEuMjc4IDMuMjYzIDAgMS43MjIuNzcgMy4xMDcgMi4zMDMgNC4xNTMgMS4xMS40MTIgMS42NjggMS4wNDYgMS42NjggMS44NzkgMCAxLjA4LS4wNjggMS4xMTgtMS42NjggMS43MzgtMi4yNDQuOTY0LTQuMDgxIDIuNDcyLTUuNTAzIDQuNTE2LTEuNDIzIDIuMDQ0LTIuMTM0IDQuMzE4LTIuMTM0IDYuODMxIDAgMS4xOTUuMTc4IDIuMzI0LjUyNSAzLjQwM3oiLz48L3N2Zz4=',
+  bK:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMTMiIHgyPSI3Ny43NjQiIHkxPSIzNy4yMjQiIHkyPSIzNy40NjkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZWFyR3JhZGllbnQ+PHBhdGggZmlsbD0iIzFmMWExNyIgZD0iTTI1LjgyMSAxMi4wMjJoLTEuNzZ2LTMuMjVoLTIuMDY3Yy0uNTU4IDAtLjgzOC0uMjcyLS44MzgtLjgyMnYtLjAyNWMwLS41NDIuMjgtLjgxMy44MzgtLjgxM2gyLjA2NlY1LjAwNGMwLS41ODUuMjk3LS44NzIuODktLjg3Mi41NzUgMCAuODcxLjI4Ny44NzEuODcydjIuMTA4aDIuMTM0Yy41NDIgMCAuODEzLjI3LjgxMy44MTN2LjAyNWMwIC41NS0uMjcxLjgyMS0uODEzLjgyMWwtMi4xMTcuMDI2ek0xMS4wMyAzNy43NDRsLS44MTMtNC42NGMtLjAxNyAwLS4wNDItLjAzMy0uMDc2LS4xMDEtLjA4NS0uMTE5LS4zMjItLjI3MS0uNzExLS40NTctLjM4MS0uMTk1LS44MzgtLjUxNy0xLjM0Ni0uOTgyYTQxLjk5IDQxLjk5IDAgMCAxLTEuNzAyLTEuNDkgOC41MDkgOC41MDkgMCAwIDEtMS4xLTEuMjM3QzQuMjczIDI3LjQ1IDMuNzA1IDI1Ljc3MiAzLjU5NSAyMy44Yy0uMTctMS44OTcuNjAxLTMuNzk0IDIuMzAzLTUuNjgyIDEuNzE5LTEuODggNC4wNDctMi43NjggNi45NjgtMi42NSAxLjA5Mi4wNjggMi4zOC4zMyAzLjg0NC43OTYuNDgzLjE5NS45NzQuMzkgMS40ODIuNTc2bDEuNDk4LjU4NGMuMjYzLjEzNi41LjI3MS42OTUuMzk4YTQuMzggNC4zOCAwIDAgMS0uMTI3LTEuMDQxYzAtMS4yODcuNDU3LTIuMzg4IDEuMzgtMy4zMDIuOTE0LS45MDYgMi4wMjMtMS4zNzIgMy4zMS0xLjM4OSAxLjI4NyAwIDIuMzg4LjQ2NiAzLjMwMiAxLjM4LjkwNi45MTUgMS4zNjMgMi4wMTUgMS4zNjMgMy4yODUgMCAuMjYzLS4wMzQuNjEtLjEwMSAxLjA0Mi4yMjgtLjE0NC40NTctLjI3MS42NjktLjM3My43NjItLjMzIDEuNzYtLjcyIDMuMDA1LTEuMTYgMS40MjMtLjQ4MiAyLjcwMS0uNzUzIDMuODQ0LS44MjEgMi45MjEtLjEzNiA1LjI0MS43NTMgNi45NDMgMi42NSAxLjY2OCAxLjg4OCAyLjQ0NyAzLjc4NSAyLjMyOCA1LjY4MS0uMTI3IDEuOTczLS43MDMgMy42NS0xLjcxIDUuMDM4LS4zMy40NDktLjcwMy44NjMtMS4xMTggMS4yNTNhNDAuNSA0MC41IDAgMCAxLTEuNjYgMS40NzNjLS41NDEuNDY2LTEuMDA3Ljc5Ni0xLjM4OC45ODItLjM4LjE4Ni0uNi4zNDctLjY2OS40NTdhLjI5NC4yOTQgMCAwIDEtLjA1LjA3N2MtLjAxNy4wMTctLjAyNi4wMzQtLjAyNi4wNWwtLjc5NiA0LjY2NiAxLjY0MyA2LjEyMWMtLjgzLjc0NS0yLjY4NCAxLjM1NS01LjU1NCAxLjgzNy0yLjg3OS40ODMtNi4yMDYuNzItOS45NzQuNzItMy44MzUgMC03LjIxNC0uMjU0LTEwLjExOC0uNzU0LTIuOTEyLS41MDgtNC43NDEtMS4xNDMtNS40ODYtMS44OTZ6Ii8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTI0Ljk1IDIwLjY3NWEyLjI5NSAyLjI5NSAwIDAgMC0uMTI4LS40MjMgNS42MDYgNS42MDYgMCAwIDAtLjI0NS0uNzJjLS4wNTEtLjExLS4xMTktLjI1NC0uMTk1LS40MzFhOS4wMjggOS4wMjggMCAwIDEtLjI1NC0uNTZjLS4wNS0uMTE4LS4xMS0uMjctLjE4Ni0uNDU2LS4wNjgtLjE5NS0uMTM2LS4zNzMtLjE4Ny0uNTM0YTEuNzM1IDEuNzM1IDAgMCAxLS4wNjctLjQ3NGMwLS44NzIuNDE1LTEuMzEyIDEuMjYxLTEuMzEyLjg4IDAgMS4zMTMuNDMxIDEuMzEzIDEuMjg3IDAgLjIyLS4wMzQuMzcyLS4wOTQuNDc0LS4yMzcuNjI2LS4zNTUuOTY1LS4zNzIgMS4wMTYtLjI1NC41LS40MDYuODIxLS40NzQuOTY1LS4xMTkuMjctLjE5NS41MDgtLjIyLjcyLS4wNTEuMTAxLS4wODUuMTg2LS4xMDIuMjYycy0uMDM0LjEzNi0uMDUuMTg2bS0yLjc3OCA4LjU2Yy0yLjA2Ni4wMzQtMy45NTQuMTM2LTUuNjczLjMyMi0xLjcxLjE3OC0zLjAzLjQ0LTMuOTc5Ljc3YTE4Ljk3MyAxOC45NzMgMCAwIDAtMS43MTktMS44NTQgMzMuMDA3IDMzLjAwNyAwIDAgMS0xLjcyNy0xLjc0NGMtLjgzLS44NDctMS4yMzYtMS43Ny0xLjIzNi0yLjc3NyAwLTEuMjQ1LjIwMy0yLjE1LjYxOC0yLjcyNi40NC0uNjcgMS4xMzUtMS4xNiAyLjA1OC0xLjQ4MmE4LjQ4NiA4LjQ4NiAwIDAgMSAyLjgwMi0uNDgzYzEuMTk0IDAgMi4zMjguMjYzIDMuNDIuNzk2IDEuMDc2LjU2IDEuNzg3IDEuMDA4IDIuMTM0IDEuMzM4IDEuMTI2IDEuMTQzIDIuMDA3IDIuMzggMi42MzMgMy43MTcuMjEyLjUuMzczIDEuMTk0LjQ4MyAyLjA3NC4xMS44OS4xNyAxLjU2Ny4xODYgMi4wNXptMi43NzctNC4zMThjLjExOS0uNDY2LjIxMi0uNzg3LjI5Ni0uOTY1LjE3LS42NDMuMzU2LTEuMTk0LjU3Ni0xLjY0My4wOTMtLjI3OS4yMzctLjYuNDMyLS45NzMuMTg2LS4zNzMuMzktLjgwNS42MS0xLjI3OS4xMjctLjI4LjI3LS42MjYuNDE1LTEuMDMzLjE1Mi0uNDA2LjMwNC0uODA0LjQ0OC0xLjIwMi4xMzYtLjMzLjIwMy0uNjg2LjIwMy0xLjA2NyAwLS44MTMtLjI5Ni0xLjQ5OC0uODcyLTIuMDY2LS41NzUtLjU3NS0xLjI3OC0uODYzLTIuMTA4LS44NjMtMS45NjQgMC0yLjk1NS45OS0yLjk1NSAyLjk1NSAwIC4zOC4wNjguNzM2LjIwMyAxLjA2Ni4zNjUgMS4wNzYuNjQ0IDEuODIuODM5IDIuMjM2LjIyLjQ3NC40MTUuOTA2LjYgMS4yNzguMTc5LjM3My4zNC42OTQuNDY2Ljk3NC4yMi41NS4zOTggMS4wOTIuNTUgMS42NDIuMDM1LjA5My4xMjguNDE1LjI5Ny45NG0tLjg4OSA2LjIyM2MwLS42Ni0uMDE3LTEuNTc1LS4wNS0yLjczNS0uMDM0LTEuMTY4LS4xNjEtMi4xNDItLjM3My0yLjkyLS42NzctMi4yMS0xLjcwMi0zLjk5Ny0zLjA4Mi01LjM1MS0uNzExLS42OTUtMS43OTUtMS4zNDctMy4yNjgtMS45NC0xLjY4NS0uNjYtMy4yODUtLjk5LTQuNzkyLS45OS0yLjYwOCAwLTQuNTQ3LjkzMS01LjggMi44MDMtLjcxMS45OS0xLjA2NyAyLjIzNS0xLjA2NyAzLjcxNiAwIDEuNjI2LjM5OCAyLjk1NSAxLjE4NiAzLjk5Ny40MTUuNTkyIDEuMjEgMS4zMjkgMi4zODcgMi4yMSAxLjE2OS44NzIgMi4xNjggMS42ODQgMi45NzIgMi40MyAxLjQ0LS4zMTQgMy4wNjUtLjU4NSA0Ljg3Ny0uODIyIDEuODEyLS4yMjkgNC4xNDktLjM2NCA3LjAxLS4zOThtMTMuNzg0IDExLjczNS0uNzM3LTIuOTNjLTMuMjI1LS43MzYtNy4yODEtMS4xMDktMTIuMTU4LTEuMTA5LTQuODI2IDAtOC44NjQuMzczLTEyLjEwNyAxLjExbC0uNzg3IDIuOTU0YzMuMTQtLjk1NiA3LjQ0Mi0xLjQzOSAxMi45Mi0xLjQzOSAyLjYyNCAwIDUuMDcxLjEzNiA3LjMxNS4zOTggMi4yNTIuMjYyIDQuMTA2LjYwMSA1LjU1NCAxLjAxNm0tLjY0My03LjQxN2MtMy4wNC0uODM4LTcuMDk2LTEuMjYxLTEyLjE1LTEuMjYxLTUuMDk3IDAtOS4xOTUuNDMxLTEyLjMwMiAxLjI4N2wuMzcyIDIuNTA2YzMuMTI1LS44MTMgNy4wOTUtMS4yMiAxMS45My0xLjIyIDQuODA5IDAgOC43MjkuMzk4IDExLjc1MiAxLjE5NHptLTExLjM2My00LjI5MmMyLjg0NS4wNSA1LjE4Mi4xOTQgNy4wMDIuNDIzIDEuODEyLjIyOSAzLjQ1NS41MDggNC45MS44MjEuOTA3LS44OTcgMS45MTQtMS43NDQgMy4wMjMtMi41NTdzMS44ODgtMS41MDcgMi4zMzctMi4wODNjLjc4OC0xLjA3NSAxLjE4Ni0yLjQxMyAxLjE4Ni00LjAyMSAwLTEuNDY1LS4zNTYtMi43MDEtMS4wNjctMy42OTItMS4yNy0xLjg3LTMuMjE4LTIuODAyLTUuODI1LTIuODAyLTEuNTI0IDAtMy4xMDguMzMtNC43NjcuOTktMS41MDcuNTkzLTIuNTkgMS4yMzctMy4yNzcgMS45My0xLjQwNSAxLjM2NC0yLjQzIDMuMTUtMy4wNzMgNS4zNi0uMjQ2Ljc2Mi0uMzgxIDEuNzI3LS40MDcgMi45MDRzLS4wNDIgMi4wODMtLjA0MiAyLjcyN20xLjgxMi0xLjkzYzAtLjQ4My4wNi0xLjE2LjE2LTIuMDUuMTExLS44OC4yOC0xLjU3NS41MDktMi4wNzQuNjE4LTEuMzM4IDEuNDktMi41NzQgMi42MzMtMy43MTcuMzMtLjMzIDEuMDQyLS43NzkgMi4xMzQtMS4zMzhhNy42NTUgNy42NTUgMCAwIDEgMy40NDYtLjc5NmMuOTMgMCAxLjg0NS4xNjEgMi43NjguNDgzLjkxNS4zMjIgMS42MDkuODEzIDIuMDY2IDEuNDgyLjQxNS41NTkuNjI3IDEuNDY0LjYyNyAyLjcyNiAwIC45OS0uNDA3IDEuOTEzLTEuMjIgMi43NzdhNDAuMzUgNDAuMzUgMCAwIDEtMS43MSAxLjY1MWMtLjYxLjU1LTEuMjAyIDEuMjAyLTEuNzYgMS45NDctLjk1OC0uMzMtMi4yOTUtLjU5Mi00LjAwNi0uNzctMS43MS0uMTg2LTMuNTktLjI4OC01LjY0Ny0uMzIyeiIvPjwvc3ZnPg==',
+  bQ:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMjUzIiB4Mj0iNzcuNzY0IiB5MT0iMzcuMjI0IiB5Mj0iMzcuMzYiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZWFyR3JhZGllbnQ+PHBhdGggZmlsbD0iIzFmMWExNyIgZD0iTTI0Ljk1IDEwLjc1MmMtLjk0IDAtMS43NDUtLjMzLTIuMzk3LS45OXMtLjk3NC0xLjQ2NS0uOTc0LTIuNDA1YzAtLjkzMS4zMjItMS43MjcuOTc0LTIuMzg3czEuNDU2LS45OSAyLjM5Ni0uOTljLjkyMyAwIDEuNzI3LjMzIDIuMzk2Ljk5YTMuMjMgMy4yMyAwIDAgMSAxIDIuMzg3YzAgLjk0LS4zMyAxLjc0NC0xIDIuNDA1LS42NjkuNjYtMS40NzMuOTktMi4zOTYuOTl6bTE1LjI4MSAzMy4xOWMtLjgxMi43MS0yLjYzMyAxLjMwNC01LjQ2IDEuNzg2LTIuODI4LjQ3NC02LjA4OC43Mi05Ljc3MS43Mi0zLjc1IDAtNy4wNTMtLjI1NC05Ljg5OC0uNzQ1LTIuODQ0LS41LTQuNjQtMS4xMTgtNS4zODQtMS44NjNsMS41NjYtNS45NTItLjY5NC0zLjg5NUw4LjQwNSAzMC4yIDYuMjk3IDE0Ljc3NGwxLjIxLS40NzQgNi44IDExLjQ1NS4xNTItMTMuNjQgMS42ODUtLjI5NiA1LjE4MiAxMy43MTYgMi43NzYtMTQuNzU3aDEuNzJsMi43NzYgMTQuNzA2TDMzLjczIDExLjgybDEuNzEuMjk2LjE1MyAxMy42NCA2LjgyNC0xMS40OCAxLjE2LjU0MS0yLjA1OCAxNS4zNTktMi4yMSAzLjc5My0uNjk0IDMuOTQ1ek0xNC41MzUgMTEuOTg5Yy0uOTQ4IDAtMS43NTItLjMyMi0yLjQxMy0uOTc0LS42Ni0uNjUyLS45OS0xLjQ1Ni0uOTktMi4zOTYgMC0uOTIzLjMzLTEuNzE5Ljk5LTIuMzhzMS40NjUtLjk5IDIuNDEzLS45OWMuOTIzIDAgMS43MTkuMzMgMi4zOC45OXMuOTkgMS40NTcuOTkgMi4zOGMwIC45NC0uMzMgMS43NDQtLjk5IDIuMzk2YTMuMjY2IDMuMjY2IDAgMCAxLTIuMzguOTc0bTIwLjgyOCAwYy0uOTQgMC0xLjczNi0uMzIyLTIuMzg3LS45NzQtLjY1Mi0uNjUyLS45ODItMS40NTYtLjk4Mi0yLjM5NiAwLS45MjMuMzMtMS43MTkuOTgyLTIuMzhzMS40NDctLjk5IDIuMzg3LS45OWMuOTQ4IDAgMS43NTMuMzMgMi40MTMuOTlzLjk5IDEuNDU3Ljk5IDIuMzhjMCAuOTQtLjMzIDEuNzQ0LS45OSAyLjM5NnMtMS40NjUuOTc0LTIuNDEzLjk3NE01LjQgMTQuNzIzYy0uOTQgMC0xLjczNi0uMzMtMi4zODgtLjk4MnMtLjk4Mi0xLjQ0OC0uOTgyLTIuMzk2YzAtLjkyMy4zMy0xLjcxOS45ODItMi4zODhDMy42NjQgOC4yOCA0LjQ2IDcuOTUgNS40IDcuOTVjLjk0OCAwIDEuNzQ0LjMzIDIuNDEzIDEuMDA3LjY2LjY3Ljk5IDEuNDY1Ljk5IDIuMzg4IDAgLjk0OC0uMzMgMS43NDQtLjk5IDIuMzk2YTMuMzIzIDMuMzIzIDAgMCAxLTIuNDEzLjk4Mm0zOS4xNDEgMGMtLjk0IDAtMS43NDQtLjMzLTIuNDA0LS45ODJzLS45OTEtMS40NDgtLjk5MS0yLjM5NnEwLTEuMzg0NS45OS0yLjM4OGMuNjYtLjY3NyAxLjQ2NS0xLjAwNyAyLjQwNS0xLjAwNy45MzEgMCAxLjcyNy4zMyAyLjM4OCAxLjAwNy42Ni42Ny45OSAxLjQ2NS45OSAyLjM4OCAwIC45NDgtLjMzIDEuNzQ0LS45OSAyLjM5NmEzLjI4IDMuMjggMCAwIDEtMi4zODguOTgyIi8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTM3LjIgMzUuNzNjLTMuMDQtLjg0LTcuMDk1LTEuMjYyLTEyLjE1LTEuMjYyLTUuMDk2IDAtOS4xOTQuNDMxLTEyLjMwMSAxLjI4NmwuMzcyIDIuNTA3YzMuMTI0LS44MTMgNy4wOTUtMS4yMiAxMS45My0xLjIyIDQuODA5IDAgOC43MjkuMzk4IDExLjc1MiAxLjE5NHptMS43MzYtNC40MzdjLTEuMzcyLS41LTMuMzAyLS45MDYtNS43OTEtMS4yMjgtMi40OS0uMzIyLTUuMjMzLS40ODMtOC4yNDctLjQ4My0yLjk0NiAwLTUuNjM4LjE1My04LjA4NS40NTgtMi40NDcuMzA0LTQuMzc4LjcwMi01Ljc4MyAxLjIwMmwxLjI0NSAyLjI1MmMxLjM4OC0uNDA2IDMuMTkxLS43MDMgNS40MS0uODkgMi4yMS0uMTc3IDQuNjMxLS4yNyA3LjI2NC0uMjdzNS4wNjMuMDkzIDcuMjkuMjdxMy4zNTI1LjI4MDUgNS40MzYuOTE1em0tMS4wOTIgMTEuODUzLS43MzctMi45M2MtMy4yMjYtLjczNi03LjI4MS0xLjEwOS0xMi4xNTgtMS4xMDktNC44MjYgMC04Ljg2NC4zNzMtMTIuMTA3IDEuMTFsLS43ODggMi45NTRjMy4xNDItLjk1NiA3LjQ0My0xLjQ0IDEyLjkyLTEuNDQgMi42MjUgMCA1LjA3Mi4xMzYgNy4zMTYuMzk5IDIuMjUyLjI2MiA0LjEwNi42MDEgNS41NTQgMS4wMTYiLz48L3N2Zz4=',
+  bR:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMTkyIiB4Mj0iNzcuNzM2IiB5MT0iMzcuNTUyIiB5Mj0iMzcuNDI5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yOC40MDggOS4yMmg0LjIxNlY1LjgyNWg2Ljc5OXY5LjI5NmwtNS41MDMgNC4yNDJ2MTEuODYybDQuMjE2IDQuMjE2djUuMDhoMy43OTN2NS45MjdIOC4wNzFWNDAuNTJoMy43OTN2LTUuMDhsNC4yNDItNC4yMTZWMTkuMzYzbC01LjUwNC00LjI0MlY1LjgyNWg2Ljc3NFY5LjIyaDQuMjQyVjUuODI1aDYuNzl6Ii8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTI1LjAxMyAzNS4wNDNoLTEwLjI3TDEzLjYgMzYuMTF2MS40NGgyMi44MjZ2LTEuNDRsLTEuMTQzLTEuMDY3ek0xMy42IDQwLjEyM3YyLjUzMmgyMi44MjZ2LTIuNTMyek0yNS4wMTMgMTMuMDRoLTEyLjd2MS4xNDJsMS44MTIgMS4zNjRoMjEuODAxbDEuNzYxLTEuMzY0VjEzLjA0em0wIDQuMTloLTguNjc5bDEuNDgyIDEuMTY5djEuNDE0aDE0LjM5M3YtMS40MTRsMS40ODItMS4xNjh6bTAgMTMuNTQ3aC03LjE5N3YxLjE0M2wtMS40ODIgMS40NGgxNy4zNTdsLTEuNDgyLTEuNDR2LTEuMTQzeiIvPjwvc3ZnPg==',
+  bB:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMDk0IiB4Mj0iNzcuNjY5IiB5MT0iMzcuMTAxIiB5Mj0iMzcuNDY5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yNSA0Mi4xNjJjLS4yMjkuOTQtLjUxNiAxLjU5Mi0uODQ3IDEuOTU2LS4zMy4zNjQtLjc2Mi43NDUtMS4zMTIgMS4xNDMtLjU5My40MTUtMS4yOTUuNzYyLTIuMTA4IDEuMDVzLTEuNzEuMzY0LTIuNzAxLjIxMWwtNi45NjgtLjk2NWEyLjg1OCAyLjg1OCAwIDAgMC0uNzYyIDBjLS4yMi4wMzQtLjQzMi4wNTEtLjYzNS4wNTEtLjM0NyAwLS43ODcuMDc2LTEuMzIuMjM3LS41NDMuMTUzLS45NTguMzgxLTEuMjU0LjY3N2wtMi40MDUtMy45NDVjLjI5Ny0uMzMuNTYtLjU1OS43ODgtLjY5NC4yMzctLjEyNy41MDgtLjI3MS44MjEtLjQxNWE5LjE3OSA5LjE3OSAwIDAgMSAzLjA3My0uODIxYy40NjYtLjAzNC45MjMtLjA0MyAxLjM2NC0uMDI2YTkuOCA5LjggMCAwIDAgMS4zOTctLjA1Yy44ODkuMTUyIDEuNzg2LjI4NyAyLjY4NC40MDYuOTA1LjEyNyAxLjgxMS4yNTQgMi43MTcuMzkuOTkxIDAgMS42Ni0uMTAyIDIuMDA3LS4yOTcuMTg2LS4xMDIuNDc0LS4yODguODcyLS41NS4zOTgtLjI2My43OTYtLjY1MiAxLjE5NC0xLjE2OS0uODgtLjA5My0xLjc3LS4yNjItMi42ODQtLjUwOGEyNC4wOTQgMjQuMDk0IDAgMCAxLTIuNDA1LS43NTNsMi41ODMtNi40MDFjLTEuMjk2LS43NDUtMi4xOTMtMS4zMzgtMi43MS0xLjc5NWE1LjMgNS4zIDAgMCAxLTEuMjEtMS41NzVjLS40MzItLjc2Mi0uNzEyLTEuNDk4LS44My0yLjIxYTkuMzQxIDkuMzQxIDAgMCAxLS4xNi0xLjkxM2MuMDE2LS45OS4yNDUtMi4wODMuNzAyLTMuMjg1LjQ1Ny0xLjE5NCAxLjMxMi0yLjI3IDIuNTY1LTMuMjA5YTc5LjA5MSA3OS4wOTEgMCAwIDAgMy4wNTctMi40NTUgMjcuNzQ2IDI3Ljc0NiAwIDAgMCAyLjk0Ni0yLjk1NWMtMS4yMi0uNjI3LTEuODI5LTEuNjI2LTEuODI5LTIuOTk3IDAtLjkzMi4zMjItMS43Mi45NzQtMi4zODguNjUyLS42NiAxLjQ1Ni0uOTkgMi4zOTYtLjk5LjkyMyAwIDEuNzE5LjMzIDIuMzguOTkuNjYuNjY5Ljk5IDEuNDU2Ljk5IDIuMzg4cTAgMi4wMzEtMS44MyAyLjk5N2EyNi43OTYgMjYuNzk2IDAgMCAwIDIuOTE0IDIuOTU1IDU2Ljc0IDU2Ljc0IDAgMCAwIDMuMDkgMi40NTVjMS4yMzYuOTQgMi4wODMgMi4wMTUgMi41MjMgMy4yMDkuNDQ5IDEuMjAyLjY5NCAyLjI5NC43MiAzLjI4NSAwIC41NjctLjA1MSAxLjIwMi0uMTcgMS45MTNzLS4zOCAxLjQ0OC0uNzk2IDIuMjFhNi4wODQgNi4wODQgMCAwIDEtMS4yNTMgMS41NzVjLS41LjQ1Ny0xLjM4OCAxLjA1LTIuNjY3IDEuNzk1bDIuNTgzIDYuNGMtLjcyOS4yNjMtMS41NS41MTctMi40NTYuNzU0LS45MTQuMjQ2LTEuNzg2LjQxNS0yLjYzMy41MDguMzgxLjUxNy43Ny45MDYgMS4xNjggMS4xNjkuMzk4LjI2Mi42OTUuNDQ4Ljg5OC41NS4zNDcuMTk1IDEuMDE2LjI5NiAyLjAwNy4yOTZhMjYzLjM1IDI2My4zNSAwIDAgMSAyLjY5Mi0uMzkgODEuMTMgODEuMTMgMCAwIDAgMi43MTgtLjQwNmMuNDQuMDUxLjg4OS4wNjggMS4zNDYuMDUxYTEzLjEyIDEzLjEyIDAgMCAxIDEuNDA1LjAyNiA5LjYyNyA5LjYyNyAwIDAgMSAzLjA3NC44MmMuMjk2LjE0NS41NjcuMjg5LjgwNC40MTYuMjQ2LjEzNS41MDguMzY0LjgwNC42OTRsLTIuNDMgMy45NDVjLS4yOTYtLjI5Ni0uNzEtLjUyNC0xLjI1My0uNjc3LS41MzMtLjE2LS45NjUtLjIzNy0xLjI5NS0uMjM3LS4yMiAwLS40NC0uMDE3LS42Ni0uMDVhMi43OTQgMi43OTQgMCAwIDAtLjc1NCAwbC02Ljk1Ljk2NGMtLjk5Mi4xNTMtMS45MTQuMDg1LTIuNzYxLS4xOTQtLjg1NS0uMjgtMS41NTgtLjY1Mi0yLjEtMS4xMTgtLjU0Mi0uNDQ5LS45ODItLjgzLTEuMzA0LTEuMTUxLS4zMjEtLjMyMi0uNTkyLS45NTctLjgwNC0xLjg5NyIvPjxwYXRoIGZpbGw9InVybCgjYSkiIGQ9Ik0yNC4wODYgMjMuNzA1djIuMTA4YzAgLjYxLjMwNC45MTQuOTE0LjkxNHMuOTE0LS4zMDQuOTE0LS45MTR2LTIuMTM0aDIuMjM2Yy41NzUgMCAuODcyLS4yOTYuODcyLS44OTcgMC0uNTkzLS4yOTctLjg4OS0uODcyLS44ODloLTIuMjM2di0yLjIzNWMwLS42MS0uMzA0LS45MTUtLjkxNC0uOTE1cy0uOTE0LjMwNS0uOTE0LjkxNXYyLjIzNUgyMS45Yy0uNTg0IDAtLjg3Mi4yOTYtLjg3Mi44ODkgMCAuNjAxLjI4OC44OTcuODcyLjg5N3ptNy41MSAxMy43NDEtMS4wNDItMi41MzFjLTEuNjg1LS4zNjQtMy41MzktLjU0Mi01LjU1NC0uNTQyLTEuOTk4IDAtMy44MzUuMTc4LTUuNTAzLjU0MmwtMS4wNDIgMi41MDZjMi4wNS0uNTE3IDQuMjM0LS43NyA2LjU0NS0uNzcgMi4yODYgMCA0LjQ3OS4yNjIgNi41OTYuNzk1bS0yLjA4My01LjExNC0uNzItMS43MzV2LS42N2EyNy4wMyAyNy4wMyAwIDAgMC0zLjc5My0uMjcgMjcuMzUgMjcuMzUgMCAwIDAtMy43NjguMjdsLS4wMjUuNjctLjY2OSAxLjczNUEyNS44NSAyNS44NSAwIDAgMSAyNSAzMS45NmMxLjU5MiAwIDMuMDkuMTI3IDQuNTEzLjM3Mm0tLjg2NCA5LjM4MWMtLjY2LS41LTEuMzMtMS4yODctMS45OS0yLjM2MmgtLjc4N2MwIC44MTMuMTg2IDEuNi41NjcgMi4zNjJ6bS01LjExNCAwYy4zODEtLjgxMi41NzYtMS42LjU3Ni0yLjM2MmgtLjc5NmMtLjY0MyAxLjA1OS0xLjMxMiAxLjg0Ni0yLjAxNSAyLjM2MnoiLz48L3N2Zz4=',
+  bN:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMjUzIiB4Mj0iNzcuNjQxIiB5MT0iMzcuNTkyIiB5Mj0iMzcuNDY5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yNi4xNzggOS4zOTVjMi42LjE3IDUuMDA0LjgzOCA3LjIyMiAyLjAxNSAyLjIxIDEuMTY5IDQuMDk4IDIuNjc2IDUuNjU2IDQuNTEzIDEuMDkyIDEuMjg3IDIuMTE3IDIuODQ1IDMuMDgyIDQuNjY1YTI4LjY4NCAyOC42ODQgMCAwIDEgMi4zMiA1Ljc3NCAzNi41MTEgMzYuNTExIDAgMCAxIDEuMjUzIDcuNDZjLjE3NyAyLjU5OS4yNjIgNS4wMTIuMjYyIDcuMjN2NS40MDJIMTUuNDY4Yy0uMTUzIDAtLjIyLS40MDctLjIxMi0xLjIxLjAwOS0uODE0LjA2LTEuNDY2LjE2LTEuOTY1LjA2LS4zOTguMjIxLS45NTcuNDY3LTEuNjg1LjI1NC0uNzI4LjY2LTEuNjA5IDEuMjQ0LTIuNjUuMjYzLS41MzQuODktMS4zMDQgMS44OC0yLjMyLjk5OS0xLjAxNiAyLjEzMy0yLjIwMSAzLjQyOS0zLjUzOS43NDUtLjc2MiAxLjMyLTEuNzE5IDEuNzQ0LTIuODc5LjQyMy0xLjE1MS42MDEtMi4yMDEuNTMzLTMuMTVhOC4zNyA4LjM3IDAgMCAxLTIuMDA2IDEuMjJjLTMuNTA1IDEuMjUzLTYuMDQ1IDMuMDczLTcuNjEyIDUuNDUyLS4xMTguMTUzLS40OS44MjItMS4xMTcgMi4wMTUtLjMzLjYyNy0uNjE4IDEuMDU5LS44NDcgMS4yODctLjMxMy4zMTQtLjc3LjQ5MS0xLjM2My41MjUtLjkyMy4wNDMtMS42NDMtLjM5OC0yLjE2LTEuMzQ2LS42OTMuMjAzLTEuMzEyLjI4OC0xLjg2Mi4yNTQtLjkyMy0uMzQ3LTEuNTkyLS43Mi0yLjAwNi0xLjExNy0uODQ3LS44NDctMS4zODktMS42ODUtMS42NTEtMi41MzJhOS40MyA5LjQzIDAgMCAxLS4zODEtMi43MjZjMC0xLjM4OS44NTUtMy4yMjYgMi41ODItNS41MTIgMi4wMTUtMi42MjUgMy4wOS00LjYzMSAzLjIxNy02LjAwMyAwLS41OTMuMDYtMS4yNjEuMTc4LTIuMDA3YTQuMTk4IDQuMTk4IDAgMCAxIC42MTgtMS40OWMuMjItLjMzLjM2NC0uNTU4LjQzMi0uNjc3LjA3Ni0uMTI3LjIxMi0uMzEzLjQxNS0uNTU5LjE0NC0uMjAzLjI3LS4zNTUuMzcyLS40NTcuMDkzLS4xMS4yMi0uMjU0LjM3My0uNDQuMTc4LS4yMTIuNDA2LS40NTcuNjk0LS43NDVhMTguMDYgMTguMDYgMCAwIDEtMS4wNjctNy40NmMzLjI4NSAxLjE2OSA2LjA1NCAzLjAxNSA4LjI4IDUuNTMuNTUxLTEuODcyIDEuNjI2LTMuMzg3IDMuMjI2LTQuNTM5IDEuMzIxLjkyMyAyLjM3MSAyLjE1IDMuMTUgMy42NjYiLz48cGF0aCBmaWxsPSJ1cmwoI2EpIiBkPSJtMTUuNjg4IDE3Ljc4Ni41NDItLjI4Yy41LS4xOTQuNjUyLS41NTkuNDc0LTEuMDkyLS4xOTUtLjQ5MS0uNTc2LS42Ni0xLjE0My0uNDkxLTEuOTQ3LjcxMS0zLjI5NCAyLjAxNS00LjAzOSAzLjkyLS4xMTguNTQyLjA3Ni45MTQuNTkzIDEuMTE4LjUxNi4xNi44NjQtLjAxNyAxLjA0MS0uNTUuMTM2LS4yOC4yMjktLjQ2Ni4yOTctLjU0My4xODYuMTQ0LjQyMy4yNDYuNzIuMjk3IDEuMDA3LjE2IDEuNi0uMjggMS43Ni0xLjMzOGExLjQ5OCAxLjQ5OCAwIDAgMC0uMjQ1LTEuMDQxTTExLjU3MyAzNC41NWMuMDYtLjE1My4xNy0uMzczLjMyMi0uNjcuMjgtLjY5My40MTUtMS4xMDguNDE1LTEuMjQ0LS4wMjYtLjQ1Ny0uMjcxLS42OTQtLjcyLS42OTQtLjMzIDAtLjcxMS40NzQtMS4xNiAxLjQxNGEuOTcuOTcgMCAwIDEtLjI5Ni4zNDdjLS40NDkuNDY2LS4zODEuODU1LjE5NCAxLjE2OC41MzQuMzE0Ljk0LjIxMiAxLjI0NS0uMzIxbTE0LjYzLTkuMjA0YzEuMTYtMS41MjQgMS43MjgtMy4yMTcgMS43MS01LjA4LS4wNjctLjU1LS4zOC0uODItLjk0LS44Mi0uNzYxIDAtMS4wNTcuMjc5LS44OTcuODM3LjA1MS45MTUtLjAzMyAxLjY2OC0uMjcgMi4yNjEtLjM4Mi45NC0uODA1IDEuNjQzLTEuMjYyIDIuMTA4LS4yNTQuNS0uMTAyLjg2NC40NDkgMS4wOTIuNTI1LjI0Ni45MzEuMTE5IDEuMjEtLjM5OE0xOS43MjYgMTMuMjRhNi43OTggNi43OTggMCAwIDEgLjA1MS0xLjkzYy0uOTkuMTk0LTEuOTIyLjY2LTIuODAyIDEuMzg4LS41MjUuMjgtLjY1Mi42Ny0uMzczIDEuMTY5LjI4LjUwOC42Ny41OTIgMS4xNjkuMjQ1LjM0Ny0uMTg2LjY2OS0uMzU1Ljk1Ni0uNTA4LjI4OC0uMTYuNjE4LS4yOCAxLS4zNjR6bTIzLjI1IDMxLjQ1NGMtLjAxNyAwIDAtLjQ0OS4wNDItMS4zNDYuMTMxLTMuMTA4LjA5Ni02LjIyMS4wNzYtOS4zM2EyNi44MzcgMjYuODM3IDAgMCAwLS44ODktNi42MTNjLS44NC0zLjMxLTIuMTI0LTYuNDg1LTQuMDcyLTkuMjk3LTIuNjM0LTMuODQ1LTYuODE0LTYuMDMzLTExLjI4Ni02Ljk3Ni4xMjYuNzY2LjAzMyAxLjU0LjA3NiAyLjMxMWEyNS44MiAyNS44MiAwIDAgMSA0LjUzOCAyLjAzMmM0LjI0MSAyLjU1NSA2LjQxNCA3LjI3NiA3LjE5NyAxMS45MyAxLjI3MiA2LjE1NC40NTMgMTEuNTU3LjgxMyAxNy4yODl6TTkuNDM5IDMwLjEzOWMuNDc1LS4zNC41MjUtLjcyOS4xNDQtMS4xOTQtLjM5OC0uMzgxLS44My0uNDE1LTEuMzEyLS4xMDItMS4wMDcuNjYtMS41NSAxLjUzMy0xLjYxNyAyLjYwOC4wMTcuNTQyLjM0Ny44MDQuOTc0Ljc3LjU5Mi0uMDUuODgtLjM1NS44NjMtLjkyMi4xMzYtLjUyNS40NDktLjkxNS45NDgtMS4xNiIvPjwvc3ZnPg==',
+  bP:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHBhdGggZmlsbD0iIzFmMWExNyIgZD0iTTI1IDQ2LjQ0OEgxMS42MDZhMTMuMTM5IDEzLjEzOSAwIDAgMS0uOTktNS4wNDNjMC0yLjk3NS44NjMtNS42NDQgMi41OTgtOC4wMTggMS43MzYtMi4zNjUgMy45NzEtNC4wNTQgNi42OTctNS4wNjdhNi44MjQgNi44MjQgMCAwIDEtMi44NjEtMi4zOThjLS43MzctMS4wNzEtMS4xLTIuMjgzLTEuMS0zLjYzNCAwLTEuNjkuNTc1LTMuMTU2IDEuNzM1LTQuMzkyIDEuMTUxLTEuMjQ0IDIuNTc0LTEuOTYxIDQuMjY3LTIuMTUtMS4zNDYtLjk4MS0yLjAxNS0yLjI4My0yLjAxNS0zLjg5IDAtMS4zNTEuNDkxLTIuNTEzIDEuNDgyLTMuNDc3Ljk4Mi0uOTY0IDIuMTc2LTEuNDQyIDMuNTgxLTEuNDQyIDEuMzg5IDAgMi41ODIuNDc4IDMuNTczIDEuNDQyczEuNDkgMi4xMjYgMS40OSAzLjQ3N2MwIDEuNjA3LS42NjkgMi45MDktMi4wMTUgMy44OSAxLjY5My4xODkgMy4xMTYuOTA2IDQuMjY3IDIuMTUgMS4xNiAxLjIzNiAxLjczNiAyLjcwMyAxLjczNiA0LjM5MiAwIDEuMzUxLS4zNzMgMi41NjMtMS4xMjYgMy42MzRhNy4wMzYgNy4wMzYgMCAwIDEtMi44NjIgMi4zOThjMi43MjYgMS4wMTMgNC45NjIgMi43MDIgNi42OTcgNS4wNjcgMS43MzYgMi4zNzQgMi42IDUuMDQzIDIuNiA4LjAxOHEwIDIuNjA4NS0uOTY2IDUuMDQzeiIvPjwvc3ZnPg=='
+};
+function pieceImgUrl(pieceKey){
+  return PIECE_SVG_DATA[pieceKey] || '';
+}
+/* solid-glyph fallback, only used if the image itself fails to load */
+var pieceFallbackGlyph = {
+  wK:'♚', wQ:'♛', wR:'♜', wB:'♝', wN:'♞', wP:'♟',
+  bK:'♚', bQ:'♛', bR:'♜', bB:'♝', bN:'♞', bP:'♟'
+};
+
+function buildBoardSquares(){
+  var board = document.getElementById('chess-board');
+  if(!board) return;
+  board.innerHTML = '';
+  for(var r = 0; r < 8; r++){
+    for(var c = 0; c < 8; c++){
+      var sq = document.createElement('div');
+      var isLight = (r + c) % 2 === 0;
+      sq.className = 'chess-square ' + (isLight ? 'light' : 'dark');
+      sq.dataset.row = r;
+      sq.dataset.col = c;
+      board.appendChild(sq);
+    }
+  }
+}
+
+function makePieceEl(pieceKey, isWhite){
+  var img = document.createElement('img');
+  img.className = 'piece-img';
+  img.alt = '';
+  img.src = pieceImgUrl(pieceKey);
+  img.onerror = function(){
+    var span = document.createElement('span');
+    span.className = 'piece-fallback ' + (isWhite ? 'piece-w' : 'piece-b');
+    span.textContent = pieceFallbackGlyph[pieceKey] || '';
+    img.replaceWith(span);
+  };
+  return img;
+}
+
+function renderPosition(fen){
+  var board = document.getElementById('chess-board');
+  if(!board) return;
+  var rows = fen.split(' ')[0].split('/');
+  var squares = board.children;
+  for(var r = 0; r < 8; r++){
+    var col = 0;
+    for(var i = 0; i < rows[r].length; i++){
+      var ch = rows[r][i];
+      if(/\d/.test(ch)){
+        var empty = parseInt(ch, 10);
+        for(var e = 0; e < empty; e++){
+          squares[r * 8 + col].innerHTML = '';
+          col++;
+        }
+      } else {
+        var isWhite = ch === ch.toUpperCase();
+        var pieceKey = (isWhite ? 'w' : 'b') + ch.toUpperCase();
+        var sqEl = squares[r * 8 + col];
+        sqEl.innerHTML = '';
+        sqEl.appendChild(makePieceEl(pieceKey, isWhite));
+        col++;
+      }
+    }
+  }
+}
+
+function renderMoveList(){
+  var list = document.getElementById('move-list');
+  if(!list) return;
+  list.innerHTML = '';
+  for(var i = 0; i < historyVerbose.length; i += 2){
+    var pair = document.createElement('span');
+    pair.className = 'move-pair';
+    var num = document.createElement('span');
+    num.className = 'move-num';
+    num.textContent = (i / 2 + 1) + '.';
+    pair.appendChild(num);
+    pair.appendChild(makeMoveBtn(historyVerbose[i].san, i + 1));
+    if(historyVerbose[i + 1]){
+      pair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, i + 2));
+    }
+    list.appendChild(pair);
+  }
+  highlightMoveList();
+}
+
+function makeMoveBtn(san, ply){
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'move-btn';
+  btn.textContent = san;
+  btn.dataset.ply = ply;
+  btn.addEventListener('click', function(){ goToPly(ply); });
+  return btn;
+}
+
+function highlightMoveList(){
+  document.querySelectorAll('.move-btn').forEach(function(btn){
+    btn.classList.toggle('active', parseInt(btn.dataset.ply, 10) === moveIndex);
+  });
+}
+
+function goToPly(ply){
+  gameEngine.reset();
+  for(var i = 0; i < ply; i++){ gameEngine.move(historyVerbose[i]); }
+  moveIndex = ply;
+  renderPosition(gameEngine.fen());
+  highlightMoveList();
+}
+
+function formatPgnDate(d){
+  var parts = d.split('.');
+  if(parts.length === 3 && parts[0].length === 4){
+    return parts[2] + '.' + parts[1] + '.' + parts[0];
+  }
+  return d;
+}
+
+function parsePgnHeaders(pgnText){
+  var headers = {};
+  var re = /\[(\w+)\s+"([^"]*)"\]/g;
+  var m;
+  while((m = re.exec(pgnText)) !== null){
+    headers[m[1].toLowerCase()] = m[2];
+  }
+  return headers;
+}
+
+function loadGameObject(g){
+  currentGame = g;
+  gameEngine = new Chess();
+  var ok = gameEngine.load_pgn(g.pgn, { sloppy: true });
+  if(!ok){
+    var err = document.getElementById('pgn-error');
+    if(err){ err.textContent = 'Could not read this PGN — check the format and try again.'; }
+    return false;
+  }
+  historyVerbose = gameEngine.history({ verbose: true });
+  gameEngine.reset();
+  moveIndex = 0;
+  renderPosition(gameEngine.fen());
+  renderMoveList();
+
+  var headers = parsePgnHeaders(g.pgn);
+  var whiteName = headers.white || 'White';
+  var blackName = headers.black || 'Black';
+  if(headers.whiteelo) whiteName += ' (' + headers.whiteelo + ')';
+  if(headers.blackelo) blackName += ' (' + headers.blackelo + ')';
+  var wEl = document.getElementById('player-white-name');
+  var bEl = document.getElementById('player-black-name');
+  if(wEl) wEl.textContent = whiteName;
+  if(bEl) bEl.textContent = blackName;
+
+  var titleEl = document.getElementById('game-title');
+  var infoEl = document.getElementById('game-info');
+  var resolvedTitle = pickLang(g.title) || (whiteName + ' vs ' + blackName);
+  if(titleEl) titleEl.textContent = resolvedTitle;
+  var infoBits = [];
+  if(headers.event) infoBits.push(headers.event);
+  if(headers.date && headers.date.indexOf('?') === -1) infoBits.push(formatPgnDate(headers.date));
+  if(headers.result) infoBits.push(headers.result);
+  if(infoEl) infoEl.textContent = g.meta || infoBits.join(' · ');
+
+  var err = document.getElementById('pgn-error');
+  if(err) err.textContent = '';
+  return true;
+}
+
+function populateGameSelect(){
+  var select = document.getElementById('game-select');
+  if(!select) return;
+  select.innerHTML = '';
+  sampleGames.forEach(function(g, idx){
+    var opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = pickLang(g.title);
+    select.appendChild(opt);
+  });
+}
+/* Called on language switch: relabels the dropdown's options in place
+   (rather than rebuilding the list) so the current selection survives. */
+function refreshGameSelectLanguage(){
+  var select = document.getElementById('game-select');
+  if(!select) return;
+  Array.prototype.forEach.call(select.options, function(opt){
+    var idx = parseInt(opt.value, 10);
+    if(sampleGames[idx]) opt.textContent = pickLang(sampleGames[idx].title);
+  });
+}
+/* Called on language switch: re-translates just the displayed game's
+   title, without touching the board/move position. */
+function refreshGameTitleLanguage(){
+  if(!currentGame) return;
+  var titleEl = document.getElementById('game-title');
+  if(!titleEl) return;
+  var headers = parsePgnHeaders(currentGame.pgn);
+  var whiteName = headers.white || 'White';
+  var blackName = headers.black || 'Black';
+  titleEl.textContent = pickLang(currentGame.title) || (whiteName + ' vs ' + blackName);
+}
+
+function isAdminMode(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    return params.get('admin') === 'jakob2026';
+  } catch(e){
+    return false;
+  }
+}
+
+function loadGamesData(){
+  return fetch('data/games.json', { cache: 'no-store' })
+    .then(function(r){ if(!r.ok) throw new Error('no data file'); return r.json(); })
+    .then(function(list){
+      if(Array.isArray(list) && list.length) sampleGames = list;
+    })
+    .catch(function(){
+      /* data/games.json missing or blocked (e.g. opened as a local file) —
+         the hardcoded sampleGames above stays as-is */
+    });
+}
+
+function initGamesWidget(){
+  if(typeof Chess === 'undefined') return;
+  buildBoardSquares();
+  loadGamesData().then(function(){
+    populateGameSelect();
+    loadGameObject(sampleGames[0]);
+  });
+
+  var select = document.getElementById('game-select');
+  if(select){
+    select.addEventListener('change', function(){
+      loadGameObject(sampleGames[parseInt(select.value, 10)]);
+    });
+  }
+
+  var btnStart = document.getElementById('nav-start');
+  var btnPrev = document.getElementById('nav-prev');
+  var btnNext = document.getElementById('nav-next');
+  var btnEnd = document.getElementById('nav-end');
+  if(btnStart) btnStart.addEventListener('click', function(){ goToPly(0); });
+  if(btnPrev) btnPrev.addEventListener('click', function(){ goToPly(Math.max(0, moveIndex - 1)); });
+  if(btnNext) btnNext.addEventListener('click', function(){ goToPly(Math.min(historyVerbose.length, moveIndex + 1)); });
+  if(btnEnd) btnEnd.addEventListener('click', function(){ goToPly(historyVerbose.length); });
+
+  /* Adding games is restricted: this panel only unhides for whoever opens
+     the page with ?admin=jakob2026 in the URL. This is a convenience, not
+     real security — anyone reading the page source could find the key. */
+  if(isAdminMode()){
+    var adminTools = document.getElementById('admin-tools');
+    if(adminTools) adminTools.hidden = false;
+  }
+
+  var toggleBtn = document.getElementById('toggle-paste');
+  var pastePanel = document.getElementById('paste-panel');
+  if(toggleBtn && pastePanel){
+    toggleBtn.addEventListener('click', function(){
+      pastePanel.hidden = !pastePanel.hidden;
+    });
+  }
+  var loadBtn = document.getElementById('load-pgn');
+  var pgnInput = document.getElementById('pgn-input');
+  var titleInput = document.getElementById('pgn-title-input');
+  if(loadBtn && pgnInput){
+    loadBtn.addEventListener('click', function(){
+      var text = pgnInput.value.trim();
+      if(!text) return;
+      var customTitle = titleInput ? titleInput.value.trim() : '';
+      var customGame = { title: customTitle || null, meta: '', pgn: text };
+      if(loadGameObject(customGame)){
+        var select2 = document.getElementById('game-select');
+        if(select2){ select2.value = ''; }
+      }
+    });
+  }
+}
+initGamesWidget();
+
+/* ---------- blog cards, loaded from data/blog.json (written by editor.html) ---------- */
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+var blogPostsData = null;
+var BLOG_PAGE_SIZE = 3;
+var blogVisibleCount = BLOG_PAGE_SIZE;
+function renderBlogGrid(){
+  if(!Array.isArray(blogPostsData) || !blogPostsData.length) return; /* keep the fallback cards in the HTML */
+  var grid = document.getElementById('blog-grid');
+  if(!grid) return;
+  var readMore = document.documentElement.lang === 'de' ? 'Weiterlesen →' : 'Read more →';
+  /* newest first: editor.html always appends new posts to the end of the
+     array, so the last entry is the most recently added one */
+  var ordered = blogPostsData.slice().reverse();
+  var visible = ordered.slice(0, blogVisibleCount);
+  grid.innerHTML = visible.map(function(post){
+    var href = 'blog-post.html?slug=' + encodeURIComponent(post.slug || '');
+    var imageHtml = post.image
+      ? '<div class="blog-card-image"><img src="' + escapeHtml(post.image) + '" alt=""></div>'
+      : '';
+    return '<article class="blog-card">' + imageHtml +
+      '<div class="blog-card-body">' +
+      '<div class="blog-date">' + escapeHtml(post.date) + '</div>' +
+      '<h3>' + escapeHtml(post.title) + '</h3>' +
+      '<p>' + escapeHtml(post.excerpt) + '</p>' +
+      '<a href="' + href + '" class="blog-link">' + readMore + '</a>' +
+      '</div></article>';
+  }).join('');
+  var loadMoreWrap = document.getElementById('blog-loadmore-wrap');
+  if(loadMoreWrap) loadMoreWrap.hidden = blogVisibleCount >= ordered.length;
+}
+function loadBlogData(){
+  fetch('data/blog.json', { cache: 'no-store' })
+    .then(function(r){ if(!r.ok) throw new Error('no data file'); return r.json(); })
+    .then(function(list){
+      blogPostsData = list;
+      renderBlogGrid();
+    })
+    .catch(function(){
+      /* data/blog.json missing or blocked (e.g. opened as a local file) —
+         the placeholder cards already in the page stay as-is */
+    });
+}
+var blogLoadMoreBtn = document.getElementById('blog-loadmore');
+if(blogLoadMoreBtn){
+  blogLoadMoreBtn.addEventListener('click', function(){
+    blogVisibleCount += BLOG_PAGE_SIZE;
+    renderBlogGrid();
+  });
+}
+
+/* ---------- testimonials, loaded from data/testimonials.json ---------- */
+var testimonialsData = null;
+function renderTestiGrid(){
+  if(!Array.isArray(testimonialsData) || !testimonialsData.length) return; /* keep the fallback cards */
+  var grid = document.getElementById('testi-grid');
+  if(!grid) return;
+  grid.innerHTML = testimonialsData.map(function(t){
+    return '<div class="testi-card">' +
+      '<div class="quote">' + escapeHtml(pickLang(t.quote)) + '</div>' +
+      '<div class="who">' + escapeHtml(t.who) + '</div>' +
+      '</div>';
+  }).join('');
+}
+function loadTestimonialsData(){
+  fetch('data/testimonials.json', { cache: 'no-store' })
+    .then(function(r){ if(!r.ok) throw new Error('no data file'); return r.json(); })
+    .then(function(list){
+      testimonialsData = list;
+      renderTestiGrid();
+    })
+    .catch(function(){
+      /* data/testimonials.json missing or blocked — fallback cards stay */
+    });
+}
+loadBlogData();
+loadTestimonialsData();
+
+/* keyboard navigation: left/right arrows step through the loaded game
+   while the Career tab is open and no text field is focused */
+document.addEventListener('keydown', function(e){
+  var careerPanel = document.getElementById('career');
+  if(!careerPanel || !careerPanel.classList.contains('active-panel')) return;
+  var tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+  if(tag === 'input' || tag === 'textarea') return;
+  if(!gameEngine) return;
+  if(e.key === 'ArrowLeft'){
+    goToPly(Math.max(0, moveIndex - 1));
+    e.preventDefault();
+  } else if(e.key === 'ArrowRight'){
+    goToPly(Math.min(historyVerbose.length, moveIndex + 1));
+    e.preventDefault();
+  }
+});
+</script>
+</body>
+</html>

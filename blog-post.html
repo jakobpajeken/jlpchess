@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<!--
+  BLOG POST TEMPLATE (single reusable page for every post)
+  ==========================================================
+  Every "Read more →" link on the Blog tab of coaching.html points here as
+  blog-post.html?slug=<slug>. On load, this page looks up that slug in
+  data/blog.json and fills itself in with the real post.
+
+  No slug in the URL, no matching entry, or data/blog.json not reachable
+  (e.g. the page opened by double-clicking the file instead of through a
+  web server) → it just shows this built-in "Add a ..." placeholder, so the
+  page is never blank.
+
+  You normally won't need to touch this file by hand: use editor.html to
+  add/edit posts in data/blog.json instead.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add a post title here — IM Jakob Leon Pajeken</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500;600;700&family=Spectral+SC:wght@500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1b18;
+    --surface:#232019;
+    --surface-raised:#2a261e;
+    --ivory:#ece5d4;
+    --ivory-dim:#bcb3a0;
+    --gold:#a8823c;
+    --gold-bright:#c9a05c;
+    --line:rgba(236,229,212,0.13);
+    --max:1080px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--ink);color:var(--ivory);
+    font-family:'Inter',sans-serif;font-size:16px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Spectral',serif;font-weight:500;margin:0;color:var(--ivory);}
+  a{color:inherit;}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 32px;}
+  .eyebrow{
+    font-family:'Spectral SC',serif;font-weight:500;color:var(--gold-bright);
+    font-size:0.92rem;display:flex;align-items:center;gap:12px;margin-bottom:18px;
+  }
+  .eyebrow .rule{width:30px;height:1px;background:var(--gold);display:inline-block;}
+
+  /* header — matches coaching.html */
+  header{
+    position:sticky;top:0;z-index:30;background:rgba(28,27,24,0.88);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  }
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;}
+  .brand{font-family:'Spectral',serif;font-size:1.1rem;text-decoration:none;}
+  .brand em{font-style:normal;color:var(--gold-bright);}
+  .langtoggle{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden;}
+  .langtoggle button{
+    background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;
+    font-size:0.82rem;padding:6px 12px;cursor:pointer;letter-spacing:0.03em;
+  }
+  .langtoggle button.active{background:var(--gold);color:var(--ink);}
+  .langtoggle button:focus-visible,.back-link:focus-visible,.btn:focus-visible{outline:1px solid var(--gold-bright);outline-offset:3px;}
+
+  /* article */
+  main{padding:72px 0 96px;}
+  .article-wrap{max-width:720px;margin:0 auto;padding:0 32px;}
+  .back-link{
+    display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+    font-size:0.88rem;color:var(--ivory-dim);margin-bottom:40px;transition:color .2s;
+  }
+  .back-link:hover{color:var(--gold-bright);}
+  .article-head h1{font-size:clamp(1.9rem,4.2vw,2.7rem);line-height:1.18;}
+  .article-meta{
+    display:flex;align-items:center;gap:10px;margin-top:18px;
+    font-size:0.86rem;color:var(--ivory-dim);font-family:'Spectral SC',serif;
+  }
+  .article-meta .dot{opacity:0.5;}
+  .article-cover{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;margin-top:36px;background:var(--surface);}
+  .article-body{margin-top:44px;}
+  .article-body p{margin:0 0 22px;color:var(--ivory-dim);max-width:64ch;}
+  .article-body p.lead{
+    font-size:1.14rem;color:var(--ivory);font-family:'Spectral',serif;
+    line-height:1.55;margin-bottom:28px;
+  }
+  .article-body strong{color:var(--ivory);font-weight:500;}
+  .article-body blockquote{
+    margin:36px 0;padding:4px 0 4px 24px;border-left:2px solid var(--gold);
+    font-family:'Spectral',serif;font-style:italic;font-size:1.15rem;
+    color:var(--ivory);line-height:1.5;max-width:60ch;
+  }
+  .article-figure{margin:32px 0;}
+  .article-figure img{width:100%;display:block;}
+  .article-figure figcaption{
+    margin-top:10px;font-size:0.82rem;color:var(--ivory-dim);
+    text-align:center;font-style:italic;
+  }
+  .article-footer{
+    margin-top:56px;padding-top:32px;border-top:1px solid var(--line);
+  }
+  .btn{
+    display:inline-block;padding:13px 26px;font-size:0.94rem;text-decoration:none;
+    border:1px solid var(--gold);color:var(--ivory);transition:background .2s,color .2s;
+    cursor:pointer;font-family:'Inter',sans-serif;background:none;
+  }
+  .btn:hover{background:rgba(168,130,60,0.14);}
+
+  footer{padding:32px 0;}
+  footer .wrap{display:flex;justify-content:space-between;color:var(--ivory-dim);font-size:0.82rem;flex-wrap:wrap;gap:10px;}
+
+  @media (max-width:600px){
+    .article-wrap{padding:0 22px;}
+    main{padding:48px 0 72px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <a href="coaching.html" class="brand">IM Jakob Leon <em>Pajeken</em></a>
+    <div class="langtoggle">
+      <button type="button" data-lang="en" class="active">EN</button>
+      <button type="button" data-lang="de">DE</button>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <div class="article-wrap">
+    <a href="coaching.html#blog" class="back-link"><span aria-hidden="true">&larr;</span><span data-i18n="post.back">Back to all posts</span></a>
+
+    <div class="article-head">
+      <div class="eyebrow"><span class="rule"></span><span id="post-category" data-i18n="post.category">Add a category — e.g. Openings, Tournaments, Training</span></div>
+      <h1 id="post-title" data-i18n="post.title">Add a post title here</h1>
+      <div class="article-meta">
+        <span id="post-date" data-i18n="post.date">Add a date</span>
+        <span class="dot">&middot;</span>
+        <span id="post-readtime" data-i18n="post.readtime">Add a read time, e.g. 5 min read</span>
+      </div>
+    </div>
+
+    <img id="post-cover" class="article-cover" alt="" hidden>
+
+    <div class="article-body" id="post-body">
+      <p class="lead" data-i18n="post.lead">Add a short lead paragraph here — one or two sentences that pull the reader in. It's shown a little larger than the rest of the text, right under the title.</p>
+      <p data-i18n="post.p1">Add your first paragraph here. Replace this placeholder with the real content of the post — an opening idea, a tournament story, or a training method.</p>
+      <p data-i18n="post.p2">Add a second paragraph here. Copy this &lt;p&gt; tag as many times as you need to extend the post — the layout will keep the same comfortable reading width.</p>
+      <blockquote data-i18n="post.quote">Add a pull quote here — a key idea, a memorable line from a game, or a takeaway worth highlighting on its own.</blockquote>
+      <p data-i18n="post.p3">Add a closing paragraph here — a takeaway for the reader, a question to think about, or a pointer to what to study next.</p>
+    </div>
+
+    <div class="article-footer">
+      <a href="coaching.html#blog" class="btn" data-i18n="post.moreposts">&larr; More posts</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 Jakob Leon Pajeken</span>
+    <span data-i18n="post.footernote">Tournament results and ratings as reported by the player</span>
+  </div>
+</footer>
+
+<script>
+var i18n = {
+  "post.back":{en:"Back to all posts",de:"Zurück zu allen Beiträgen"},
+  "post.category":{en:"Add a category — e.g. Openings, Tournaments, Training",de:"Kategorie einfügen — z. B. Eröffnungen, Turniere, Training"},
+  "post.title":{en:"Add a post title here",de:"Hier einen Titel einfügen"},
+  "post.date":{en:"Add a date",de:"Datum einfügen"},
+  "post.readtime":{en:"Add a read time, e.g. 5 min read",de:"Lesedauer einfügen, z. B. 5 Min. Lesezeit"},
+  "post.lead":{en:"Add a short lead paragraph here — one or two sentences that pull the reader in. It's shown a little larger than the rest of the text, right under the title.",de:"Hier einen kurzen Einleitungssatz einfügen — ein bis zwei Sätze, die zum Weiterlesen einladen. Er wird etwas größer dargestellt als der restliche Text, direkt unter dem Titel."},
+  "post.p1":{en:"Add your first paragraph here. Replace this placeholder with the real content of the post — an opening idea, a tournament story, or a training method.",de:"Hier den ersten Absatz einfügen. Ersetze diesen Platzhalter durch den eigentlichen Inhalt des Beitrags — eine Eröffnungsidee, eine Turniergeschichte oder eine Trainingsmethode."},
+  "post.p2":{en:"Add a second paragraph here. Copy this &lt;p&gt; tag as many times as you need to extend the post — the layout will keep the same comfortable reading width.",de:"Hier einen zweiten Absatz einfügen. Kopiere dieses &lt;p&gt;-Tag so oft wie nötig, um den Beitrag zu erweitern — das Layout behält dabei die angenehme Lesebreite."},
+  "post.quote":{en:"Add a pull quote here — a key idea, a memorable line from a game, or a takeaway worth highlighting on its own.",de:"Hier ein hervorgehobenes Zitat einfügen — eine Kernidee, einen einprägsamen Satz aus einer Partie, oder eine Erkenntnis, die es wert ist, besonders hervorgehoben zu werden."},
+  "post.p3":{en:"Add a closing paragraph here — a takeaway for the reader, a question to think about, or a pointer to what to study next.",de:"Hier einen Schlussabsatz einfügen — eine Erkenntnis für die Leser, eine Frage zum Nachdenken, oder einen Hinweis, was als Nächstes zu üben ist."},
+  "post.moreposts":{en:"← More posts",de:"← Weitere Beiträge"},
+  "post.footernote":{en:"Tournament results and ratings as reported by the player",de:"Turnierergebnisse und Elo-Zahlen nach Angaben des Spielers"}
+};
+var loadedRealPost = false; /* true once a real post from data/blog.json has replaced the placeholder */
+function applyLang(lang){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    /* once a real post is loaded, its own text (in post-category/title/date/
+       readtime/body) must not be overwritten by the placeholder i18n text */
+    if(loadedRealPost && el.closest('#post-body, .article-head, .article-meta')) return;
+    if(i18n[key] && i18n[key][lang]) el.innerHTML = i18n[key][lang];
+  });
+  document.querySelectorAll('.langtoggle button').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+  document.documentElement.lang = lang;
+  try{ localStorage.setItem('jlp-lang', lang); }catch(e){}
+}
+document.querySelectorAll('.langtoggle button').forEach(function(btn){
+  btn.addEventListener('click', function(){ applyLang(btn.getAttribute('data-lang')); });
+});
+(function(){
+  var saved = null;
+  try{ saved = localStorage.getItem('jlp-lang'); }catch(e){}
+  if(saved === 'de') applyLang('de');
+})();
+
+/* ---------- load the real post from data/blog.json, if a slug is given ---------- */
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+(function(){
+  var params = new URLSearchParams(location.search);
+  var slug = params.get('slug');
+  if(!slug) return; /* no slug in the URL — keep showing the placeholder template */
+  fetch('data/blog.json', { cache: 'no-store' })
+    .then(function(r){ if(!r.ok) throw new Error('no data file'); return r.json(); })
+    .then(function(list){
+      var post = Array.isArray(list) ? list.filter(function(p){ return p.slug === slug; })[0] : null;
+      if(!post) return; /* no matching post — keep showing the placeholder template */
+      loadedRealPost = true;
+      document.title = post.title + ' — IM Jakob Leon Pajeken';
+      var setText = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || ''; };
+      setText('post-category', post.category);
+      setText('post-title', post.title);
+      setText('post-date', post.date);
+      setText('post-readtime', post.readtime);
+      var coverEl = document.getElementById('post-cover');
+      if(coverEl){
+        if(post.image){ coverEl.src = post.image; coverEl.alt = post.title || ''; coverEl.hidden = false; }
+        else { coverEl.hidden = true; }
+      }
+      var bodyEl = document.getElementById('post-body');
+      if(bodyEl){
+        var html = '';
+        if(post.lead) html += '<p class="lead">' + escapeHtml(post.lead) + '</p>';
+        /* a paragraph written as ![caption](path/to/image.jpg) — inserted by
+           the "Bild einfügen" button in editor.html — renders as an inline
+           photo instead of a text paragraph */
+        var imageLineRe = /^!\[([^\]]*)\]\(([^)]+)\)$/;
+        (post.body || []).forEach(function(para){
+          if(!para) return;
+          var m = imageLineRe.exec(para.trim());
+          if(m){
+            html += '<figure class="article-figure"><img src="' + escapeHtml(m[2]) + '" alt="' + escapeHtml(m[1]) + '">' +
+              (m[1] ? '<figcaption>' + escapeHtml(m[1]) + '</figcaption>' : '') + '</figure>';
+          } else {
+            html += '<p>' + escapeHtml(para) + '</p>';
+          }
+        });
+        if(post.quote) html += '<blockquote>' + escapeHtml(post.quote) + '</blockquote>';
+        bodyEl.innerHTML = html;
+      }
+    })
+    .catch(function(){
+      /* data/blog.json missing or blocked (e.g. opened as a local file) —
+         keep showing the placeholder template */
+    });
+})();
+</script>
+</body>
+</html>
