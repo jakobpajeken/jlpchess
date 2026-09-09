@@ -823,39 +823,71 @@ function makeGameId(){
 }
 function openBlogForm(idx){
   var editing = idx != null;
-  var p = editing ? blogPosts[idx] : { title:'', slug:'', category:'', date:'', readtime:'', excerpt:'', lead:'', body:[], quote:'', image:'', games:[] };
+  var p = editing ? blogPosts[idx] : { title:'', slug:'', category:'', date:'', image:'', imageCredit:'', excerpt:'', lead:'', body:{en:[],de:[]}, quote:'', games:[] };
+  var titleSplit = splitLangValue(p.title);
+  var categorySplit = splitLangValue(p.category);
+  var excerptSplit = splitLangValue(p.excerpt);
+  var leadSplit = splitLangValue(p.lead);
+  var quoteSplit = splitLangValue(p.quote);
+  /* body used to be one flat array (same text shown in both languages);
+     it's now { en:[...], de:[...] } so each language can hold its own
+     translated paragraphs while [game:ID] / image markers stay in sync. */
+  var bodyEnParas = (p.body && p.body.en) || (Array.isArray(p.body) ? p.body : []);
+  var bodyDeParas = (p.body && p.body.de) || [];
   var pendingCoverFile = null; /* newly picked cover photo, not saved to disk yet */
   var coverRemoved = false;
   var postGames = (p.games || []).map(function(g){ return { id: g.id || makeGameId(), title: g.title, meta: g.meta || '', pgn: g.pgn || '' }; });
+  var catOptionsEn = collectCategoryOptions('en').map(function(c){ return '<option value="' + escapeHtml(c) + '">'; }).join('');
+  var catOptionsDe = collectCategoryOptions('de').map(function(c){ return '<option value="' + escapeHtml(c) + '">'; }).join('');
   var slot = document.getElementById('blog-form-slot');
   slot.innerHTML =
     '<form class="entry-form" id="blog-form">' +
     '<h3>' + (editing ? 'Beitrag bearbeiten' : 'Neuer Beitrag') + '</h3>' +
-    '<div class="field"><label>Titel</label><input type="text" id="bf-title" value="' + escapeHtml(p.title) + '" placeholder="z. B. Drei Eröffnungsfehler, die ich ständig sehe"></div>' +
-    '<div class="form-row">' +
-    '<div class="field"><label>Kategorie</label><input type="text" id="bf-category" value="' + escapeHtml(p.category) + '" placeholder="z. B. Eröffnungen"></div>' +
-    '<div class="field"><label>Datum</label><input type="text" id="bf-date" value="' + escapeHtml(p.date) + '" placeholder="z. B. März 2026"></div>' +
+    '<div class="translate-row">' +
+    '<button type="button" class="btn" id="bf-translate-all">🌐 Gesamten Beitrag ins Deutsche übersetzen</button>' +
+    '<span class="status" id="bf-translate-status"></span>' +
     '</div>' +
-    '<div class="field"><label>Lesezeit (optional)</label><input type="text" id="bf-readtime" value="' + escapeHtml(p.readtime) + '" placeholder="z. B. 5 Min. Lesezeit"></div>' +
+    '<span class="hint">Schreibe zuerst auf Englisch, übersetze dann automatisch — die deutschen Felder bleiben danach frei bearbeitbar.</span>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Titel (Englisch)</label><input type="text" id="bf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Three opening mistakes I keep seeing"></div>' +
+    '<div class="field"><label>Titel (Deutsch)</label><input type="text" id="bf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Drei Eröffnungsfehler, die ich ständig sehe"></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Kategorie (Englisch)</label><input type="text" id="bf-category-en" list="bf-category-en-options" value="' + escapeHtml(categorySplit.en) + '" placeholder="z. B. Openings"><datalist id="bf-category-en-options">' + catOptionsEn + '</datalist></div>' +
+    '<div class="field"><label>Kategorie (Deutsch)</label><input type="text" id="bf-category-de" list="bf-category-de-options" value="' + escapeHtml(categorySplit.de) + '" placeholder="z. B. Eröffnungen"><datalist id="bf-category-de-options">' + catOptionsDe + '</datalist></div>' +
+    '</div>' +
+    '<div class="field"><label>Datum</label><input type="date" id="bf-date" value="' + escapeHtml(p.date || '') + '"></div>' +
     '<div class="field"><label>Titelfoto (optional)</label><span class="hint">Erscheint als Vorschaubild auf der Karte im Blog-Tab und oben im Beitrag.</span>' +
     '<div class="cover-row">' +
     '<div class="cover-preview" id="bf-cover-preview">' + (p.image ? '<img src="' + escapeHtml(p.image) + '" alt="">' : 'Kein Titelfoto') + '</div>' +
     '<div style="display:flex;flex-direction:column;gap:8px;">' +
     '<input type="file" id="bf-cover-file" accept="image/*">' +
     '<button type="button" class="btn small" id="bf-cover-remove"' + (p.image ? '' : ' hidden') + '>Titelfoto entfernen</button>' +
+    '<input type="text" id="bf-cover-credit" value="' + escapeHtml(p.imageCredit || '') + '" placeholder="Fotograf / Quelle (optional), z. B. Claus Qvist Jessen">' +
     '</div></div></div>' +
-    '<div class="field"><label>Vorschautext (auf der Karte im Blog-Tab)</label><textarea id="bf-excerpt" placeholder="Ein bis zwei Sätze, die zum Weiterlesen einladen.">' + escapeHtml(p.excerpt) + '</textarea></div>' +
-    '<div class="field"><label>Einleitungssatz (optional, wird größer dargestellt)</label><textarea id="bf-lead">' + escapeHtml(p.lead) + '</textarea></div>' +
-    '<div class="field"><label>Text</label><span class="hint">Jeden Absatz durch eine Leerzeile trennen. Mit den Knöpfen fügst du an der Cursor-Position ein Bild oder eine Partie ein.</span>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Vorschautext (Englisch)</label><textarea id="bf-excerpt-en" placeholder="One or two sentences that pull the reader in.">' + escapeHtml(excerptSplit.en) + '</textarea></div>' +
+    '<div class="field"><label>Vorschautext (Deutsch)</label><textarea id="bf-excerpt-de">' + escapeHtml(excerptSplit.de) + '</textarea></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Einleitungssatz (Englisch, optional, wird größer dargestellt)</label><textarea id="bf-lead-en">' + escapeHtml(leadSplit.en) + '</textarea></div>' +
+    '<div class="field"><label>Einleitungssatz (Deutsch, optional)</label><textarea id="bf-lead-de">' + escapeHtml(leadSplit.de) + '</textarea></div>' +
+    '</div>' +
+    '<div class="field"><label>Text (Englisch)</label><span class="hint">Jeden Absatz durch eine Leerzeile trennen. Mit den Knöpfen fügst du an der Cursor-Position ein Bild oder eine Partie ein.</span>' +
     '<div class="inline-image-row"><button type="button" class="btn small" id="bf-insert-image">🖼 Bild in Text einfügen</button>' +
     '<input type="file" id="bf-body-image-file" accept="image/*" hidden></div>' +
-    '<textarea id="bf-body" class="tall">' + escapeHtml((p.body || []).join('\n\n')) + '</textarea></div>' +
+    '<textarea id="bf-body-en" class="tall">' + escapeHtml(bodyEnParas.join('\n\n')) + '</textarea></div>' +
+    '<div class="field"><label>Text (Deutsch)</label><span class="hint">Wird Absatz für Absatz automatisch übersetzt (Bilder/Partien bleiben an der gleichen Stelle) — danach frei bearbeitbar.</span>' +
+    '<textarea id="bf-body-de" class="tall">' + escapeHtml(bodyDeParas.join('\n\n')) + '</textarea></div>' +
     '<div class="field"><label>Partien in diesem Beitrag (optional)</label>' +
-    '<span class="hint">Hier Partien hinzufügen, dann mit „In Text einfügen“ an der gewünschten Stelle im Text platzieren — orientiert am Partienachspiel-Tool der Karriere-Seite.</span>' +
+    '<span class="hint">Hier Partien hinzufügen, dann mit „In Text einfügen“ an der gewünschten Stelle im englischen Text platzieren — orientiert am Partienachspiel-Tool der Karriere-Seite.</span>' +
     '<div class="item-list" id="bf-games-list"></div>' +
     '<button type="button" class="btn small" id="bf-games-add-btn">+ Partie hinzufügen</button>' +
     '<div id="bf-games-form-slot"></div></div>' +
-    '<div class="field"><label>Hervorgehobenes Zitat (optional)</label><textarea id="bf-quote">' + escapeHtml(p.quote) + '</textarea></div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Hervorgehobenes Zitat (Englisch, optional)</label><textarea id="bf-quote-en">' + escapeHtml(quoteSplit.en) + '</textarea></div>' +
+    '<div class="field"><label>Hervorgehobenes Zitat (Deutsch, optional)</label><textarea id="bf-quote-de">' + escapeHtml(quoteSplit.de) + '</textarea></div>' +
+    '</div>' +
     '<div class="form-actions">' +
     '<button type="submit" class="btn solid">Speichern</button>' +
     '<button type="button" class="btn" id="bf-cancel">Abbrechen</button>' +
@@ -881,8 +913,8 @@ function openBlogForm(idx){
     document.getElementById('bf-cover-file').value = '';
   });
 
-  /* ---- inline image insertion into the body text ---- */
-  var bodyTextarea = document.getElementById('bf-body');
+  /* ---- inline image insertion into the (English) body text ---- */
+  var bodyTextarea = document.getElementById('bf-body-en');
   var insertImageBtn = document.getElementById('bf-insert-image');
   var bodyImageFile = document.getElementById('bf-body-image-file');
   insertImageBtn.addEventListener('click', function(){ bodyImageFile.click(); });
@@ -892,10 +924,11 @@ function openBlogForm(idx){
     if(!file) return;
     if(!dirHandle){ showToast('Kein Ordner geöffnet.', true); return; }
     var caption = window.prompt('Bildunterschrift (optional, kann leer bleiben):', '') || '';
+    var credit = window.prompt('Fotograf / Quelle (optional, kann leer bleiben) — erscheint als kleiner Hinweis unter dem Bild:', '') || '';
     insertImageBtn.disabled = true;
     try{
-      var path = await saveImageFile(file, caption || document.getElementById('bf-title').value || 'bild');
-      var marker = '![' + caption.replace(/[[\]]/g, '') + '](' + path + ')';
+      var path = await saveImageFile(file, caption || document.getElementById('bf-title-en').value || 'bild');
+      var marker = '![' + caption.replace(/[[\]]/g, '') + '](' + path + (credit.trim() ? ' "' + credit.replace(/"/g, '') + '"' : '') + ')';
       var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
       var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
       var before = bodyTextarea.value.slice(0, start);
@@ -910,6 +943,45 @@ function openBlogForm(idx){
       showToast('Bild eingefügt ✓');
     }catch(err){ showToast('Bild konnte nicht gespeichert werden.', true); }
     insertImageBtn.disabled = false;
+  });
+
+  /* ---- translate the whole post (EN -> DE) with one click ---- */
+  document.getElementById('bf-translate-all').addEventListener('click', async function(){
+    var btn = this;
+    var statusEl = document.getElementById('bf-translate-status');
+    var deIds = ['bf-title-de', 'bf-category-de', 'bf-excerpt-de', 'bf-lead-de', 'bf-body-de', 'bf-quote-de'];
+    var hasExistingDe = deIds.some(function(id){ var el = document.getElementById(id); return el && el.value.trim(); });
+    if(hasExistingDe && !confirm('Bestehende deutsche Texte werden überschrieben. Fortfahren?')) return;
+    btn.disabled = true;
+    statusEl.textContent = 'Übersetze …';
+    try{
+      var titleEn = document.getElementById('bf-title-en').value.trim();
+      var categoryEn = document.getElementById('bf-category-en').value.trim();
+      var excerptEn = document.getElementById('bf-excerpt-en').value.trim();
+      var leadEn = document.getElementById('bf-lead-en').value.trim();
+      var quoteEn = document.getElementById('bf-quote-en').value.trim();
+      var bodyEnText = document.getElementById('bf-body-en').value.trim();
+      var bodyParas = bodyEnText ? bodyEnText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+      if(titleEn) document.getElementById('bf-title-de').value = await translateEnToDe(titleEn);
+      if(categoryEn) document.getElementById('bf-category-de').value = await translateEnToDe(categoryEn);
+      if(excerptEn) document.getElementById('bf-excerpt-de').value = await translateEnToDe(excerptEn);
+      if(leadEn) document.getElementById('bf-lead-de').value = await translateEnToDe(leadEn);
+      if(quoteEn) document.getElementById('bf-quote-de').value = await translateEnToDe(quoteEn);
+      if(bodyParas.length){
+        var translated = [];
+        for(var i = 0; i < bodyParas.length; i++){
+          statusEl.textContent = 'Übersetze Absatz ' + (i + 1) + ' von ' + bodyParas.length + ' …';
+          translated.push(await translateBodyParagraph(bodyParas[i]));
+        }
+        document.getElementById('bf-body-de').value = translated.join('\n\n');
+      }
+      statusEl.textContent = 'Übersetzt ✓ — bitte prüfen.';
+      showToast('Übersetzung eingefügt ✓ — bitte prüfen und ggf. anpassen.');
+    }catch(err){
+      statusEl.textContent = '';
+      showToast('Übersetzung fehlgeschlagen: ' + (err && err.message ? err.message : 'Verbindung zum Übersetzungsdienst nicht möglich.'), true);
+    }
+    btn.disabled = false;
   });
 
   /* ---- helper: insert a marker string into the body textarea at the cursor, with blank-line spacing ---- */
