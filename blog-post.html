@@ -103,6 +103,70 @@
     margin-top:10px;font-size:0.82rem;color:var(--ivory-dim);
     text-align:center;font-style:italic;
   }
+
+  /* embedded game-replay widget — same look as the "Best games" tool on
+     the career page (index.html), just without its picker/admin chrome,
+     since here each block always shows exactly one specific game. */
+  .embedded-game{
+    margin:44px 0;padding:36px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start;
+  }
+  .embedded-game .board-wrap{display:flex;flex-direction:column;gap:10px;align-items:center;}
+  .embedded-game .player-label{
+    font-family:'Spectral',serif;font-size:1.15rem;color:var(--ivory);
+    display:flex;align-items:center;gap:9px;width:min(360px,80vw);
+  }
+  .embedded-game .player-label .side-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .embedded-game .player-label.player-black .side-dot{background:var(--piece-black);border:1px solid var(--ivory-dim);}
+  .embedded-game .player-label.player-white .side-dot{background:var(--piece-white);}
+  .embedded-game .board-frame{display:flex;gap:6px;}
+  .embedded-game .ranks-col{display:flex;flex-direction:column;
+    height:min(360px,80vw);width:14px;font-size:0.68rem;color:var(--ivory-dim);text-align:center;}
+  .embedded-game .ranks-col span{flex:1;display:flex;align-items:center;justify-content:center;}
+  .embedded-game .board-and-files{display:flex;flex-direction:column;gap:4px;}
+  .embedded-game .chess-board{
+    width:min(360px,80vw);aspect-ratio:1;display:grid;
+    grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);
+    border:1px solid var(--line);
+  }
+  .embedded-game .files-row{display:flex;width:min(360px,80vw);}
+  .embedded-game .files-row span{flex:1;text-align:center;font-size:0.68rem;color:var(--ivory-dim);}
+  .embedded-game .chess-square{display:flex;align-items:center;justify-content:center;user-select:none;}
+  .embedded-game .chess-square.light{background:var(--sq-light);}
+  .embedded-game .chess-square.dark{background:var(--sq-dark);}
+  .embedded-game .piece-img{width:94%;height:94%;display:block;pointer-events:none;}
+  .embedded-game .piece-fallback{font-size:clamp(18px,4vw,26px);line-height:1;user-select:none;}
+  .embedded-game .piece-fallback.piece-w{
+    color:var(--piece-white);
+    text-shadow:-1px -1px 0 var(--piece-black), 1px -1px 0 var(--piece-black),
+      -1px 1px 0 var(--piece-black), 1px 1px 0 var(--piece-black);
+  }
+  .embedded-game .piece-fallback.piece-b{
+    color:var(--piece-black);
+    text-shadow:-1px -1px 0 var(--piece-white), 1px -1px 0 var(--piece-white),
+      -1px 1px 0 var(--piece-white), 1px 1px 0 var(--piece-white);
+  }
+  .embedded-game .board-nav{display:flex;gap:8px;margin-top:4px;}
+  .embedded-game .board-nav button{
+    background:none;border:1px solid var(--line);color:var(--ivory-dim);
+    padding:7px 12px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.86rem;
+  }
+  .embedded-game .board-nav button:hover{color:var(--gold-bright);border-color:var(--gold);}
+  .embedded-game .game-title{font-family:'Spectral',serif;font-size:1.55rem;margin-bottom:6px;color:var(--ivory);}
+  .embedded-game .game-info{font-size:0.84rem;color:var(--ivory-dim);margin-bottom:16px;}
+  .embedded-game .pgn-error{font-size:0.84rem;color:#e08a63;min-height:1.2em;}
+  .embedded-game .move-list{display:flex;flex-wrap:wrap;gap:4px 10px;max-height:220px;overflow-y:auto;font-size:0.9rem;}
+  .embedded-game .move-num{color:var(--ivory-dim);margin-right:2px;}
+  .embedded-game .move-btn{
+    background:none;border:none;color:var(--ivory-dim);cursor:pointer;
+    font-family:'Inter',sans-serif;font-size:0.9rem;padding:2px 5px;
+  }
+  .embedded-game .move-btn:hover{color:var(--ivory);}
+  .embedded-game .move-btn.active{color:var(--gold-bright);background:rgba(168,130,60,0.14);}
+  @media (max-width:600px){
+    .embedded-game{grid-template-columns:1fr;}
+    .embedded-game .board-wrap{align-items:flex-start;}
+  }
   .article-footer{
     margin-top:56px;padding-top:32px;border-top:1px solid var(--line);
   }
@@ -171,6 +235,7 @@
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 <script>
 var i18n = {
   "post.back":{en:"Back to all posts",de:"Zurück zu allen Beiträgen"},
