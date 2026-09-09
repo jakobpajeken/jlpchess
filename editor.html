@@ -358,6 +358,81 @@ function uniqueSlug(base, excludeIndex){
   }
   return slug;
 }
+/* ---------- blog post date + read time (shared with index.html / blog-post.html) ----------
+   Dates are stored as a plain ISO string ("YYYY-MM-DD", from a native
+   <input type="date">) and formatted per language only at display time —
+   that's what makes the date automatically correct in both languages
+   instead of needing to be typed out twice. */
+var MONTH_NAMES_FULL = {
+  en:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  de:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
+};
+function formatBlogDate(iso, lang){
+  if(!iso) return '';
+  var parts = String(iso).split('-');
+  if(parts.length !== 3) return iso; /* not an ISO date — show whatever was stored */
+  var y = parseInt(parts[0], 10), m = parseInt(parts[1], 10), d = parseInt(parts[2], 10);
+  if(!y || !m || !d) return iso;
+  var names = MONTH_NAMES_FULL[lang] || MONTH_NAMES_FULL.en;
+  var month = names[m - 1] || parts[1];
+  return lang === 'de' ? (d + '. ' + month + ' ' + y) : (month + ' ' + d + ', ' + y);
+}
+/* read time is calculated from the body text rather than typed in by hand,
+   so it's always correct and never needs translating separately */
+function calcReadTime(paragraphs, lang){
+  var text = (paragraphs || []).filter(function(p){ return !/^!\[/.test(p) && !/^\[game:/.test(p); }).join(' ');
+  var words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  var mins = Math.max(1, Math.round(words / 200));
+  return lang === 'de' ? (mins + ' Min. Lesezeit') : (mins + ' min read');
+}
+/* ---------- machine translation (English -> German), via the free MyMemory
+   API — used by the "Ins Deutsche übersetzen" button. Results are always
+   editable afterward; this is a starting point, not a final translation. ---- */
+function splitForTranslation(text, maxLen){
+  maxLen = maxLen || 450;
+  if(text.length <= maxLen) return [text];
+  var sentences = text.match(/[^.!?]+[.!?]+(\s+|$)|[^.!?]+$/g) || [text];
+  var chunks = [], cur = '';
+  sentences.forEach(function(s){
+    if(cur && (cur + s).length > maxLen){ chunks.push(cur); cur = s; }
+    else cur += s;
+  });
+  if(cur) chunks.push(cur);
+  return chunks;
+}
+async function translateChunk(text){
+  var trimmed = text.trim();
+  if(!trimmed) return '';
+  var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(trimmed) + '&langpair=en|de';
+  var resp = await fetch(url);
+  if(!resp.ok) throw new Error('Übersetzungsdienst nicht erreichbar (HTTP ' + resp.status + ').');
+  var data = await resp.json();
+  var translated = data && data.responseData && data.responseData.translatedText;
+  if(!translated || /MYMEMORY WARNING|INVALID LANGPAIR|NO QUERY SPECIFIED/i.test(translated)){
+    throw new Error('Übersetzungsdienst hat keine Übersetzung geliefert (Limit erreicht?).');
+  }
+  return translated;
+}
+async function translateEnToDe(text){
+  if(!text || !text.trim()) return '';
+  var chunks = splitForTranslation(text);
+  var results = [];
+  for(var i = 0; i < chunks.length; i++){ results.push(await translateChunk(chunks[i])); }
+  return results.join('').trim();
+}
+/* translates only the caption inside a ![caption](path "credit") marker,
+   leaving the path/credit and any [game:ID] marker untouched */
+async function translateBodyParagraph(para){
+  if(/^\[game:/.test(para)) return para; /* game marker — nothing to translate */
+  var imgMatch = /^!\[([^\]]*)\](\([^)]+\))$/.exec(para);
+  if(imgMatch){
+    var caption = imgMatch[1];
+    if(!caption.trim()) return para;
+    var translatedCaption = await translateEnToDe(caption);
+    return '![' + translatedCaption + ']' + imgMatch[2];
+  }
+  return await translateEnToDe(para);
+}
 /* Saves an uploaded image into images/blog/ next to index.html and
    returns the relative path to store in blog.json (e.g. "images/blog/
    my-post-1234.jpg") — that path is what index.html and blog-post.html
