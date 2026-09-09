@@ -686,7 +686,8 @@ function openBlogForm(idx){
         excerpt: document.getElementById('bf-excerpt').value.trim(),
         lead: document.getElementById('bf-lead').value.trim(),
         body: bodyText ? bodyText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [],
-        quote: document.getElementById('bf-quote').value.trim()
+        quote: document.getElementById('bf-quote').value.trim(),
+        games: postGames
       };
       if(editing) blogPosts[idx] = entry; else blogPosts.push(entry);
       await writeJson('blog.json', blogPosts);
