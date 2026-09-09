@@ -609,24 +609,25 @@
 
       <div class="games-layout">
         <div class="board-wrap">
-          <div class="player-label player-black" id="player-black"><span class="side-dot"></span><span id="player-black-name">Black</span></div>
+          <div class="player-label" id="player-top"><span class="side-dot"></span><span id="player-top-name">Black</span></div>
           <div class="board-frame">
-            <div class="ranks-col" aria-hidden="true">
+            <div class="ranks-col" id="ranks-col" aria-hidden="true">
               <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
             </div>
             <div class="board-and-files">
               <div id="chess-board" class="chess-board" aria-label="Chess board"></div>
-              <div class="files-row" aria-hidden="true">
+              <div class="files-row" id="files-row" aria-hidden="true">
                 <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
               </div>
             </div>
           </div>
-          <div class="player-label player-white" id="player-white"><span class="side-dot"></span><span id="player-white-name">White</span></div>
+          <div class="player-label" id="player-bottom"><span class="side-dot"></span><span id="player-bottom-name">White</span></div>
           <div class="board-nav">
             <button type="button" id="nav-start" aria-label="First move">|&laquo;</button>
             <button type="button" id="nav-prev" aria-label="Previous move">&laquo;</button>
             <button type="button" id="nav-next" aria-label="Next move">&raquo;</button>
             <button type="button" id="nav-end" aria-label="Last move">&raquo;|</button>
+            <button type="button" id="nav-flip" aria-label="Flip board" title="Flip board">&#8645;</button>
           </div>
         </div>
         <div class="game-meta">
