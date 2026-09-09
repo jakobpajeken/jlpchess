@@ -914,14 +914,37 @@ function setLang(lang){
   if(typeof refreshGameTitleLanguage === 'function') refreshGameTitleLanguage();
   if(typeof renderAllResults === 'function') renderAllResults();
 }
+/* ?lang=de / ?lang=en in the URL — lets a link open directly in a given
+   language (e.g. index.html?lang=de#career), without needing separate
+   pages per language. Only read on load; the URL is only rewritten to
+   include it once the visitor actually switches language, so a plain
+   link stays plain until then. */
+function getUrlLang(){
+  try{
+    var l = new URLSearchParams(location.search).get('lang');
+    return (l === 'de' || l === 'en') ? l : null;
+  }catch(e){ return null; }
+}
+function updateUrlLang(lang){
+  try{
+    var url = new URL(location.href);
+    url.searchParams.set('lang', lang);
+    history.replaceState(null, '', url.pathname + url.search + url.hash);
+  }catch(e){}
+}
 document.querySelectorAll('.langtoggle button').forEach(function(btn){
-  btn.addEventListener('click', function(){ setLang(btn.getAttribute('data-lang')); });
+  btn.addEventListener('click', function(){
+    var lang = btn.getAttribute('data-lang');
+    setLang(lang);
+    updateUrlLang(lang);
+  });
 });
 /* Force the page to sync with the i18n object right from the start, so the
    raw English text baked into the HTML (a plain-text fallback) can never
    silently drift out of sync with i18n["..."].en — whichever one someone
-   edits, this guarantees what's on screen always matches the i18n object. */
-setLang('en');
+   edits, this guarantees what's on screen always matches the i18n object.
+   Defaults to English unless the URL says otherwise. */
+setLang(getUrlLang() || 'en');
 
 /* ---------- live classical FIDE rating + world ranking + peak rating ----------
    All three come from the same rating.json, kept up to date once a month
