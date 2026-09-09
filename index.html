@@ -1388,16 +1388,19 @@ function refreshGameSelectLanguage(){
     if(sampleGames[idx]) opt.textContent = pickLang(sampleGames[idx].title);
   });
 }
-/* Called on language switch: re-translates just the displayed game's
-   title, without touching the board/move position. */
+/* Called on language switch: re-translates the displayed game's title and
+   the "(Round N)" wording in the info line, without touching the
+   board/move position. */
 function refreshGameTitleLanguage(){
   if(!currentGame) return;
   var titleEl = document.getElementById('game-title');
+  var infoEl = document.getElementById('game-info');
   if(!titleEl) return;
   var headers = parsePgnHeaders(currentGame.pgn);
   var whiteName = headers.white || 'White';
   var blackName = headers.black || 'Black';
   titleEl.textContent = pickLang(currentGame.title) || (whiteName + ' vs ' + blackName);
+  if(infoEl) infoEl.textContent = buildGameInfoText(headers, currentGame.meta);
 }
 
 function isAdminMode(){
