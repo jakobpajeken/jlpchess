@@ -85,6 +85,7 @@
   }
   .article-meta .dot{opacity:0.5;}
   .article-cover{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;margin-top:36px;background:var(--surface);}
+  .photo-credit{font-size:0.72rem;color:var(--ivory-dim);opacity:0.75;margin-top:8px;text-align:right;}
   .article-body{margin-top:44px;}
   .article-body p{margin:0 0 22px;color:var(--ivory-dim);max-width:64ch;}
   .article-body p.lead{
@@ -213,6 +214,7 @@
     </div>
 
     <img id="post-cover" class="article-cover" alt="" hidden>
+    <div class="photo-credit" id="post-cover-credit" hidden></div>
 
     <div class="article-body" id="post-body">
       <p class="lead" data-i18n="post.lead">Add a short lead paragraph here — one or two sentences that pull the reader in. It's shown a little larger than the rest of the text, right under the title.</p>
