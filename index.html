@@ -1029,6 +1029,9 @@ function showTab(tabId){
     panel.classList.toggle('active-panel', panel.id === tabId);
   });
   document.querySelector('.tabbar-outer').scrollIntoView({behavior:'smooth', block:'start'});
+  /* keep the URL's #tab in sync, so whatever's currently open is what a
+     copied/shared link reopens — same idea as ?lang=, just via the hash */
+  try{ history.replaceState(null, '', location.pathname + location.search + '#' + tabId); }catch(e){}
 }
 document.querySelectorAll('.tabbar button[data-tab]').forEach(function(btn){
   btn.addEventListener('click', function(){ showTab(btn.getAttribute('data-tab')); });
