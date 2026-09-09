@@ -277,6 +277,15 @@
   .cta-actions{display:flex;flex-direction:column;gap:14px;align-items:flex-start;}
   .contact-line{font-size:0.85rem;color:var(--gold-bright);text-decoration:underline;text-underline-offset:3px;}
   .contact-line:hover{color:var(--ivory);}
+  .social-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .social-card{background:var(--ink);padding:28px 24px;display:flex;flex-direction:column;gap:6px;text-decoration:none;transition:background .15s;}
+  a.social-card:hover{background:var(--surface);}
+  .social-card .social-name{font-family:'Spectral',serif;font-size:1.1rem;color:var(--gold-bright);}
+  .social-card .social-handle{font-size:0.85rem;color:var(--ivory-dim);}
+  .social-card.placeholder{cursor:default;}
+  .social-card.placeholder .social-name{color:var(--ivory-dim);}
+  @media (max-width:840px){.social-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:480px){.social-grid{grid-template-columns:1fr;}}
   @media (max-width:840px){.cta-box{grid-template-columns:1fr;padding:36px 28px;}}
 
   footer{padding:32px 0;}
@@ -321,7 +330,7 @@
       <button type="button" role="tab" data-tab="career" data-i18n="nav.career">Career</button>
       <button type="button" role="tab" data-tab="blog" data-i18n="nav.blog">Blog</button>
       <button type="button" role="tab" data-tab="coaching" data-i18n="nav.coaching">Coaching</button>
-      <button type="button" role="tab" data-tab="contact" data-i18n="nav.contact">Contact</button>
+      <button type="button" role="tab" data-tab="contact" data-i18n="nav.contact">Contact &amp; Social</button>
     </nav>
   </div>
 </div>
