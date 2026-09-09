@@ -150,7 +150,7 @@
 
   <div class="status-bar" id="status-bar">
     <button type="button" class="btn solid" id="pick-folder">📁 Website-Ordner öffnen</button>
-    <span id="folder-status" style="color:var(--ivory-dim);">Noch kein Ordner ausgewählt — wähle den Ordner mit <code>coaching.html</code> darin.</span>
+    <span id="folder-status" style="color:var(--ivory-dim);">Noch kein Ordner ausgewählt — wähle den Ordner mit <code>index.html</code> darin.</span>
   </div>
 
   <main id="main" hidden>
@@ -296,9 +296,9 @@ var results = { titles: [], team: [], national: [], full: [] };
 document.getElementById('pick-folder').addEventListener('click', async function(){
   try{
     dirHandle = await window.showDirectoryPicker();
-    /* sanity check: does this folder actually contain coaching.html? */
+    /* sanity check: does this folder actually contain index.html? */
     var looksRight = false;
-    try{ await dirHandle.getFileHandle('coaching.html'); looksRight = true; }catch(e){}
+    try{ await dirHandle.getFileHandle('index.html'); looksRight = true; }catch(e){}
     dataHandle = await dirHandle.getDirectoryHandle('data', { create: true });
     games = await readJson('games.json');
     blogPosts = await readJson('blog.json');
@@ -308,7 +308,7 @@ document.getElementById('pick-folder').addEventListener('click', async function(
     document.getElementById('main').hidden = false;
     document.getElementById('folder-status').innerHTML =
       'Ordner: <span class="folder-name">' + escapeHtml(dirHandle.name) + '</span>' +
-      (looksRight ? '' : ' — <span style="color:var(--err);">Achtung: hier wurde keine coaching.html gefunden. Richtiger Ordner?</span>');
+      (looksRight ? '' : ' — <span style="color:var(--err);">Achtung: hier wurde keine index.html gefunden. Richtiger Ordner?</span>');
     showToast('Ordner geöffnet.');
   }catch(e){
     if(e && e.name === 'AbortError') return; /* user cancelled the picker */
@@ -358,9 +358,9 @@ function uniqueSlug(base, excludeIndex){
   }
   return slug;
 }
-/* Saves an uploaded image into images/blog/ next to coaching.html and
+/* Saves an uploaded image into images/blog/ next to index.html and
    returns the relative path to store in blog.json (e.g. "images/blog/
-   my-post-1234.jpg") — that path is what coaching.html and blog-post.html
+   my-post-1234.jpg") — that path is what index.html and blog-post.html
    use directly as an <img src>. */
 async function saveImageFile(file, hintName){
   var imagesDir = await dirHandle.getDirectoryHandle('images', { create: true });
