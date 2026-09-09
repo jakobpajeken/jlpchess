@@ -537,6 +537,7 @@ function createGameWidget(container, game){
     playInterval = setInterval(function(){
       if(moveIndex >= historyVerbose.length){ stopPlay(); return; }
       goToPly(moveIndex + 1);
+      if(moveIndex >= historyVerbose.length) stopPlay(); /* stop right on the final move, not one tick later */
     }, PLAY_MOVE_MS);
     updatePlayButton();
   }
