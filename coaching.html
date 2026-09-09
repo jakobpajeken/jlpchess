@@ -818,6 +818,7 @@ function setLang(lang){
   if(typeof renderTestiGrid === 'function') renderTestiGrid();
   if(typeof refreshGameSelectLanguage === 'function') refreshGameSelectLanguage();
   if(typeof refreshGameTitleLanguage === 'function') refreshGameTitleLanguage();
+  if(typeof renderAllResults === 'function') renderAllResults();
 }
 document.querySelectorAll('.langtoggle button').forEach(function(btn){
   btn.addEventListener('click', function(){ setLang(btn.getAttribute('data-lang')); });
