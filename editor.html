@@ -507,10 +507,15 @@ function openBlogForm(idx){
     '</div></div></div>' +
     '<div class="field"><label>Vorschautext (auf der Karte im Blog-Tab)</label><textarea id="bf-excerpt" placeholder="Ein bis zwei Sätze, die zum Weiterlesen einladen.">' + escapeHtml(p.excerpt) + '</textarea></div>' +
     '<div class="field"><label>Einleitungssatz (optional, wird größer dargestellt)</label><textarea id="bf-lead">' + escapeHtml(p.lead) + '</textarea></div>' +
-    '<div class="field"><label>Text</label><span class="hint">Jeden Absatz durch eine Leerzeile trennen. Mit dem Knopf fügst du an der Cursor-Position ein Bild ein.</span>' +
+    '<div class="field"><label>Text</label><span class="hint">Jeden Absatz durch eine Leerzeile trennen. Mit den Knöpfen fügst du an der Cursor-Position ein Bild oder eine Partie ein.</span>' +
     '<div class="inline-image-row"><button type="button" class="btn small" id="bf-insert-image">🖼 Bild in Text einfügen</button>' +
     '<input type="file" id="bf-body-image-file" accept="image/*" hidden></div>' +
     '<textarea id="bf-body" class="tall">' + escapeHtml((p.body || []).join('\n\n')) + '</textarea></div>' +
+    '<div class="field"><label>Partien in diesem Beitrag (optional)</label>' +
+    '<span class="hint">Hier Partien hinzufügen, dann mit „In Text einfügen“ an der gewünschten Stelle im Text platzieren — orientiert am Partienachspiel-Tool der Karriere-Seite.</span>' +
+    '<div class="item-list" id="bf-games-list"></div>' +
+    '<button type="button" class="btn small" id="bf-games-add-btn">+ Partie hinzufügen</button>' +
+    '<div id="bf-games-form-slot"></div></div>' +
     '<div class="field"><label>Hervorgehobenes Zitat (optional)</label><textarea id="bf-quote">' + escapeHtml(p.quote) + '</textarea></div>' +
     '<div class="form-actions">' +
     '<button type="submit" class="btn solid">Speichern</button>' +
