@@ -1297,6 +1297,7 @@ function renderResultsCategory(cat){
   }).join('');
 }
 function renderAllResults(){
+  if(typeof RESULTS_LIST_IDS === 'undefined') return; /* not defined yet during the page's initial setLang('en') sync */
   Object.keys(RESULTS_LIST_IDS).forEach(renderResultsCategory);
 }
 function loadResultsData(){
