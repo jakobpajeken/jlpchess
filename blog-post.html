@@ -549,6 +549,7 @@ var currentRealPost = null; /* the loaded post object, kept around so a language
 var imageLineRe = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/;
 var gameLineRe = /^\[game:([a-zA-Z0-9_-]+)\]$/;
 function renderRealPost(post){
+  if(typeof embeddedGameWidgets !== 'undefined') embeddedGameWidgets = []; /* body is fully rebuilt below, so drop stale widget refs */
   var lang = document.documentElement.lang === 'de' ? 'de' : 'en';
   document.title = pickLang(post.title) + ' — IM Jakob Leon Pajeken';
   var setText = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || ''; };
