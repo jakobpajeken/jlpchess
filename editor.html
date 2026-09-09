@@ -234,6 +234,22 @@ async function readJson(name){
     return [];
   }
 }
+async function readResultsJson(){
+  var empty = { titles: [], team: [], national: [], full: [] };
+  try{
+    var fh = await dataHandle.getFileHandle('results.json');
+    var file = await fh.getFile();
+    var parsed = JSON.parse((await file.text()) || '{}');
+    return {
+      titles: Array.isArray(parsed.titles) ? parsed.titles : [],
+      team: Array.isArray(parsed.team) ? parsed.team : [],
+      national: Array.isArray(parsed.national) ? parsed.national : [],
+      full: Array.isArray(parsed.full) ? parsed.full : []
+    };
+  }catch(e){
+    return empty;
+  }
+}
 async function writeJson(name, data){
   var fh = await dataHandle.getFileHandle(name, { create: true });
   var writable = await fh.createWritable();
@@ -253,7 +269,8 @@ document.getElementById('pick-folder').addEventListener('click', async function(
     games = await readJson('games.json');
     blogPosts = await readJson('blog.json');
     testimonials = await readJson('testimonials.json');
-    renderGames(); renderBlog(); renderTesti();
+    results = await readResultsJson();
+    renderGames(); renderBlog(); renderTesti(); renderAllResultLists();
     document.getElementById('main').hidden = false;
     document.getElementById('folder-status').innerHTML =
       'Ordner: <span class="folder-name">' + escapeHtml(dirHandle.name) + '</span>' +
