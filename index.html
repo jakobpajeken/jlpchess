@@ -1128,26 +1128,60 @@ function renderPosition(fen){
   if(!board) return;
   var rows = fen.split(' ')[0].split('/');
   var squares = board.children;
+  var flipped = boardOrientation === 'black';
   for(var r = 0; r < 8; r++){
     var col = 0;
     for(var i = 0; i < rows[r].length; i++){
       var ch = rows[r][i];
+      /* flipped = 180° rotation of the board (both rank and file reversed),
+         which is what "viewing from Black's side" actually looks like */
+      var idx = flipped ? (7 - r) * 8 + (7 - col) : r * 8 + col;
       if(/\d/.test(ch)){
         var empty = parseInt(ch, 10);
         for(var e = 0; e < empty; e++){
-          squares[r * 8 + col].innerHTML = '';
+          idx = flipped ? (7 - r) * 8 + (7 - col) : r * 8 + col;
+          squares[idx].innerHTML = '';
           col++;
         }
       } else {
         var isWhite = ch === ch.toUpperCase();
         var pieceKey = (isWhite ? 'w' : 'b') + ch.toUpperCase();
-        var sqEl = squares[r * 8 + col];
+        var sqEl = squares[idx];
         sqEl.innerHTML = '';
         sqEl.appendChild(makePieceEl(pieceKey, isWhite));
         col++;
       }
     }
   }
+}
+function renderCoordinates(){
+  var ranksEl = document.getElementById('ranks-col');
+  var filesEl = document.getElementById('files-row');
+  var flipped = boardOrientation === 'black';
+  var ranks = flipped ? ['1','2','3','4','5','6','7','8'] : ['8','7','6','5','4','3','2','1'];
+  var files = flipped ? ['h','g','f','e','d','c','b','a'] : ['a','b','c','d','e','f','g','h'];
+  if(ranksEl) ranksEl.innerHTML = ranks.map(function(r){ return '<span>' + r + '</span>'; }).join('');
+  if(filesEl) filesEl.innerHTML = files.map(function(f){ return '<span>' + f + '</span>'; }).join('');
+}
+function applyPlayerLabels(){
+  var topEl = document.getElementById('player-top');
+  var bottomEl = document.getElementById('player-bottom');
+  var topNameEl = document.getElementById('player-top-name');
+  var bottomNameEl = document.getElementById('player-bottom-name');
+  if(!topEl || !bottomEl) return;
+  var flipped = boardOrientation === 'black';
+  topEl.classList.remove('player-black', 'player-white');
+  bottomEl.classList.remove('player-black', 'player-white');
+  topEl.classList.add(flipped ? 'player-white' : 'player-black');
+  bottomEl.classList.add(flipped ? 'player-black' : 'player-white');
+  if(topNameEl) topNameEl.textContent = flipped ? currentWhiteName : currentBlackName;
+  if(bottomNameEl) bottomNameEl.textContent = flipped ? currentBlackName : currentWhiteName;
+}
+function setOrientation(orientation){
+  boardOrientation = orientation;
+  renderCoordinates();
+  if(gameEngine) renderPosition(gameEngine.fen());
+  applyPlayerLabels();
 }
 
 function renderMoveList(){
