@@ -530,6 +530,77 @@ function refreshEmbeddedGameTitles(){
     w.titleEl.textContent = pickLang(w.title) || w.fallbackTitle;
   });
 }
+var currentRealPost = null; /* the loaded post object, kept around so a language toggle can re-render it */
+/* a paragraph written as ![caption](path/to/image.jpg) or
+   ![caption](path/to/image.jpg "Photo credit") — inserted by the
+   "Bild einfügen" button in editor.html — renders as an inline photo
+   instead of a text paragraph, with an optional photo-credit line.
+   Likewise, a paragraph written as [game:ID] — inserted by the "Partie
+   einfügen" button — renders a full game-replay widget in place. */
+var imageLineRe = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/;
+var gameLineRe = /^\[game:([a-zA-Z0-9_-]+)\]$/;
+function renderRealPost(post){
+  var lang = document.documentElement.lang === 'de' ? 'de' : 'en';
+  document.title = pickLang(post.title) + ' — IM Jakob Leon Pajeken';
+  var setText = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || ''; };
+  setText('post-category', pickLang(post.category));
+  setText('post-title', pickLang(post.title));
+  setText('post-date', formatBlogDate(post.date, lang));
+  var bodyParasForReadtime = (post.body && post.body[lang] && post.body[lang].length) ? post.body[lang] : ((post.body && post.body.en) || (Array.isArray(post.body) ? post.body : []));
+  setText('post-readtime', calcReadTime(bodyParasForReadtime, lang));
+  var coverEl = document.getElementById('post-cover');
+  var coverCreditEl = document.getElementById('post-cover-credit');
+  if(coverEl){
+    if(post.image){ coverEl.src = post.image; coverEl.alt = pickLang(post.title) || ''; coverEl.hidden = false; }
+    else { coverEl.hidden = true; }
+  }
+  if(coverCreditEl){
+    if(post.image && post.imageCredit){
+      coverCreditEl.textContent = (lang === 'de' ? 'Foto: ' : 'Photo: ') + post.imageCredit;
+      coverCreditEl.hidden = false;
+    } else { coverCreditEl.hidden = true; }
+  }
+  var bodyEl = document.getElementById('post-body');
+  if(bodyEl){
+    var bodyParas = (post.body && post.body[lang] && post.body[lang].length) ? post.body[lang] : ((post.body && post.body.en) || (Array.isArray(post.body) ? post.body : []));
+    var html = '';
+    var lead = pickLang(post.lead);
+    if(lead) html += '<p class="lead">' + escapeHtml(lead) + '</p>';
+    var gameSlotCounter = 0;
+    var gameSlots = []; /* { slotId, game } — instantiated after bodyEl.innerHTML is set */
+    bodyParas.forEach(function(para){
+      if(!para) return;
+      var trimmed = para.trim();
+      var gm = gameLineRe.exec(trimmed);
+      if(gm){
+        var g = (post.games || []).filter(function(x){ return x.id === gm[1]; })[0];
+        if(g){
+          var slotId = 'embedded-game-slot-' + (gameSlotCounter++);
+          gameSlots.push({ slotId: slotId, game: g });
+          html += '<div id="' + slotId + '"></div>';
+        }
+        return;
+      }
+      var m = imageLineRe.exec(trimmed);
+      if(m){
+        var credit = m[3] || '';
+        html += '<figure class="article-figure"><img src="' + escapeHtml(m[2]) + '" alt="' + escapeHtml(m[1]) + '">' +
+          (m[1] ? '<figcaption>' + escapeHtml(m[1]) + '</figcaption>' : '') +
+          (credit ? '<figcaption class="credit">' + (lang === 'de' ? 'Foto: ' : 'Photo: ') + escapeHtml(credit) + '</figcaption>' : '') +
+          '</figure>';
+      } else {
+        html += '<p>' + escapeHtml(para) + '</p>';
+      }
+    });
+    var quote = pickLang(post.quote);
+    if(quote) html += '<blockquote>' + escapeHtml(quote) + '</blockquote>';
+    bodyEl.innerHTML = html;
+    gameSlots.forEach(function(slot){
+      var slotEl = document.getElementById(slot.slotId);
+      if(slotEl) createGameWidget(slotEl, slot.game);
+    });
+  }
+}
 (function(){
   var params = new URLSearchParams(location.search);
   var slug = params.get('slug');
@@ -540,58 +611,8 @@ function refreshEmbeddedGameTitles(){
       var post = Array.isArray(list) ? list.filter(function(p){ return p.slug === slug; })[0] : null;
       if(!post) return; /* no matching post — keep showing the placeholder template */
       loadedRealPost = true;
-      document.title = post.title + ' — IM Jakob Leon Pajeken';
-      var setText = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || ''; };
-      setText('post-category', post.category);
-      setText('post-title', post.title);
-      setText('post-date', post.date);
-      setText('post-readtime', post.readtime);
-      var coverEl = document.getElementById('post-cover');
-      if(coverEl){
-        if(post.image){ coverEl.src = post.image; coverEl.alt = post.title || ''; coverEl.hidden = false; }
-        else { coverEl.hidden = true; }
-      }
-      var bodyEl = document.getElementById('post-body');
-      if(bodyEl){
-        var html = '';
-        if(post.lead) html += '<p class="lead">' + escapeHtml(post.lead) + '</p>';
-        /* a paragraph written as ![caption](path/to/image.jpg) — inserted by
-           the "Bild einfügen" button in editor.html — renders as an inline
-           photo instead of a text paragraph. Likewise, a paragraph written
-           as [game:ID] — inserted by the "Partie einfügen" button — renders
-           a full game-replay widget (see createGameWidget above) in place. */
-        var imageLineRe = /^!\[([^\]]*)\]\(([^)]+)\)$/;
-        var gameLineRe = /^\[game:([a-zA-Z0-9_-]+)\]$/;
-        var gameSlotCounter = 0;
-        var gameSlots = []; /* { slotId, game } — instantiated after bodyEl.innerHTML is set */
-        (post.body || []).forEach(function(para){
-          if(!para) return;
-          var trimmed = para.trim();
-          var gm = gameLineRe.exec(trimmed);
-          if(gm){
-            var g = (post.games || []).filter(function(x){ return x.id === gm[1]; })[0];
-            if(g){
-              var slotId = 'embedded-game-slot-' + (gameSlotCounter++);
-              gameSlots.push({ slotId: slotId, game: g });
-              html += '<div id="' + slotId + '"></div>';
-            }
-            return;
-          }
-          var m = imageLineRe.exec(trimmed);
-          if(m){
-            html += '<figure class="article-figure"><img src="' + escapeHtml(m[2]) + '" alt="' + escapeHtml(m[1]) + '">' +
-              (m[1] ? '<figcaption>' + escapeHtml(m[1]) + '</figcaption>' : '') + '</figure>';
-          } else {
-            html += '<p>' + escapeHtml(para) + '</p>';
-          }
-        });
-        if(post.quote) html += '<blockquote>' + escapeHtml(post.quote) + '</blockquote>';
-        bodyEl.innerHTML = html;
-        gameSlots.forEach(function(slot){
-          var slotEl = document.getElementById(slot.slotId);
-          if(slotEl) createGameWidget(slotEl, slot.game);
-        });
-      }
+      currentRealPost = post;
+      renderRealPost(post);
     })
     .catch(function(){
       /* data/blog.json missing or blocked (e.g. opened as a local file) —
