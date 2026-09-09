@@ -641,6 +641,18 @@ function formatBlogDate(iso, lang){
   var month = names[m - 1] || parts[1];
   return lang === 'de' ? (d + '. ' + month + ' ' + y) : (month + ' ' + d + ', ' + y);
 }
+/* previously-used blog categories, per language, for the datalist dropdown
+   so a recurring category (e.g. "Openings" / "Eröffnungen") can be reused
+   instead of retyped (and possibly misspelled differently) each time */
+function collectCategoryOptions(lang){
+  var seen = {}, list = [];
+  (blogPosts || []).forEach(function(post){
+    var split = splitLangValue(post.category);
+    var val = (lang === 'de' ? (split.de || split.en) : (split.en || split.de) || '').trim();
+    if(val && !seen[val]){ seen[val] = true; list.push(val); }
+  });
+  return list;
+}
 /* read time is calculated from the body text rather than typed in by hand,
    so it's always correct and never needs translating separately */
 function calcReadTime(paragraphs, lang){
