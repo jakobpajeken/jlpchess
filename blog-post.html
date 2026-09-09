@@ -376,6 +376,7 @@ function createGameWidget(container, game){
       '<div class="board-nav">' +
         '<button type="button" data-nav="start">|«</button>' +
         '<button type="button" data-nav="prev">«</button>' +
+        '<button type="button" data-nav="play" aria-label="Play" title="Play">▶</button>' +
         '<button type="button" data-nav="next">»</button>' +
         '<button type="button" data-nav="end">»|</button>' +
         '<button type="button" data-nav="flip" aria-label="Flip board" title="Flip board">⇅</button>' +
@@ -403,6 +404,8 @@ function createGameWidget(container, game){
   var engine = null, historyVerbose = [], moveIndex = 0;
   var orientation = 'white'; /* 'white' = normal view, 'black' = flipped */
   var whiteName = 'White', blackName = 'Black';
+  var playInterval = null; /* set while auto-play is running, one move every 1.5s */
+  var PLAY_MOVE_MS = 1500;
 
   function buildBoardSquares(){
     boardEl.innerHTML = '';
