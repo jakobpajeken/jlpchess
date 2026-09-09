@@ -699,6 +699,7 @@ const i18n = {
   "hero.cta1":{en:"Get in touch",de:"Kontakt aufnehmen"},
   "hero.cta2":{en:"My Coaching Approach",de:"Mein Trainingsansatz"},
   "hero.stat1":{en:"FIDE rating",de:"FIDE-Elo"},
+  "hero.stat1b":{en:"World ranking",de:"Weltranglistenplatz"},
   "hero.stat2fig":{en:"2 GM norms",de:"2 GM-Normen"},
   "hero.stat2":{en:"Towards the Grandmaster title",de:"Auf dem Weg zum GM-Titel"},
   "hero.stat3fig":{en:"5+ years",de:"5+ Jahre"},
@@ -882,27 +883,37 @@ document.querySelectorAll('.langtoggle button').forEach(function(btn){
    edits, this guarantees what's on screen always matches the i18n object. */
 setLang('en');
 
-/* ---------- live classical FIDE rating ---------- */
+/* ---------- live classical FIDE rating + world ranking ----------
+   Both come from the same rating.json, kept up to date once a month
+   (1st of the month) by the GitHub Actions workflow in
+   .github/workflows/update-fide-rating.yml, which scrapes both figures
+   off the public FIDE profile page in one go. */
 var fideRatingValue = null;
+var worldRankValue = null;
 function applyFideRating(){
-  if(fideRatingValue == null) return;
-  var figureEl = document.getElementById('fide-rating-figure');
-  var subEl = document.getElementById('fide-rating-sub');
-  if(figureEl) figureEl.textContent = fideRatingValue;
-  if(subEl) subEl.textContent = fideRatingValue;
+  if(fideRatingValue != null){
+    var figureEl = document.getElementById('fide-rating-figure');
+    var subEl = document.getElementById('fide-rating-sub');
+    if(figureEl) figureEl.textContent = fideRatingValue;
+    if(subEl) subEl.textContent = fideRatingValue;
+  }
+  if(worldRankValue != null){
+    var rankEl = document.getElementById('world-rank-figure');
+    if(rankEl) rankEl.textContent = '#' + worldRankValue;
+  }
 }
 function loadFideRating(){
   fetch('rating.json', { cache: 'no-store' })
     .then(function(res){ return res.ok ? res.json() : null; })
     .then(function(data){
-      if(data && data.classical){
-        fideRatingValue = data.classical;
-        applyFideRating();
-      }
+      if(!data) return;
+      if(data.classical) fideRatingValue = data.classical;
+      if(data.worldRank) worldRankValue = data.worldRank;
+      applyFideRating();
     })
     .catch(function(){
       /* rating.json missing or blocked (e.g. opened as a local file) —
-         the hardcoded value already in the page stays as-is */
+         the hardcoded values already in the page stay as-is */
     });
 }
 loadFideRating();
