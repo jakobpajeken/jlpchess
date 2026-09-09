@@ -1369,10 +1369,12 @@ function initGamesWidget(){
   var btnPrev = document.getElementById('nav-prev');
   var btnNext = document.getElementById('nav-next');
   var btnEnd = document.getElementById('nav-end');
+  var btnFlip = document.getElementById('nav-flip');
   if(btnStart) btnStart.addEventListener('click', function(){ goToPly(0); });
   if(btnPrev) btnPrev.addEventListener('click', function(){ goToPly(Math.max(0, moveIndex - 1)); });
   if(btnNext) btnNext.addEventListener('click', function(){ goToPly(Math.min(historyVerbose.length, moveIndex + 1)); });
   if(btnEnd) btnEnd.addEventListener('click', function(){ goToPly(historyVerbose.length); });
+  if(btnFlip) btnFlip.addEventListener('click', function(){ setOrientation(boardOrientation === 'black' ? 'white' : 'black'); });
 
   /* Adding games is restricted: this panel only unhides for whoever opens
      the page with ?admin=jakob2026 in the URL. This is a convenience, not
