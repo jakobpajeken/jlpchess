@@ -930,13 +930,27 @@ document.querySelectorAll('.langtoggle button').forEach(function(btn){
    edits, this guarantees what's on screen always matches the i18n object. */
 setLang('en');
 
-/* ---------- live classical FIDE rating + world ranking ----------
-   Both come from the same rating.json, kept up to date once a month
+/* ---------- live classical FIDE rating + world ranking + peak rating ----------
+   All three come from the same rating.json, kept up to date once a month
    (1st of the month) by the GitHub Actions workflow in
-   .github/workflows/update-fide-rating.yml, which scrapes both figures
-   off the public FIDE profile page in one go. */
+   .github/workflows/update-fide-rating.yml, which scrapes the current
+   rating/rank off the public FIDE profile page and only overwrites the
+   stored peak if that fresh rating is actually higher than it. */
 var fideRatingValue = null;
 var worldRankValue = null;
+var peakRatingValue = null;
+var peakPeriodValue = null; /* e.g. "2026-Aug", as written by the Python script */
+var MONTH_NAMES = {
+  en:{Jan:'January',Feb:'February',Mar:'March',Apr:'April',May:'May',Jun:'June',Jul:'July',Aug:'August',Sep:'September',Oct:'October',Nov:'November',Dec:'December'},
+  de:{Jan:'Januar',Feb:'Februar',Mar:'März',Apr:'April',May:'Mai',Jun:'Juni',Jul:'Juli',Aug:'August',Sep:'September',Oct:'Oktober',Nov:'November',Dec:'Dezember'}
+};
+function formatPeriod(periodStr){
+  if(!periodStr) return '';
+  var parts = periodStr.split('-');
+  if(parts.length !== 2) return periodStr;
+  var names = MONTH_NAMES[currentSiteLang()] || MONTH_NAMES.en;
+  return (names[parts[1]] || parts[1]) + ' ' + parts[0];
+}
 function applyFideRating(){
   if(fideRatingValue != null){
     var figureEl = document.getElementById('fide-rating-figure');
@@ -948,6 +962,14 @@ function applyFideRating(){
     var rankEl = document.getElementById('world-rank-figure');
     if(rankEl) rankEl.textContent = '#' + worldRankValue;
   }
+  if(peakRatingValue != null){
+    var peakEl = document.getElementById('peak-rating-figure');
+    if(peakEl) peakEl.textContent = peakRatingValue;
+  }
+  if(peakPeriodValue != null){
+    var periodEl = document.getElementById('peak-rating-period');
+    if(periodEl) periodEl.textContent = formatPeriod(peakPeriodValue);
+  }
 }
 function loadFideRating(){
   fetch('rating.json', { cache: 'no-store' })
@@ -956,6 +978,8 @@ function loadFideRating(){
       if(!data) return;
       if(data.classical) fideRatingValue = data.classical;
       if(data.worldRank) worldRankValue = data.worldRank;
+      if(data.peak) peakRatingValue = data.peak;
+      if(data.peakPeriod) peakPeriodValue = data.peakPeriod;
       applyFideRating();
     })
     .catch(function(){
