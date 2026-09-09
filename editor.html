@@ -985,10 +985,27 @@ function openBlogForm(idx){
       '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. — aus deiner Schach-App oder Turnierseite kopieren.</span>' +
       '<textarea id="bfg-pgn" class="tall mono" placeholder="[Event &quot;...&quot;]&#10;[White &quot;...&quot;]&#10;[Black &quot;...&quot;]&#10;...&#10;1. e4 e5 2. Nf3 ...">' + escapeHtml(g.pgn) + '</textarea></div>' +
       '<div class="form-actions">' +
+      '<button type="button" class="btn" id="bfg-preview-btn">🔍 Vorschau prüfen</button>' +
+      '</div>' +
+      '<div id="bfg-preview"></div>' +
+      '<div class="form-actions">' +
       '<button type="button" class="btn solid" id="bfg-save">Übernehmen</button>' +
       '<button type="button" class="btn" id="bfg-cancel">Abbrechen</button>' +
       '</div></div>';
     document.getElementById('bfg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
+    var previewEl = document.getElementById('bfg-preview');
+    function runPreview(){
+      var pgnVal = document.getElementById('bfg-pgn').value.trim();
+      if(!pgnVal){ previewEl.innerHTML = ''; return; }
+      previewEl.innerHTML = '<div class="game-preview"></div>';
+      createGameWidget(previewEl.firstElementChild, {
+        title: joinLangValue(document.getElementById('bfg-title-en').value.trim(), document.getElementById('bfg-title-de').value),
+        meta: document.getElementById('bfg-meta').value.trim(),
+        pgn: pgnVal
+      });
+    }
+    document.getElementById('bfg-preview-btn').addEventListener('click', runPreview);
+    if(g.pgn) runPreview(); /* editing an existing game — show it right away */
     document.getElementById('bfg-save').addEventListener('click', function(){
       var titleEn = document.getElementById('bfg-title-en').value.trim();
       var entry = {
