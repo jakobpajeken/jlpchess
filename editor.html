@@ -741,14 +741,9 @@ function collectCategoryOptions(lang){
   });
   return list;
 }
-/* read time is calculated from the body text rather than typed in by hand,
-   so it's always correct and never needs translating separately */
-function calcReadTime(paragraphs, lang){
-  var text = (paragraphs || []).filter(function(p){ return !/^!\[/.test(p) && !/^\[game:/.test(p); }).join(' ');
-  var words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  var mins = Math.max(1, Math.round(words / 200));
-  return lang === 'de' ? (mins + ' Min. Lesezeit') : (mins + ' min read');
-}
+/* (read time itself is calculated on blog-post.html / index.html at
+   display time from post.body — the editor never shows it, so it has no
+   need for that calculation) */
 /* ---------- machine translation (English -> German), via Google Translate's
    public (unofficial, no API key) endpoint — used by the "Ins Deutsche
    übersetzen" button. Results are always editable afterward; this is a
