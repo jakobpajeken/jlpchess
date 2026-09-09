@@ -680,19 +680,46 @@ function splitForTranslation(text, maxLen){
   if(cur) chunks.push(cur);
   return chunks;
 }
+async function translateViaGoogle(trimmed){
+  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=de&dt=t&q=' + encodeURIComponent(trimmed);
+  var resp = await fetch(url);
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
+  var data = await resp.json();
+  if(!Array.isArray(data) || !Array.isArray(data[0])) throw new Error('leere Antwort');
+  var translated = data[0].map(function(seg){ return (seg && seg[0]) || ''; }).join('');
+  if(!translated.trim()) throw new Error('leere Antwort');
+  return translated;
+}
+/* MyMemory's crowdsourced translation memory occasionally returns a
+   confidently-wrong, completely unrelated snippet (e.g. movie subtitle
+   text) for an ordinary sentence — so a result whose length is wildly out
+   of proportion to the source is rejected rather than used silently. */
+async function translateViaMyMemory(trimmed){
+  var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(trimmed) + '&langpair=en|de';
+  var resp = await fetch(url);
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
+  var data = await resp.json();
+  var translated = data && data.responseData && data.responseData.translatedText;
+  if(!translated || /MYMEMORY WARNING|INVALID LANGPAIR|NO QUERY SPECIFIED/i.test(translated)){
+    throw new Error('keine Übersetzung geliefert');
+  }
+  if(translated.length > trimmed.length * 4 + 60 || translated.length < trimmed.length * 0.15){
+    throw new Error('Ergebnis wirkt unplausibel');
+  }
+  return translated;
+}
 async function translateChunk(text){
   var trimmed = text.trim();
   if(!trimmed) return '';
-  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=de&dt=t&q=' + encodeURIComponent(trimmed);
-  var resp = await fetch(url);
-  if(!resp.ok) throw new Error('Übersetzungsdienst nicht erreichbar (HTTP ' + resp.status + ').');
-  var data = await resp.json();
-  if(!Array.isArray(data) || !Array.isArray(data[0])){
-    throw new Error('Übersetzungsdienst hat keine Übersetzung geliefert.');
+  try{
+    return await translateViaGoogle(trimmed);
+  }catch(googleErr){
+    try{
+      return await translateViaMyMemory(trimmed);
+    }catch(myMemoryErr){
+      throw new Error('Übersetzungsdienst nicht erreichbar.');
+    }
   }
-  var translated = data[0].map(function(seg){ return (seg && seg[0]) || ''; }).join('');
-  if(!translated.trim()) throw new Error('Übersetzungsdienst hat keine Übersetzung geliefert.');
-  return translated;
 }
 async function translateEnToDe(text){
   if(!text || !text.trim()) return '';
