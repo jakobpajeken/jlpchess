@@ -1143,16 +1143,17 @@ function openBlogForm(idx){
     '<h3>' + (editing ? 'Beitrag bearbeiten' : 'Neuer Beitrag') + '</h3>' +
     '<div class="translate-row">' +
     '<button type="button" class="btn" id="bf-translate-all">🌐 Gesamten Beitrag ins Deutsche übersetzen</button>' +
+    '<button type="button" class="btn" id="bf-translate-all-rev">🌐 Gesamten Beitrag ins Englische übersetzen</button>' +
     '<span class="status" id="bf-translate-status"></span>' +
     '</div>' +
-    '<span class="hint">Schreibe zuerst auf Englisch, übersetze dann automatisch — die deutschen Felder bleiben danach frei bearbeitbar.</span>' +
+    '<span class="hint">Schreibe zuerst auf Englisch, übersetze dann automatisch — die deutschen Felder bleiben danach frei bearbeitbar. Jedes Feld hat außerdem einen eigenen 🌐-Knopf für beide Richtungen.</span>' +
     '<div class="form-row">' +
-    '<div class="field"><label>Titel (Englisch)</label><input type="text" id="bf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Three opening mistakes I keep seeing"></div>' +
-    '<div class="field"><label>Titel (Deutsch)</label><input type="text" id="bf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Drei Eröffnungsfehler, die ich ständig sehe"></div>' +
+    '<div class="field"><label>Titel (Englisch)</label><div class="cover-row"><input type="text" id="bf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Three opening mistakes I keep seeing" style="flex:1;"><button type="button" class="btn small" id="bf-title-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Titel (Deutsch)</label><div class="cover-row"><input type="text" id="bf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Drei Eröffnungsfehler, die ich ständig sehe" style="flex:1;"><button type="button" class="btn small" id="bf-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '</div>' +
     '<div class="form-row">' +
-    '<div class="field"><label>Kategorie (Englisch)</label><input type="text" id="bf-category-en" list="bf-category-en-options" value="' + escapeHtml(categorySplit.en) + '" placeholder="z. B. Openings"><datalist id="bf-category-en-options">' + catOptionsEn + '</datalist></div>' +
-    '<div class="field"><label>Kategorie (Deutsch)</label><input type="text" id="bf-category-de" list="bf-category-de-options" value="' + escapeHtml(categorySplit.de) + '" placeholder="z. B. Eröffnungen"><datalist id="bf-category-de-options">' + catOptionsDe + '</datalist></div>' +
+    '<div class="field"><label>Kategorie (Englisch)</label><div class="cover-row"><input type="text" id="bf-category-en" list="bf-category-en-options" value="' + escapeHtml(categorySplit.en) + '" placeholder="z. B. Openings" style="flex:1;"><datalist id="bf-category-en-options">' + catOptionsEn + '</datalist><button type="button" class="btn small" id="bf-category-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Kategorie (Deutsch)</label><div class="cover-row"><input type="text" id="bf-category-de" list="bf-category-de-options" value="' + escapeHtml(categorySplit.de) + '" placeholder="z. B. Eröffnungen" style="flex:1;"><datalist id="bf-category-de-options">' + catOptionsDe + '</datalist><button type="button" class="btn small" id="bf-category-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '</div>' +
     '<div class="field"><label>Datum</label><input type="date" id="bf-date" value="' + escapeHtml(p.date || '') + '"></div>' +
     '<div class="field"><label>Titelfoto (optional)</label><span class="hint">Erscheint als Vorschaubild auf der Karte im Blog-Tab und oben im Beitrag.</span>' +
