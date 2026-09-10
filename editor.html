@@ -901,7 +901,7 @@ function splitForTranslation(text, maxLen){
    noticeably better EN->DE quality than the fallbacks below. Left empty
    until the Worker is deployed; translateChunk() simply skips straight to
    Google/MyMemory while this is blank, so nothing breaks in the meantime. */
-var DEEPL_PROXY_URL = '';
+var DEEPL_PROXY_URL = 'https://jlpdeepl.jakobpajeken.workers.dev';
 async function translateViaDeepL(trimmed){
   var resp = await fetch(DEEPL_PROXY_URL, {
     method: 'POST',
