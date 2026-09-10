@@ -1361,7 +1361,9 @@ function openBlogForm(idx){
       '<div class="entry-form" id="bf-game-form">' +
       '<h3>' + (editingGame ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
       '<div class="form-row">' +
-      '<div class="field"><label>Titel (Englisch)</label><input type="text" id="bfg-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan"></div>' +
+      '<div class="field"><label>Titel (Englisch)</label>' +
+      '<div class="cover-row"><input type="text" id="bfg-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan" style="flex:1;">' +
+      '<button type="button" class="btn small" id="bfg-title-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
       '<div class="field"><label>Titel (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Titel auch auf Deutsch angezeigt werden soll — oder automatisch übersetzen.</span>' +
       '<div class="cover-row"><input type="text" id="bfg-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Pflichtsieg gegen GM Iniyan" style="flex:1;">' +
       '<button type="button" class="btn small" id="bfg-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
@@ -1378,15 +1380,8 @@ function openBlogForm(idx){
       '<button type="button" class="btn" id="bfg-cancel">Abbrechen</button>' +
       '</div></div>';
     document.getElementById('bfg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
-    document.getElementById('bfg-title-translate').addEventListener('click', async function(){
-      var btn = this;
-      var en = document.getElementById('bfg-title-en').value.trim();
-      if(!en){ showToast('Bitte zuerst einen englischen Titel eingeben.', true); return; }
-      btn.disabled = true;
-      try{ document.getElementById('bfg-title-de').value = await translateEnToDe(en); }
-      catch(err){ showToast('Übersetzung fehlgeschlagen.', true); }
-      btn.disabled = false;
-    });
+    wireTranslateButton('bfg-title-translate', 'bfg-title-en', 'bfg-title-de', 'EN', 'DE');
+    wireTranslateButton('bfg-title-translate-rev', 'bfg-title-de', 'bfg-title-en', 'DE', 'EN');
     var previewEl = document.getElementById('bfg-preview');
     function runPreview(){
       var pgnVal = document.getElementById('bfg-pgn').value.trim();
