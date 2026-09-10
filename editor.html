@@ -1208,6 +1208,18 @@ function openBlogForm(idx){
     '</div></form>';
   document.getElementById('bf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
 
+  /* ---- per-field translate buttons (either direction) ---- */
+  wireTranslateButton('bf-title-translate', 'bf-title-en', 'bf-title-de', 'EN', 'DE');
+  wireTranslateButton('bf-title-translate-rev', 'bf-title-de', 'bf-title-en', 'DE', 'EN');
+  wireTranslateButton('bf-category-translate', 'bf-category-en', 'bf-category-de', 'EN', 'DE');
+  wireTranslateButton('bf-category-translate-rev', 'bf-category-de', 'bf-category-en', 'DE', 'EN');
+  wireTranslateButton('bf-excerpt-translate', 'bf-excerpt-en', 'bf-excerpt-de', 'EN', 'DE');
+  wireTranslateButton('bf-excerpt-translate-rev', 'bf-excerpt-de', 'bf-excerpt-en', 'DE', 'EN');
+  wireTranslateButton('bf-lead-translate', 'bf-lead-en', 'bf-lead-de', 'EN', 'DE');
+  wireTranslateButton('bf-lead-translate-rev', 'bf-lead-de', 'bf-lead-en', 'DE', 'EN');
+  wireTranslateButton('bf-quote-translate', 'bf-quote-en', 'bf-quote-de', 'EN', 'DE');
+  wireTranslateButton('bf-quote-translate-rev', 'bf-quote-de', 'bf-quote-en', 'DE', 'EN');
+
   /* ---- cover photo picking ---- */
   var coverPreview = document.getElementById('bf-cover-preview');
   var coverRemoveBtn = document.getElementById('bf-cover-remove');
