@@ -1316,6 +1316,46 @@ function openBlogForm(idx){
     btn.disabled = false;
   });
 
+  /* ---- translate the whole post (DE -> EN) with one click — mirror of the
+     button above, for posts that were drafted in German first ---- */
+  document.getElementById('bf-translate-all-rev').addEventListener('click', async function(){
+    var btn = this;
+    var statusEl = document.getElementById('bf-translate-status');
+    var enIds = ['bf-title-en', 'bf-category-en', 'bf-excerpt-en', 'bf-lead-en', 'bf-body-en', 'bf-quote-en'];
+    var hasExistingEn = enIds.some(function(id){ var el = document.getElementById(id); return el && el.value.trim(); });
+    if(hasExistingEn && !confirm('Bestehende englische Texte werden überschrieben. Fortfahren?')) return;
+    btn.disabled = true;
+    statusEl.textContent = 'Übersetze …';
+    try{
+      var titleDe = document.getElementById('bf-title-de').value.trim();
+      var categoryDe = document.getElementById('bf-category-de').value.trim();
+      var excerptDe = document.getElementById('bf-excerpt-de').value.trim();
+      var leadDe = document.getElementById('bf-lead-de').value.trim();
+      var quoteDe = document.getElementById('bf-quote-de').value.trim();
+      var bodyDeText = document.getElementById('bf-body-de').value.trim();
+      var bodyParasDe = bodyDeText ? bodyDeText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+      if(titleDe) document.getElementById('bf-title-en').value = await translateDeToEn(titleDe);
+      if(categoryDe) document.getElementById('bf-category-en').value = await translateDeToEn(categoryDe);
+      if(excerptDe) document.getElementById('bf-excerpt-en').value = await translateDeToEn(excerptDe);
+      if(leadDe) document.getElementById('bf-lead-en').value = await translateDeToEn(leadDe);
+      if(quoteDe) document.getElementById('bf-quote-en').value = await translateDeToEn(quoteDe);
+      if(bodyParasDe.length){
+        var translatedEn = [];
+        for(var j = 0; j < bodyParasDe.length; j++){
+          statusEl.textContent = 'Übersetze Absatz ' + (j + 1) + ' von ' + bodyParasDe.length + ' …';
+          translatedEn.push(await translateBodyParagraph(bodyParasDe[j], 'DE', 'EN'));
+        }
+        document.getElementById('bf-body-en').value = translatedEn.join('\n\n');
+      }
+      statusEl.textContent = 'Übersetzt ✓ — bitte prüfen.';
+      showToast('Übersetzung eingefügt ✓ — bitte prüfen und ggf. anpassen.');
+    }catch(err){
+      statusEl.textContent = '';
+      showToast('Übersetzung fehlgeschlagen: ' + (err && err.message ? err.message : 'Verbindung zum Übersetzungsdienst nicht möglich.'), true);
+    }
+    btn.disabled = false;
+  });
+
   /* ---- helper: insert a marker string into the body textarea at the cursor, with blank-line spacing ---- */
   function insertMarkerIntoBody(marker){
     var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
