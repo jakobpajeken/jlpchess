@@ -1113,6 +1113,23 @@ document.querySelectorAll('.tab-dropdown a[data-tab]').forEach(function(a){
     showTab(a.getAttribute('data-tab'), a.getAttribute('href').replace('#', ''));
   });
 });
+/* .tab-dropdown is position:fixed (see the CSS comment above for why), so it
+   needs its top/left set from the trigger button's own position — done here
+   rather than in CSS, and refreshed right as each dropdown is about to show */
+document.querySelectorAll('.tabbar-item.has-dropdown').forEach(function(item){
+  var btn = item.querySelector('button[data-tab]');
+  var dropdown = item.querySelector('.tab-dropdown');
+  function positionDropdown(){
+    var r = btn.getBoundingClientRect();
+    dropdown.style.top = r.bottom + 'px';
+    dropdown.style.left = r.left + 'px';
+  }
+  item.addEventListener('mouseenter', positionDropdown);
+  item.addEventListener('focusin', positionDropdown);
+  window.addEventListener('resize', function(){
+    if(item.matches(':hover, :focus-within')) positionDropdown();
+  });
+});
 /* deep link support, e.g. index.html#blog coming back from a blog post, or
    index.html#coaching-testimonials linking straight to one dropdown section */
 (function(){
