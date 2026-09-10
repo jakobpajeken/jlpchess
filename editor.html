@@ -1168,8 +1168,10 @@ function openBlogForm(idx){
       var row = document.createElement('div');
       row.className = 'item-row';
       row.innerHTML =
-        '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(g.title) || '(ohne Titel)') + '</div>' +
-        '<div class="item-sub">' + escapeHtml(g.meta || '') + '</div></div>' +
+        '<div class="item-info" style="display:flex;align-items:flex-start;gap:12px;">' +
+        '<input type="checkbox" class="pg-select" data-idx="' + gIdx + '" title="Für gemeinsames Brett auswählen" style="margin-top:4px;">' +
+        '<div><div class="item-title">' + escapeHtml(previewLang(g.title) || '(ohne Titel)') + '</div>' +
+        '<div class="item-sub">' + escapeHtml(g.meta || '') + '</div></div></div>' +
         '<div class="item-actions">' +
         '<button type="button" class="btn small" data-insert="' + gIdx + '">In Text einfügen</button>' +
         '<button type="button" class="btn small" data-edit="' + gIdx + '">Bearbeiten</button>' +
@@ -1262,6 +1264,17 @@ function openBlogForm(idx){
     });
   }
   document.getElementById('bf-games-add-btn').addEventListener('click', function(){ openPostGameForm(null); });
+  document.getElementById('bf-games-insert-group-btn').addEventListener('click', function(){
+    var checked = Array.prototype.slice.call(gamesListEl.querySelectorAll('.pg-select:checked'));
+    var selectedGames = checked.map(function(cb){ return postGames[parseInt(cb.dataset.idx, 10)]; }).filter(Boolean);
+    if(selectedGames.length < 2){
+      showToast('Bitte mindestens zwei Partien ankreuzen.', true);
+      return;
+    }
+    insertMarkerIntoBody('[games:' + selectedGames.map(function(g){ return g.id; }).join(',') + ']');
+    gamesListEl.querySelectorAll('.pg-select:checked').forEach(function(cb){ cb.checked = false; });
+    showToast(selectedGames.length + ' Partien als gemeinsames Brett eingefügt ✓');
+  });
   renderPostGames();
 
   document.getElementById('blog-form').addEventListener('submit', async function(e){
