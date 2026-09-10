@@ -1462,13 +1462,24 @@ function openTestiForm(idx){
     '<form class="entry-form" id="testi-form">' +
     '<h3>' + (editing ? 'Testimonial bearbeiten' : 'Neues Testimonial') + '</h3>' +
     '<div class="field"><label>Zitat (Englisch)</label><textarea id="tf-quote-en" placeholder="Was hat sich im Spiel oder im Training verändert?">' + escapeHtml(quoteSplit.en) + '</textarea></div>' +
-    '<div class="field"><label>Zitat (Deutsch, optional)</label><span class="hint">Leer lassen, wenn das englische Zitat auch auf Deutsch angezeigt werden soll — z. B. wenn der Schüler es auf Deutsch geschrieben hat, trag es hier statt oben ein.</span><textarea id="tf-quote-de">' + escapeHtml(quoteSplit.de) + '</textarea></div>' +
+    '<div class="field"><label>Zitat (Deutsch, optional)</label><span class="hint">Leer lassen, wenn das englische Zitat auch auf Deutsch angezeigt werden soll — z. B. wenn der Schüler es auf Deutsch geschrieben hat, trag es hier statt oben ein — oder automatisch übersetzen.</span>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="tf-quote-de" style="flex:1;">' + escapeHtml(quoteSplit.de) + '</textarea>' +
+    '<button type="button" class="btn small" id="tf-quote-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '<div class="field"><label>Von</label><input type="text" id="tf-who" value="' + escapeHtml(t.who) + '" placeholder="z. B. Anna, 1650 Elo"></div>' +
     '<div class="form-actions">' +
     '<button type="submit" class="btn solid">Speichern</button>' +
     '<button type="button" class="btn" id="tf-cancel">Abbrechen</button>' +
     '</div></form>';
   document.getElementById('tf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+  document.getElementById('tf-quote-translate').addEventListener('click', async function(){
+    var btn = this;
+    var en = document.getElementById('tf-quote-en').value.trim();
+    if(!en){ showToast('Bitte zuerst ein englisches Zitat eingeben.', true); return; }
+    btn.disabled = true;
+    try{ document.getElementById('tf-quote-de').value = await translateEnToDe(en); }
+    catch(err){ showToast('Übersetzung fehlgeschlagen.', true); }
+    btn.disabled = false;
+  });
   document.getElementById('testi-form').addEventListener('submit', async function(e){
     e.preventDefault();
     var quoteEn = document.getElementById('tf-quote-en').value.trim();
@@ -1544,12 +1555,23 @@ function openResultForm(cat, idx){
     '<form class="entry-form" id="result-form-' + cat + '">' +
     '<h3>' + (editing ? 'Eintrag bearbeiten' : 'Neuer Eintrag') + ' &mdash; ' + meta.label + '</h3>' +
     '<div class="field"><label>Text (Englisch)</label><input type="text" id="rf-en" value="' + escapeHtml(split.en) + '" placeholder="z. B. 2026 — Winner, Example Open"></div>' +
-    '<div class="field"><label>Text (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Text auch auf Deutsch angezeigt werden soll.</span><input type="text" id="rf-de" value="' + escapeHtml(split.de) + '" placeholder="z. B. 2026 — Sieger, Beispiel-Open"></div>' +
+    '<div class="field"><label>Text (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Text auch auf Deutsch angezeigt werden soll — oder automatisch übersetzen.</span>' +
+    '<div class="cover-row"><input type="text" id="rf-de" value="' + escapeHtml(split.de) + '" placeholder="z. B. 2026 — Sieger, Beispiel-Open" style="flex:1;">' +
+    '<button type="button" class="btn small" id="rf-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '<div class="form-actions">' +
     '<button type="submit" class="btn solid">Speichern</button>' +
     '<button type="button" class="btn" id="rf-cancel">Abbrechen</button>' +
     '</div></form>';
   document.getElementById('rf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+  document.getElementById('rf-translate').addEventListener('click', async function(){
+    var btn = this;
+    var en = document.getElementById('rf-en').value.trim();
+    if(!en){ showToast('Bitte zuerst einen englischen Text eingeben.', true); return; }
+    btn.disabled = true;
+    try{ document.getElementById('rf-de').value = await translateEnToDe(en); }
+    catch(err){ showToast('Übersetzung fehlgeschlagen.', true); }
+    btn.disabled = false;
+  });
   document.getElementById('result-form-' + cat).addEventListener('submit', async function(e){
     e.preventDefault();
     var en = document.getElementById('rf-en').value.trim();
