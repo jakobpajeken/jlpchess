@@ -234,14 +234,6 @@
     background:var(--surface);border:1px solid var(--line);color:var(--ivory);
     font-family:'Inter',sans-serif;font-size:0.9rem;padding:11px 14px;min-width:220px;
   }
-  .paste-panel{margin-bottom:26px;display:flex;flex-direction:column;gap:10px;max-width:560px;}
-  .paste-panel label{font-size:0.82rem;color:var(--ivory-dim);}
-  .paste-panel input[type="text"],
-  .paste-panel textarea{
-    background:var(--surface);border:1px solid var(--line);color:var(--ivory);
-    font-family:'Inter',sans-serif;font-size:0.86rem;padding:12px;resize:vertical;
-  }
-  .pgn-error{font-size:0.84rem;color:#e08a63;min-height:1.2em;}
   .games-layout{display:grid;grid-template-columns:auto 1fr;gap:44px;align-items:start;}
   .board-wrap{display:flex;flex-direction:column;gap:10px;align-items:center;}
   .player-label{
@@ -632,20 +624,6 @@
 
       <div class="games-controls-top">
         <select id="game-select" aria-label="Select a game"></select>
-      </div>
-
-      <div id="admin-tools" hidden>
-        <div class="games-controls-top">
-          <button type="button" id="toggle-paste" class="btn" data-i18n="games.pastebtn">Paste your own PGN</button>
-        </div>
-        <div id="paste-panel" class="paste-panel" hidden>
-          <label for="pgn-title-input" data-i18n="games.titlelabel">Game title (optional)</label>
-          <input type="text" id="pgn-title-input" data-i18n-placeholder="games.titleplaceholder" placeholder="e.g. Round 5 vs. Smith, Elmshorn 2026">
-          <label for="pgn-input" data-i18n="games.pgnlabel">PGN</label>
-          <textarea id="pgn-input" rows="5" data-i18n-placeholder="games.pasteplaceholder" placeholder="Paste a PGN here, e.g. starting with [Event &quot;...&quot;] ... 1. e4 e5 2. Nf3 ..."></textarea>
-          <button type="button" id="load-pgn" class="btn solid" data-i18n="games.loadbtn">Load game</button>
-          <div id="pgn-error" class="pgn-error"></div>
-        </div>
       </div>
 
       <div class="games-layout">
