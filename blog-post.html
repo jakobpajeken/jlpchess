@@ -707,9 +707,13 @@ var currentRealPost = null; /* the loaded post object, kept around so a language
    "Bild einfügen" button in editor.html — renders as an inline photo
    instead of a text paragraph, with an optional photo-credit line.
    Likewise, a paragraph written as [game:ID] — inserted by the "Partie
-   einfügen" button — renders a full game-replay widget in place. */
+   einfügen" button — renders a full game-replay widget in place; a
+   paragraph written as [games:ID,ID,...] renders several games sharing
+   one board, with a dropdown to switch between them — same idea as the
+   career page's game picker. */
 var imageLineRe = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/;
 var gameLineRe = /^\[game:([a-zA-Z0-9_-]+)\]$/;
+var gamesGroupLineRe = /^\[games:([a-zA-Z0-9_,-]+)\]$/;
 function renderRealPost(post){
   if(typeof embeddedGameWidgets !== 'undefined') embeddedGameWidgets = []; /* body is fully rebuilt below, so drop stale widget refs */
   var lang = document.documentElement.lang === 'de' ? 'de' : 'en';
@@ -750,8 +754,21 @@ function renderRealPost(post){
         var g = (post.games || []).filter(function(x){ return x.id === gm[1]; })[0];
         if(g){
           var slotId = 'embedded-game-slot-' + (gameSlotCounter++);
-          gameSlots.push({ slotId: slotId, game: g });
+          gameSlots.push({ slotId: slotId, games: [g] });
           html += '<div id="' + slotId + '"></div>';
+        }
+        return;
+      }
+      var ggm = gamesGroupLineRe.exec(trimmed);
+      if(ggm){
+        var ids = ggm[1].split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+        var groupGames = ids.map(function(id){
+          return (post.games || []).filter(function(x){ return x.id === id; })[0];
+        }).filter(Boolean);
+        if(groupGames.length){
+          var groupSlotId = 'embedded-game-slot-' + (gameSlotCounter++);
+          gameSlots.push({ slotId: groupSlotId, games: groupGames });
+          html += '<div id="' + groupSlotId + '"></div>';
         }
         return;
       }
