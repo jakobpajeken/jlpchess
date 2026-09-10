@@ -1500,9 +1500,11 @@ function openTestiForm(idx){
   slot.innerHTML =
     '<form class="entry-form" id="testi-form">' +
     '<h3>' + (editing ? 'Testimonial bearbeiten' : 'Neues Testimonial') + '</h3>' +
-    '<div class="field"><label>Zitat (Englisch)</label><textarea id="tf-quote-en" placeholder="Was hat sich im Spiel oder im Training verändert?">' + escapeHtml(quoteSplit.en) + '</textarea></div>' +
-    '<div class="field"><label>Zitat (Deutsch, optional)</label><span class="hint">Leer lassen, wenn das englische Zitat auch auf Deutsch angezeigt werden soll — z. B. wenn der Schüler es auf Deutsch geschrieben hat, trag es hier statt oben ein — oder automatisch übersetzen.</span>' +
-    '<div class="cover-row" style="align-items:flex-start;"><textarea id="tf-quote-de" style="flex:1;">' + escapeHtml(quoteSplit.de) + '</textarea>' +
+    '<div class="field"><label>Zitat (Englisch)</label><span class="hint">Leer lassen, wenn nur die deutsche Version gebraucht wird — oder automatisch übersetzen.</span>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="tf-quote-en" placeholder="What changed in their game or how they train?" style="flex:1;">' + escapeHtml(quoteSplit.en) + '</textarea>' +
+    '<button type="button" class="btn small" id="tf-quote-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Zitat (Deutsch)</label><span class="hint">Leer lassen, wenn nur die englische Version gebraucht wird — oder automatisch übersetzen.</span>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="tf-quote-de" placeholder="Was hat sich im Spiel oder im Training verändert?" style="flex:1;">' + escapeHtml(quoteSplit.de) + '</textarea>' +
     '<button type="button" class="btn small" id="tf-quote-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '<div class="field"><label>Von</label><input type="text" id="tf-who" value="' + escapeHtml(t.who) + '" placeholder="z. B. Anna, 1650 Elo"></div>' +
     '<div class="form-actions">' +
