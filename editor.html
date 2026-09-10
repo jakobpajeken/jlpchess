@@ -26,16 +26,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1c1b18;
-    --surface:#232019;
-    --surface-raised:#2a261e;
-    --ivory:#ece5d4;
-    --ivory-dim:#bcb3a0;
-    --gold:#a8823c;
-    --gold-bright:#c9a05c;
-    --line:rgba(236,229,212,0.13);
-    --ok:#7fae7a;
-    --err:#e08a63;
+    /* "Pergament & Anthrazit" — kept in sync with index.html's palette;
+       --ok/--err are darkened too, since the originals were tuned to pop
+       on a dark background and would be too pale to read on a light one */
+    --ink:#f3eee2;
+    --surface:#fbf8f1;
+    --surface-raised:#ffffff;
+    --ivory:#2b2419;
+    --ivory-dim:#6c6152;
+    --gold:#8a6425;
+    --gold-bright:#a87c30;
+    --line:rgba(43,36,25,0.14);
+    --ok:#4a7548;
+    --err:#b04e2e;
     --sq-light:#d9cba8;
     --sq-dark:#b3875a;
     --piece-white:#fbf8f2;
@@ -67,8 +70,8 @@
   .btn.solid{background:var(--gold);color:var(--ink);border-color:var(--gold);}
   .btn.solid:hover{background:var(--gold-bright);border-color:var(--gold-bright);}
   .btn.small{padding:6px 12px;font-size:0.8rem;}
-  .btn.danger{border-color:#8a4a3a;color:#e08a63;}
-  .btn.danger:hover{background:rgba(224,138,99,0.12);}
+  .btn.danger{border-color:var(--err);color:var(--err);}
+  .btn.danger:hover{background:rgba(176,78,46,0.12);}
   .btn:disabled{opacity:0.4;cursor:not-allowed;}
 
   main[hidden]{display:none;}
