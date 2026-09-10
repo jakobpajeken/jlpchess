@@ -2,7 +2,7 @@
   {
     "title": {
       "en": "Must win vs GM Iniyan",
-      "de": "Pflichtsieg gegen GM Iniyan"
+      "de": "Ein Sieg gegen GM Iniyan ist Pflicht"
     },
     "meta": "",
     "pgn": "[Event \"Riga Tech op-A\"]\n[Site \"Riga\"]\n[Date \"2024.08.11\"]\n[Round \"9\"]\n[White \"Pajeken, Jakob Leon\"]\n[Black \"Iniyan, Panneerseluam\"]\n[Result \"1-0\"]\n[ECO \"B84\"]\n[WhiteElo \"2416\"]\n[BlackElo \"2547\"]\n\n1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be3 e6 7. Be2 Qc7 8. Qd2 b5 9. a3 Bb7 10. f3 Nbd7 11. O-O-O Rc8 12. g4 Ne5 13. g5 Nfd7 14. f4 Nc4 15. Bxc4 Qxc4 16. Nb3 b4 17. axb4 Qxb4 18. Qe2 Nb6 19. Bxb6 Qxb6 20. f5 Be7 21. Rhg1 O-O 22. f6 Bd8 23. Rg3 g6 24. Rh3 h5 25. Kb1 a5 26. Rd4 e5 27. Rd1 Qb4 28. Nd5 Qc4 29. Qxc4 Rxc4 30. Nd2 Rc5 31. Rc3 Rxc3 32. Nxc3 Bc7 33. Nc4 Ba6 34. Na3 Re8 35. Nab5 Bb8 36. Ka2 Rc8 37. Kb3 Rc6 38. Ka4 Kf8 39. Kxa5 Ke8 40. Rd2 Kd7 41. Nd5 Bb7 42. c4 Ra6+ 43. Kb4 Ra1 44. c5 Re1 45. Nb6+ Kc6 46. Nxd6 Ba6 47. Nxf7 Rxe4+ 48. Ka5 Bc7 49. Kxa6 Bxb6 50. Nxe5+ 1-0"
@@ -10,7 +10,7 @@
   {
     "title": {
       "en": "My best sacrifice ever",
-      "de": "Mein bestes Opfer aller Zeiten"
+      "de": "Mein größtes Opfer aller Zeiten"
     },
     "meta": "",
     "pgn": "[Event \"Uppsala Young Champions 9th\"]\n[Site \"Uppsala\"]\n[Date \"2022.10.31\"]\n[Round \"5\"]\n[White \"Pajeken, Jakob Leon\"]\n[Black \"Kruckenhauser, Arthur\"]\n[Result \"1-0\"]\n[ECO \"B84\"]\n[WhiteElo \"2461\"]\n[BlackElo \"2327\"]\n\n1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be2 e6 7. Be3 Qc7 8. Qd2 b5 9. a3 Bb7 10. f3 h5 11. a4 b4 12. Na2 d5 13. e5 Nfd7 14. f4 Nc5 15. O-O Ne4 16. Qe1 g5 17. Rd1 gxf4 18. Rxf4 Bg7 19. Qxb4 Bxe5 20. Nxe6 fxe6 21. Bxh5+ Kd7 22. Rf7+ Kc6 23. Qc4+ dxc4 24. Nb4# 1-0"
@@ -26,7 +26,7 @@
   {
     "title": {
       "en": "Never give up!",
-      "de": "Niemals aufgeben!"
+      "de": "Gib niemals auf!"
     },
     "meta": "",
     "pgn": "[Event \"AUT-chT 2425\"]\n[Site \"Austria\"]\n[Date \"2025.04.04\"]\n[Round \"9.2\"]\n[White \"Petrov, Nikita\"]\n[Black \"Pajeken, Jakob Leon\"]\n[Result \"0-1\"]\n[ECO \"A08\"]\n[WhiteElo \"2567\"]\n[BlackElo \"2435\"]\n[WhiteFideId \"-1\"]\n[BlackFideId \"-1\"]\n[PlyCount \"106\"]\n[EventDate \"2024.10.09\"]\n[EventType \"team-tourn\"]\n[EventRounds \"11\"]\n[EventCountry \"AUT\"]\n[SourceTitle \"EXT 2026\"]\n[Source \"ChessBase\"]\n[SourceDate \"2025.10.11\"]\n[SourceVersion \"1\"]\n[SourceVersionDate \"2025.10.11\"]\n[SourceQuality \"1\"]\n[WhiteTeam \"Pinggau Friedberg\"]\n[BlackTeam \"Raika Feffernitz\"]\n[WhiteTeamCountry \"AUT\"]\n[BlackTeamCountry \"AUT\"]\n\n1. Nf3 d5 2. g3 Nf6 3. Bg2 c5 4. O-O g6 5. d3 Bg7 6. Nbd2 O-O 7. e4 Nc6 8. Re1 Qc7 9. exd5 Nxd5 10. Nb3 Bg4 11. h3 Bxf3 12. Qxf3 Rad8 13. c3 b6 14. Qe2 Rd7 15. Bd2 Rfd8 16. Rad1 h5 17. h4 e5 18. Bg5 f6 19. Bc1 Nde7 20. Bh3 Rd6 21. Na1 f5 22. Bg5 Qd7 23. Bf1 e4 24. Bxe7 Nxe7 25. f4 Nc6 26. Qg2 exd3 27. Nb3 c4 28. Nd2 b5 29. a4 a6 30. axb5 axb5 31. Ra1 Re8 32. Rxe8+ Qxe8 33. Ra6 Qd7 34. Qf2 Nd4 35. Ra8+ Kh7 36. Kh2 Nb3 37. Nxb3 cxb3 38. Ra7 Qd8 39. Qd2 Kh6 40. Ra3 Qg8 41. Ra1 Qc4 42. Rd1 b4 43. Bxd3 bxc3 44. Bxc4 Rxd2+ 45. Rxd2 c2 46. Bxb3 c1=Q 47. Rg2 Bxb2 48. Bd5 Bd4 49. Bf3 Qe1 50. Bd5 Be3 51. Bf7 Kg7 52. Bb3 Kf6 53. Bc4 Bxf4 0-1"
@@ -34,7 +34,7 @@
   {
     "title": {
       "en": "Pure madness!",
-      "de": "Reiner Wahnsinn!"
+      "de": "Der reinste Wahnsinn!"
     },
     "meta": "",
     "pgn": "[Event \"Skanderborg Smuk\"]\n[Site \"Skanderborg\"]\n[Date \"2026.08.23\"]\n[Round \"9\"]\n[White \"Aczel, Gergely\"]\n[Black \"Pajeken, Jakob Leon\"]\n[Result \"1/2-1/2\"]\n[ECO \"A29\"]\n[WhiteElo \"2445\"]\n[BlackElo \"2483\"]\n[WhiteFideId \"-1\"]\n[BlackFideId \"-1\"]\n[PlyCount \"244\"]\n[EventDate \"2026.08.15\"]\n[EventType \"tourn\"]\n[EventRounds \"9\"]\n[EventCountry \"DEN\"]\n[EventCategory \"8\"]\n[SourceTitle \"CB34_2026\"]\n[SourceDate \"2026.08.26\"]\n[SourceVersion \"1\"]\n[SourceVersionDate \"2026.08.26\"]\n[SourceQuality \"1\"]\n\n1. c4 e5 2. Nc3 Nf6 3. Nf3 Nc6 4. d3 d5 5. cxd5 Nxd5 6. g3 Bc5 7. Bg2 O-O 8. O-O h6 9. Nxd5 Qxd5 10. b3 Rd8 11. Bb2 Qe6 12. Rc1 Qe7 13. Nd2 Bd4 14. Qc2 Bd7 15. Rfe1 Nb4 16. Qb1 Bxb2 17. Qxb2 Bc6 18. Nf3 e4 19. Ne5 exd3 20. Nxc6 bxc6 21. exd3 Qg5 22. Bf1 Rab8 23. d4 Qa5 24. Re7 Kf8 25. Rce1 Nd5 26. R7e5 Qc3 27. Qxc3 Nxc3 28. Ra5 Rb7 29. Rc1 Ne4 30. Ra4 Rd6 31. Bg2 f5 32. g4 g6 33. gxf5 gxf5 34. Ra5 Rf6 35. Bxe4 fxe4 36. Re5 Rb4 37. Rxe4 Rd6 38. Rc5 Rb5 39. Rc3 Rg5+ 40. Rg3 Rf5 41. Kg2 Rdf6 42. Re2 Rf4 43. Rge3 Rg4+ 44. Kf1 Rxd4 45. Re8+ Kg7 46. R2e7+ Kg6 47. Rxc7 a5 48. Ra7 Rd5 49. Rg8+ Kh5 50. Re7 Rd1+ 51. Re1 Rfd6 52. Rge8 Kg4 53. Rxd1 Rxd1+ 54. Kg2 Kf4 55. Re6 Rd2 56. a4 Rb2 57. Rxc6 Rxb3 58. Rc4+ Kg5 59. Rc5+ Kh4 60. Rxa5 Rb4 61. Ra8 h5 62. a5 Rg4+ 63. Kf3 Kh3 64. a6 Ra4 65. a7 Kxh2 66. Ke3 h4 67. f4 h3 68. f5 Ra6 69. Kf4 Ra4+ 70. Ke5 Ra5+ 71. Ke6 Ra6+ 72. Ke7 Kg3 73. f6 h2 74. f7 h1=Q 75. Rg8+ Kf2 76. f8=Q+ Ke1 77. Qe8 Rxa7+ 78. Kf8+ Kf2 79. Qf7+ Rxf7+ 80. Kxf7 Ke3 81. Rg6 Qb7+ 82. Ke8 Kf4 83. Kd8 Kf5 84. Rd6 Qf7 85. Rb6 Ke5 86. Rb5+ Kd6 87. Rb6+ Kd5 88. Rb3 Kc6 89. Rc3+ Kb6 90. Re3 Qf6+ 91. Ke8 Qg6+ 92. Kd7 Kc5 93. Re5+ Kd4 94. Re6 Qg8 95. Rd6+ Ke5 96. Ra6 Qf7+ 97. Kd8 Kd5 98. Rb6 Kc5 99. Ra6 Qf3 100. Kc7 Qf4+ 101. Kd7 Qf5+ 102. Kc7 Qh7+ 103. Kc8 Qe7 104. Ra3 Kb6 105. Rb3+ Ka6 106. Rd3 Qe5 107. Rd7 Kb6 108. Rd6+ Kc5 109. Rh6 Qf5+ 110. Kb7 Qf3+ 111. Ka7 Qg4 112. Rb6 Qd7+ 113. Rb7 Qd4 114. Rb6 Qa4+ 115. Ra6 Qd7+ 116. Kb8 Kb5 117. Ra7 Qd8+ 118. Kb7 Qb6+ 119. Ka8 Kc6 120. Rc7+ Kd5 121. Rd7+ Kc5 122. Rc7+ Qxc7 1/2-1/2"
@@ -42,7 +42,7 @@
   {
     "title": {
       "en": "Tenacious defence",
-      "de": "Hartnäckige Verteidigung"
+      "de": "Hartnäckige Abwehr"
     },
     "meta": "",
     "pgn": "[Event \"Copenhagen Obro CXU op\"]\n[Site \"Copenhagen\"]\n[Date \"2026.07.23\"]\n[Round \"5\"]\n[White \"Solodovnichenko, Yuri\"]\n[Black \"Pajeken, Jakob Leon\"]\n[Result \"1/2-1/2\"]\n[ECO \"C48\"]\n[WhiteElo \"2515\"]\n[BlackElo \"2475\"]\n[WhiteFideId \"-1\"]\n[BlackFideId \"-1\"]\n[PlyCount \"222\"]\n[EventDate \"2026.07.20\"]\n[EventType \"tourn\"]\n[EventRounds \"9\"]\n[EventCountry \"DEN\"]\n[SourceTitle \"CB30_2026\"]\n[SourceDate \"2026.07.29\"]\n[SourceVersion \"1\"]\n[SourceVersionDate \"2026.07.29\"]\n[SourceQuality \"1\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Nc3 Nf6 4. Bb5 Bd6 5. d3 O-O 6. Bg5 h6 7. Bh4 Nd4 8. Nxd4 exd4 9. Ne2 c6 10. Ba4 Re8 11. Bb3 Bc5 12. O-O d5 13. Bxf6 Qxf6 14. exd5 cxd5 15. Bxd5 Bg4 16. f3 Bd7 17. Ng3 Bd6 18. f4 Bxf4 19. Nh5 Bxh2+ 20. Kxh2 Qd6+ 21. Nf4 Re5 22. Bb3 g5 23. Qh5 gxf4 24. Qxf7+ Kh8 25. Qxf4 Bc6 26. Rae1 Rh5+ 27. Kg1 Qxf4 28. Rxf4 Rg5 29. Re2 Rd8 30. g4 a5 31. a4 Rd7 32. Re8+ Kh7 33. Ref8 h5 34. Kh2 hxg4 35. Kg3 Re7 36. Rxd4 Re1 37. Rf7+ Kh6 38. Rd6+ Rg6 39. Rxg6+ Kxg6 40. Kxg4 Rg1+ 41. Kh4 Rb1 42. Rc7 Kf5 43. Kg3 Rxb2 44. Kf2 Ke5 45. Ke3 Kd6 46. Rg7 Rb1 47. Kd4 b6 48. Kc3 Rh1 49. Rg4 Rh5 50. Kd4 Rh2 51. Rg6+ Kc7 52. Rg7+ Kd6 53. Rg4 Bf3 54. Rf4 Bc6 55. Kc3 Rh5 56. Rf6+ Kc7 57. Kb2 Rh4 58. c4 Rh2+ 59. Kc3 Rh3 60. Re6 Rg3 61. Bc2 Kd7 62. Rh6 Kc7 63. Rh4 Kd6 64. Rf4 Kc7 65. Rf2 Kd6 66. Kb2 Rg4 67. Rf6+ Kc7 68. Bd1 Rg1 69. Bc2 Rg2 70. Kc3 Rg3 71. Rf1 Kd6 72. Re1 Bd7 73. Rh1 Bc6 74. Rh4 Kc7 75. Kd4 Rg1 76. c5 Rc1 77. cxb6+ Kxb6 78. Bb3 Rb1 79. Kc3 Rc1+ 80. Kb2 Rg1 81. Rh6 Kc7 82. d4 Rg3 83. d5 Rxb3+ 84. Kxb3 Bxd5+ 85. Ka3 Bc6 86. Rh5 Kb6 87. Kb3 Be8 88. Rh6+ Bc6 89. Kc3 Kc5 90. Rh4 Kb6 91. Rc4 Bd5 92. Rd4 Bc6 93. Kd3 Be8 94. Ke4 Kc5 95. Ke5 Bf7 96. Rh4 Bb3 97. Kf6 Bc2 98. Ke6 Bb3+ 99. Kd7 Bxa4+ 100. Rxa4 Kb5 101. Ra1 a4 102. Kd6 Kb4 103. Kd5 a3 104. Kd4 Kb3 105. Rb1+ Kc2 106. Rh1 a2 107. Kc4 Kb2 108. Rh2+ Ka3 109. Rh3+ Kb2 110. Rh2+ Ka3 111. Rxa2+ Kxa2 1/2-1/2"
