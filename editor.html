@@ -295,16 +295,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 <script>
 /* ============================================================
-   Datei-Zugriff (File System Access API)
+   GitHub-Zugriff (GitHub Contents API)
+   ------------------------------------------------------------
+   Ersetzt den früheren lokalen Dateizugriff (File System Access
+   API), damit dieses Tool von jedem Gerät und Browser aus nutzbar
+   ist. Jede Speicherung hier wird ein echter Commit in deinem
+   Repository — der Token bleibt ausschließlich in diesem Browser
+   (localStorage), er wird nie irgendwohin sonst übertragen außer
+   direkt an api.github.com.
    ============================================================ */
-var dirHandle = null;
-var dataHandle = null;
-var supported = 'showDirectoryPicker' in window;
-
-if(!supported){
-  document.getElementById('unsupported').hidden = false;
-  document.getElementById('pick-folder').disabled = true;
-}
+var GITHUB_OWNER = 'jakobpajeken';
+var GITHUB_REPO = 'jlpchess';
+var GITHUB_BRANCH = 'main';
+var GITHUB_TOKEN_KEY = 'jlp-editor-token';
+var githubToken = null;
+var shaCache = {}; /* Datei-Pfad -> sha der zuletzt gelesenen Version, für Updates nötig */
 
 function showToast(msg, isErr){
   var t = document.getElementById('toast');
@@ -315,23 +320,93 @@ function showToast(msg, isErr){
   showToast._t = setTimeout(function(){ t.hidden = true; }, 3200);
 }
 
+function ghHeaders(){
+  return {
+    'Authorization': 'Bearer ' + githubToken,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+function ghUrl(path){
+  return 'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + path.split('/').map(encodeURIComponent).join('/');
+}
+/* UTF-8-sichere Base64-Kodierung (Umlaute etc.) — die GitHub-API
+   verlangt/liefert Dateiinhalte immer als Base64. */
+function utf8ToBase64(str){
+  var bytes = new TextEncoder().encode(str);
+  var binary = '';
+  bytes.forEach(function(b){ binary += String.fromCharCode(b); });
+  return btoa(binary);
+}
+function base64ToUtf8(b64){
+  var binary = atob(b64.replace(/\s/g, ''));
+  var bytes = new Uint8Array(binary.length);
+  for(var i = 0; i < binary.length; i++){ bytes[i] = binary.charCodeAt(i); }
+  return new TextDecoder().decode(bytes);
+}
+function fileToBase64(file){
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onload = function(){
+      var result = reader.result; /* "data:<mime>;base64,<data>" */
+      var idx = result.indexOf(',');
+      resolve(idx >= 0 ? result.slice(idx + 1) : result);
+    };
+    reader.onerror = function(){ reject(reader.error); };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function ghGetFile(path){
+  var resp = await fetch(ghUrl(path) + '?ref=' + GITHUB_BRANCH, { headers: ghHeaders() });
+  if(resp.status === 404) return null; /* Datei existiert noch nicht */
+  if(resp.status === 401 || resp.status === 403){ disconnectGithub(); throw new Error('Token ungültig oder ohne Zugriff.'); }
+  if(!resp.ok) throw new Error('Lesen fehlgeschlagen (HTTP ' + resp.status + ').');
+  var data = await resp.json();
+  shaCache[path] = data.sha;
+  return data;
+}
+async function ghPutFile(path, base64Content, message){
+  if(!(path in shaCache)){
+    var existing = await ghGetFile(path).catch(function(){ return null; });
+    if(existing) shaCache[path] = existing.sha;
+  }
+  var body = { message: message, content: base64Content, branch: GITHUB_BRANCH,
+    committer: { name: 'Jakob Leon Pajeken', email: 'jakobpajeken@gmail.com' } };
+  if(shaCache[path]) body.sha = shaCache[path];
+  var resp = await fetch(ghUrl(path), {
+    method: 'PUT',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, ghHeaders()),
+    body: JSON.stringify(body)
+  });
+  if(resp.status === 401 || resp.status === 403){ disconnectGithub(); throw new Error('Token ungültig oder ohne Zugriff.'); }
+  if(!resp.ok){
+    var errMsg = 'HTTP ' + resp.status;
+    try{ var errJson = await resp.json(); if(errJson.message) errMsg = errJson.message; }catch(e){}
+    throw new Error('Speichern fehlgeschlagen: ' + errMsg);
+  }
+  var result = await resp.json();
+  shaCache[path] = result.content.sha;
+  return result;
+}
+
 async function readJson(name){
   try{
-    var fh = await dataHandle.getFileHandle(name);
-    var file = await fh.getFile();
-    var text = await file.text();
-    var parsed = JSON.parse(text || '[]');
+    var file = await ghGetFile('data/' + name);
+    if(!file || !file.content) return [];
+    var parsed = JSON.parse(base64ToUtf8(file.content) || '[]');
     return Array.isArray(parsed) ? parsed : [];
   }catch(e){
+    showToast('Konnte ' + name + ' nicht laden: ' + e.message, true);
     return [];
   }
 }
 async function readResultsJson(){
   var empty = { titles: [], team: [], national: [], full: [] };
   try{
-    var fh = await dataHandle.getFileHandle('results.json');
-    var file = await fh.getFile();
-    var parsed = JSON.parse((await file.text()) || '{}');
+    var file = await ghGetFile('data/results.json');
+    if(!file || !file.content) return empty;
+    var parsed = JSON.parse(base64ToUtf8(file.content) || '{}');
     return {
       titles: Array.isArray(parsed.titles) ? parsed.titles : [],
       team: Array.isArray(parsed.team) ? parsed.team : [],
@@ -339,41 +414,90 @@ async function readResultsJson(){
       full: Array.isArray(parsed.full) ? parsed.full : []
     };
   }catch(e){
+    showToast('Konnte results.json nicht laden: ' + e.message, true);
     return empty;
   }
 }
 async function writeJson(name, data){
-  var fh = await dataHandle.getFileHandle(name, { create: true });
-  var writable = await fh.createWritable();
-  await writable.write(JSON.stringify(data, null, 2) + '\n');
-  await writable.close();
+  var content = utf8ToBase64(JSON.stringify(data, null, 2) + '\n');
+  await ghPutFile('data/' + name, content, 'Update ' + name + ' via online editor');
+}
+/* Bilder werden immer unter einem neuen, zeitgestempelten Dateinamen
+   angelegt (nie überschrieben), daher ist vor dem Hochladen kein
+   sha-Abgleich nötig. */
+async function saveImageFile(file, hintName){
+  var extMatch = /\.[a-zA-Z0-9]+$/.exec(file.name || '');
+  var ext = extMatch ? extMatch[0].toLowerCase() : '.jpg';
+  var base = slugify(hintName || file.name.replace(/\.[^.]+$/, '')) || 'bild';
+  var filename = base + '-' + Date.now() + ext;
+  var path = 'images/blog/' + filename;
+  var base64Content = await fileToBase64(file);
+  await ghPutFile(path, base64Content, 'Add image ' + filename + ' via online editor');
+  return path;
 }
 
 var games = [], blogPosts = [], testimonials = [];
 var results = { titles: [], team: [], national: [], full: [] };
 
-document.getElementById('pick-folder').addEventListener('click', async function(){
+function disconnectGithub(){
+  githubToken = null;
+  shaCache = {};
+  try{ localStorage.removeItem(GITHUB_TOKEN_KEY); }catch(e){}
+  document.getElementById('main').hidden = true;
+  document.getElementById('gh-token-input').value = '';
+  document.getElementById('gh-token-input').hidden = false;
+  document.getElementById('folder-status').textContent = 'Nicht verbunden.';
+  document.getElementById('gh-connect-btn').hidden = false;
+  document.getElementById('gh-disconnect-btn').hidden = true;
+}
+async function connectGithub(token){
+  githubToken = token;
+  shaCache = {};
+  var statusEl = document.getElementById('folder-status');
+  statusEl.textContent = 'Verbinde …';
   try{
-    dirHandle = await window.showDirectoryPicker();
-    /* sanity check: does this folder actually contain index.html? */
-    var looksRight = false;
-    try{ await dirHandle.getFileHandle('index.html'); looksRight = true; }catch(e){}
-    dataHandle = await dirHandle.getDirectoryHandle('data', { create: true });
+    var resp = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO, { headers: ghHeaders() });
+    if(resp.status === 401 || resp.status === 403 || resp.status === 404){
+      throw new Error('Token ungültig oder ohne Zugriff auf dieses Repository.');
+    }
+    if(!resp.ok) throw new Error('HTTP ' + resp.status);
+    var repoInfo = await resp.json();
+    if(repoInfo.permissions && repoInfo.permissions.push === false){
+      throw new Error('Dieser Token hat kein Schreibrecht für das Repository.');
+    }
+    try{ localStorage.setItem(GITHUB_TOKEN_KEY, token); }catch(e){}
     games = await readJson('games.json');
     blogPosts = await readJson('blog.json');
     testimonials = await readJson('testimonials.json');
     results = await readResultsJson();
     renderGames(); renderBlog(); renderTesti(); renderAllResultLists();
     document.getElementById('main').hidden = false;
-    document.getElementById('folder-status').innerHTML =
-      'Ordner: <span class="folder-name">' + escapeHtml(dirHandle.name) + '</span>' +
-      (looksRight ? '' : ' — <span style="color:var(--err);">Achtung: hier wurde keine index.html gefunden. Richtiger Ordner?</span>');
-    showToast('Ordner geöffnet.');
+    statusEl.innerHTML = 'Verbunden mit <span class="folder-name">' + escapeHtml(GITHUB_OWNER + '/' + GITHUB_REPO) + '</span>';
+    document.getElementById('gh-connect-btn').hidden = true;
+    document.getElementById('gh-token-input').hidden = true;
+    document.getElementById('gh-disconnect-btn').hidden = false;
+    showToast('Verbunden ✓');
   }catch(e){
-    if(e && e.name === 'AbortError') return; /* user cancelled the picker */
-    showToast('Ordner konnte nicht geöffnet werden.', true);
+    githubToken = null;
+    statusEl.textContent = 'Verbindung fehlgeschlagen: ' + e.message;
+    showToast('Verbindung fehlgeschlagen.', true);
   }
+}
+document.getElementById('gh-connect-btn').addEventListener('click', function(){
+  var token = document.getElementById('gh-token-input').value.trim();
+  if(!token){ showToast('Bitte einen Token einfügen.', true); return; }
+  connectGithub(token);
 });
+document.getElementById('gh-disconnect-btn').addEventListener('click', function(){
+  if(!confirm('Token auf diesem Gerät entfernen? Du müsstest ihn dann neu einfügen.')) return;
+  disconnectGithub();
+});
+/* verbindet automatisch neu, wenn dieses Gerät schon einen Token gespeichert hat */
+(function(){
+  var saved = null;
+  try{ saved = localStorage.getItem(GITHUB_TOKEN_KEY); }catch(e){}
+  if(saved) connectGithub(saved);
+})();
 
 /* ============================================================
    Helpers
