@@ -194,15 +194,22 @@
     <p>Partien, Blogposts und Stimmen von Schülern pflegen — ohne Code. Änderungen hier landen direkt in den Dateien im <code>data/</code>-Ordner deiner Website.</p>
   </header>
 
-  <div id="unsupported" class="unsupported" hidden>
-    Dein Browser unterstützt die Funktion, mit der dieses Tool Dateien direkt speichert, leider nicht.
-    Bitte öffne diese Seite in <strong>Chrome</strong> oder <strong>Edge</strong> auf dem Desktop.
-  </div>
-
   <div class="status-bar" id="status-bar">
-    <button type="button" class="btn solid" id="pick-folder">📁 Website-Ordner öffnen</button>
-    <span id="folder-status" style="color:var(--ivory-dim);">Noch kein Ordner ausgewählt — wähle den Ordner mit <code>index.html</code> darin.</span>
+    <input type="password" id="gh-token-input" placeholder="GitHub-Token einfügen" autocomplete="off"
+      style="background:var(--surface);border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:0.9rem;padding:10px 12px;min-width:280px;">
+    <button type="button" class="btn solid" id="gh-connect-btn">🔑 Verbinden</button>
+    <button type="button" class="btn" id="gh-disconnect-btn" hidden>Trennen</button>
+    <span id="folder-status" style="color:var(--ivory-dim);">Noch nicht verbunden — Token einfügen, um deine Website zu bearbeiten.</span>
   </div>
+  <details style="margin:0 0 22px;">
+    <summary style="cursor:pointer;color:var(--gold-bright);font-size:0.9rem;">Wie bekomme ich einen Token?</summary>
+    <div style="margin-top:12px;padding:18px 20px;border:1px solid var(--line);background:var(--surface);color:var(--ivory-dim);font-size:0.9rem;line-height:1.6;">
+      1. Auf GitHub: <strong>Einstellungen → Developer settings → Fine-grained tokens → „Generate new token"</strong><br>
+      2. <strong>Repository access</strong>: nur <code>jlpchess</code> auswählen (nicht dein ganzes Konto)<br>
+      3. <strong>Permissions → Contents</strong>: auf „Read and write" stellen<br>
+      4. Token erzeugen, kopieren und hier oben einfügen. Er bleibt nur in diesem Browser gespeichert — niemand sonst sieht ihn.
+    </div>
+  </details>
 
   <main id="main" hidden>
     <nav class="tabbar" role="tablist">
