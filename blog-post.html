@@ -725,6 +725,7 @@ function renderRealPost(post){
   var setText = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || ''; };
   setText('post-category', pickLang(post.category));
   setText('post-title', pickLang(post.title));
+  setText('post-author', post.author || 'IM Jakob Leon Pajeken');
   setText('post-date', formatBlogDate(post.date, lang));
   var bodyParasForReadtime = (post.body && post.body[lang] && post.body[lang].length) ? post.body[lang] : ((post.body && post.body.en) || (Array.isArray(post.body) ? post.body : []));
   setText('post-readtime', calcReadTime(bodyParasForReadtime, lang));
