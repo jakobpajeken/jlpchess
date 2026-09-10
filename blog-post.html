@@ -24,14 +24,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500;600;700&family=Spectral+SC:wght@500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1c1b18;
-    --surface:#232019;
-    --surface-raised:#2a261e;
-    --ivory:#ece5d4;
-    --ivory-dim:#bcb3a0;
-    --gold:#a8823c;
-    --gold-bright:#c9a05c;
-    --line:rgba(236,229,212,0.13);
+    /* "Pergament & Anthrazit" — kept in sync with index.html's palette */
+    --ink:#f3eee2;
+    --surface:#fbf8f1;
+    --surface-raised:#ffffff;
+    --ivory:#2b2419;
+    --ivory-dim:#6c6152;
+    --gold:#8a6425;
+    --gold-bright:#a87c30;
+    --line:rgba(43,36,25,0.14);
     --max:1080px;
     --sq-light:#d9cba8;
     --sq-dark:#b3875a;   /* light brown, so black pieces stay visible */
@@ -164,7 +165,7 @@
   .embedded-game:focus-visible{outline:1px solid var(--gold-bright);outline-offset:8px;}
   .embedded-game .game-title{font-family:'Spectral',serif;font-size:1.55rem;margin-bottom:6px;color:var(--ivory);}
   .embedded-game .game-info{font-size:0.84rem;color:var(--ivory-dim);margin-bottom:16px;}
-  .embedded-game .pgn-error{font-size:0.84rem;color:#e08a63;min-height:1.2em;}
+  .embedded-game .pgn-error{font-size:0.84rem;color:#b04e2e;min-height:1.2em;}
   .embedded-game .move-list{display:flex;flex-wrap:wrap;gap:4px 10px;max-height:220px;overflow-y:auto;font-size:0.9rem;}
   .embedded-game .move-num{color:var(--ivory-dim);margin-right:2px;}
   .embedded-game .move-btn{
