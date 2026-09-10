@@ -1588,8 +1588,10 @@ function openResultForm(cat, idx){
   slot.innerHTML =
     '<form class="entry-form" id="result-form-' + cat + '">' +
     '<h3>' + (editing ? 'Eintrag bearbeiten' : 'Neuer Eintrag') + ' &mdash; ' + meta.label + '</h3>' +
-    '<div class="field"><label>Text (Englisch)</label><input type="text" id="rf-en" value="' + escapeHtml(split.en) + '" placeholder="z. B. 2026 — Winner, Example Open"></div>' +
-    '<div class="field"><label>Text (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Text auch auf Deutsch angezeigt werden soll — oder automatisch übersetzen.</span>' +
+    '<div class="field"><label>Text (Englisch)</label><span class="hint">Leer lassen, wenn nur die deutsche Version gebraucht wird — oder automatisch übersetzen.</span>' +
+    '<div class="cover-row"><input type="text" id="rf-en" value="' + escapeHtml(split.en) + '" placeholder="z. B. 2026 — Winner, Example Open" style="flex:1;">' +
+    '<button type="button" class="btn small" id="rf-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Text (Deutsch)</label><span class="hint">Leer lassen, wenn nur die englische Version gebraucht wird — oder automatisch übersetzen.</span>' +
     '<div class="cover-row"><input type="text" id="rf-de" value="' + escapeHtml(split.de) + '" placeholder="z. B. 2026 — Sieger, Beispiel-Open" style="flex:1;">' +
     '<button type="button" class="btn small" id="rf-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '<div class="form-actions">' +
