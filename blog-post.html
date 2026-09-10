@@ -599,56 +599,80 @@ function createGameWidget(container, gameOrGames){
 
   buildBoardSquares();
 
-  if(typeof Chess === 'undefined'){
-    errorEl.textContent = document.documentElement.lang === 'de'
-      ? 'Das Partienachspiel-Tool konnte nicht geladen werden.'
-      : 'Could not load the game-replay tool.';
-    return;
-  }
+  /* holds this widget's currently-shown title, kept up to date by loadGame()
+     below so a language toggle (which rebuilds the whole post anyway, but
+     falls back to this for the placeholder page) always shows the right text */
+  var titleTrack = { titleEl: titleEl, title: null, fallbackTitle: '' };
+  embeddedGameWidgets.push(titleTrack);
 
-  engine = new Chess();
-  var ok = engine.load_pgn(game.pgn || '', { sloppy: true });
-  if(!ok){
-    errorEl.textContent = document.documentElement.lang === 'de'
-      ? 'Diese Partie konnte nicht geladen werden.'
-      : 'Could not load this game.';
-    return;
-  }
-  historyVerbose = engine.history({ verbose: true });
-  engine.reset();
-  moveIndex = 0;
-
-  var headers = parsePgnHeaders(game.pgn || '');
-  whiteName = headers.white || 'White';
-  blackName = headers.black || 'Black';
-  if(headers.whiteelo) whiteName += ' (' + headers.whiteelo + ')';
-  if(headers.blackelo) blackName += ' (' + headers.blackelo + ')';
-  /* whenever Jakob is playing Black, default to viewing the board from
-     Black's side — the flip button can still override this */
-  orientation = isJakobBlack(headers) ? 'black' : 'white';
-  renderCoordinates();
-  renderPosition(engine.fen());
-  applyPlayerLabels();
-  renderMoveList();
-
-  var fallbackTitle = whiteName + ' vs ' + blackName;
-  titleEl.textContent = pickLang(game.title) || fallbackTitle;
-  embeddedGameWidgets.push({ titleEl: titleEl, title: game.title, fallbackTitle: fallbackTitle });
-
-  /* the tournament name gets "(Round N)" / "(Runde N)" appended, right
-     between the tournament name and the date, whenever the PGN has one */
-  var infoBits = [];
-  if(headers.event){
-    var eventBit = headers.event;
-    var round = headers.round && headers.round.trim();
-    if(round && round !== '?'){
-      eventBit += ' (' + (document.documentElement.lang === 'de' ? 'Runde' : 'Round') + ' ' + round + ')';
+  function loadGame(game){
+    errorEl.textContent = '';
+    if(typeof Chess === 'undefined'){
+      errorEl.textContent = document.documentElement.lang === 'de'
+        ? 'Das Partienachspiel-Tool konnte nicht geladen werden.'
+        : 'Could not load the game-replay tool.';
+      return;
     }
-    infoBits.push(eventBit);
+    stopPlay(); /* switching games mid-playback would otherwise keep advancing the new game on the old timer */
+    engine = new Chess();
+    var ok = engine.load_pgn(game.pgn || '', { sloppy: true });
+    if(!ok){
+      errorEl.textContent = document.documentElement.lang === 'de'
+        ? 'Diese Partie konnte nicht geladen werden.'
+        : 'Could not load this game.';
+      return;
+    }
+    historyVerbose = engine.history({ verbose: true });
+    engine.reset();
+    moveIndex = 0;
+
+    var headers = parsePgnHeaders(game.pgn || '');
+    whiteName = headers.white || 'White';
+    blackName = headers.black || 'Black';
+    if(headers.whiteelo) whiteName += ' (' + headers.whiteelo + ')';
+    if(headers.blackelo) blackName += ' (' + headers.blackelo + ')';
+    /* whenever Jakob is playing Black, default to viewing the board from
+       Black's side — the flip button can still override this */
+    orientation = isJakobBlack(headers) ? 'black' : 'white';
+    renderCoordinates();
+    renderPosition(engine.fen());
+    applyPlayerLabels();
+    renderMoveList();
+
+    var fallbackTitle = whiteName + ' vs ' + blackName;
+    titleEl.textContent = pickLang(game.title) || fallbackTitle;
+    titleTrack.title = game.title;
+    titleTrack.fallbackTitle = fallbackTitle;
+
+    /* the tournament name gets "(Round N)" / "(Runde N)" appended, right
+       between the tournament name and the date, whenever the PGN has one */
+    var infoBits = [];
+    if(headers.event){
+      var eventBit = headers.event;
+      var round = headers.round && headers.round.trim();
+      if(round && round !== '?'){
+        eventBit += ' (' + (document.documentElement.lang === 'de' ? 'Runde' : 'Round') + ' ' + round + ')';
+      }
+      infoBits.push(eventBit);
+    }
+    if(headers.date && headers.date.indexOf('?') === -1) infoBits.push(formatPgnDate(headers.date));
+    if(headers.result) infoBits.push(headers.result);
+    infoEl.textContent = game.meta || infoBits.join(' · ');
   }
-  if(headers.date && headers.date.indexOf('?') === -1) infoBits.push(formatPgnDate(headers.date));
-  if(headers.result) infoBits.push(headers.result);
-  infoEl.textContent = game.meta || infoBits.join(' · ');
+
+  if(selectEl){
+    gamesList.forEach(function(g, i){
+      var opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = pickLang(g.title) || ('#' + (i + 1));
+      selectEl.appendChild(opt);
+    });
+    selectEl.addEventListener('change', function(){
+      loadGame(gamesList[parseInt(selectEl.value, 10)] || gamesList[0]);
+    });
+  }
+
+  loadGame(gamesList[0]);
 
   container.querySelector('[data-nav="start"]').addEventListener('click', function(){ manualGoToPly(0); });
   container.querySelector('[data-nav="prev"]').addEventListener('click', function(){ manualGoToPly(Math.max(0, moveIndex - 1)); });
