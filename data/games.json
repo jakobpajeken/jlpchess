@@ -10,7 +10,7 @@
   {
     "title": {
       "en": "My best sacrifice ever",
-      "de": "Mein größtes Opfer aller Zeiten"
+      "de": "Mein schönstes Opfer"
     },
     "meta": "",
     "pgn": "[Event \"Uppsala Young Champions 9th\"]\n[Site \"Uppsala\"]\n[Date \"2022.10.31\"]\n[Round \"5\"]\n[White \"Pajeken, Jakob Leon\"]\n[Black \"Kruckenhauser, Arthur\"]\n[Result \"1-0\"]\n[ECO \"B84\"]\n[WhiteElo \"2461\"]\n[BlackElo \"2327\"]\n\n1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be2 e6 7. Be3 Qc7 8. Qd2 b5 9. a3 Bb7 10. f3 h5 11. a4 b4 12. Na2 d5 13. e5 Nfd7 14. f4 Nc5 15. O-O Ne4 16. Qe1 g5 17. Rd1 gxf4 18. Rxf4 Bg7 19. Qxb4 Bxe5 20. Nxe6 fxe6 21. Bxh5+ Kd7 22. Rf7+ Kc6 23. Qc4+ dxc4 24. Nb4# 1-0"
