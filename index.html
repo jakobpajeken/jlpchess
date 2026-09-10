@@ -1073,17 +1073,22 @@ function loadFideRating(){
 }
 loadFideRating();
 
-function showTab(tabId){
+/* sectionId (optional): jump straight to one of the sections listed in a
+   tab's hover dropdown, instead of just landing at the top of the tab —
+   still updates the URL hash, so that more specific link is what a
+   copied/shared link reopens (e.g. #coaching-testimonials, not just #coaching) */
+function showTab(tabId, sectionId){
   document.querySelectorAll('.tabbar button[data-tab]').forEach(function(btn){
     btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
   });
   document.querySelectorAll('.tabpanel').forEach(function(panel){
     panel.classList.toggle('active-panel', panel.id === tabId);
   });
-  document.querySelector('.tabbar-outer').scrollIntoView({behavior:'smooth', block:'start'});
-  /* keep the URL's #tab in sync, so whatever's currently open is what a
+  var scrollTarget = (sectionId && document.getElementById(sectionId)) || document.querySelector('.tabbar-outer');
+  scrollTarget.scrollIntoView({behavior:'smooth', block:'start'});
+  /* keep the URL's #hash in sync, so whatever's currently open is what a
      copied/shared link reopens — same idea as ?lang=, just via the hash */
-  try{ history.replaceState(null, '', location.pathname + location.search + '#' + tabId); }catch(e){}
+  try{ history.replaceState(null, '', location.pathname + location.search + '#' + (sectionId || tabId)); }catch(e){}
 }
 document.querySelectorAll('.tabbar button[data-tab]').forEach(function(btn){
   btn.addEventListener('click', function(){ showTab(btn.getAttribute('data-tab')); });
@@ -1094,12 +1099,26 @@ document.querySelectorAll('[data-goto-tab]').forEach(function(el){
     showTab(el.getAttribute('data-goto-tab'));
   });
 });
-/* deep link support, e.g. index.html#blog coming back from a blog post */
+/* per-tab dropdown links (hover menus in the tab bar) — jump to the tab
+   AND scroll straight to that section */
+document.querySelectorAll('.tab-dropdown a[data-tab]').forEach(function(a){
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    showTab(a.getAttribute('data-tab'), a.getAttribute('href').replace('#', ''));
+  });
+});
+/* deep link support, e.g. index.html#blog coming back from a blog post, or
+   index.html#coaching-testimonials linking straight to one dropdown section */
 (function(){
-  var hashTab = location.hash.replace('#', '');
-  if(hashTab && document.getElementById(hashTab) && document.querySelector('.tabbar button[data-tab="' + hashTab + '"]')){
-    showTab(hashTab);
+  var hash = location.hash.replace('#', '');
+  if(!hash) return;
+  if(document.querySelector('.tabbar button[data-tab="' + hash + '"]')){
+    showTab(hash);
+    return;
   }
+  var target = document.getElementById(hash);
+  var panel = target && target.closest('.tabpanel');
+  if(panel) showTab(panel.id, hash);
 })();
 
 /* ---------- best games / PGN board viewer ---------- */
