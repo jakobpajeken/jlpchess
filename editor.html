@@ -71,12 +71,7 @@
   .btn.danger:hover{background:rgba(224,138,99,0.12);}
   .btn:disabled{opacity:0.4;cursor:not-allowed;}
 
-  .unsupported{
-    margin:22px 0;padding:18px 20px;border:1px solid var(--err);background:rgba(224,138,99,0.08);
-    color:var(--ivory);
-  }
-
-  main[hidden], .unsupported[hidden]{display:none;}
+  main[hidden]{display:none;}
 
   .tabbar{display:flex;gap:4px;margin:32px 0 0;border-bottom:1px solid var(--line);}
   .tabbar button{
@@ -191,7 +186,7 @@
 <div class="wrap">
   <header>
     <h1>Website-Editor</h1>
-    <p>Partien, Blogposts und Stimmen von Schülern pflegen — ohne Code. Änderungen hier landen direkt in den Dateien im <code>data/</code>-Ordner deiner Website.</p>
+    <p>Partien, Blogposts und Stimmen von Schülern pflegen — ohne Code, von jedem Gerät aus. Jede Speicherung hier wird direkt als Commit in deinem Website-Repository gespeichert und ist innerhalb weniger Sekunden live.</p>
   </header>
 
   <div class="status-bar" id="status-bar">
