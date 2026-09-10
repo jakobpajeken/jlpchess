@@ -380,10 +380,14 @@ var embeddedGameWidgets = []; /* { titleEl, title, fallbackTitle } — re-transl
 function isJakobBlack(headers){
   return !!(headers && headers.black && /pajeken/i.test(headers.black));
 }
-function createGameWidget(container, game){
+function createGameWidget(container, gameOrGames){
+  var gamesList = Array.isArray(gameOrGames) ? gameOrGames : [gameOrGames];
+  var hasPicker = gamesList.length > 1;
   container.classList.add('embedded-game');
   container.tabIndex = 0; /* focusable, so arrow keys can target this specific widget when several are on one page */
   container.innerHTML =
+    (hasPicker ? '<div class="games-controls-top"><select data-role="game-select" aria-label="Select a game"></select></div>' : '') +
+    '<div class="games-layout">' +
     '<div class="board-wrap">' +
       '<div class="player-label" data-role="player-top"><span class="side-dot"></span><span data-role="top-name">Black</span></div>' +
       '<div class="board-frame">' +
@@ -408,8 +412,10 @@ function createGameWidget(container, game){
       '<div class="game-info" data-role="info"></div>' +
       '<div class="pgn-error" data-role="error"></div>' +
       '<div class="move-list" data-role="movelist"></div>' +
+    '</div>' +
     '</div>';
 
+  var selectEl = container.querySelector('[data-role="game-select"]');
   var boardEl = container.querySelector('.chess-board');
   var listEl = container.querySelector('[data-role="movelist"]');
   var titleEl = container.querySelector('[data-role="title"]');
