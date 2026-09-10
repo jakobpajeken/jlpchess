@@ -279,6 +279,13 @@ function applyLang(lang){
   });
   document.documentElement.lang = lang;
   try{ localStorage.setItem('jlp-lang', lang); }catch(e){}
+  /* "Back to all posts" / "More posts" must carry the language along too —
+     without it, index.html falls back to English by default, so reading a
+     German post and clicking back could silently land you on the English
+     blog list (the reverse of the "wrong language" bug on the list side) */
+  document.querySelectorAll('a[href^="index.html#blog"], a[href^="index.html?lang="]').forEach(function(a){
+    a.setAttribute('href', 'index.html?lang=' + lang + '#blog');
+  });
   /* the loaded post's title/category/date/read time/body/quote are all
      language-dependent now (translated body, formatted date), so the whole
      post is re-rendered rather than patched — simpler and always correct,
