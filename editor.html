@@ -1165,12 +1165,20 @@ function openBlogForm(idx){
     '<input type="text" id="bf-cover-credit" value="' + escapeHtml(p.imageCredit || '') + '" placeholder="Fotograf / Quelle (optional), z. B. Claus Qvist Jessen">' +
     '</div></div></div>' +
     '<div class="form-row">' +
-    '<div class="field"><label>Vorschautext (Englisch)</label><textarea id="bf-excerpt-en" placeholder="One or two sentences that pull the reader in.">' + escapeHtml(excerptSplit.en) + '</textarea></div>' +
-    '<div class="field"><label>Vorschautext (Deutsch)</label><textarea id="bf-excerpt-de">' + escapeHtml(excerptSplit.de) + '</textarea></div>' +
+    '<div class="field"><label>Vorschautext (Englisch)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-excerpt-en" placeholder="One or two sentences that pull the reader in." style="flex:1;">' + escapeHtml(excerptSplit.en) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-excerpt-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Vorschautext (Deutsch)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-excerpt-de" style="flex:1;">' + escapeHtml(excerptSplit.de) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-excerpt-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '</div>' +
     '<div class="form-row">' +
-    '<div class="field"><label>Einleitungssatz (Englisch, optional, wird größer dargestellt)</label><textarea id="bf-lead-en">' + escapeHtml(leadSplit.en) + '</textarea></div>' +
-    '<div class="field"><label>Einleitungssatz (Deutsch, optional)</label><textarea id="bf-lead-de">' + escapeHtml(leadSplit.de) + '</textarea></div>' +
+    '<div class="field"><label>Einleitungssatz (Englisch, optional, wird größer dargestellt)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-lead-en" style="flex:1;">' + escapeHtml(leadSplit.en) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-lead-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Einleitungssatz (Deutsch, optional)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-lead-de" style="flex:1;">' + escapeHtml(leadSplit.de) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-lead-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '</div>' +
     '<div class="field"><label>Text (Englisch)</label><span class="hint">Jeden Absatz durch eine Leerzeile trennen. Mit den Knöpfen fügst du an der Cursor-Position ein Bild oder eine Partie ein.</span>' +
     '<div class="inline-image-row"><button type="button" class="btn small" id="bf-insert-image">🖼 Bild in Text einfügen</button>' +
@@ -1187,8 +1195,12 @@ function openBlogForm(idx){
     '</div>' +
     '<div id="bf-games-form-slot"></div></div>' +
     '<div class="form-row">' +
-    '<div class="field"><label>Hervorgehobenes Zitat (Englisch, optional)</label><textarea id="bf-quote-en">' + escapeHtml(quoteSplit.en) + '</textarea></div>' +
-    '<div class="field"><label>Hervorgehobenes Zitat (Deutsch, optional)</label><textarea id="bf-quote-de">' + escapeHtml(quoteSplit.de) + '</textarea></div>' +
+    '<div class="field"><label>Hervorgehobenes Zitat (Englisch, optional)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-quote-en" style="flex:1;">' + escapeHtml(quoteSplit.en) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-quote-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Hervorgehobenes Zitat (Deutsch, optional)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-quote-de" style="flex:1;">' + escapeHtml(quoteSplit.de) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-quote-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '</div>' +
     '<div class="form-actions">' +
     '<button type="submit" class="btn solid">Speichern</button>' +
