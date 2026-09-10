@@ -1036,7 +1036,7 @@ function openGameForm(idx){
       slot.innerHTML = '';
       renderGames();
       showToast('Partie gespeichert ✓');
-    }catch(err){ showToast('Speichern fehlgeschlagen.', true); }
+    }catch(err){ showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
   });
 }
 document.getElementById('games-add-btn').addEventListener('click', function(){ openGameForm(null); });
@@ -1044,7 +1044,7 @@ async function deleteGame(idx){
   if(!confirm('Diese Partie wirklich löschen?')) return;
   games.splice(idx, 1);
   try{ await writeJson('games.json', games); renderGames(); showToast('Partie gelöscht.'); }
-  catch(err){ showToast('Löschen fehlgeschlagen.', true); }
+  catch(err){ showToast('Löschen fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
 }
 
 /* ============================================================
@@ -1418,7 +1418,7 @@ function openBlogForm(idx){
       renderBlog();
       showToast('Beitrag gespeichert ✓');
     }catch(err){
-      showToast('Speichern fehlgeschlagen.', true);
+      showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
       submitBtn.disabled = false;
     }
   });
@@ -1428,7 +1428,7 @@ async function deleteBlog(idx){
   if(!confirm('Diesen Beitrag wirklich löschen?')) return;
   blogPosts.splice(idx, 1);
   try{ await writeJson('blog.json', blogPosts); renderBlog(); showToast('Beitrag gelöscht.'); }
-  catch(err){ showToast('Löschen fehlgeschlagen.', true); }
+  catch(err){ showToast('Löschen fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
 }
 
 /* ============================================================
@@ -1481,7 +1481,7 @@ function openTestiForm(idx){
       slot.innerHTML = '';
       renderTesti();
       showToast('Testimonial gespeichert ✓');
-    }catch(err){ showToast('Speichern fehlgeschlagen.', true); }
+    }catch(err){ showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
   });
 }
 document.getElementById('testi-add-btn').addEventListener('click', function(){ openTestiForm(null); });
@@ -1489,7 +1489,7 @@ async function deleteTesti(idx){
   if(!confirm('Dieses Testimonial wirklich löschen?')) return;
   testimonials.splice(idx, 1);
   try{ await writeJson('testimonials.json', testimonials); renderTesti(); showToast('Testimonial gelöscht.'); }
-  catch(err){ showToast('Löschen fehlgeschlagen.', true); }
+  catch(err){ showToast('Löschen fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
 }
 
 /* ============================================================
@@ -1562,14 +1562,14 @@ function openResultForm(cat, idx){
       slot.innerHTML = '';
       renderResultsList(cat);
       showToast('Gespeichert ✓');
-    }catch(err){ showToast('Speichern fehlgeschlagen.', true); }
+    }catch(err){ showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
   });
 }
 async function deleteResultEntry(cat, idx){
   if(!confirm('Diesen Eintrag wirklich löschen?')) return;
   results[cat].splice(idx, 1);
   try{ await writeJson('results.json', results); renderResultsList(cat); showToast('Gelöscht.'); }
-  catch(err){ showToast('Löschen fehlgeschlagen.', true); }
+  catch(err){ showToast('Löschen fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
 }
 Object.keys(RESULTS_META).forEach(function(cat){
   document.getElementById(RESULTS_META[cat].addBtnId).addEventListener('click', function(){ openResultForm(cat, null); });
