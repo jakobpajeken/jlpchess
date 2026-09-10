@@ -63,6 +63,7 @@
     scrollbar-width:none;
   }
   .tabbar::-webkit-scrollbar{display:none;}
+  .tabbar-item{position:relative;flex-shrink:0;}
   .tabbar button{
     flex-shrink:0;background:none;border:none;border-bottom:2px solid transparent;
     color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.9rem;
@@ -72,6 +73,24 @@
   .tabbar button.active{color:var(--gold-bright);border-bottom-color:var(--gold);}
   .tabpanel{display:none;}
   .tabpanel.active-panel{display:block;}
+  /* per-tab dropdown, listing the jumpable sections within that tab — opens
+     on hover only (no click, no arrow/symbol on the trigger button), and
+     stays open via :focus-within too so it's reachable by keyboard */
+  .tab-dropdown{
+    display:none;position:absolute;top:100%;left:0;min-width:220px;
+    background:var(--surface-raised);border:1px solid var(--line);
+    box-shadow:0 14px 32px rgba(0,0,0,0.4);padding:6px 0;z-index:25;
+  }
+  .tabbar-item.has-dropdown:hover .tab-dropdown,
+  .tabbar-item.has-dropdown:focus-within .tab-dropdown{display:block;}
+  .tab-dropdown a{
+    display:block;padding:10px 18px;font-size:0.84rem;color:var(--ivory-dim);
+    text-decoration:none;white-space:nowrap;transition:color .15s,background .15s;
+  }
+  .tab-dropdown a:hover,.tab-dropdown a:focus-visible{color:var(--gold-bright);background:rgba(168,130,60,0.12);}
+  /* offsets the scroll position of a dropdown's jump target so the sticky
+     header + tab bar don't cover its heading */
+  .scroll-target{scroll-margin-top:132px;}
 
   /* hero */
   .hero{padding:104px 0 88px;border-bottom:1px solid var(--line);}
@@ -340,11 +359,35 @@
 <div class="tabbar-outer">
   <div class="wrap">
     <nav class="tabbar" role="tablist">
-      <button type="button" role="tab" data-tab="about" class="active" data-i18n="nav.about">About me</button>
-      <button type="button" role="tab" data-tab="career" data-i18n="nav.career">Career</button>
-      <button type="button" role="tab" data-tab="blog" data-i18n="nav.blog">Blog</button>
-      <button type="button" role="tab" data-tab="coaching" data-i18n="nav.coaching">Coaching</button>
-      <button type="button" role="tab" data-tab="contact" data-i18n="nav.contact">Contact &amp; Socials</button>
+      <div class="tabbar-item">
+        <button type="button" role="tab" data-tab="about" class="active" data-i18n="nav.about">About me</button>
+      </div>
+      <div class="tabbar-item has-dropdown">
+        <button type="button" role="tab" data-tab="career" data-i18n="nav.career">Career</button>
+        <div class="tab-dropdown">
+          <a href="#career-results" data-tab="career" data-i18n="navsub.results">Results</a>
+          <a href="#career-games" data-tab="career" data-i18n="navsub.games">Games</a>
+        </div>
+      </div>
+      <div class="tabbar-item">
+        <button type="button" role="tab" data-tab="blog" data-i18n="nav.blog">Blog</button>
+      </div>
+      <div class="tabbar-item has-dropdown">
+        <button type="button" role="tab" data-tab="coaching" data-i18n="nav.coaching">Coaching</button>
+        <div class="tab-dropdown">
+          <a href="#coaching-approach" data-tab="coaching" data-i18n="coaching.heading">My Coaching Approach</a>
+          <a href="#coaching-process" data-tab="coaching" data-i18n="navsub.process">Getting Started</a>
+          <a href="#coaching-testimonials" data-tab="coaching" data-i18n="testi.heading">What students say</a>
+          <a href="#coaching-cta" data-tab="coaching" data-i18n="navsub.trainingRequest">Training Request</a>
+        </div>
+      </div>
+      <div class="tabbar-item has-dropdown">
+        <button type="button" role="tab" data-tab="contact" data-i18n="nav.contact">Contact &amp; Socials</button>
+        <div class="tab-dropdown">
+          <a href="#contact-form" data-tab="contact" data-i18n="cta.heading">Get in touch</a>
+          <a href="#contact-social" data-tab="contact" data-i18n="navsub.social">Social Media</a>
+        </div>
+      </div>
     </nav>
   </div>
 </div>
