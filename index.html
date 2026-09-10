@@ -1423,8 +1423,6 @@ function loadGameObject(g){
   gameEngine = new Chess();
   var ok = gameEngine.load_pgn(g.pgn, { sloppy: true });
   if(!ok){
-    var err = document.getElementById('pgn-error');
-    if(err){ err.textContent = 'Could not read this PGN — check the format and try again.'; }
     return false;
   }
   historyVerbose = gameEngine.history({ verbose: true });
@@ -1451,9 +1449,6 @@ function loadGameObject(g){
   var resolvedTitle = pickLang(g.title) || (whiteName + ' vs ' + blackName);
   if(titleEl) titleEl.textContent = resolvedTitle;
   if(infoEl) infoEl.textContent = buildGameInfoText(headers, g.meta);
-
-  var err = document.getElementById('pgn-error');
-  if(err) err.textContent = '';
   return true;
 }
 
