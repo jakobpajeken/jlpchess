@@ -1512,15 +1512,8 @@ function openTestiForm(idx){
     '<button type="button" class="btn" id="tf-cancel">Abbrechen</button>' +
     '</div></form>';
   document.getElementById('tf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
-  document.getElementById('tf-quote-translate').addEventListener('click', async function(){
-    var btn = this;
-    var en = document.getElementById('tf-quote-en').value.trim();
-    if(!en){ showToast('Bitte zuerst ein englisches Zitat eingeben.', true); return; }
-    btn.disabled = true;
-    try{ document.getElementById('tf-quote-de').value = await translateEnToDe(en); }
-    catch(err){ showToast('Übersetzung fehlgeschlagen.', true); }
-    btn.disabled = false;
-  });
+  wireTranslateButton('tf-quote-translate', 'tf-quote-en', 'tf-quote-de', 'EN', 'DE');
+  wireTranslateButton('tf-quote-translate-rev', 'tf-quote-de', 'tf-quote-en', 'DE', 'EN');
   document.getElementById('testi-form').addEventListener('submit', async function(e){
     e.preventDefault();
     var quoteEn = document.getElementById('tf-quote-en').value.trim();
