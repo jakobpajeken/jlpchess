@@ -1048,7 +1048,9 @@ function openGameForm(idx){
     '<form class="entry-form" id="game-form">' +
     '<h3>' + (editing ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
     '<div class="form-row">' +
-    '<div class="field"><label>Titel (Englisch)</label><input type="text" id="gf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan"></div>' +
+    '<div class="field"><label>Titel (Englisch)</label>' +
+    '<div class="cover-row"><input type="text" id="gf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan" style="flex:1;">' +
+    '<button type="button" class="btn small" id="gf-title-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
     '<div class="field"><label>Titel (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Titel auch auf Deutsch angezeigt werden soll — oder automatisch übersetzen.</span>' +
     '<div class="cover-row"><input type="text" id="gf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Pflichtsieg gegen GM Iniyan" style="flex:1;">' +
     '<button type="button" class="btn small" id="gf-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
