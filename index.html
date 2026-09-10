@@ -1521,15 +1521,6 @@ function refreshGameTitleLanguage(){
   if(infoEl) infoEl.textContent = buildGameInfoText(headers, currentGame.meta);
 }
 
-function isAdminMode(){
-  try {
-    var params = new URLSearchParams(window.location.search);
-    return params.get('admin') === 'jakob2026';
-  } catch(e){
-    return false;
-  }
-}
-
 function loadGamesData(){
   return fetch('data/games.json', { cache: 'no-store' })
     .then(function(r){ if(!r.ok) throw new Error('no data file'); return r.json(); })
@@ -1569,37 +1560,6 @@ function initGamesWidget(){
   if(btnNext) btnNext.addEventListener('click', function(){ manualGoToPly(Math.min(historyVerbose.length, moveIndex + 1)); });
   if(btnEnd) btnEnd.addEventListener('click', function(){ manualGoToPly(historyVerbose.length); });
   if(btnFlip) btnFlip.addEventListener('click', function(){ setOrientation(boardOrientation === 'black' ? 'white' : 'black'); });
-
-  /* Adding games is restricted: this panel only unhides for whoever opens
-     the page with ?admin=jakob2026 in the URL. This is a convenience, not
-     real security — anyone reading the page source could find the key. */
-  if(isAdminMode()){
-    var adminTools = document.getElementById('admin-tools');
-    if(adminTools) adminTools.hidden = false;
-  }
-
-  var toggleBtn = document.getElementById('toggle-paste');
-  var pastePanel = document.getElementById('paste-panel');
-  if(toggleBtn && pastePanel){
-    toggleBtn.addEventListener('click', function(){
-      pastePanel.hidden = !pastePanel.hidden;
-    });
-  }
-  var loadBtn = document.getElementById('load-pgn');
-  var pgnInput = document.getElementById('pgn-input');
-  var titleInput = document.getElementById('pgn-title-input');
-  if(loadBtn && pgnInput){
-    loadBtn.addEventListener('click', function(){
-      var text = pgnInput.value.trim();
-      if(!text) return;
-      var customTitle = titleInput ? titleInput.value.trim() : '';
-      var customGame = { title: customTitle || null, meta: '', pgn: text };
-      if(loadGameObject(customGame)){
-        var select2 = document.getElementById('game-select');
-        if(select2){ select2.value = ''; }
-      }
-    });
-  }
 }
 initGamesWidget();
 
