@@ -1184,7 +1184,7 @@ function openBlogForm(idx){
     var file = e.target.files && e.target.files[0];
     bodyImageFile.value = '';
     if(!file) return;
-    if(!dirHandle){ showToast('Kein Ordner geöffnet.', true); return; }
+    if(!githubToken){ showToast('Nicht verbunden.', true); return; }
     var caption = window.prompt('Bildunterschrift (optional, kann leer bleiben):', '') || '';
     var credit = window.prompt('Fotograf / Quelle (optional, kann leer bleiben) — erscheint als kleiner Hinweis unter dem Bild:', '') || '';
     insertImageBtn.disabled = true;
