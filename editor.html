@@ -827,6 +827,13 @@ function previewLang(val){
   if(val && typeof val === 'object') return val.de || val.en || '';
   return val || '';
 }
+/* today's date in the Europe/Berlin timezone (CET/CEST, DST-aware), formatted
+   as YYYY-MM-DD for a <input type="date"> value — used to prefill a new
+   blog post's date on first publish, while staying manually editable */
+function todayInBerlin(){
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date());
+}
+var DEFAULT_BLOG_AUTHOR = 'IM Jakob Leon Pajeken';
 function slugify(s){
   return String(s || '')
     .toLowerCase()
