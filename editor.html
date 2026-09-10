@@ -897,6 +897,22 @@ function splitForTranslation(text, maxLen){
   if(cur) chunks.push(cur);
   return chunks;
 }
+/* DeepL, via a small Cloudflare Worker proxy (see scripts/deepl-worker.js) —
+   noticeably better EN->DE quality than the fallbacks below. Left empty
+   until the Worker is deployed; translateChunk() simply skips straight to
+   Google/MyMemory while this is blank, so nothing breaks in the meantime. */
+var DEEPL_PROXY_URL = '';
+async function translateViaDeepL(trimmed){
+  var resp = await fetch(DEEPL_PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: trimmed })
+  });
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
+  var data = await resp.json();
+  if(!data.translatedText) throw new Error(data.error || 'leere Antwort');
+  return data.translatedText;
+}
 async function translateViaGoogle(trimmed){
   var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=de&dt=t&q=' + encodeURIComponent(trimmed);
   var resp = await fetch(url);
@@ -928,6 +944,9 @@ async function translateViaMyMemory(trimmed){
 async function translateChunk(text){
   var trimmed = text.trim();
   if(!trimmed) return '';
+  if(DEEPL_PROXY_URL){
+    try{ return await translateViaDeepL(trimmed); }catch(deeplErr){ /* fall through to the other services below */ }
+  }
   try{
     return await translateViaGoogle(trimmed);
   }catch(googleErr){
