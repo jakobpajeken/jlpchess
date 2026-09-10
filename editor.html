@@ -902,19 +902,20 @@ function splitForTranslation(text, maxLen){
    until the Worker is deployed; translateChunk() simply skips straight to
    Google/MyMemory while this is blank, so nothing breaks in the meantime. */
 var DEEPL_PROXY_URL = 'https://jlpdeepl.jakobpajeken.workers.dev';
-async function translateViaDeepL(trimmed){
+async function translateViaDeepL(trimmed, sourceLang, targetLang){
   var resp = await fetch(DEEPL_PROXY_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text: trimmed })
+    body: JSON.stringify({ text: trimmed, source: sourceLang, target: targetLang })
   });
   if(!resp.ok) throw new Error('HTTP ' + resp.status);
   var data = await resp.json();
   if(!data.translatedText) throw new Error(data.error || 'leere Antwort');
   return data.translatedText;
 }
-async function translateViaGoogle(trimmed){
-  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=de&dt=t&q=' + encodeURIComponent(trimmed);
+async function translateViaGoogle(trimmed, sourceLang, targetLang){
+  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sourceLang.toLowerCase() +
+    '&tl=' + targetLang.toLowerCase() + '&dt=t&q=' + encodeURIComponent(trimmed);
   var resp = await fetch(url);
   if(!resp.ok) throw new Error('HTTP ' + resp.status);
   var data = await resp.json();
@@ -927,8 +928,9 @@ async function translateViaGoogle(trimmed){
    confidently-wrong, completely unrelated snippet (e.g. movie subtitle
    text) for an ordinary sentence — so a result whose length is wildly out
    of proportion to the source is rejected rather than used silently. */
-async function translateViaMyMemory(trimmed){
-  var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(trimmed) + '&langpair=en|de';
+async function translateViaMyMemory(trimmed, sourceLang, targetLang){
+  var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(trimmed) +
+    '&langpair=' + sourceLang.toLowerCase() + '|' + targetLang.toLowerCase();
   var resp = await fetch(url);
   if(!resp.ok) throw new Error('HTTP ' + resp.status);
   var data = await resp.json();
@@ -941,29 +943,36 @@ async function translateViaMyMemory(trimmed){
   }
   return translated;
 }
-async function translateChunk(text){
+async function translateChunk(text, sourceLang, targetLang){
   var trimmed = text.trim();
   if(!trimmed) return '';
   if(DEEPL_PROXY_URL){
-    try{ return await translateViaDeepL(trimmed); }catch(deeplErr){ /* fall through to the other services below */ }
+    try{ return await translateViaDeepL(trimmed, sourceLang, targetLang); }catch(deeplErr){ /* fall through to the other services below */ }
   }
   try{
-    return await translateViaGoogle(trimmed);
+    return await translateViaGoogle(trimmed, sourceLang, targetLang);
   }catch(googleErr){
     try{
-      return await translateViaMyMemory(trimmed);
+      return await translateViaMyMemory(trimmed, sourceLang, targetLang);
     }catch(myMemoryErr){
       throw new Error('Übersetzungsdienst nicht erreichbar.');
     }
   }
 }
-async function translateEnToDe(text){
+/* generic bidirectional translation, chunked for length; sourceLang/
+   targetLang default to EN->DE so every existing call site (which only
+   ever passed a bare string) keeps working unchanged */
+async function translateText(text, sourceLang, targetLang){
   if(!text || !text.trim()) return '';
+  sourceLang = sourceLang || 'EN';
+  targetLang = targetLang || 'DE';
   var chunks = splitForTranslation(text);
   var results = [];
-  for(var i = 0; i < chunks.length; i++){ results.push(await translateChunk(chunks[i])); }
+  for(var i = 0; i < chunks.length; i++){ results.push(await translateChunk(chunks[i], sourceLang, targetLang)); }
   return results.join('').trim();
 }
+async function translateEnToDe(text){ return translateText(text, 'EN', 'DE'); }
+async function translateDeToEn(text){ return translateText(text, 'DE', 'EN'); }
 /* translates only the caption inside a ![caption](path "credit") marker,
    leaving the path/credit and any [game:ID] marker untouched */
 async function translateBodyParagraph(para){
@@ -976,6 +985,27 @@ async function translateBodyParagraph(para){
     return '![' + translatedCaption + ']' + imgMatch[2];
   }
   return await translateEnToDe(para);
+}
+/* wires a single translate button that reads sourceFieldId, translates it,
+   and writes into targetFieldId — used to give every EN/DE field pair in
+   the editor a button on each side (translate either direction). */
+function wireTranslateButton(btnId, sourceFieldId, targetFieldId, sourceLang, targetLang){
+  var btn = document.getElementById(btnId);
+  if(!btn) return;
+  btn.addEventListener('click', async function(){
+    var sourceEl = document.getElementById(sourceFieldId);
+    var targetEl = document.getElementById(targetFieldId);
+    if(!sourceEl || !targetEl) return;
+    var text = sourceEl.value.trim();
+    if(!text){
+      showToast('Bitte zuerst ' + (sourceLang === 'EN' ? 'englischen' : 'deutschen') + ' Text eingeben.', true);
+      return;
+    }
+    btn.disabled = true;
+    try{ targetEl.value = await translateText(text, sourceLang, targetLang); }
+    catch(err){ showToast('Übersetzung fehlgeschlagen.', true); }
+    btn.disabled = false;
+  });
 }
 /* ============================================================
    Tabs
