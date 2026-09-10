@@ -963,24 +963,6 @@ async function translateBodyParagraph(para){
   }
   return await translateEnToDe(para);
 }
-/* Saves an uploaded image into images/blog/ next to index.html and
-   returns the relative path to store in blog.json (e.g. "images/blog/
-   my-post-1234.jpg") — that path is what index.html and blog-post.html
-   use directly as an <img src>. */
-async function saveImageFile(file, hintName){
-  var imagesDir = await dirHandle.getDirectoryHandle('images', { create: true });
-  var blogImagesDir = await imagesDir.getDirectoryHandle('blog', { create: true });
-  var extMatch = /\.[a-zA-Z0-9]+$/.exec(file.name || '');
-  var ext = extMatch ? extMatch[0].toLowerCase() : '.jpg';
-  var base = slugify(hintName || file.name.replace(/\.[^.]+$/, '')) || 'bild';
-  var filename = base + '-' + Date.now() + ext;
-  var fh = await blogImagesDir.getFileHandle(filename, { create: true });
-  var writable = await fh.createWritable();
-  await writable.write(file);
-  await writable.close();
-  return 'images/blog/' + filename;
-}
-
 /* ============================================================
    Tabs
    ============================================================ */
