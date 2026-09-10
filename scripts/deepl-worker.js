@@ -67,6 +67,10 @@ export default {
         status: 400, headers: corsHeaders(origin)
       });
     }
+    /* defaults to EN->DE (what editor.html always sends); a caller can
+       also request the other direction, e.g. { text, source: "DE", target: "EN" } */
+    var sourceLang = (body.source || 'EN').toUpperCase();
+    var targetLang = (body.target || 'DE').toUpperCase();
     if(!env.DEEPL_API_KEY){
       return new Response(JSON.stringify({ error: 'DEEPL_API_KEY is not configured on this Worker' }), {
         status: 500, headers: corsHeaders(origin)
@@ -82,8 +86,8 @@ export default {
         },
         body: JSON.stringify({
           text: [text],
-          source_lang: 'EN',
-          target_lang: 'DE'
+          source_lang: sourceLang,
+          target_lang: targetLang
         })
       });
       if(!deeplResp.ok){
