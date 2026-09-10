@@ -1623,7 +1623,12 @@ function renderBlogGrid(){
   var visible = ordered.slice(0, blogVisibleCount);
   var lang = currentSiteLang();
   grid.innerHTML = visible.map(function(post){
-    var href = 'blog-post.html?slug=' + encodeURIComponent(post.slug || '');
+    /* &lang= here matters: without it, blog-post.html falls back to
+       whatever language localStorage remembers from a PREVIOUS visit,
+       which can silently disagree with the language this card is
+       currently shown in (the bug where clicking "Weiterlesen" on the
+       German list sometimes opened the English article, or vice versa) */
+    var href = 'blog-post.html?slug=' + encodeURIComponent(post.slug || '') + '&lang=' + lang;
     var imageHtml = post.image
       ? '<div class="blog-card-image"><img src="' + escapeHtml(post.image) + '" alt=""></div>'
       : '';
