@@ -1599,15 +1599,8 @@ function openResultForm(cat, idx){
     '<button type="button" class="btn" id="rf-cancel">Abbrechen</button>' +
     '</div></form>';
   document.getElementById('rf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
-  document.getElementById('rf-translate').addEventListener('click', async function(){
-    var btn = this;
-    var en = document.getElementById('rf-en').value.trim();
-    if(!en){ showToast('Bitte zuerst einen englischen Text eingeben.', true); return; }
-    btn.disabled = true;
-    try{ document.getElementById('rf-de').value = await translateEnToDe(en); }
-    catch(err){ showToast('Übersetzung fehlgeschlagen.', true); }
-    btn.disabled = false;
-  });
+  wireTranslateButton('rf-translate', 'rf-en', 'rf-de', 'EN', 'DE');
+  wireTranslateButton('rf-translate-rev', 'rf-de', 'rf-en', 'DE', 'EN');
   document.getElementById('result-form-' + cat).addEventListener('submit', async function(e){
     e.preventDefault();
     var en = document.getElementById('rf-en').value.trim();
