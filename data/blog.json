@@ -13,22 +13,21 @@
     "image": "images/blog/smuk-skak-gm-2026-in-skanderborg-1788974230070.jpg",
     "imageCredit": "Claus Qvist Jessen",
     "excerpt": {
-      "en": "From losing my very first game to winning the tournament — and a final round I will certainly never forget.",
+      "en": "From a first-round loss to winning the tournament—and a final round I’ll certainly never forget.",
       "de": "Von der Niederlage in der ersten Runde bis zum Turniersieg – und einer Schlussrunde, die ich sicherlich nie vergessen werde."
     },
     "lead": {
-      "en": "Winning the Smuk Skak GM Tournament in Skanderborg for the second year in a row was a very special result for me — especially considering how the tournament started.",
+      "en": "Winning the “Smuk Skak” Grandmaster tournament in Skanderborg for the second time in a row was a very special achievement for me—especially considering how the tournament started.",
       "de": "Der Sieg beim „Smuk Skak“-GM-Turnier in Skanderborg zum zweiten Mal in Folge war für mich ein ganz besonderes Ergebnis – vor allem, wenn man bedenkt, wie das Turnier begonnen hat."
     },
     "body": {
       "en": [
-        "In the very first round, I lost to Nikola Kanov from Bulgaria, putting myself under pressure right from the beginning.",
-        "What followed was a great comeback. I managed to recover quickly, win several important games, and work my way back to the top of the standings. With each round, my confidence grew, and suddenly I found myself fighting for first place again. My personal highlight was the game in Round 3.",
+        "I lost to Nikola Kanov from Bulgaria in the very first round, which put me under pressure right from the start.",
+        "What followed was a spectacular comeback. I managed to bounce back quickly, win several key games, and work my way back to the top of the standings. With each round, my confidence grew, and suddenly I was back in the running for first place. My personal highlight was the game in Round 3.",
         "[game:gmtua19khyeo6]",
-        "![Round 6 vs Vitus Bondo Medhus](images/blog/round-6-vs-vitus-bondo-medhus-1788974064937.jpg \"Claus Qvist Jessen\")",
-        "The final round was absolutely crazy. I had a chance to secure a GM norm, but after a long and extremely complicated game against Gergely Aczel, I reached a point where I honestly thought I was going to lose and was ready to give up. Then, completely unexpectedly, I got one more chance. I managed to turn the game around and fight my way back into it — only for the game to eventually end in a draw.",
-        "[game:gmtucgb8mhqkb]",
-        "Missing the norm was obviously disappointing, but after the way the tournament had started, winning the tournament outright with 6½/9 made the result all the more satisfying. **To go from losing my first game to coming back and winning the tournament for the second year in a row made this one particularly memorable.**"
+        "![Round 6 against Vitus Bondo Medhus](images/blog/round-6-vs-vitus-bondo-medhus-1788974064937.jpg \"Claus Qvist Jessen\")",
+        "The last round was absolutely crazy. I had a chance to secure a GM norm, but after a long and complicated game against Gergely Aczel, I found myself down for the count at one point and was on the verge of resigning. Then, completely out of the blue, I got another chance. Miraculously, I managed to turn the game around, and suddenly I “only” had to win with a queen against a rook. Normally, that shouldn’t be a problem for a player of my level, but after nearly six hours of play, my nerves got the better of me, and I ultimately bunderded into a draw.\n[game:gmtucgb8mhqkb]",
+        "Of course, it was disappointing that I missed the norm, but I’m still focusing on the positive: I was already completely lost, but then the draw secured me the sole tournament victory. And given that I started with a loss and was then able to score 6.5 points to win the tournament for the second time in a row, I consider this tournament a complete success."
       ],
       "de": [
         "Schon in der allerersten Runde verlor ich gegen Nikola Kanov aus Bulgarien, wodurch ich von Anfang an unter Druck geriet.",
@@ -45,7 +44,7 @@
         "id": "gmtua19khyeo6",
         "title": {
           "en": "A Beautiful win in a reversed Benoni.",
-          "de": "Ein schöner Sieg in einer umgekehrten Benoni-Verteidigung."
+          "de": "Ein schöner Angriffssieg"
         },
         "meta": "",
         "pgn": "[Event \"Skanderborg Smuk\"]\n[Site \"Skanderborg\"]\n[Date \"2026.08.17\"]\n[Round \"3\"]\n[White \"Olsen, Filip Boe\"]\n[Black \"Pajeken, Jakob Leon\"]\n[Result \"0-1\"]\n[ECO \"A13\"]\n[WhiteElo \"2472\"]\n[BlackElo \"2483\"]\n[WhiteFideId \"-1\"]\n[BlackFideId \"-1\"]\n[PlyCount \"74\"]\n[EventDate \"2026.08.15\"]\n[EventType \"tourn\"]\n[EventRounds \"9\"]\n[EventCountry \"DEN\"]\n[EventCategory \"8\"]\n[SourceTitle \"CB34_2026\"]\n[SourceDate \"2026.08.26\"]\n[SourceVersion \"1\"]\n[SourceVersionDate \"2026.08.26\"]\n[SourceQuality \"1\"]\n\n1. Nf3 d5 2. g3 c5 3. Bg2 Nf6 4. O-O e6 5. c4 d4 6. e3 Nc6 7. d3 Bd6 8. exd4 cxd4 9. Na3 O-O 10. Nc2 e5 11. b4 a6 12. c5 Bc7 13. Bg5 h6 14. Bxf6 Qxf6 15. Nd2 Qg6 16. a4 Bg4 17. Bf3 Bf5 18. Ne4 Bh3 19. Re1 f5 20. Nd2 e4 21. dxe4 f4 22. Bg2 fxg3 23. fxg3 Bxg3 24. hxg3 Qxg3 25. Re2 d3 26. Qe1 Qxe1+ 27. Rexe1 Bxg2 28. Ne3 Bf3 29. Nd5 Be2 30. Nc3 Nd4 31. Nxe2 dxe2 32. Rab1 Rf4 33. b5 axb5 34. axb5 Ra2 35. c6 Rxd2 36. cxb7 Rf8 37. Kg2 Nc2 0-1"
@@ -54,7 +53,7 @@
         "id": "gmtucgb8mhqkb",
         "title": {
           "en": "Crazy Round 9",
-          "de": "Verrückte Runde 9"
+          "de": "Verrückte 9. Runde"
         },
         "meta": "",
         "pgn": "[Event \"Skanderborg Smuk\"]\n[Site \"Skanderborg\"]\n[Date \"2026.08.23\"]\n[Round \"9\"]\n[White \"Aczel, Gergely\"]\n[Black \"Pajeken, Jakob Leon\"]\n[Result \"1/2-1/2\"]\n[ECO \"A29\"]\n[WhiteElo \"2445\"]\n[BlackElo \"2483\"]\n[WhiteFideId \"-1\"]\n[BlackFideId \"-1\"]\n[PlyCount \"244\"]\n[EventDate \"2026.08.15\"]\n[EventType \"tourn\"]\n[EventRounds \"9\"]\n[EventCountry \"DEN\"]\n[EventCategory \"8\"]\n[SourceTitle \"CB34_2026\"]\n[SourceDate \"2026.08.26\"]\n[SourceVersion \"1\"]\n[SourceVersionDate \"2026.08.26\"]\n[SourceQuality \"1\"]\n\n1. c4 e5 2. Nc3 Nf6 3. Nf3 Nc6 4. d3 d5 5. cxd5 Nxd5 6. g3 Bc5 7. Bg2 O-O 8. O-O h6 9. Nxd5 Qxd5 10. b3 Rd8 11. Bb2 Qe6 12. Rc1 Qe7 13. Nd2 Bd4 14. Qc2 Bd7 15. Rfe1 Nb4 16. Qb1 Bxb2 17. Qxb2 Bc6 18. Nf3 e4 19. Ne5 exd3 20. Nxc6 bxc6 21. exd3 Qg5 22. Bf1 Rab8 23. d4 Qa5 24. Re7 Kf8 25. Rce1 Nd5 26. R7e5 Qc3 27. Qxc3 Nxc3 28. Ra5 Rb7 29. Rc1 Ne4 30. Ra4 Rd6 31. Bg2 f5 32. g4 g6 33. gxf5 gxf5 34. Ra5 Rf6 35. Bxe4 fxe4 36. Re5 Rb4 37. Rxe4 Rd6 38. Rc5 Rb5 39. Rc3 Rg5+ 40. Rg3 Rf5 41. Kg2 Rdf6 42. Re2 Rf4 43. Rge3 Rg4+ 44. Kf1 Rxd4 45. Re8+ Kg7 46. R2e7+ Kg6 47. Rxc7 a5 48. Ra7 Rd5 49. Rg8+ Kh5 50. Re7 Rd1+ 51. Re1 Rfd6 52. Rge8 Kg4 53. Rxd1 Rxd1+ 54. Kg2 Kf4 55. Re6 Rd2 56. a4 Rb2 57. Rxc6 Rxb3 58. Rc4+ Kg5 59. Rc5+ Kh4 60. Rxa5 Rb4 61. Ra8 h5 62. a5 Rg4+ 63. Kf3 Kh3 64. a6 Ra4 65. a7 Kxh2 66. Ke3 h4 67. f4 h3 68. f5 Ra6 69. Kf4 Ra4+ 70. Ke5 Ra5+ 71. Ke6 Ra6+ 72. Ke7 Kg3 73. f6 h2 74. f7 h1=Q 75. Rg8+ Kf2 76. f8=Q+ Ke1 77. Qe8 Rxa7+ 78. Kf8+ Kf2 79. Qf7+ Rxf7+ 80. Kxf7 Ke3 81. Rg6 Qb7+ 82. Ke8 Kf4 83. Kd8 Kf5 84. Rd6 Qf7 85. Rb6 Ke5 86. Rb5+ Kd6 87. Rb6+ Kd5 88. Rb3 Kc6 89. Rc3+ Kb6 90. Re3 Qf6+ 91. Ke8 Qg6+ 92. Kd7 Kc5 93. Re5+ Kd4 94. Re6 Qg8 95. Rd6+ Ke5 96. Ra6 Qf7+ 97. Kd8 Kd5 98. Rb6 Kc5 99. Ra6 Qf3 100. Kc7 Qf4+ 101. Kd7 Qf5+ 102. Kc7 Qh7+ 103. Kc8 Qe7 104. Ra3 Kb6 105. Rb3+ Ka6 106. Rd3 Qe5 107. Rd7 Kb6 108. Rd6+ Kc5 109. Rh6 Qf5+ 110. Kb7 Qf3+ 111. Ka7 Qg4 112. Rb6 Qd7+ 113. Rb7 Qd4 114. Rb6 Qa4+ 115. Ra6 Qd7+ 116. Kb8 Kb5 117. Ra7 Qd8+ 118. Kb7 Qb6+ 119. Ka8 Kc6 120. Rc7+ Kd5 121. Rd7+ Kc5 122. Rc7+ Qxc7 1/2-1/2"
