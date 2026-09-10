@@ -1096,9 +1096,6 @@ function showTab(tabId, sectionId){
      copied/shared link reopens — same idea as ?lang=, just via the hash */
   try{ history.replaceState(null, '', location.pathname + location.search + '#' + (sectionId || tabId)); }catch(e){}
 }
-document.querySelectorAll('.tabbar button[data-tab]').forEach(function(btn){
-  btn.addEventListener('click', function(){ showTab(btn.getAttribute('data-tab')); });
-});
 document.querySelectorAll('[data-goto-tab]').forEach(function(el){
   el.addEventListener('click', function(e){
     e.preventDefault();
@@ -1110,25 +1107,51 @@ document.querySelectorAll('[data-goto-tab]').forEach(function(el){
 document.querySelectorAll('.tab-dropdown a[data-tab]').forEach(function(a){
   a.addEventListener('click', function(e){
     e.preventDefault();
+    a.closest('.tabbar-item').classList.remove('dropdown-open');
     showTab(a.getAttribute('data-tab'), a.getAttribute('href').replace('#', ''));
   });
 });
-/* .tab-dropdown is position:fixed (see the CSS comment above for why), so it
-   needs its top/left set from the trigger button's own position — done here
-   rather than in CSS, and refreshed right as each dropdown is about to show */
-document.querySelectorAll('.tabbar-item.has-dropdown').forEach(function(item){
-  var btn = item.querySelector('button[data-tab]');
-  var dropdown = item.querySelector('.tab-dropdown');
+/* tab bar buttons, including the dropdown-carrying ones. A dropdown's own
+   :hover/:focus-within CSS (see above) is all a mouse needs — but a touch
+   screen has no "hover" at all, so without this its submenu would simply be
+   unreachable there. window.matchMedia('(hover: hover)') is re-checked on
+   every tap (not cached), so it also copes with hybrid devices (e.g. a
+   touchscreen laptop that sometimes has a mouse plugged in). */
+document.querySelectorAll('.tabbar button[data-tab]').forEach(function(btn){
+  var item = btn.closest('.tabbar-item');
+  var hasDropdown = item.classList.contains('has-dropdown');
+  var dropdown = hasDropdown ? item.querySelector('.tab-dropdown') : null;
   function positionDropdown(){
     var r = btn.getBoundingClientRect();
     dropdown.style.top = r.bottom + 'px';
     dropdown.style.left = r.left + 'px';
   }
-  item.addEventListener('mouseenter', positionDropdown);
-  item.addEventListener('focusin', positionDropdown);
-  window.addEventListener('resize', function(){
-    if(item.matches(':hover, :focus-within')) positionDropdown();
+  if(hasDropdown){
+    item.addEventListener('mouseenter', positionDropdown);
+    item.addEventListener('focusin', positionDropdown);
+    window.addEventListener('resize', function(){
+      if(item.matches(':hover, :focus-within')) positionDropdown();
+    });
+  }
+  btn.addEventListener('click', function(e){
+    if(hasDropdown && !window.matchMedia('(hover: hover)').matches && !item.classList.contains('dropdown-open')){
+      /* first tap on a touch device: open the submenu instead of jumping
+         straight to the tab (the tab's own top section is always the
+         dropdown's first entry anyway, so nothing is out of reach) */
+      e.preventDefault();
+      document.querySelectorAll('.tabbar-item.dropdown-open').forEach(function(o){ o.classList.remove('dropdown-open'); });
+      positionDropdown();
+      item.classList.add('dropdown-open');
+      return;
+    }
+    item.classList.remove('dropdown-open');
+    showTab(btn.getAttribute('data-tab'));
   });
+});
+/* tapping anywhere outside an open touch-mode dropdown closes it */
+document.addEventListener('click', function(e){
+  if(e.target.closest('.tabbar-item.has-dropdown')) return;
+  document.querySelectorAll('.tabbar-item.dropdown-open').forEach(function(o){ o.classList.remove('dropdown-open'); });
 });
 /* deep link support, e.g. index.html#blog coming back from a blog post, or
    index.html#coaching-testimonials linking straight to one dropdown section */
