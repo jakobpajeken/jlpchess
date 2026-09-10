@@ -107,12 +107,17 @@
   .article-figure figcaption.credit{margin-top:4px;font-size:0.72rem;opacity:0.75;font-style:normal;}
 
   /* embedded game-replay widget — same look as the "Best games" tool on
-     the career page (index.html), just without its picker/admin chrome,
-     since here each block always shows exactly one specific game. */
-  .embedded-game{
-    margin:44px 0;padding:36px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-    display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start;
+     the career page (index.html). A [game:ID] marker embeds one game with
+     no picker; a [games:ID,ID,...] marker embeds several sharing a single
+     board, with a dropdown above it to switch between them — same idea as
+     the career page's game picker. */
+  .embedded-game{margin:44px 0;padding:36px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .embedded-game .games-controls-top{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;}
+  .embedded-game .games-controls-top select{
+    background:var(--surface);border:1px solid var(--line);color:var(--ivory);
+    font-family:'Inter',sans-serif;font-size:0.9rem;padding:11px 14px;min-width:220px;
   }
+  .embedded-game .games-layout{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start;}
   .embedded-game .board-wrap{display:flex;flex-direction:column;gap:10px;align-items:center;}
   .embedded-game .player-label{
     font-family:'Spectral',serif;font-size:1.15rem;color:var(--ivory);
