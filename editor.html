@@ -975,16 +975,16 @@ async function translateEnToDe(text){ return translateText(text, 'EN', 'DE'); }
 async function translateDeToEn(text){ return translateText(text, 'DE', 'EN'); }
 /* translates only the caption inside a ![caption](path "credit") marker,
    leaving the path/credit and any [game:ID] marker untouched */
-async function translateBodyParagraph(para){
+async function translateBodyParagraph(para, sourceLang, targetLang){
   if(/^\[game:/.test(para)) return para; /* game marker — nothing to translate */
   var imgMatch = /^!\[([^\]]*)\](\([^)]+\))$/.exec(para);
   if(imgMatch){
     var caption = imgMatch[1];
     if(!caption.trim()) return para;
-    var translatedCaption = await translateEnToDe(caption);
+    var translatedCaption = await translateText(caption, sourceLang, targetLang);
     return '![' + translatedCaption + ']' + imgMatch[2];
   }
-  return await translateEnToDe(para);
+  return await translateText(para, sourceLang, targetLang);
 }
 /* wires a single translate button that reads sourceFieldId, translates it,
    and writes into targetFieldId — used to give every EN/DE field pair in
@@ -1278,7 +1278,7 @@ function openBlogForm(idx){
         var translated = [];
         for(var i = 0; i < bodyParas.length; i++){
           statusEl.textContent = 'Übersetze Absatz ' + (i + 1) + ' von ' + bodyParas.length + ' …';
-          translated.push(await translateBodyParagraph(bodyParas[i]));
+          translated.push(await translateBodyParagraph(bodyParas[i], 'EN', 'DE'));
         }
         document.getElementById('bf-body-de').value = translated.join('\n\n');
       }
