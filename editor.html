@@ -1026,9 +1026,12 @@ function openBlogForm(idx){
     '<div class="field"><label>Text (Deutsch)</label><span class="hint">Wird Absatz für Absatz automatisch übersetzt (Bilder/Partien bleiben an der gleichen Stelle) — danach frei bearbeitbar.</span>' +
     '<textarea id="bf-body-de" class="tall">' + escapeHtml(bodyDeParas.join('\n\n')) + '</textarea></div>' +
     '<div class="field"><label>Partien in diesem Beitrag (optional)</label>' +
-    '<span class="hint">Hier Partien hinzufügen, dann mit „In Text einfügen“ an der gewünschten Stelle im englischen Text platzieren — orientiert am Partienachspiel-Tool der Karriere-Seite.</span>' +
+    '<span class="hint">Hier Partien hinzufügen, dann mit „In Text einfügen“ an der gewünschten Stelle im englischen Text platzieren. Mehrere Partien ankreuzen und „Auswahl als ein Brett einfügen“ klicken, um sie wie auf der Karriere-Seite in einem gemeinsamen Brett mit Auswahlmenü darzustellen.</span>' +
     '<div class="item-list" id="bf-games-list"></div>' +
+    '<div class="inline-image-row">' +
     '<button type="button" class="btn small" id="bf-games-add-btn">+ Partie hinzufügen</button>' +
+    '<button type="button" class="btn small" id="bf-games-insert-group-btn">🎯 Auswahl als ein Brett einfügen</button>' +
+    '</div>' +
     '<div id="bf-games-form-slot"></div></div>' +
     '<div class="form-row">' +
     '<div class="field"><label>Hervorgehobenes Zitat (Englisch, optional)</label><textarea id="bf-quote-en">' + escapeHtml(quoteSplit.en) + '</textarea></div>' +
