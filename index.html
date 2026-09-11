@@ -1751,7 +1751,7 @@ function advanceTesti(direction){
 function startTestiTimer(){
   if(testiTimer){ clearInterval(testiTimer); testiTimer = null; }
   if(!testiList || testiList.length <= 1) return;
-  testiTimer = setInterval(function(){ advanceTesti(1); }, 5000);
+  testiTimer = setInterval(function(){ advanceTesti(1); }, 7000);
 }
 /* arrow clicks / swipes call this — same as the auto-rotation, but also
    restarts the countdown so a manual jump doesn't get instantly overridden
