@@ -26,10 +26,15 @@
      it stays legible at tiny tab sizes — navy fill matches --gold, so
      update it here too if the site's theme changes again -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='6' width='24' height='4' fill='%231f3a5f'/%3E%3Crect x='4' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='13.5' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='23' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='6' y='10' width='20' height='16' fill='%231f3a5f'/%3E%3Crect x='4' y='26' width='24' height='4' rx='2' fill='%231f3a5f'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* Fonts are self-hosted (fonts/*.woff2) instead of loaded live from
+     Google's servers — see index.html for why. Kept in sync there. */
+  @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
+  @font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
+  @font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
+  @font-face{font-family:'Spectral';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/Spectral-500-normal.woff2') format('woff2');}
+  @font-face{font-family:'Spectral';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/Spectral-600-normal.woff2') format('woff2');}
+
   :root{
     /* "Oxford & Kreide" — kept in sync with index.html's palette;
        --ok/--err stay the same darkened tones as before, since they were
