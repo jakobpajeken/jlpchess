@@ -1616,8 +1616,49 @@ var testiTimer = null;
 function showTesti(idx){
   var grid = document.getElementById('testi-grid');
   if(!grid || !testiList || !testiList[idx]) return;
-  grid.innerHTML = '<div class="quote">' + escapeHtml(testiList[idx].quote) + '</div>' +
-    '<div class="who">' + escapeHtml(testiList[idx].who) + '</div>';
+  /* update the existing quote/who elements' text rather than rebuilding
+     them, so the pinned min-height (see measureAndPinTestiHeight) survives
+     from one rotation to the next instead of being wiped by innerHTML */
+  var quoteEl = grid.querySelector('.quote');
+  var whoEl = grid.querySelector('.who');
+  if(!quoteEl || !whoEl){
+    grid.innerHTML = '<div class="quote"></div><div class="who"></div>';
+    quoteEl = grid.querySelector('.quote');
+    whoEl = grid.querySelector('.who');
+  }
+  quoteEl.textContent = testiList[idx].quote;
+  whoEl.textContent = testiList[idx].who;
+}
+var testiHeightObserverSet = false;
+/* pins the quote field's min-height to whichever testimonial needs the most
+   room, measured via an invisible same-width probe — so the area below it
+   (the "who" line, the CTA box after it) never shifts as shorter/longer
+   quotes rotate through */
+function measureAndPinTestiHeight(){
+  var grid = document.getElementById('testi-grid');
+  if(!grid || !testiList || !testiList.length) return;
+  var quoteEl = grid.querySelector('.quote');
+  if(!quoteEl) return;
+  quoteEl.style.minHeight = ''; /* reset first, so an old pin can't skew this measurement */
+  var width = quoteEl.getBoundingClientRect().width;
+  if(!width) return;
+  var probe = document.createElement('div');
+  probe.className = 'quote';
+  probe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;left:-9999px;top:0;min-height:0;width:' + width + 'px;';
+  grid.appendChild(probe);
+  var maxH = 0;
+  testiList.forEach(function(t){
+    probe.textContent = t.quote;
+    maxH = Math.max(maxH, probe.getBoundingClientRect().height);
+  });
+  grid.removeChild(probe);
+  quoteEl.style.minHeight = maxH + 'px';
+  /* width (and so wrapping) can change later, e.g. on window resize —
+     keep the pin in sync; set up once, not on every render */
+  if(!testiHeightObserverSet && window.ResizeObserver){
+    testiHeightObserverSet = true;
+    new ResizeObserver(function(){ measureAndPinTestiHeight(); }).observe(grid);
+  }
 }
 function renderTestiGrid(){
   var grid = document.getElementById('testi-grid');
