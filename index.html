@@ -410,8 +410,13 @@
 <div class="tabbar-outer">
   <div class="wrap">
     <nav class="tabbar" role="tablist">
-      <div class="tabbar-item">
+      <div class="tabbar-item has-dropdown">
         <button type="button" role="tab" data-tab="about" class="active" data-i18n="nav.about">About me</button>
+        <div class="tab-dropdown">
+          <a href="#about-bio" data-tab="about" data-i18n="about.heading">About me</a>
+          <a href="#contact-form" data-tab="about" data-i18n="cta.heading">Get in touch</a>
+          <a href="#contact-social" data-tab="about" data-i18n="navsub.social">Social Media</a>
+        </div>
       </div>
       <div class="tabbar-item has-dropdown">
         <button type="button" role="tab" data-tab="career" data-i18n="nav.career">Career</button>
@@ -430,13 +435,6 @@
           <a href="#coaching-process" data-tab="coaching" data-i18n="navsub.process">Getting Started</a>
           <a href="#coaching-testimonials" data-tab="coaching" data-i18n="testi.heading">What students say</a>
           <a href="#coaching-cta" data-tab="coaching" data-i18n="navsub.trainingRequest">Training Request</a>
-        </div>
-      </div>
-      <div class="tabbar-item has-dropdown">
-        <button type="button" role="tab" data-tab="contact" data-i18n="nav.contact">Contact &amp; Socials</button>
-        <div class="tab-dropdown">
-          <a href="#contact-form" data-tab="contact" data-i18n="cta.heading">Get in touch</a>
-          <a href="#contact-social" data-tab="contact" data-i18n="navsub.social">Social Media</a>
         </div>
       </div>
     </nav>
