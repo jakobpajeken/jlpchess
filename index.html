@@ -1137,19 +1137,19 @@ document.querySelectorAll('.tabbar button[data-tab]').forEach(function(btn){
          straight to the tab (the tab's own top section is always the
          dropdown's first entry anyway, so nothing is out of reach) */
       e.preventDefault();
-      document.querySelectorAll('.tabbar-item.dropdown-open').forEach(function(o){ o.classList.remove('dropdown-open'); });
+      document.querySelectorAll('.tabbar-item.dropdown-open').forEach(closeTabDropdown);
       positionDropdown();
       item.classList.add('dropdown-open');
       return;
     }
-    item.classList.remove('dropdown-open');
+    closeTabDropdown(item);
     showTab(btn.getAttribute('data-tab'));
   });
 });
 /* tapping anywhere outside an open touch-mode dropdown closes it */
 document.addEventListener('click', function(e){
   if(e.target.closest('.tabbar-item.has-dropdown')) return;
-  document.querySelectorAll('.tabbar-item.dropdown-open').forEach(function(o){ o.classList.remove('dropdown-open'); });
+  document.querySelectorAll('.tabbar-item.dropdown-open').forEach(closeTabDropdown);
 });
 /* deep link support, e.g. index.html#blog coming back from a blog post, or
    index.html#coaching-testimonials linking straight to one dropdown section */
