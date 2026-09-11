@@ -803,8 +803,15 @@ function renderRealPost(post){
   var bodyEl = document.getElementById('post-body');
   if(bodyEl){
     var bodyParas = (post.body && post.body[lang] && post.body[lang].length) ? post.body[lang] : ((post.body && post.body.en) || (Array.isArray(post.body) ? post.body : []));
-    /* **bold** -> <strong> — applied to already-escaped text, so it's safe */
-    var renderInline = function(text){ return escapeHtml(text).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); };
+    /* **bold** -> <strong>, [text](url) -> <a> — applied to already-escaped
+       text, so it's safe. Link syntax matters for e.g. affiliate/partner
+       links inside a post's body text (opens in a new tab so the reader
+       doesn't lose their place in the article). */
+    var renderInline = function(text){
+      return escapeHtml(text)
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    };
     var html = '';
     var lead = pickLang(post.lead);
     if(lead) html += '<p class="lead">' + renderInline(lead) + '</p>';
