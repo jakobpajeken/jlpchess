@@ -1638,6 +1638,19 @@ async function deleteTesti(idx){
 /* ============================================================
    ERFOLGE (Career results: titles/norms, team, national, full list)
    ============================================================ */
+/* newest first: pulls the leading year out of an entry's text (e.g. "2018 —
+   ..." or "2016, 2018 — ..." uses 2016, the first one) and sorts by that,
+   descending. Ties (same year) keep their existing relative order. */
+function extractResultYear(entry){
+  var text = (entry && typeof entry === 'object') ? (entry.de || entry.en || '') : (entry || '');
+  var m = /\d{4}/.exec(text);
+  return m ? parseInt(m[0], 10) : 0;
+}
+function sortResultsCategory(cat){
+  results[cat] = results[cat].map(function(entry, idx){ return { entry: entry, idx: idx }; })
+    .sort(function(a, b){ return extractResultYear(b.entry) - extractResultYear(a.entry) || a.idx - b.idx; })
+    .map(function(x){ return x.entry; });
+}
 var RESULTS_META = {
   titles: { label: 'Normen & Titel', listId: 'er-titles-list', addBtnId: 'er-titles-add', formSlotId: 'er-titles-form-slot' },
   team: { label: 'Mannschaftserfolge', listId: 'er-team-list', addBtnId: 'er-team-add', formSlotId: 'er-team-form-slot' },
