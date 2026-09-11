@@ -1586,6 +1586,7 @@ function openTestiForm(idx){
   var editing = idx != null;
   var t = editing ? testimonials[idx] : { quote: '', who: '' };
   var quoteSplit = splitLangValue(t.quote);
+  var whoSplit = splitLangValue(t.who);
   var slot = document.getElementById('testi-form-slot');
   slot.innerHTML =
     '<form class="entry-form" id="testi-form">' +
