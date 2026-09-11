@@ -371,7 +371,12 @@
   @media (max-width:840px){.cta-box{grid-template-columns:1fr;padding:36px 28px;}}
 
   footer{padding:32px 0;}
-  footer .wrap{display:flex;justify-content:space-between;color:var(--ivory-dim);font-size:0.82rem;flex-wrap:wrap;gap:10px;}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;color:var(--ivory-dim);font-size:0.82rem;flex-wrap:wrap;gap:14px;}
+  .footer-info{display:flex;flex-wrap:wrap;gap:10px;}
+  .footer-donate{display:flex;align-items:center;gap:8px;opacity:0.55;}
+  .footer-donate-icon{width:17px;height:17px;flex-shrink:0;}
+  .footer-donate-icon svg{width:100%;height:100%;display:block;}
+  .footer-donate strong{color:var(--ivory-dim);font-weight:600;}
 
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none !important;}}
 </style>
@@ -797,8 +802,14 @@
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Jakob Leon Pajeken</span>
-    <span data-i18n="footer.note">Tournament results and ratings as reported by the player</span>
+    <div class="footer-info">
+      <span>© 2026 Jakob Leon Pajeken</span>
+      <span data-i18n="footer.note">Tournament results and ratings as reported by the player</span>
+    </div>
+    <div class="footer-donate placeholder">
+      <span class="footer-donate-icon"><svg viewBox="0 0 24 24"><path d="M8.6 4.6h5.1c2.5 0 4.2 1.7 3.8 4.2-.4 2.6-2.5 4.2-5.1 4.2H10l-.8 4.9H6.5L8.6 4.6Z" fill="#009cde"/><path d="M7.1 6.5h5.1c2.5 0 4.2 1.7 3.8 4.2-.4 2.6-2.5 4.2-5.1 4.2H8.5l-.8 4.9H5L7.1 6.5Z" fill="#003087"/></svg></span>
+      <span data-i18n="footer.donate">Enjoy my work? You can support my chess projects via PayPal. <strong>Support me →</strong></span>
+    </div>
   </div>
 </footer>
 
@@ -944,7 +955,8 @@ const i18n = {
   "cta.orDm":{en:"or message me on WhatsApp (+49 176 63258882) for a fast reply",de:"oder schreib mir auf WhatsApp (+49 176 63258882) für eine schnelle Antwort"},
   "social.heading":{en:"Find me online",de:"Auch hier zu finden"},
   "social.sub":{en:"Follow my games and training, or catch up with me elsewhere.",de:"Folge meinen Partien und meinem Training, oder erreiche mich auch anderswo."},
-  "footer.note":{en:"Tournament results and ratings as reported by the player",de:"Turnierergebnisse und Elo-Zahlen nach Angaben des Spielers"}
+  "footer.note":{en:"Tournament results and ratings as reported by the player",de:"Turnierergebnisse und Elo-Zahlen nach Angaben des Spielers"},
+  "footer.donate":{en:"Enjoy my work? You can support my chess projects via PayPal. <strong>Support me →</strong>",de:"Gefällt dir meine Arbeit? Du kannst meine Schachprojekte über PayPal unterstützen. <strong>Jetzt unterstützen →</strong>"}
 };
 
 /* Picks the right language out of a value that may be either a plain
