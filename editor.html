@@ -1006,7 +1006,26 @@ async function translateBodyParagraph(para, sourceLang, targetLang){
     var translatedCaption = await translateText(caption, sourceLang, targetLang);
     return '![' + translatedCaption + ']' + imgMatch[2];
   }
-  return await translateText(para, sourceLang, targetLang);
+  /* inline links, e.g. an affiliate link mid-sentence — [text](url). Pull
+     each one out into a placeholder token before translating the
+     surrounding prose (so the translator can't mangle the raw markdown
+     syntax or the URL), translate the link's own display text separately,
+     then stitch it back in with the URL untouched. */
+  var linkRe = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  var links = [];
+  var withPlaceholders = para.replace(linkRe, function(match, text, url){
+    var token = '⟦LINK' + links.length + '⟧';
+    links.push({ text: text, url: url });
+    return token;
+  });
+  if(!links.length) return await translateText(para, sourceLang, targetLang);
+  var translatedText = await translateText(withPlaceholders, sourceLang, targetLang);
+  for(var i = 0; i < links.length; i++){
+    var translatedLinkText = await translateText(links[i].text, sourceLang, targetLang);
+    var placeholder = '⟦LINK' + i + '⟧';
+    translatedText = translatedText.split(placeholder).join('[' + translatedLinkText + '](' + links[i].url + ')');
+  }
+  return translatedText;
 }
 /* wires a single translate button that reads sourceFieldId, translates it,
    and writes into targetFieldId — used to give every EN/DE field pair in
