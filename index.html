@@ -218,11 +218,20 @@
   @media (max-width:640px){.full-list{columns:1;}}
 
   /* testimonials */
-  .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
-  .testi-card{background:var(--ink);padding:32px;display:flex;flex-direction:column;gap:16px;}
-  .testi-card .quote{font-family:'Spectral',serif;font-size:1.05rem;font-style:italic;color:var(--ivory);flex-grow:1;}
-  .testi-card .who{font-size:0.84rem;color:var(--ivory-dim);}
-  @media (max-width:840px){.testi-grid{grid-template-columns:1fr;}}
+  /* single testimonial, full width, auto-rotating — see renderTestiGrid().
+     quotes come from the CSS quotes/open-quote/close-quote mechanism (not
+     typed into the data) so they stay consistent and language-correct. */
+  .testi-rotator{width:100%;transition:opacity .4s ease;}
+  .testi-rotator.testi-fade{opacity:0;}
+  .testi-rotator .quote{
+    font-family:'Spectral',serif;font-size:1.4rem;font-style:italic;color:var(--ivory);
+    line-height:1.5;margin:0 0 18px;quotes:'"' '"';
+  }
+  .testi-rotator .quote::before{content:open-quote;}
+  .testi-rotator .quote::after{content:close-quote;}
+  :lang(de) .testi-rotator .quote{quotes:'„' '"';}
+  .testi-rotator .who{font-size:0.86rem;color:var(--ivory-dim);}
+  @media (prefers-reduced-motion: reduce){.testi-rotator{transition:none;}}
 
   /* blog */
   .blog-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);}
@@ -519,22 +528,13 @@
         <h2 data-i18n="testi.heading">What students say</h2>
         <p class="coaching-emphasis" data-i18n="testi.sub">The experiences of people who took the next step.</p>
       </div>
-      <div class="testi-grid" id="testi-grid">
-        <div class="testi-card">
-          <div class="quote" data-i18n="testi.q1">Add a short quote from a student here — what changed in their game or how they train.</div>
-          <div class="who" data-i18n="testi.w1">Student name, rating or level</div>
-        </div>
-        <div class="testi-card">
-          <div class="quote" data-i18n="testi.q2">Add a short quote from a student here — what changed in their game or how they train.</div>
-          <div class="who" data-i18n="testi.w2">Student name, rating or level</div>
-        </div>
-        <div class="testi-card">
-          <div class="quote" data-i18n="testi.q3">Add a short quote from a student here — what changed in their game or how they train.</div>
-          <div class="who" data-i18n="testi.w3">Student name, rating or level</div>
-        </div>
+      <div class="testi-rotator" id="testi-grid">
+        <div class="quote" data-i18n="testi.q1">Add a short quote from a student here — what changed in their game or how they train.</div>
+        <div class="who" data-i18n="testi.w1">Student name, rating or level</div>
       </div>
-      <!-- fallback cards above; replaced by data/testimonials.json content
-           via JS below once you add real testimonials with editor.html -->
+      <!-- fallback above; replaced by data/testimonials.json content via JS
+           below once you add real testimonials with editor.html — then it
+           rotates through all of them automatically, one at a time -->
     </div>
 
     <div class="tab-subsection scroll-target" id="coaching-cta">
