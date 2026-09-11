@@ -391,7 +391,8 @@
 
   footer{padding:32px 0;}
   footer .wrap{display:flex;justify-content:space-between;align-items:center;color:var(--ivory-dim);font-size:0.82rem;flex-wrap:wrap;gap:14px;}
-  .footer-info{display:flex;flex-wrap:wrap;gap:10px;}
+  .footer-info{display:flex;flex-wrap:wrap;align-items:center;}
+  .footer-info>*:not(:last-child)::after{content:'·';margin:0 10px;color:var(--ivory-dim);}
   .footer-legal-link{color:var(--ivory-dim);text-decoration:none;}
   .footer-legal-link:hover{color:var(--gold-bright);text-decoration:underline;}
   .footer-donate{display:flex;align-items:center;gap:8px;opacity:0.55;}
