@@ -1052,6 +1052,8 @@ function renderGames(){
       '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(g.title) || '(ohne Titel)') + '</div>' +
       '<div class="item-sub">' + escapeHtml(g.meta || '') + '</div></div>' +
       '<div class="item-actions">' +
+      '<button type="button" class="btn small move-btn" data-up="' + idx + '" title="Nach oben" aria-label="Nach oben"' + (idx === 0 ? ' disabled' : '') + '>▲</button>' +
+      '<button type="button" class="btn small move-btn" data-down="' + idx + '" title="Nach unten" aria-label="Nach unten"' + (idx === games.length - 1 ? ' disabled' : '') + '>▼</button>' +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
       '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
       '</div>';
@@ -1059,6 +1061,24 @@ function renderGames(){
   });
   list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openGameForm(parseInt(b.dataset.edit, 10)); }); });
   list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteGame(parseInt(b.dataset.del, 10)); }); });
+  list.querySelectorAll('[data-up]').forEach(function(b){ b.addEventListener('click', function(){ moveGame(parseInt(b.dataset.up, 10), -1); }); });
+  list.querySelectorAll('[data-down]').forEach(function(b){ b.addEventListener('click', function(){ moveGame(parseInt(b.dataset.down, 10), 1); }); });
+}
+/* Moves the entry at idx by direction (-1 = up/earlier, 1 = down/later) and
+   persists the new order — array order is exactly the display order used
+   both by the games dropdown on index.html and the testimonial rotation,
+   so this is the only thing that needs to change to reorder them there. */
+async function moveGame(idx, direction){
+  var target = idx + direction;
+  if(target < 0 || target >= games.length) return;
+  var tmp = games[idx]; games[idx] = games[target]; games[target] = tmp;
+  try{ await writeJson('games.json', games); renderGames(); }
+  catch(err){
+    /* revert the in-memory swap so the list doesn't silently drift out of
+       sync with the file if the write failed */
+    tmp = games[idx]; games[idx] = games[target]; games[target] = tmp;
+    showToast('Verschieben fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
 }
 function openGameForm(idx){
   var editing = idx != null;
