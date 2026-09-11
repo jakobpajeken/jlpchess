@@ -1642,8 +1642,14 @@ function renderTestiGrid(){
         showTesti(testiIndex);
         g.classList.remove('testi-out');
         g.classList.add('testi-in'); /* jump it to the right, no transition */
-        void g.offsetWidth; /* force layout so that jump applies before... */
-        g.classList.remove('testi-in'); /* ...animating back in from the right */
+        /* two rAFs (not just a reflow read) so the browser actually PAINTS
+           that jumped position before the next class change animates it —
+           a single forced reflow wasn't reliably enough here */
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            g.classList.remove('testi-in'); /* animate back in from the right */
+          });
+        });
       }, 400);
     }, 6000);
   }
