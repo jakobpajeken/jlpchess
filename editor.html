@@ -1599,6 +1599,8 @@ function renderTesti(){
       '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(t.who) || '(ohne Namen)') + '</div>' +
       '<div class="item-sub">' + (quotePreview ? '„' + escapeHtml(quotePreview) + '"' : '') + '</div></div>' +
       '<div class="item-actions">' +
+      '<button type="button" class="btn small move-btn" data-up="' + idx + '" title="Nach oben" aria-label="Nach oben"' + (idx === 0 ? ' disabled' : '') + '>▲</button>' +
+      '<button type="button" class="btn small move-btn" data-down="' + idx + '" title="Nach unten" aria-label="Nach unten"' + (idx === testimonials.length - 1 ? ' disabled' : '') + '>▼</button>' +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
       '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
       '</div>';
@@ -1606,6 +1608,20 @@ function renderTesti(){
   });
   list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openTestiForm(parseInt(b.dataset.edit, 10)); }); });
   list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteTesti(parseInt(b.dataset.del, 10)); }); });
+  list.querySelectorAll('[data-up]').forEach(function(b){ b.addEventListener('click', function(){ moveTesti(parseInt(b.dataset.up, 10), -1); }); });
+  list.querySelectorAll('[data-down]').forEach(function(b){ b.addEventListener('click', function(){ moveTesti(parseInt(b.dataset.down, 10), 1); }); });
+}
+/* same reasoning as moveGame() above — array order is the rotation order
+   shown on index.html */
+async function moveTesti(idx, direction){
+  var target = idx + direction;
+  if(target < 0 || target >= testimonials.length) return;
+  var tmp = testimonials[idx]; testimonials[idx] = testimonials[target]; testimonials[target] = tmp;
+  try{ await writeJson('testimonials.json', testimonials); renderTesti(); }
+  catch(err){
+    tmp = testimonials[idx]; testimonials[idx] = testimonials[target]; testimonials[target] = tmp;
+    showToast('Verschieben fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
 }
 function openTestiForm(idx){
   var editing = idx != null;
