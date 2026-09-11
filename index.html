@@ -136,10 +136,13 @@
   .section-head h2{font-size:clamp(1.6rem,2.8vw,2.15rem);max-width:13ch;}
   .best-games .section-head h2{max-width:none;white-space:nowrap;}
   .section-head p{color:var(--ivory-dim);max-width:54ch;margin:0;}
-  .section-head .coaching-tagline{
-    color:var(--gold);font-family:'Spectral',serif;font-weight:700;
-    font-style:italic;font-size:1.3rem;line-height:1.4;
+  /* shared "emphasis" treatment for intro sentences within the Coaching tab
+     only — doubled class beats any surrounding "X p" rule (.section-head p,
+     .cta-box p, ...) regardless of which container it's used in */
+  .coaching-emphasis.coaching-emphasis{
+    color:var(--gold);font-family:'Spectral',serif;font-weight:700;font-style:italic;
   }
+  .coaching-tagline.coaching-tagline{font-size:1.3rem;line-height:1.4;}
   .section-head.single{grid-template-columns:1fr;}
   @media (max-width:840px){.section-head,.hero-grid{grid-template-columns:1fr;}
     .hero-stats{border-left:none;padding-left:0;border-top:1px solid var(--line);padding-top:26px;flex-direction:row;flex-wrap:wrap;}}
