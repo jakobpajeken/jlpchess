@@ -205,6 +205,8 @@
 
   footer{padding:32px 0;}
   footer .wrap{display:flex;justify-content:space-between;color:var(--ivory-dim);font-size:0.82rem;flex-wrap:wrap;gap:10px;}
+  .footer-legal-link{color:var(--ivory-dim);text-decoration:none;}
+  .footer-legal-link:hover{color:var(--gold-bright);text-decoration:underline;}
 
   @media (max-width:600px){
     .article-wrap{padding:0 22px;}
@@ -261,6 +263,8 @@
   <div class="wrap">
     <span>&copy; 2026 Jakob Leon Pajeken</span>
     <span data-i18n="post.footernote">Tournament results and ratings as reported by the player</span>
+    <a href="impressum.html" class="footer-legal-link">Impressum</a>
+    <a href="datenschutz.html" class="footer-legal-link" data-i18n="post.footerprivacy">Privacy Policy</a>
   </div>
 </footer>
 
@@ -279,7 +283,8 @@ var i18n = {
   "post.quote":{en:"Add a pull quote here — a key idea, a memorable line from a game, or a takeaway worth highlighting on its own.",de:"Hier ein hervorgehobenes Zitat einfügen — eine Kernidee, einen einprägsamen Satz aus einer Partie, oder eine Erkenntnis, die es wert ist, besonders hervorgehoben zu werden."},
   "post.p3":{en:"Add a closing paragraph here — a takeaway for the reader, a question to think about, or a pointer to what to study next.",de:"Hier einen Schlussabsatz einfügen — eine Erkenntnis für die Leser, eine Frage zum Nachdenken, oder einen Hinweis, was als Nächstes zu üben ist."},
   "post.moreposts":{en:"← More posts",de:"← Weitere Beiträge"},
-  "post.footernote":{en:"Tournament results and ratings as reported by the player",de:"Turnierergebnisse und Elo-Zahlen nach Angaben des Spielers"}
+  "post.footernote":{en:"Tournament results and ratings as reported by the player",de:"Turnierergebnisse und Elo-Zahlen nach Angaben des Spielers"},
+  "post.footerprivacy":{en:"Privacy Policy",de:"Datenschutz"}
 };
 var loadedRealPost = false; /* true once a real post from data/blog.json has replaced the placeholder */
 function applyLang(lang){
