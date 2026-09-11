@@ -1092,12 +1092,20 @@ document.querySelectorAll('[data-goto-tab]').forEach(function(el){
     showTab(el.getAttribute('data-goto-tab'), el.getAttribute('data-goto-section') || undefined);
   });
 });
+/* closes a touch-opened dropdown AND blurs whatever's focused inside it —
+   on mobile, tapping a button leaves it focused, and :focus-within (there
+   for keyboard users) would otherwise keep the dropdown showing even after
+   the dropdown-open class above is gone and the page has moved on */
+function closeTabDropdown(item){
+  item.classList.remove('dropdown-open');
+  if(item.contains(document.activeElement)) document.activeElement.blur();
+}
 /* per-tab dropdown links (hover menus in the tab bar) — jump to the tab
    AND scroll straight to that section */
 document.querySelectorAll('.tab-dropdown a[data-tab]').forEach(function(a){
   a.addEventListener('click', function(e){
     e.preventDefault();
-    a.closest('.tabbar-item').classList.remove('dropdown-open');
+    closeTabDropdown(a.closest('.tabbar-item'));
     showTab(a.getAttribute('data-tab'), a.getAttribute('href').replace('#', ''));
   });
 });
