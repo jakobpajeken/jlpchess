@@ -1606,16 +1606,43 @@ if(blogLoadMoreBtn){
 
 /* ---------- testimonials, loaded from data/testimonials.json ---------- */
 var testimonialsData = null;
+/* one testimonial visible at a time, auto-rotating every few seconds —
+   testiList holds the current language's resolved {quote, who} pairs,
+   testiIndex which one is showing, testiTimer the rotation interval */
+var testiList = null;
+var testiIndex = 0;
+var testiTimer = null;
+function showTesti(idx){
+  var grid = document.getElementById('testi-grid');
+  if(!grid || !testiList || !testiList[idx]) return;
+  grid.innerHTML = '<div class="quote">' + escapeHtml(testiList[idx].quote) + '</div>' +
+    '<div class="who">' + escapeHtml(testiList[idx].who) + '</div>';
+}
 function renderTestiGrid(){
-  if(!Array.isArray(testimonialsData) || !testimonialsData.length) return; /* keep the fallback cards */
   var grid = document.getElementById('testi-grid');
   if(!grid) return;
-  grid.innerHTML = testimonialsData.map(function(t){
-    return '<div class="testi-card">' +
-      '<div class="quote">' + escapeHtml(pickLang(t.quote)) + '</div>' +
-      '<div class="who">' + escapeHtml(t.who) + '</div>' +
-      '</div>';
-  }).join('');
+  var lang = currentSiteLang();
+  if(Array.isArray(testimonialsData) && testimonialsData.length){
+    testiList = testimonialsData.map(function(t){ return { quote: pickLang(t.quote), who: t.who }; });
+  } else {
+    /* keep the fallback quote (still real data-i18n placeholder text) */
+    testiList = [{ quote: i18n['testi.q1'][lang], who: i18n['testi.w1'][lang] }];
+  }
+  if(testiIndex >= testiList.length) testiIndex = 0;
+  showTesti(testiIndex);
+  if(testiTimer){ clearInterval(testiTimer); testiTimer = null; }
+  if(testiList.length > 1){
+    testiTimer = setInterval(function(){
+      var g = document.getElementById('testi-grid');
+      if(!g) return;
+      g.classList.add('testi-fade');
+      setTimeout(function(){
+        testiIndex = (testiIndex + 1) % testiList.length;
+        showTesti(testiIndex);
+        g.classList.remove('testi-fade');
+      }, 400);
+    }, 6000);
+  }
 }
 function loadTestimonialsData(){
   fetch('data/testimonials.json', { cache: 'no-store' })
