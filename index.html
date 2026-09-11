@@ -1672,6 +1672,7 @@ function renderTestiGrid(){
   }
   if(testiIndex >= testiList.length) testiIndex = 0;
   showTesti(testiIndex);
+  measureAndPinTestiHeight();
   if(testiTimer){ clearInterval(testiTimer); testiTimer = null; }
   if(testiList.length > 1){
     testiTimer = setInterval(function(){
