@@ -1231,6 +1231,7 @@ function openBlogForm(idx){
     '</div>' +
     '<div class="field"><label>Text (Englisch)</label><span class="hint">Jeden Absatz durch eine Leerzeile trennen. Mit den Knöpfen fügst du an der Cursor-Position ein Bild oder eine Partie ein.</span>' +
     '<div class="inline-image-row"><button type="button" class="btn small" id="bf-insert-image">🖼 Bild in Text einfügen</button>' +
+    '<button type="button" class="btn small" id="bf-insert-link">🔗 Link einfügen</button>' +
     '<input type="file" id="bf-body-image-file" accept="image/*" hidden></div>' +
     '<textarea id="bf-body-en" class="tall">' + escapeHtml(bodyEnParas.join('\n\n')) + '</textarea></div>' +
     '<div class="field"><label>Text (Deutsch)</label><span class="hint">Wird Absatz für Absatz automatisch übersetzt (Bilder/Partien bleiben an der gleichen Stelle) — danach frei bearbeitbar.</span>' +
@@ -1324,6 +1325,26 @@ function openBlogForm(idx){
       showToast('Bild eingefügt ✓');
     }catch(err){ showToast('Bild konnte nicht gespeichert werden.', true); }
     insertImageBtn.disabled = false;
+  });
+
+  /* ---- inline link insertion into the (English) body text — e.g. for
+     affiliate/partner links. Inserted inline at the cursor, not as its own
+     paragraph like the image button above, since a link normally sits
+     inside a sentence rather than being a standalone block. */
+  document.getElementById('bf-insert-link').addEventListener('click', function(){
+    var url = window.prompt('Ziel-URL (mit https://):', 'https://');
+    if(!url || !url.trim()) return;
+    url = url.trim();
+    if(!/^https?:\/\//i.test(url)){ showToast('Die URL muss mit http:// oder https:// beginnen.', true); return; }
+    var text = window.prompt('Anzeigetext des Links:', '') || url;
+    var marker = '[' + text.replace(/[[\]]/g, '') + '](' + url + ')';
+    var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
+    var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
+    bodyTextarea.value = bodyTextarea.value.slice(0, start) + marker + bodyTextarea.value.slice(end);
+    var caretPos = start + marker.length;
+    bodyTextarea.focus();
+    bodyTextarea.setSelectionRange(caretPos, caretPos);
+    showToast('Link eingefügt ✓');
   });
 
   /* ---- translate the whole post (EN -> DE) with one click ---- */
