@@ -1719,6 +1719,7 @@ function openResultForm(cat, idx){
     if(!en && !de){ showToast('Bitte einen Text eingeben.', true); return; }
     var value = joinLangValue(en, de);
     if(editing) results[cat][idx] = value; else results[cat].push(value);
+    sortResultsCategory(cat); /* keep the newest-first order after every add/edit */
     try{
       await writeJson('results.json', results);
       slot.innerHTML = '';
