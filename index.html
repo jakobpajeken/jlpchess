@@ -337,14 +337,17 @@
   .cta-actions{display:flex;flex-direction:column;gap:14px;align-items:flex-start;}
   .contact-line{font-size:0.85rem;color:var(--gold-bright);text-decoration:underline;text-underline-offset:3px;}
   .contact-line:hover{color:var(--ivory);}
-  .social-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);}
-  .social-card{background:var(--ink);padding:28px 24px;display:flex;flex-direction:column;gap:10px;text-decoration:none;transition:background .15s;color:var(--gold-bright);}
-  a.social-card:hover{background:var(--surface);}
-  .social-card .social-icon{width:28px;height:28px;}
+  /* borderless row of brand icons in their own real colors, instead of a
+     bordered/boxed grid — the icons themselves carry the color now, so the
+     name label stays neutral (site ivory, gold on hover) rather than
+     fighting each brand's own hue */
+  .social-grid{display:flex;flex-wrap:wrap;gap:36px;}
+  .social-card{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-decoration:none;}
+  .social-card .social-icon{width:40px;height:40px;}
   .social-card .social-icon svg{width:100%;height:100%;display:block;}
-  .social-card .social-name{font-family:'Spectral',serif;font-size:1.1rem;color:inherit;}
-  .social-card.placeholder{cursor:default;color:var(--ivory-dim);}
-  @media (max-width:480px){.social-grid{grid-template-columns:1fr;}}
+  .social-card .social-name{font-family:'Spectral',serif;font-size:1rem;color:var(--ivory);transition:color .15s;}
+  a.social-card:hover .social-name{color:var(--gold-bright);}
+  .social-card.placeholder{cursor:default;opacity:0.45;}
   @media (max-width:840px){.cta-box{grid-template-columns:1fr;padding:36px 28px;}}
 
   footer{padding:32px 0;}
