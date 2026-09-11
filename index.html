@@ -370,8 +370,8 @@
     <div>
       <h1 class="name" data-i18n="hero.title">Jakob Leon <span class="accent">Pajeken</span> — <em>Chess &amp; <span class="accent">Coaching</span></em><span class="tagline">International Master · Tournament Player · Coach</span></h1>
       <div class="hero-cta">
-        <a href="#" class="btn solid" data-goto-tab="contact" data-i18n="hero.cta1">Book a first session</a>
-        <a href="#" class="btn" data-goto-tab="coaching" data-i18n="hero.cta2">My Coaching Approach</a>
+        <a href="#" class="btn solid" data-goto-tab="coaching" data-goto-section="coaching-cta" data-i18n="hero.cta1">Training Request</a>
+        <a href="#" class="btn" data-goto-tab="career" data-goto-section="career-results" data-i18n="hero.cta2">Career Highlights</a>
       </div>
     </div>
     <div class="hero-stats">
@@ -788,8 +788,8 @@ const i18n = {
   "navsub.trainingRequest":{en:"Training Request",de:"Trainingsanfrage"},
   "navsub.social":{en:"Social Media",de:"Social Media"},
   "hero.title":{en:'Jakob Leon <span class="accent">Pajeken</span> — <em>Chess &amp; <span class="accent">Coaching</span></em><span class="tagline">International Master · Tournament Player · Coach</span>',de:'Jakob Leon <span class="accent">Pajeken</span> — <em>Schach &amp; <span class="accent">Coaching</span></em><span class="tagline">Internationaler Meister · Turnierspieler · Trainer</span>'},
-  "hero.cta1":{en:"Get in touch",de:"Kontakt aufnehmen"},
-  "hero.cta2":{en:"My Coaching Approach",de:"Mein Trainingsansatz"},
+  "hero.cta1":{en:"Training Request",de:"Trainingsanfrage"},
+  "hero.cta2":{en:"Career Highlights",de:"Karrierehighlights"},
   "hero.stat1":{en:"FIDE rating",de:"FIDE-Elo"},
   "hero.stat1b":{en:"World ranking",de:"Weltranglistenplatz"},
   "hero.stat2fig":{en:"2 GM norms",de:"2 GM-Normen"},
@@ -1087,7 +1087,9 @@ function showTab(tabId, sectionId){
 document.querySelectorAll('[data-goto-tab]').forEach(function(el){
   el.addEventListener('click', function(e){
     e.preventDefault();
-    showTab(el.getAttribute('data-goto-tab'));
+    /* data-goto-section (optional): jump straight to a specific section
+       within that tab, same idea as the tab-dropdown links */
+    showTab(el.getAttribute('data-goto-tab'), el.getAttribute('data-goto-section') || undefined);
   });
 });
 /* per-tab dropdown links (hover menus in the tab bar) — jump to the tab
