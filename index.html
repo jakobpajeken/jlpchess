@@ -1665,7 +1665,7 @@ function renderTestiGrid(){
   if(!grid) return;
   var lang = currentSiteLang();
   if(Array.isArray(testimonialsData) && testimonialsData.length){
-    testiList = testimonialsData.map(function(t){ return { quote: pickLang(t.quote), who: t.who }; });
+    testiList = testimonialsData.map(function(t){ return { quote: pickLang(t.quote), who: pickLang(t.who) }; });
   } else {
     /* keep the fallback quote (still real data-i18n placeholder text) */
     testiList = [{ quote: i18n['testi.q1'][lang], who: i18n['testi.w1'][lang] }];
@@ -1687,7 +1687,7 @@ function renderTestiGrid(){
         void g.offsetWidth; /* force layout so that jump applies before... */
         g.classList.remove('testi-in'); /* ...animating back in from the right */
       }, 400);
-    }, 6000);
+    }, 5000);
   }
 }
 function loadTestimonialsData(){
