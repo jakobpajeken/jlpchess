@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<!--
+  PRIVACY POLICY / DATENSCHUTZERKLÄRUNG (Art. 13 DSGVO)
+  ======================================================
+  Bilingual (unlike impressum.html, which stays German-only on purpose) —
+  this page explains data subjects' rights, so it should be understandable
+  to English-speaking visitors too. Reuses the same EN/DE toggle pattern
+  and 'jlp-lang' localStorage key as index.html/blog-post.html, so the
+  language choice carries over between pages.
+  Fonts/colors/favicon kept in sync with index.html.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — IM Jakob Leon Pajeken</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='6' width='24' height='4' fill='%231f3a5f'/%3E%3Crect x='4' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='13.5' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='23' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='6' y='10' width='20' height='16' fill='%231f3a5f'/%3E%3Crect x='4' y='26' width='24' height='4' rx='2' fill='%231f3a5f'/%3E%3C/svg%3E">
+<style>
+  /* Fonts are self-hosted (fonts/*.woff2) instead of loaded live from
+     Google's servers — see index.html for why. Kept in sync there. */
+  @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
+  @font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
+  @font-face{font-family:'Spectral';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/Spectral-500-normal.woff2') format('woff2');}
+  @font-face{font-family:'Spectral';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/Spectral-600-normal.woff2') format('woff2');}
+
+  :root{
+    --ink:#f1f2f0;
+    --surface:#ffffff;
+    --ivory:#16202e;
+    --ivory-dim:#5b6474;
+    --gold:#1f3a5f;
+    --gold-bright:#35577f;
+    --line:rgba(22,32,46,0.13);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ink);color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:15px;line-height:1.7;}
+  .wrap{max-width:640px;margin:0 auto;padding:32px 24px 80px;}
+  a{color:var(--gold-bright);}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;}
+  .back-link{color:var(--ivory-dim);text-decoration:none;font-size:0.88rem;}
+  .back-link:hover{color:var(--gold-bright);}
+  .langtoggle{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden;flex-shrink:0;}
+  .langtoggle button{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.82rem;padding:6px 12px;cursor:pointer;letter-spacing:0.03em;}
+  .langtoggle button.active{background:var(--gold);color:var(--ink);}
+  h1{font-family:'Spectral',serif;font-weight:600;font-size:1.5rem;color:var(--ivory);margin:0 0 32px;}
+  h2{font-family:'Spectral',serif;font-weight:500;font-size:1.02rem;color:var(--ivory);margin:32px 0 8px;}
+  p{margin:0 0 10px;}
+  ul{margin:0 0 10px;padding-left:20px;}
+  li{margin-bottom:4px;}
+  [lang-block]{display:none;}
+  [lang-block].active{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a href="index.html" class="back-link" id="back-link">← Back to homepage</a>
+    <div class="langtoggle">
+      <button type="button" data-lang="en" class="active">EN</button>
+      <button type="button" data-lang="de">DE</button>
+    </div>
+  </div>
+
+  <div lang-block="en" class="active">
+    <h1>Privacy Policy</h1>
+
+    <h2>Data controller</h2>
+    <p>Jakob Leon Pajeken, Bismarckstraße 67, 20259 Hamburg, Germany.<br>Email: <a href="mailto:jakobpajeken@gmail.com">jakobpajeken@gmail.com</a></p>
+
+    <h2>Hosting (GitHub Pages)</h2>
+    <p>This site is hosted by GitHub, Inc. Every time you visit, your browser automatically sends certain access data to GitHub's servers (IP address, browser type, referrer, date/time of the request) — standard web server logging needed to technically deliver the page and keep it secure (Art. 6(1)(f) GDPR, legitimate interest). This may involve a transfer of data to the United States. See <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub's own Privacy Statement</a> for details.</p>
+
+    <h2>Fonts &amp; scripts</h2>
+    <p>All fonts used on this site are self-hosted — no data is sent to Google or any other font provider just to display text. The chess board relies on the small <em>chess.js</em> library, loaded from the cdnjs CDN (Cloudflare, Inc.); loading it causes your browser to connect to Cloudflare's servers, which — as with any web request — transmits your IP address as a purely technical necessity.</p>
+
+    <h2>Getting in touch</h2>
+    <p>If you email me, the message and any personal data you include (name, email address, content) are used solely to handle your inquiry (Art. 6(1)(b)/(f) GDPR). If you use the WhatsApp link instead, the conversation is handled by WhatsApp Ireland Ltd. / Meta Platforms, Inc. under their own privacy policy, and may involve a transfer of data to the United States.</p>
+
+    <h2>Local storage</h2>
+    <p>Your language choice (English/German) is remembered locally in your browser (<code>localStorage</code>) so you don't have to re-select it on every page. This is purely functional, not used for tracking, and never leaves your device.</p>
+
+    <h2>No cookies, no analytics</h2>
+    <p>This site does not use cookies, analytics, or any advertising/tracking tools.</p>
+
+    <h2>Your rights</h2>
+    <p>Under the GDPR, you have the right to access, rectify, or erase your data, restrict or object to its processing, and data portability, as well as the right to lodge a complaint with a supervisory authority. To exercise any of these, contact me at the email address above.</p>
+
+    <p style="margin-top:32px;font-size:0.84rem;">See also the <a href="impressum.html">Impressum</a> (German legal notice).</p>
+  </div>
+
+  <div lang-block="de">
+    <h1>Datenschutzerklärung</h1>
+
+    <h2>Verantwortlicher</h2>
+    <p>Jakob Leon Pajeken, Bismarckstraße 67, 20259 Hamburg.<br>E-Mail: <a href="mailto:jakobpajeken@gmail.com">jakobpajeken@gmail.com</a></p>
+
+    <h2>Hosting (GitHub Pages)</h2>
+    <p>Diese Website wird von GitHub, Inc. gehostet. Bei jedem Aufruf sendet dein Browser automatisch bestimmte Zugriffsdaten an die Server von GitHub (IP-Adresse, Browsertyp, Referrer, Datum/Uhrzeit der Anfrage) — technisch notwendige Server-Log-Daten, um die Seite auszuliefern und abzusichern (Art. 6 Abs. 1 lit. f DSGVO, berechtigtes Interesse). Dabei kann es zu einer Datenübertragung in die USA kommen. Details siehe die <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a>.</p>
+
+    <h2>Schriftarten &amp; Skripte</h2>
+    <p>Alle auf dieser Seite verwendeten Schriftarten werden selbst gehostet — es werden keine Daten an Google oder einen anderen Font-Anbieter übertragen, nur um Text darzustellen. Das Schachbrett nutzt die kleine Bibliothek <em>chess.js</em>, die über das CDN cdnjs (Cloudflare, Inc.) geladen wird; dabei verbindet sich dein Browser mit den Servern von Cloudflare, wodurch — wie bei jeder Webanfrage — deine IP-Adresse aus rein technischen Gründen übertragen wird.</p>
+
+    <h2>Kontaktaufnahme</h2>
+    <p>Schreibst du mir eine E-Mail, werden die Nachricht sowie darin enthaltene personenbezogene Daten (Name, E-Mail-Adresse, Inhalt) ausschließlich zur Bearbeitung deiner Anfrage verwendet (Art. 6 Abs. 1 lit. b/f DSGVO). Nutzt du stattdessen den WhatsApp-Link, wird die Kommunikation von WhatsApp Ireland Ltd. / Meta Platforms, Inc. nach deren eigener Datenschutzerklärung verarbeitet, wobei es zu einer Datenübertragung in die USA kommen kann.</p>
+
+    <h2>Lokale Speicherung</h2>
+    <p>Deine Sprachwahl (Deutsch/Englisch) wird lokal in deinem Browser gespeichert (<code>localStorage</code>), damit du sie nicht auf jeder Seite neu auswählen musst. Das ist rein technisch, dient keinem Tracking und verlässt dein Gerät nie.</p>
+
+    <h2>Keine Cookies, kein Tracking</h2>
+    <p>Diese Website verwendet keine Cookies, keine Analyse-Tools und keine Werbe- oder Tracking-Dienste.</p>
+
+    <h2>Deine Rechte</h2>
+    <p>Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Widerspruch sowie Datenübertragbarkeit, außerdem ein Beschwerderecht bei einer Aufsichtsbehörde. Zur Ausübung dieser Rechte genügt eine E-Mail an die oben genannte Adresse.</p>
+
+    <p style="margin-top:32px;font-size:0.84rem;">Siehe auch das <a href="impressum.html">Impressum</a>.</p>
+  </div>
+</div>
+
+<script>
+function applyLang(lang){
+  document.querySelectorAll('[lang-block]').forEach(function(el){
+    el.classList.toggle('active', el.getAttribute('lang-block') === lang);
+  });
+  document.querySelectorAll('.langtoggle button').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+  document.documentElement.lang = lang;
+  document.getElementById('back-link').textContent = lang === 'de' ? '← Zurück zur Startseite' : '← Back to homepage';
+  try{ localStorage.setItem('jlp-lang', lang); }catch(e){}
+}
+document.querySelectorAll('.langtoggle button').forEach(function(btn){
+  btn.addEventListener('click', function(){ applyLang(btn.getAttribute('data-lang')); });
+});
+(function(){
+  var saved = null;
+  try{ saved = localStorage.getItem('jlp-lang'); }catch(e){}
+  if(saved === 'de') applyLang('de');
+})();
+</script>
+</body>
+</html>
