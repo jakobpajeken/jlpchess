@@ -144,6 +144,10 @@
 
   section{padding:84px 0;border-bottom:1px solid var(--line);}
   section:last-of-type{border-bottom:none;}
+  /* About is the tab shown right under the tab bar by default, so the full
+     84px top padding reads as a lot of empty space before any text even
+     starts — trimmed just here, other tabs keep the fuller spacing */
+  #about{padding-top:40px;}
   .section-head{display:grid;grid-template-columns:0.8fr 1.2fr;gap:40px;margin-bottom:48px;}
   .section-head h2{font-size:clamp(1.6rem,2.8vw,2.15rem);max-width:13ch;}
   .best-games .section-head h2{max-width:none;white-space:nowrap;}
