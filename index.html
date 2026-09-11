@@ -350,7 +350,6 @@
   .step-row p{margin:0;color:var(--ivory-dim);font-size:0.94rem;max-width:60ch;}
 
   /* cta */
-  .cta-section{text-align:left;}
   .cta-box{background:var(--surface-raised);border:1px solid var(--line);padding:56px;display:grid;grid-template-columns:1.2fr 0.8fr;gap:40px;align-items:center;}
   .cta-box h2{font-size:clamp(1.7rem,3vw,2.2rem);max-width:14ch;margin-bottom:14px;}
   #coaching .cta-box h2{font-size:clamp(2.125rem,3.75vw,2.75rem);}
@@ -414,7 +413,6 @@
         <button type="button" role="tab" data-tab="about" class="active" data-i18n="nav.about">About me</button>
         <div class="tab-dropdown">
           <a href="#about-bio" data-tab="about" data-i18n="about.heading">About me</a>
-          <a href="#contact-form" data-tab="about" data-i18n="cta.heading">Get in touch</a>
           <a href="#contact-social" data-tab="about" data-i18n="navsub.social">Social Media</a>
         </div>
       </div>
@@ -806,11 +804,10 @@
 
 <script>
 const i18n = {
-  "nav.about":{en:"About me",de:"Über mich"},
+  "nav.about":{en:"Home",de:"Home"},
   "nav.coaching":{en:"Coaching",de:"Training"},
   "nav.career":{en:"Career",de:"Werdegang"},
   "nav.blog":{en:"Blog",de:"Blog"},
-  "nav.contact":{en:"Contact &amp; Socials",de:"Kontakt &amp; Socials"},
   /* short labels for the per-tab dropdown menus — some jump targets reuse
      their section's own heading key above (coaching.heading, testi.heading,
      cta.heading) when it's already short enough for a menu item; these are
