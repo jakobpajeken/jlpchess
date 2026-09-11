@@ -1486,10 +1486,16 @@ function highlightMoveList(){
        the bottom, so it looked like every click jumped straight to the
        end of the notation. This way, stepping to the next move only
        scrolls (by roughly one line) when that move isn't already
-       visible, and does nothing at all when it already is. */
+       visible, and does nothing at all when it already is.
+       Uses getBoundingClientRect() rather than offsetTop — offsetTop is
+       relative to the nearest POSITIONED ancestor, which here isn't the
+       scrollable move-list box itself, so it returned huge, wrong
+       numbers that always clamped straight to the bottom too. */
     if(isActive && listEl){
-      var btnTop = btn.offsetTop;
-      var btnBottom = btnTop + btn.offsetHeight;
+      var listRect = listEl.getBoundingClientRect();
+      var btnRect = btn.getBoundingClientRect();
+      var btnTop = btnRect.top - listRect.top + listEl.scrollTop;
+      var btnBottom = btnTop + btnRect.height;
       var viewTop = listEl.scrollTop;
       var viewBottom = viewTop + listEl.clientHeight;
       if(btnTop < viewTop){
