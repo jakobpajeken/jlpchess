@@ -312,6 +312,10 @@ function applyLang(lang){
   document.querySelectorAll('.back-link, [data-i18n="post.moreposts"]').forEach(function(a){
     a.setAttribute('href', 'index.html?lang=' + lang + '#blog');
   });
+  /* same reasoning for the footer's Datenschutz link — Impressum stays
+     German-only on purpose, so it needs no lang param */
+  var privacyLink = document.querySelector('a[href^="datenschutz.html"]');
+  if(privacyLink) privacyLink.setAttribute('href', 'datenschutz.html?lang=' + lang);
   /* the loaded post's title/category/date/read time/body/quote are all
      language-dependent now (translated body, formatted date), so the whole
      post is re-rendered rather than patched — simpler and always correct,

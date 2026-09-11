@@ -1009,6 +1009,15 @@ function setLang(lang){
   document.querySelectorAll('.langtoggle button').forEach(function(btn){
     btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
   });
+  /* Impressum/Datenschutz footer links: carry the current language along
+     via ?lang=, same reason as the blog "Weiterlesen" links below — without
+     it, datenschutz.html falls back to whatever language its own
+     localStorage remembers (or English), which can silently disagree with
+     the language you were just reading the site in. */
+  document.querySelectorAll('.footer-legal-link').forEach(function(a){
+    var base = a.getAttribute('href').split('?')[0];
+    a.setAttribute('href', base + '?lang=' + lang);
+  });
   /* re-apply the live FIDE rating, since the innerHTML swap above just
      overwrote the placeholder span with its hardcoded fallback value */
   applyFideRating();
