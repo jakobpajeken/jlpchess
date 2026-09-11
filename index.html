@@ -221,9 +221,16 @@
   /* single testimonial, full width, auto-rotating — see renderTestiGrid().
      quotes come from the CSS quotes/open-quote/close-quote mechanism (not
      typed into the data) so they stay consistent and language-correct. */
+  /* the wrap is the pinned-height element now (quote AND "who" together —
+     pinning just the quote wasn't enough, since a longer/shorter "who" name
+     could still wrap differently and shift the CTA box below it) and the
+     positioning context for the prev/next arrows */
+  .testi-wrap{position:relative;padding:0 44px;}
   .testi-rotator{width:100%;transition:transform .4s ease, opacity .4s ease;}
   .testi-rotator.testi-out{transform:translateX(-32px);opacity:0;}
   .testi-rotator.testi-in{transform:translateX(32px);opacity:0;transition:none;}
+  .testi-rotator.testi-out-rev{transform:translateX(32px);opacity:0;}
+  .testi-rotator.testi-in-rev{transform:translateX(-32px);opacity:0;transition:none;}
   .testi-rotator .quote{
     font-family:'Spectral',serif;font-size:1.4rem;font-style:italic;color:var(--ivory);
     line-height:1.5;margin:0 0 18px;quotes:'"' '"';
@@ -233,6 +240,20 @@
   :lang(de) .testi-rotator .quote{quotes:'„' '"';}
   .testi-rotator .who{font-size:0.86rem;color:var(--ivory-dim);}
   @media (prefers-reduced-motion: reduce){.testi-rotator{transition:none;}}
+  /* prev/next arrows — subtle, only appear on hover/focus (mouse users);
+     touch devices swipe instead, see the touchstart/touchend handlers */
+  .testi-arrow{
+    position:absolute;top:0;bottom:0;display:flex;align-items:center;
+    background:none;border:none;cursor:pointer;padding:0 8px;
+    color:var(--ivory-dim);opacity:0;transition:opacity .2s,color .15s;
+  }
+  .testi-arrow svg{width:20px;height:20px;display:block;}
+  .testi-arrow-prev{left:0;}
+  .testi-arrow-next{right:0;}
+  .testi-arrow:hover{color:var(--gold-bright);}
+  .testi-wrap:hover .testi-arrow,.testi-wrap:focus-within .testi-arrow{opacity:1;}
+  .testi-wrap.single-testi .testi-arrow{display:none;}
+  @media (max-width:640px){.testi-wrap{padding:0;} .testi-arrow{display:none;}}
 
   /* blog */
   .blog-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);}
