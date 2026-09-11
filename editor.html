@@ -1571,7 +1571,7 @@ function renderTesti(){
     row.className = 'item-row';
     var quotePreview = previewLang(t.quote);
     row.innerHTML =
-      '<div class="item-info"><div class="item-title">' + escapeHtml(t.who || '(ohne Namen)') + '</div>' +
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(t.who) || '(ohne Namen)') + '</div>' +
       '<div class="item-sub">' + (quotePreview ? '„' + escapeHtml(quotePreview) + '"' : '') + '</div></div>' +
       '<div class="item-actions">' +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
@@ -1597,7 +1597,10 @@ function openTestiForm(idx){
     '<div class="field"><label>Zitat (Deutsch)</label><span class="hint">Leer lassen, wenn nur die englische Version gebraucht wird — oder automatisch übersetzen.</span>' +
     '<div class="cover-row" style="align-items:flex-start;"><textarea id="tf-quote-de" placeholder="Was hat sich im Spiel oder im Training verändert?" style="flex:1;">' + escapeHtml(quoteSplit.de) + '</textarea>' +
     '<button type="button" class="btn small" id="tf-quote-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
-    '<div class="field"><label>Von</label><input type="text" id="tf-who" value="' + escapeHtml(t.who) + '" placeholder="z. B. Anna, 1650 Elo"></div>' +
+    '<div class="field"><label>Von (Englisch)</label><div class="cover-row"><input type="text" id="tf-who-en" value="' + escapeHtml(whoSplit.en) + '" placeholder="z. B. Anna, 1650 Elo" style="flex:1;">' +
+    '<button type="button" class="btn small" id="tf-who-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Von (Deutsch)</label><div class="cover-row"><input type="text" id="tf-who-de" value="' + escapeHtml(whoSplit.de) + '" placeholder="z. B. Anna, 1650 Elo" style="flex:1;">' +
+    '<button type="button" class="btn small" id="tf-who-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '<div class="form-actions">' +
     '<button type="submit" class="btn solid">Speichern</button>' +
     '<button type="button" class="btn" id="tf-cancel">Abbrechen</button>' +
@@ -1605,12 +1608,16 @@ function openTestiForm(idx){
   document.getElementById('tf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
   wireTranslateButton('tf-quote-translate', 'tf-quote-en', 'tf-quote-de', 'EN', 'DE');
   wireTranslateButton('tf-quote-translate-rev', 'tf-quote-de', 'tf-quote-en', 'DE', 'EN');
+  wireTranslateButton('tf-who-translate', 'tf-who-en', 'tf-who-de', 'EN', 'DE');
+  wireTranslateButton('tf-who-translate-rev', 'tf-who-de', 'tf-who-en', 'DE', 'EN');
   document.getElementById('testi-form').addEventListener('submit', async function(e){
     e.preventDefault();
     var quoteEn = document.getElementById('tf-quote-en').value.trim();
     var quoteDe = document.getElementById('tf-quote-de').value.trim();
     if(!quoteEn && !quoteDe){ showToast('Bitte ein Zitat eingeben.', true); return; }
-    var entry = { quote: joinLangValue(quoteEn, quoteDe), who: document.getElementById('tf-who').value.trim() };
+    var whoEn = document.getElementById('tf-who-en').value.trim();
+    var whoDe = document.getElementById('tf-who-de').value.trim();
+    var entry = { quote: joinLangValue(quoteEn, quoteDe), who: joinLangValue(whoEn, whoDe) };
     if(editing) testimonials[idx] = entry; else testimonials.push(entry);
     try{
       await writeJson('testimonials.json', testimonials);
