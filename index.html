@@ -553,9 +553,13 @@
         <h2 data-i18n="testi.heading">What students say</h2>
         <p class="coaching-emphasis" data-i18n="testi.sub">The experiences of people who took the next step.</p>
       </div>
-      <div class="testi-rotator" id="testi-grid">
-        <div class="quote" data-i18n="testi.q1">Add a short quote from a student here — what changed in their game or how they train.</div>
-        <div class="who" data-i18n="testi.w1">Student name, rating or level</div>
+      <div class="testi-wrap" id="testi-wrap">
+        <button type="button" class="testi-arrow testi-arrow-prev" id="testi-prev" aria-label="Previous testimonial"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="testi-rotator" id="testi-grid">
+          <div class="quote" data-i18n="testi.q1">Add a short quote from a student here — what changed in their game or how they train.</div>
+          <div class="who" data-i18n="testi.w1">Student name, rating or level</div>
+        </div>
+        <button type="button" class="testi-arrow testi-arrow-next" id="testi-next" aria-label="Next testimonial"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
       <!-- fallback above; replaced by data/testimonials.json content via JS
            below once you add real testimonials with editor.html — then it
