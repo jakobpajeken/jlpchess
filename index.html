@@ -1478,10 +1478,25 @@ function highlightMoveList(){
        hand (setting scrollTop on the move-list box directly) rather than
        via scrollIntoView, which per spec walks up and scrolls EVERY
        scrollable ancestor it can find, including the page itself; setting
-       scrollTop touches only this one box, so the page never moves. */
+       scrollTop touches only this one box, so the page never moves.
+       Scrolls the MINIMUM distance needed (like scrollIntoView's
+       block:'nearest') instead of always re-centering the active move —
+       centering caused every click past the halfway point to compute a
+       target beyond the max scrollTop, which browsers silently clamp to
+       the bottom, so it looked like every click jumped straight to the
+       end of the notation. This way, stepping to the next move only
+       scrolls (by roughly one line) when that move isn't already
+       visible, and does nothing at all when it already is. */
     if(isActive && listEl){
-      var target = btn.offsetTop - (listEl.clientHeight / 2) + (btn.offsetHeight / 2);
-      listEl.scrollTop = Math.max(0, target);
+      var btnTop = btn.offsetTop;
+      var btnBottom = btnTop + btn.offsetHeight;
+      var viewTop = listEl.scrollTop;
+      var viewBottom = viewTop + listEl.clientHeight;
+      if(btnTop < viewTop){
+        listEl.scrollTop = btnTop;
+      }else if(btnBottom > viewBottom){
+        listEl.scrollTop = btnBottom - listEl.clientHeight;
+      }
     }
   });
 }
