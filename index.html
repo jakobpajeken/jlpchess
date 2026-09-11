@@ -221,8 +221,9 @@
   /* single testimonial, full width, auto-rotating — see renderTestiGrid().
      quotes come from the CSS quotes/open-quote/close-quote mechanism (not
      typed into the data) so they stay consistent and language-correct. */
-  .testi-rotator{width:100%;transition:opacity .4s ease;}
-  .testi-rotator.testi-fade{opacity:0;}
+  .testi-rotator{width:100%;transition:transform .4s ease, opacity .4s ease;}
+  .testi-rotator.testi-out{transform:translateX(-32px);opacity:0;}
+  .testi-rotator.testi-in{transform:translateX(32px);opacity:0;transition:none;}
   .testi-rotator .quote{
     font-family:'Spectral',serif;font-size:1.4rem;font-style:italic;color:var(--ivory);
     line-height:1.5;margin:0 0 18px;quotes:'"' '"';
