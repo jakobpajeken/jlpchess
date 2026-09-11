@@ -1241,10 +1241,25 @@ document.addEventListener('click', function(e){
   document.querySelectorAll('.tabbar-item.dropdown-open').forEach(closeTabDropdown);
 });
 /* deep link support, e.g. index.html#blog coming back from a blog post, or
-   index.html#coaching-testimonials linking straight to one dropdown section */
+   index.html#coaching-testimonials linking straight to one dropdown section.
+   Skipped on a plain reload: showTab() keeps the URL's #hash in sync with
+   whatever tab/section is open (via history.replaceState) so a COPIED link
+   reopens at the same spot — but that means the hash from wherever you last
+   clicked is still sitting in the address bar, and hitting reload isn't the
+   same as following a link, so it shouldn't keep landing there instead of
+   the top. A genuine navigation here (an external link, a bookmark, coming
+   back from blog-post.html) still honors the hash exactly as before. */
 (function(){
   var hash = location.hash.replace('#', '');
   if(!hash) return;
+  var navEntries = performance.getEntriesByType && performance.getEntriesByType('navigation');
+  var navType = (navEntries && navEntries[0] && navEntries[0].type) ||
+    (performance.navigation && performance.navigation.type === 1 ? 'reload' : null);
+  if(navType === 'reload'){
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+    window.scrollTo(0, 0);
+    return;
+  }
   if(document.querySelector('.tabbar button[data-tab="' + hash + '"]')){
     showTab(hash);
     return;
