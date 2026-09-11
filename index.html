@@ -1676,29 +1676,31 @@ function showTesti(idx){
   whoEl.textContent = testiList[idx].who;
 }
 var testiHeightObserverSet = false;
-/* pins the quote field's min-height to whichever testimonial needs the most
-   room, measured via an invisible same-width probe — so the area below it
-   (the "who" line, the CTA box after it) never shifts as shorter/longer
-   quotes rotate through */
+/* pins the WHOLE rotator's min-height to whichever testimonial (quote AND
+   "who" together) needs the most room, measured via an invisible same-width
+   probe — pinning just the quote wasn't enough, since a longer/shorter
+   "who" name can wrap differently on its own and still shift the CTA box
+   below it. Probe replicates both elements so wrapping matches exactly. */
 function measureAndPinTestiHeight(){
   var grid = document.getElementById('testi-grid');
   if(!grid || !testiList || !testiList.length) return;
-  var quoteEl = grid.querySelector('.quote');
-  if(!quoteEl) return;
-  quoteEl.style.minHeight = ''; /* reset first, so an old pin can't skew this measurement */
-  var width = quoteEl.getBoundingClientRect().width;
+  grid.style.minHeight = ''; /* reset first, so an old pin can't skew this measurement */
+  var width = grid.getBoundingClientRect().width;
   if(!width) return;
   var probe = document.createElement('div');
-  probe.className = 'quote';
   probe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;left:-9999px;top:0;min-height:0;width:' + width + 'px;';
+  probe.innerHTML = '<div class="quote"></div><div class="who"></div>';
+  var probeQuote = probe.querySelector('.quote');
+  var probeWho = probe.querySelector('.who');
   grid.appendChild(probe);
   var maxH = 0;
   testiList.forEach(function(t){
-    probe.textContent = t.quote;
+    probeQuote.textContent = t.quote;
+    probeWho.textContent = t.who;
     maxH = Math.max(maxH, probe.getBoundingClientRect().height);
   });
   grid.removeChild(probe);
-  quoteEl.style.minHeight = maxH + 'px';
+  grid.style.minHeight = maxH + 'px';
   /* width (and so wrapping) can change later, e.g. on window resize —
      keep the pin in sync; set up once, not on every render */
   if(!testiHeightObserverSet && window.ResizeObserver){
@@ -1706,8 +1708,64 @@ function measureAndPinTestiHeight(){
     new ResizeObserver(function(){ measureAndPinTestiHeight(); }).observe(grid);
   }
 }
+/* slides to the next (direction 1) or previous (direction -1) testimonial */
+function advanceTesti(direction){
+  var g = document.getElementById('testi-grid');
+  if(!g || !testiList || !testiList.length) return;
+  var outClass = direction > 0 ? 'testi-out' : 'testi-out-rev';
+  var inClass = direction > 0 ? 'testi-in' : 'testi-in-rev';
+  g.classList.add(outClass);
+  setTimeout(function(){
+    testiIndex = (testiIndex + direction + testiList.length) % testiList.length;
+    showTesti(testiIndex);
+    g.classList.remove(outClass);
+    g.classList.add(inClass); /* jump it in from the opposite side, no transition */
+    void g.offsetWidth; /* force layout so that jump applies before... */
+    g.classList.remove(inClass); /* ...animating back in */
+  }, 400);
+}
+function startTestiTimer(){
+  if(testiTimer){ clearInterval(testiTimer); testiTimer = null; }
+  if(!testiList || testiList.length <= 1) return;
+  testiTimer = setInterval(function(){ advanceTesti(1); }, 5000);
+}
+/* arrow clicks / swipes call this — same as the auto-rotation, but also
+   restarts the countdown so a manual jump doesn't get instantly overridden
+   by the timer a moment later */
+function goToTesti(direction){
+  if(!testiList || testiList.length <= 1) return;
+  advanceTesti(direction);
+  startTestiTimer();
+}
+(function(){
+  var wrap = document.getElementById('testi-wrap');
+  var prevBtn = document.getElementById('testi-prev');
+  var nextBtn = document.getElementById('testi-next');
+  if(prevBtn) prevBtn.addEventListener('click', function(){ goToTesti(-1); });
+  if(nextBtn) nextBtn.addEventListener('click', function(){ goToTesti(1); });
+  if(!wrap) return;
+  var touchStartX = null, touchStartY = null;
+  wrap.addEventListener('touchstart', function(e){
+    var t = e.touches[0];
+    touchStartX = t.clientX;
+    touchStartY = t.clientY;
+  }, { passive: true });
+  wrap.addEventListener('touchend', function(e){
+    if(touchStartX === null) return;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - touchStartX;
+    var dy = t.clientY - touchStartY;
+    touchStartX = null;
+    /* horizontal swipe of at least 40px, clearly more horizontal than
+       vertical (so a vertical scroll gesture doesn't get mistaken for one) */
+    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5){
+      goToTesti(dx < 0 ? 1 : -1); /* swipe left -> next, swipe right -> previous */
+    }
+  }, { passive: true });
+})();
 function renderTestiGrid(){
   var grid = document.getElementById('testi-grid');
+  var wrap = document.getElementById('testi-wrap');
   if(!grid) return;
   var lang = currentSiteLang();
   if(Array.isArray(testimonialsData) && testimonialsData.length){
@@ -1719,22 +1777,8 @@ function renderTestiGrid(){
   if(testiIndex >= testiList.length) testiIndex = 0;
   showTesti(testiIndex);
   measureAndPinTestiHeight();
-  if(testiTimer){ clearInterval(testiTimer); testiTimer = null; }
-  if(testiList.length > 1){
-    testiTimer = setInterval(function(){
-      var g = document.getElementById('testi-grid');
-      if(!g) return;
-      g.classList.add('testi-out'); /* slide the current one out to the left */
-      setTimeout(function(){
-        testiIndex = (testiIndex + 1) % testiList.length;
-        showTesti(testiIndex);
-        g.classList.remove('testi-out');
-        g.classList.add('testi-in'); /* jump it to the right, no transition */
-        void g.offsetWidth; /* force layout so that jump applies before... */
-        g.classList.remove('testi-in'); /* ...animating back in from the right */
-      }, 400);
-    }, 5000);
-  }
+  if(wrap) wrap.classList.toggle('single-testi', testiList.length <= 1);
+  startTestiTimer();
 }
 function loadTestimonialsData(){
   fetch('data/testimonials.json', { cache: 'no-store' })
