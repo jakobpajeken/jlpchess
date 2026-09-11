@@ -1636,11 +1636,14 @@ function renderTestiGrid(){
     testiTimer = setInterval(function(){
       var g = document.getElementById('testi-grid');
       if(!g) return;
-      g.classList.add('testi-fade');
+      g.classList.add('testi-out'); /* slide the current one out to the left */
       setTimeout(function(){
         testiIndex = (testiIndex + 1) % testiList.length;
         showTesti(testiIndex);
-        g.classList.remove('testi-fade');
+        g.classList.remove('testi-out');
+        g.classList.add('testi-in'); /* jump it to the right, no transition */
+        void g.offsetWidth; /* force layout so that jump applies before... */
+        g.classList.remove('testi-in'); /* ...animating back in from the right */
       }, 400);
     }, 6000);
   }
