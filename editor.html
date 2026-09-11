@@ -1569,9 +1569,10 @@ function renderTesti(){
   testimonials.forEach(function(t, idx){
     var row = document.createElement('div');
     row.className = 'item-row';
+    var quotePreview = previewLang(t.quote);
     row.innerHTML =
       '<div class="item-info"><div class="item-title">' + escapeHtml(t.who || '(ohne Namen)') + '</div>' +
-      '<div class="item-sub">' + escapeHtml(previewLang(t.quote) || '') + '</div></div>' +
+      '<div class="item-sub">' + (quotePreview ? '„' + escapeHtml(quotePreview) + '"' : '') + '</div></div>' +
       '<div class="item-actions">' +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
       '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
