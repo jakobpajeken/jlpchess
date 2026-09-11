@@ -4,20 +4,29 @@
       "en": "Jakob is an incredibly motivated and dedicated chess coach. He explains things very clearly and effectively. His own enthusiasm for chess is particularly inspiring—his knowledge and skills are truly impressive. Training with him is super effective and a lot of fun at the same time. I highly recommend him!",
       "de": "Jakob ist ein unglaublich motivierter und engagierter Schachtrainer. Er kann sehr gut und verständlich erklären. Besonders inspirierend ist seine eigene Begeisterung für Schach – sein Wissen und seine Fähigkeiten sind wirklich beeindruckend. Das Training mit ihm ist super effektiv und macht gleichzeitig sehr viel Spaß. Absolut empfehlenswert!"
     },
-    "who": "S., DWZ ~2000"
+    "who": {
+      "en": "S., DWZ ~2000",
+      "de": "S., DWZ ~2000"
+    }
   },
   {
     "quote": {
       "en": "Add a short quote from a student here — what changed in their game or how they train.",
       "de": "Hier ein kurzes Zitat eines Schülers einfügen — was sich in seinem Spiel oder Training verändert hat."
     },
-    "who": "Student name, rating or level"
+    "who": {
+      "en": "Student name, rating or level",
+      "de": "Name des Schülers, Elo oder Niveau"
+    }
   },
   {
     "quote": {
       "en": "My son Julian has made noticeable progress thanks to his training with Jakob. Jakob pinpointed the specific weaknesses in Julian's game and tailored the training sessions accordingly. Fortunately, this progress is also reflected in Julian's strong results in tournaments.",
       "de": "Mein Sohn Julian kann  durch das Training mit Jakob  sichtbare Fortschritte erzielen. Die Schwächen im Spiel  von Julian werden von Jakob genau herausgearbeitet und  das Training dann gezielt darauf abgestimmt. Erfreulicherweise spiegeln sich  diese Fortschritte  auch in den guten Resultaten Julians Turnierpraxis wider."
     },
-    "who": "Jörg über mein Training mit seinem Sohn Julian ~ Elo 2250"
+    "who": {
+      "en": "Jörg on my training with his son Julian ~ Elo 2250",
+      "de": "Jörg über mein Training mit seinem Sohn Julian ~ Elo 2250"
+    }
   }
 ]
