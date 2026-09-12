@@ -528,7 +528,6 @@ function createGameWidget(container, gameOrGames){
   var bottomNameEl = container.querySelector('[data-role="bottom-name"]');
   var ranksEl = container.querySelector('[data-role="ranks"]');
   var filesEl = container.querySelector('[data-role="files"]');
-  var commentEl = container.querySelector('[data-role="comment"]');
   var downloadBtn = container.querySelector('[data-role="download-btn"]');
   var downloadAllBtn = container.querySelector('[data-role="download-all-btn"]');
 
@@ -627,18 +626,59 @@ function createGameWidget(container, gameOrGames){
   }
   function renderMoveList(){
     listEl.innerHTML = '';
+    appendInlineAnnotation(gameComments[0]); /* comment before move 1, if any */
     for(var i = 0; i < historyVerbose.length; i += 2){
-      var pair = document.createElement('span');
-      pair.className = 'move-pair';
-      var num = document.createElement('span');
-      num.className = 'move-num';
-      num.textContent = (i / 2 + 1) + '.';
-      pair.appendChild(num);
-      pair.appendChild(makeMoveBtn(historyVerbose[i].san, i + 1));
-      if(historyVerbose[i + 1]) pair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, i + 2));
-      listEl.appendChild(pair);
+      var moveNum = (i / 2) + 1;
+      var whitePly = i + 1, blackPly = i + 2;
+      var whitePair = document.createElement('span');
+      whitePair.className = 'move-pair';
+      var whiteNum = document.createElement('span');
+      whiteNum.className = 'move-num';
+      whiteNum.textContent = moveNum + '.';
+      whitePair.appendChild(whiteNum);
+      whitePair.appendChild(makeMoveBtn(historyVerbose[i].san, whitePly));
+      listEl.appendChild(whitePair);
+      /* a comment/variation breaks the flow onto its own line, so black's
+         move (if the break happened right before it) needs its move
+         number repeated as "12..." to stay readable */
+      var brokeFlow = appendInlineAnnotation(gameComments[whitePly]);
+      if(historyVerbose[i + 1]){
+        var blackPair = document.createElement('span');
+        blackPair.className = 'move-pair';
+        if(brokeFlow){
+          var blackNum = document.createElement('span');
+          blackNum.className = 'move-num';
+          blackNum.textContent = moveNum + '...';
+          blackPair.appendChild(blackNum);
+        }
+        blackPair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, blackPly));
+        listEl.appendChild(blackPair);
+        appendInlineAnnotation(gameComments[blackPly]);
+      }
     }
     highlightMoveList();
+  }
+  /* Appends a comment (and any variations attached to the same move)
+     right into the move list's own flowing text, immediately after the
+     move it belongs to. Returns true if anything was actually appended,
+     so the caller knows the flow was interrupted (see renderMoveList). */
+  function appendInlineAnnotation(annotation){
+    if(!annotation) return false;
+    var text = pickLang(annotation.comment);
+    var hasVariations = annotation.variations && annotation.variations.length;
+    if(!text && !hasVariations) return false;
+    var box = document.createElement('span');
+    box.className = 'game-comment-inline';
+    var html = '';
+    if(text) html += '<span class="game-comment-text">' + escapeHtml(text) + '</span>';
+    if(hasVariations){
+      annotation.variations.forEach(function(line){
+        html += '<span class="game-comment-variation">' + escapeHtml(formatVariationLine(line)) + '</span>';
+      });
+    }
+    box.innerHTML = html;
+    listEl.appendChild(box);
+    return true;
   }
   function highlightMoveList(){
     container.querySelectorAll('.move-btn').forEach(function(btn){
@@ -674,24 +714,6 @@ function createGameWidget(container, gameOrGames){
         }
       }
     });
-    if(commentEl){
-      var annotation = gameComments[moveIndex];
-      var commentText = annotation ? pickLang(annotation.comment) : '';
-      var hasVariations = annotation && annotation.variations && annotation.variations.length;
-      if(annotation && (commentText || hasVariations)){
-        var html = '';
-        if(commentText) html += '<div class="game-comment-text">' + escapeHtml(commentText) + '</div>';
-        if(hasVariations){
-          annotation.variations.forEach(function(line){
-            html += '<div class="game-comment-variation">' + escapeHtml(formatVariationLine(line)) + '</div>';
-          });
-        }
-        commentEl.innerHTML = html;
-        commentEl.hidden = false;
-      }else{
-        commentEl.hidden = true;
-      }
-    }
   }
   function goToPly(ply){
     engine.reset();
