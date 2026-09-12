@@ -80,10 +80,13 @@
     "image": "",
     "imageCredit": "",
     "excerpt": {
-      "en": "A commanding victory at the board—and a tournament that many other tournaments could learn a thing or two from. At the 2nd ChessConnect Open, the ChessConnect app ensured that the organization ran as smoothly and seamlessly as one would hope for at any tournament. A look behind the scenes shows why other organizers can learn a thing or two from this event.",
-      "de": "Souveräner Sieg am Brett – und ein Turnierablauf, von dem sich so manches Turnier eine Scheibe abschneiden kann .Beim 2. ChessConnect Open sorgte die ChessConnect App für eine Organisation, die so flüssig und reibungslos lief, wie man sie sich bei jedem Turnier wünschen würde. Ein Blick hinter die Kulissen zeigt, warum sich andere Veranstalter hier einiges abschauen können."
+      "en": "A commanding victory at the board—and a tournament that many others could learn a thing or two from.",
+      "de": "Souveräner Sieg am Brett – und ein Turnierablauf, von dem sich so manches Turnier eine Scheibe abschneiden kann."
     },
-    "lead": "",
+    "lead": {
+      "en": "At the 2nd ChessConnect Open, the ChessConnect app ensured that the event ran as smoothly and seamlessly as one would hope for at any tournament. A look behind the scenes reveals why other organizers could learn a thing or two from this approach.",
+      "de": "Beim 2. ChessConnect Open sorgte die ChessConnect App für eine Organisation, die so flüssig und reibungslos lief, wie man sie sich bei jedem Turnier wünschen würde. Ein Blick hinter die Kulissen zeigt, warum sich andere Veranstalter hier einiges abschauen können."
+    },
     "body": {
       "en": [],
       "de": []
