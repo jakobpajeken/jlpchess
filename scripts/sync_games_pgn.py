@@ -52,12 +52,78 @@ import os
 import re
 import sys
 import io
+import urllib.request
+import urllib.parse
+import urllib.error
 
 try:
     import chess.pgn
 except ImportError:
     sys.stderr.write("Missing dependency: run `python -m pip install chess`\n")
     sys.exit(1)
+
+# Same translation cascade editor.html's JS uses for everything else on the
+# site (see translateChunk() there) — DeepL via Jakob's own Cloudflare
+# Worker proxy first, MyMemory as the fallback. Google Translate's public
+# endpoint (the third option in the JS version) is skipped here: it works
+# fine from a real browser but blocks plain server-side requests like this
+# script's as "automated queries", so there's no point trying it.
+DEEPL_PROXY_URL = "https://jlpdeepl.jakobpajeken.workers.dev"
+
+
+def _http_post_json(url, payload, timeout=15):
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _http_get_json(url, timeout=15):
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def translate_via_deepl(text, source, target):
+    data = _http_post_json(DEEPL_PROXY_URL, {"text": text, "source": source, "target": target})
+    translated = data.get("translatedText")
+    if not translated:
+        raise RuntimeError(data.get("error") or "empty response")
+    return translated
+
+
+def translate_via_mymemory(text, source, target):
+    url = ("https://api.mymemory.translated.net/get?q=" + urllib.parse_quote(text)
+           + "&langpair=" + source.lower() + "|" + target.lower())
+    data = _http_get_json(url)
+    translated = (data.get("responseData") or {}).get("translatedText")
+    if not translated or re.search(r"MYMEMORY WARNING|INVALID LANGPAIR|NO QUERY SPECIFIED", translated, re.I):
+        raise RuntimeError("no usable translation")
+    return translated
+
+
+import urllib.parse as _urllib_parse
+urllib.parse_quote = _urllib_parse.quote
+
+
+def translate_text(text, source, target):
+    """Best-effort translation with the same fallback order as the site's
+    own JS translator. Returns the ORIGINAL text unchanged if every service
+    fails (offline, proxy down, etc.) rather than raising — a sync run
+    should never hard-fail just because translation is unavailable right
+    now; it'll simply try again next cycle."""
+    text = (text or "").strip()
+    if not text:
+        return ""
+    try:
+        return translate_via_deepl(text, source, target).strip()
+    except Exception:
+        pass
+    try:
+        return translate_via_mymemory(text, source, target).strip()
+    except Exception:
+        pass
+    return text
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAMES_JSON = os.path.join(REPO_ROOT, "data", "games.json")
