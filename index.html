@@ -2114,11 +2114,11 @@ function initGamesWidget(){
   var btnNext = document.getElementById('nav-next');
   var btnEnd = document.getElementById('nav-end');
   var btnFlip = document.getElementById('nav-flip');
-  if(btnStart) btnStart.addEventListener('click', function(){ manualGoToLine(activeLine, 0); });
-  if(btnPrev) btnPrev.addEventListener('click', function(){ manualGoToLine(activeLine, Math.max(0, moveIndex - 1)); });
+  if(btnStart) btnStart.addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, 0); });
+  if(btnPrev) btnPrev.addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1)); });
   if(btnPlay) btnPlay.addEventListener('click', function(){ togglePlay(); });
-  if(btnNext) btnNext.addEventListener('click', function(){ manualGoToLine(activeLine, Math.min(activeLine.length, moveIndex + 1)); });
-  if(btnEnd) btnEnd.addEventListener('click', function(){ manualGoToLine(activeLine, activeLine.length); });
+  if(btnNext) btnNext.addEventListener('click', function(){ tryAdvance(); });
+  if(btnEnd) btnEnd.addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, activeLine.length); });
   if(btnFlip) btnFlip.addEventListener('click', function(){ setOrientation(boardOrientation === 'black' ? 'white' : 'black'); });
 }
 initGamesWidget();
@@ -2378,11 +2378,16 @@ document.addEventListener('keydown', function(e){
   var tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
   if(tag === 'input' || tag === 'textarea') return;
   if(!gameEngine) return;
+  var dialog = document.getElementById('move-choice-dialog');
+  if(dialog && !dialog.hidden){
+    if(e.key === 'Escape'){ hideMoveChoiceDialog(); e.preventDefault(); }
+    return; /* a choice is pending — don't also step the board underneath it */
+  }
   if(e.key === 'ArrowLeft'){
-    manualGoToLine(activeLine, Math.max(0, moveIndex - 1));
+    manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1));
     e.preventDefault();
   } else if(e.key === 'ArrowRight'){
-    manualGoToLine(activeLine, Math.min(activeLine.length, moveIndex + 1));
+    tryAdvance();
     e.preventDefault();
   }
 });
