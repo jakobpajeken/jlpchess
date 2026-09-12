@@ -78,6 +78,11 @@
     font-family:'Inter',sans-serif;transition:background .15s,color .15s;border-radius:2px;
   }
   .btn:hover{background:rgba(31,58,95,0.14);}
+  /* same [hidden]-losing-the-cascade issue as elsewhere — .btn's own
+     display:inline-flex outranks the browser's built-in
+     [hidden]{display:none}, which was showing e.g. the "Trennen" button
+     before a GitHub token was even connected */
+  .btn[hidden]{display:none;}
   .btn.solid{background:var(--gold);color:var(--ink);border-color:var(--gold);}
   .btn.solid:hover{background:var(--gold-bright);border-color:var(--gold-bright);}
   .btn.small{padding:6px 12px;font-size:0.8rem;}

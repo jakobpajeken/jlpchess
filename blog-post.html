@@ -103,6 +103,12 @@
   .article-meta .dot{opacity:0.5;}
   .article-meta .readtime{font-size:0.76rem;opacity:0.68;}
   .article-cover{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;margin-top:36px;background:var(--surface);}
+  /* the class's own display:block above ties with the browser's built-in
+     [hidden]{display:none} rule (same specificity) and — being an author
+     rule — wins the cascade regardless of source order, so a post with no
+     cover photo showed a blank white 16:9 box instead of nothing; this
+     rule outranks both by adding the attribute to the selector */
+  .article-cover[hidden]{display:none;}
   .photo-credit{font-size:0.72rem;color:var(--ivory-dim);opacity:0.75;margin-top:8px;text-align:right;}
   .article-body{margin-top:44px;}
   .article-body p{margin:0 0 22px;color:var(--ivory-dim);max-width:64ch;}

@@ -293,6 +293,11 @@
   .blog-link{font-size:0.88rem;color:var(--gold-bright);text-decoration:none;align-self:flex-start;margin-top:4px;}
   .blog-link:hover{text-decoration:underline;}
   .blog-loadmore-wrap{display:flex;justify-content:center;margin-top:28px;}
+  /* same [hidden]-losing-the-cascade issue as .article-cover in
+     blog-post.html — without this, "Older posts" stayed visible even
+     with nothing left to load, since blogVisibleCount >= ordered.length
+     sets .hidden = true but this class's own display:flex outranks it */
+  .blog-loadmore-wrap[hidden]{display:none;}
   @media (max-width:720px){
     .blog-card{flex-direction:column;}
     .blog-card-image{width:100%;height:200px;}
