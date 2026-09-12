@@ -153,7 +153,7 @@
     display:inline-flex;align-items:center;white-space:nowrap;text-decoration:none;
   }
   .embedded-game .game-download-btn:hover{color:var(--gold-bright);text-decoration:underline;}
-  .embedded-game .games-layout{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start;}
+  .embedded-game .games-layout{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start;position:relative;}
   .embedded-game .board-wrap{display:flex;flex-direction:column;gap:10px;align-items:center;}
   .embedded-game .player-label{
     font-family:'Spectral',serif;font-size:1.15rem;color:var(--ivory);
@@ -539,12 +539,12 @@ function createGameWidget(container, gameOrGames){
       '<div class="game-info" data-role="info"></div>' +
       '<div class="pgn-error" data-role="error"></div>' +
       '<div class="move-list" data-role="movelist"></div>' +
-      '<div class="move-choice-dialog" data-role="choice-dialog" hidden>' +
-        '<div class="move-choice-card">' +
-          '<div class="move-choice-title" data-role="choice-title">Which move?</div>' +
-          '<div class="move-choice-list" data-role="choice-list"></div>' +
-          '<button type="button" class="move-choice-cancel" data-role="choice-cancel">Cancel</button>' +
-        '</div>' +
+    '</div>' +
+    '<div class="move-choice-dialog" data-role="choice-dialog" hidden>' +
+      '<div class="move-choice-card">' +
+        '<div class="move-choice-title" data-role="choice-title">Which move?</div>' +
+        '<div class="move-choice-list" data-role="choice-list"></div>' +
+        '<button type="button" class="move-choice-cancel" data-role="choice-cancel">Cancel</button>' +
       '</div>' +
     '</div>' +
     '</div>';
