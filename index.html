@@ -1561,7 +1561,7 @@ function renderMoveList(){
   if(!list) return;
   list.innerHTML = '';
   var mainlineSans = historyVerbose.map(function(m){ return m.san; });
-  appendInlineAnnotation(list, gameComments[0], []); /* comment before move 1, if any */
+  appendInlineAnnotation(list, gameComments[0], [], []); /* comment before move 1, if any */
   for(var i = 0; i < historyVerbose.length; i += 2){
     var moveNum = (i / 2) + 1;
     var whitePly = i + 1, blackPly = i + 2;
@@ -1577,7 +1577,7 @@ function renderMoveList(){
        move (if the break happened right before it) needs its move number
        repeated as "12..." to stay readable — same convention already used
        when a variation resumes after its own break (pgnMoveNumberPrefix) */
-    var brokeFlow = appendInlineAnnotation(list, gameComments[whitePly], mainlineSans.slice(0, whitePly));
+    var brokeFlow = appendInlineAnnotation(list, gameComments[whitePly], mainlineSans.slice(0, whitePly), mainlineBranches().slice(0, whitePly));
     if(historyVerbose[i + 1]){
       var blackPair = document.createElement('span');
       blackPair.className = 'move-pair';
@@ -1589,20 +1589,32 @@ function renderMoveList(){
       }
       blackPair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, blackPly));
       list.appendChild(blackPair);
-      appendInlineAnnotation(list, gameComments[blackPly], mainlineSans.slice(0, blackPly));
+      appendInlineAnnotation(list, gameComments[blackPly], mainlineSans.slice(0, blackPly), mainlineBranches().slice(0, blackPly));
     }
   }
   highlightMoveList();
 }
 
+/* activeBranches, but derived fresh from the mainline (historyVerbose +
+   gameComments) rather than whatever line is currently active — used
+   whenever something needs "the real game's own" branch structure
+   regardless of which variation is currently being viewed, e.g. jumping
+   to a mainline move via click, or rendering the mainline's own comments. */
+function mainlineBranches(){
+  return historyVerbose.map(function(m, i){
+    var annotated = gameComments[i + 1];
+    return (annotated && annotated.variations) || [];
+  });
+}
+
 /* Appends a comment (and any variations attached to the same move) right
    into the move list's own flowing text, immediately after the move it
-   belongs to. `branchPath`: the SAN path (from move 1) up to and
-   including the mainline move this annotation is attached to — where any
-   attached variation branches off from. Returns true if anything was
-   actually appended, so the caller knows the flow was interrupted (see
-   renderMoveList above). */
-function appendInlineAnnotation(list, annotation, branchPath){
+   belongs to. `branchPath`/`branchBranches`: the SAN path (from move 1),
+   and its parallel branch-lists, up to and including the mainline move
+   this annotation is attached to — where any attached variation branches
+   off from. Returns true if anything was actually appended, so the
+   caller knows the flow was interrupted (see renderMoveList above). */
+function appendInlineAnnotation(list, annotation, branchPath, branchBranches){
   if(!annotation) return false;
   var text = pickLang(annotation.comment);
   var hasVariations = annotation.variations && annotation.variations.length;
@@ -1620,7 +1632,7 @@ function appendInlineAnnotation(list, annotation, branchPath){
       var v = document.createElement('span');
       v.className = 'game-comment-variation';
       v.appendChild(document.createTextNode('('));
-      renderVariationLine(v, line, branchPath);
+      renderVariationLine(v, line, branchPath, branchBranches);
       v.appendChild(document.createTextNode(')'));
       box.appendChild(v);
     });
