@@ -678,6 +678,50 @@ function createGameWidget(container, gameOrGames){
     while((m = re.exec(pgnText)) !== null){ headers[m[1].toLowerCase()] = m[2]; }
     return headers;
   }
+  /* same extraction as index.html's games widget — see the comment there
+     for why this is needed independently of chess.js. Kept in sync. */
+  function extractPgnComments(pgnText){
+    var movetext = (pgnText || '').replace(/\[[^\]]*\]\s*/g, '');
+    var comments = {};
+    var ply = 0;
+    var i = 0, len = movetext.length;
+    while(i < len){
+      var ch = movetext[i];
+      if(ch === '{'){
+        var end = movetext.indexOf('}', i);
+        if(end === -1) break;
+        var text = movetext.slice(i + 1, end).replace(/\s+/g, ' ').trim();
+        if(text) comments[ply] = comments[ply] ? comments[ply] + ' ' + text : text;
+        i = end + 1;
+        continue;
+      }
+      if(ch === '('){
+        var depth = 1, j = i + 1;
+        while(j < len && depth > 0){
+          if(movetext[j] === '(') depth++;
+          else if(movetext[j] === ')') depth--;
+          j++;
+        }
+        i = j;
+        continue;
+      }
+      if(ch === ';'){
+        var nl = movetext.indexOf('\n', i);
+        i = (nl === -1) ? len : nl + 1;
+        continue;
+      }
+      if(/\s/.test(ch)){ i++; continue; }
+      var k = i;
+      while(k < len && !/\s/.test(movetext[k]) && movetext[k] !== '{' && movetext[k] !== '('){ k++; }
+      var token = movetext.slice(i, k);
+      i = k;
+      if(/^\d+\.+$/.test(token)) continue;
+      if(/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)) continue;
+      if(/^\$\d+$/.test(token)) continue;
+      ply++;
+    }
+    return comments;
+  }
 
   buildBoardSquares();
 
@@ -705,6 +749,7 @@ function createGameWidget(container, gameOrGames){
       return;
     }
     historyVerbose = engine.history({ verbose: true });
+    gameComments = extractPgnComments(game.pgn || '');
     engine.reset();
     moveIndex = 0;
 
