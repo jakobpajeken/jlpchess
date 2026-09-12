@@ -974,8 +974,12 @@ function renderRealPost(post){
        links inside a post's body text (opens in a new tab so the reader
        doesn't lose their place in the article). */
     var renderInline = function(text){
+      /* order matters: **bold** is matched and replaced first, so its own
+         asterisks are already gone (and can't be mistaken for) by the time
+         the single-asterisk *italic* pattern runs over what's left */
       return escapeHtml(text)
         .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
         .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
     };
     var html = '';
