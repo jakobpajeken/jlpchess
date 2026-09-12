@@ -899,6 +899,21 @@ function createGameWidget(container, gameOrGames){
   function hideMoveChoiceDialog(){
     if(choiceDialog) choiceDialog.hidden = true;
   }
+  function isChoiceDialogOpen(){
+    return !!(choiceDialog && !choiceDialog.hidden);
+  }
+  /* see index.html's handleAdvancePress() for the full rationale — this
+     is what the "»" button and the right-arrow key both call. */
+  function handleAdvancePress(){
+    if(isChoiceDialogOpen()){
+      var choiceBtns = Array.from(choiceDialog.querySelectorAll('.move-choice-btn'));
+      var focusedIdx = choiceBtns.indexOf(document.activeElement);
+      if(focusedIdx >= 0) choiceBtns[focusedIdx].click();
+      else if(choiceBtns.length) choiceBtns[0].click();
+      return;
+    }
+    tryAdvance();
+  }
   function stopPlay(){
     if(playInterval){ clearInterval(playInterval); playInterval = null; }
     updatePlayButton();
@@ -1115,8 +1130,8 @@ function createGameWidget(container, gameOrGames){
     });
   }
 
-  container.querySelector('[data-nav="start"]').addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, 0); });
-  container.querySelector('[data-nav="prev"]').addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1)); });
+  container.querySelector('[data-nav="start"]').addEventListener('click', function(){ if(isChoiceDialogOpen()) return; manualGoToLine(activeLine, activeBranches, 0); });
+  container.querySelector('[data-nav="prev"]').addEventListener('click', function(){ if(isChoiceDialogOpen()) return; manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1)); });
   container.querySelector('[data-nav="play"]').addEventListener('click', function(){ togglePlay(); });
   container.querySelector('[data-nav="next"]').addEventListener('click', function(){ tryAdvance(); });
   container.querySelector('[data-nav="end"]').addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, activeLine.length); });
