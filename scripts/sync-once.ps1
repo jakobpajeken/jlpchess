@@ -26,6 +26,22 @@ function Write-Log {
 try {
     Set-Location $repoRoot
 
+    # Two-way bridge to data/games.pgn (a real PGN database editable in
+    # ChessBase or any other PGN tool): pulls in any comments/moves changed
+    # there into games.json/blog.json, and adds any new game from those
+    # JSON files into games.pgn so it becomes available to annotate too.
+    # Runs every cycle, before the git-status check below, so whatever it
+    # changes rides along on the same commit as everything else. A failure
+    # here (e.g. Python or the "chess" package missing) is logged but never
+    # stops the rest of the sync — the ordinary JSON-editor workflow must
+    # keep working even if this piece breaks.
+    $pgnSyncOutput = python scripts/sync_games_pgn.py 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Log "games.pgn sync failed (non-fatal): $pgnSyncOutput"
+    } elseif ($pgnSyncOutput -notmatch "already in sync") {
+        Write-Log "games.pgn sync: $pgnSyncOutput"
+    }
+
     $status = git status --porcelain 2>&1
     if (-not [string]::IsNullOrWhiteSpace($status)) {
         Write-Log "Detected changes:`n$status"
