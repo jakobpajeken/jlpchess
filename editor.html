@@ -1593,12 +1593,17 @@ function openBlogForm(idx){
     if(g.pgn) runPreview(); /* editing an existing game — show it right away */
     document.getElementById('bfg-save').addEventListener('click', function(){
       var titleEn = document.getElementById('bfg-title-en').value.trim();
-      var entry = {
+      /* merge onto the existing game object (when editing) rather than
+         replacing it outright, so "annotations" — added by
+         scripts/sync_games_pgn.py for the ChessBase round-trip, never
+         shown in this form — survives an edit here instead of silently
+         vanishing until the next sync re-derives it from the pgn */
+      var entry = Object.assign({}, editingGame ? g : {}, {
         id: g.id,
         title: joinLangValue(titleEn, document.getElementById('bfg-title-de').value) || 'Unbenannte Partie',
         meta: document.getElementById('bfg-meta').value.trim(),
         pgn: document.getElementById('bfg-pgn').value.trim()
-      };
+      });
       if(!entry.pgn){ showToast('Bitte einen PGN-Text einfügen.', true); return; }
       if(editingGame) postGames[gIdx] = entry; else postGames.push(entry);
       gamesFormSlot.innerHTML = '';
