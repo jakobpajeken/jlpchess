@@ -1138,11 +1138,17 @@ function openGameForm(idx){
   document.getElementById('game-form').addEventListener('submit', async function(e){
     e.preventDefault();
     var titleEn = document.getElementById('gf-title-en').value.trim();
-    var entry = {
+    /* start from the existing entry (when editing) rather than a blank
+       object, so "id" and "annotations" — added by scripts/sync_games_pgn.py
+       for the ChessBase round-trip, never shown in this form — survive an
+       edit here instead of silently vanishing (which would break the link
+       to that game's entry in games.pgn and lose its comments/variations
+       until the next sync re-derives them from the possibly-now-stale pgn) */
+    var entry = Object.assign({}, editing ? games[idx] : {}, {
       title: joinLangValue(titleEn, document.getElementById('gf-title-de').value) || 'Unbenannte Partie',
       meta: document.getElementById('gf-meta').value.trim(),
       pgn: document.getElementById('gf-pgn').value.trim()
-    };
+    });
     if(!entry.pgn){ showToast('Bitte einen PGN-Text einfügen.', true); return; }
     if(editing) games[idx] = entry; else games.push(entry);
     try{
