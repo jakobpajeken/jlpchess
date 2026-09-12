@@ -197,10 +197,10 @@
   .embedded-game .board-nav button:hover{color:var(--gold-bright);border-color:var(--gold);}
   .embedded-game .board-nav button[data-nav="play"]{font-size:0.78rem;}
   .embedded-game:focus-visible{outline:1px solid var(--gold-bright);outline-offset:8px;}
-  .embedded-game .game-title{font-family:'Spectral',serif;font-size:1.55rem;margin-bottom:6px;color:var(--ivory);}
+  .embedded-game .game-title{font-family:'Spectral',serif;font-size:1.55rem;margin:16px 0 14px;color:var(--ivory);}
   .embedded-game .game-info{font-size:0.84rem;color:var(--ivory-dim);margin-bottom:16px;}
   .embedded-game .pgn-error{font-size:0.84rem;color:#b04e2e;min-height:1.2em;}
-  .embedded-game .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;max-height:220px;overflow-y:auto;font-size:0.9rem;}
+  .embedded-game .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;max-height:460px;overflow-y:auto;font-size:0.98rem;}
   /* a PGN comment is rendered right inside the move list's own flowing
      text, directly after the move it belongs to, rather than pulled out
      into a separate panel — see index.html's .game-comment-inline for the
@@ -223,6 +223,20 @@
   .embedded-game .move-btn:hover{color:var(--ivory);}
   .embedded-game .move-btn.active{color:var(--gold-bright);background:rgba(31,58,95,0.14);}
   .embedded-game .move-btn.annotated{box-shadow:0 2px 0 0 var(--gold-bright);}
+  /* pops up when advancing lands on a move with more than one real
+     option — see index.html's .move-choice-dialog for the full
+     rationale (mirrored here per-widget-instance, scoped to this
+     container rather than the whole page since several games can be
+     embedded in one post). */
+  .embedded-game .move-choice-dialog{position:fixed;inset:0;background:rgba(22,32,46,0.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .embedded-game .move-choice-dialog[hidden]{display:none;}
+  .embedded-game .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:24px 26px;max-width:360px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.25);}
+  .embedded-game .move-choice-title{font-family:'Spectral',serif;font-size:1.15rem;margin-bottom:14px;color:var(--ivory);}
+  .embedded-game .move-choice-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+  .embedded-game .move-choice-btn{background:none;border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:0.98rem;padding:10px 14px;cursor:pointer;text-align:left;border-radius:2px;}
+  .embedded-game .move-choice-btn:hover{border-color:var(--gold);color:var(--gold-bright);background:rgba(31,58,95,0.06);}
+  .embedded-game .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.86rem;cursor:pointer;padding:4px 0;text-decoration:underline;}
+  .embedded-game .move-choice-cancel:hover{color:var(--gold-bright);}
   @media (max-width:600px){
     .embedded-game .games-layout{grid-template-columns:1fr;}
     .embedded-game .board-wrap{align-items:flex-start;}
