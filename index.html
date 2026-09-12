@@ -1656,9 +1656,10 @@ function appendInlineAnnotation(list, annotation, branchPath, branchBranches){
    this variation's own entries (ply/san/nag/comment/variations).
    `prefixPath`: the SAN path (from move 1) leading up to this line's
    first move. */
-function renderVariationLine(container, line, prefixPath){
+function renderVariationLine(container, line, prefixPath, prefixBranches){
   if(!line || !line.length) return;
   var fullPath = prefixPath.concat(line.map(function(e){ return e.san; }));
+  var fullBranches = prefixBranches.concat(line.map(function(e){ return e.variations || []; }));
   var cursor = prefixPath.length;
   line.forEach(function(entry, idx){
     cursor++;
@@ -1673,7 +1674,7 @@ function renderVariationLine(container, line, prefixPath){
     if(pickLang(entry.comment) || (entry.variations && entry.variations.length)){
       btn.classList.add('annotated');
     }
-    btn.addEventListener('click', function(){ manualGoToLine(fullPath, stepIdx); });
+    btn.addEventListener('click', function(){ manualGoToLine(fullPath, fullBranches, stepIdx); });
     container.appendChild(btn);
     container.appendChild(document.createTextNode(' '));
     var comment = pickLang(entry.comment);
@@ -1685,7 +1686,7 @@ function renderVariationLine(container, line, prefixPath){
     }
     (entry.variations || []).forEach(function(sub){
       container.appendChild(document.createTextNode('('));
-      renderVariationLine(container, sub, fullPath.slice(0, stepIdx));
+      renderVariationLine(container, sub, fullPath.slice(0, stepIdx), fullBranches.slice(0, stepIdx));
       container.appendChild(document.createTextNode(') '));
     });
   });
