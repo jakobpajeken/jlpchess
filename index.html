@@ -2158,6 +2158,36 @@ function initGamesWidget(){
   var choiceCancel = document.getElementById('move-choice-cancel');
   if(choiceCancel) choiceCancel.addEventListener('click', function(){ hideMoveChoiceDialog(); });
   if(choiceDialog) choiceDialog.addEventListener('click', function(e){ if(e.target === choiceDialog) hideMoveChoiceDialog(); });
+
+  /* swipe left/right on the board is the touch equivalent of the arrow
+     keys (there's no keyboard on a phone): swipe right advances — same
+     as pressing → , including opening the move-choice dialog when the
+     move you're leaving had more than one option — swipe left steps
+     back. Same 40px/mostly-horizontal threshold already used for the
+     testimonial rotator's swipe, so a scroll gesture doesn't get mistaken
+     for one. Ignored while the dialog itself is open — its own buttons
+     are already tap-friendly, and a swipe there would be ambiguous. */
+  var boardWrap = document.querySelector('.board-wrap');
+  if(boardWrap){
+    var boardTouchX = null, boardTouchY = null;
+    boardWrap.addEventListener('touchstart', function(e){
+      var t = e.touches[0];
+      boardTouchX = t.clientX;
+      boardTouchY = t.clientY;
+    }, { passive: true });
+    boardWrap.addEventListener('touchend', function(e){
+      if(boardTouchX === null) return;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - boardTouchX;
+      var dy = t.clientY - boardTouchY;
+      boardTouchX = null;
+      if(choiceDialog && !choiceDialog.hidden) return;
+      if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5){
+        if(dx > 0) tryAdvance();
+        else manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1));
+      }
+    }, { passive: true });
+  }
 }
 initGamesWidget();
 
