@@ -184,6 +184,10 @@ def main():
                 game = make_game_from_pgn_text(g["pgn"], wid, source)
                 if game:
                     to_append.append((wid, game))
+                    normalized = export_game(game)
+                    if g["pgn"].strip() != normalized:
+                        g["pgn"] = normalized
+                        changed_blog_json = True
 
     if to_append:
         mode = "a" if os.path.exists(PGN_PATH) else "w"
