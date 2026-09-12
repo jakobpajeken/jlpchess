@@ -1706,7 +1706,7 @@ function makeMoveBtn(san, ply){
     btn.classList.add('annotated');
   }
   btn.dataset.ply = ply;
-  btn.addEventListener('click', function(){ manualGoToLine(historyVerbose.map(function(m){ return m.san; }), ply); });
+  btn.addEventListener('click', function(){ manualGoToLine(historyVerbose.map(function(m){ return m.san; }), mainlineBranches(), ply); });
   return btn;
 }
 
@@ -1981,6 +1981,8 @@ function loadGameObject(g){
   gameComments = Array.isArray(g.annotations) ? buildAnnotationIndex(g.annotations) : commentsMapToIndex(extractPgnComments(g.pgn));
   gameEngine.reset();
   activeLine = historyVerbose.map(function(m){ return m.san; });
+  activeBranches = mainlineBranches();
+  rootBranches = (gameComments[0] && gameComments[0].variations) || [];
   moveIndex = 0;
 
   var headers = parsePgnHeaders(g.pgn);
