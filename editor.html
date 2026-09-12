@@ -111,6 +111,8 @@
   .item-row .item-sub{font-size:0.82rem;color:var(--ivory-dim);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:56ch;}
   .status-badge{display:inline-block;font-size:0.72rem;font-weight:600;padding:2px 8px;border-radius:3px;margin-left:8px;vertical-align:middle;background:#fdf3d9;color:#7a5a12;border:1px solid #d9a63d;}
   .status-badge.inactive{background:#f1f1ee;color:var(--ivory-dim);border-color:var(--line);}
+  .checkbox-row{display:flex;align-items:center;gap:8px;font-size:0.92rem;color:var(--ivory);margin-bottom:18px;cursor:pointer;}
+  .checkbox-row input{width:auto;margin:0;}
   .item-row .item-actions{display:flex;gap:8px;flex-shrink:0;}
   .empty-note{color:var(--ivory-dim);font-size:0.9rem;padding:20px 0;font-style:italic;}
 
@@ -1747,7 +1749,7 @@ function openTestiForm(idx){
     if(!quoteEn && !quoteDe){ showToast('Bitte ein Zitat eingeben.', true); return; }
     var whoEn = document.getElementById('tf-who-en').value.trim();
     var whoDe = document.getElementById('tf-who-de').value.trim();
-    var entry = { quote: joinLangValue(quoteEn, quoteDe), who: joinLangValue(whoEn, whoDe) };
+    var entry = { quote: joinLangValue(quoteEn, quoteDe), who: joinLangValue(whoEn, whoDe), active: document.getElementById('tf-active').checked };
     if(editing) testimonials[idx] = entry; else testimonials.push(entry);
     try{
       await writeJson('testimonials.json', testimonials);
