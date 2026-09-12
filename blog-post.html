@@ -1123,19 +1123,23 @@ function createGameWidget(container, gameOrGames){
     var tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
     if(tag === 'input' || tag === 'textarea') return;
     if(choiceDialog && !choiceDialog.hidden){
-      /* while a choice is pending, the arrow keys move between the
-         options instead of stepping the board underneath the dialog —
-         see index.html's keydown handler for the full rationale. */
+      /* while a choice is pending: up/down cycle which option is focused,
+         right arrow plays whichever one is currently focused — see
+         index.html's keydown handler for the full rationale. */
       var choiceBtns = Array.from(choiceDialog.querySelectorAll('.move-choice-btn'));
       var focusedIdx = choiceBtns.indexOf(document.activeElement);
       if(e.key === 'Escape'){
         hideMoveChoiceDialog();
         e.preventDefault();
-      } else if(e.key === 'ArrowDown' || e.key === 'ArrowRight'){
+      } else if(e.key === 'ArrowDown'){
         if(choiceBtns.length) choiceBtns[(focusedIdx + 1 + choiceBtns.length) % choiceBtns.length].focus();
         e.preventDefault();
       } else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft'){
         if(choiceBtns.length) choiceBtns[(focusedIdx - 1 + choiceBtns.length) % choiceBtns.length].focus();
+        e.preventDefault();
+      } else if(e.key === 'ArrowRight'){
+        if(focusedIdx >= 0) choiceBtns[focusedIdx].click();
+        else if(choiceBtns.length) choiceBtns[0].click(); /* nothing focused yet — play the first/default option */
         e.preventDefault();
       }
       return; /* a choice is pending — don't also step the board underneath it */
