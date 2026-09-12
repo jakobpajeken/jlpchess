@@ -1379,8 +1379,18 @@ var moveIndex = 0;
    THIS line, not always the mainline, so a variation is just as walkable
    as the real game once you're inside it. See makeMoveBtn/renderVariationLine
    for how a button's own path is attached, and goToLineIndex for how the
-   board gets replayed to match it. */
+   board gets replayed to match it.
+   activeBranches runs parallel to activeLine: activeBranches[i] is the
+   list of alternative lines branching off right after activeLine[i] (i.e.
+   other options for what activeLine[i+1] could have been) — this is what
+   powers the move-choice dialog: reaching a move that had a real
+   alternative attached asks which one to take, instead of silently
+   picking the line you happen to already be on. rootBranches is the same
+   idea for the very first move (there's no "activeLine[-1]" to hang it
+   off of) — constant for the whole game, so it's only set on load. */
 var activeLine = [];
+var activeBranches = [];
+var rootBranches = [];
 var gameEngine = null;
 var playInterval = null; /* set while auto-play is running, one move every 1.5s */
 var PLAY_MOVE_MS = 1500;
@@ -1390,10 +1400,10 @@ function stopPlay(){
 }
 function startPlay(){
   if(playInterval || !gameEngine) return;
-  if(moveIndex >= activeLine.length) goToLineIndex(activeLine, 0); /* restart from the beginning if already at the end */
+  if(moveIndex >= activeLine.length) goToLineIndex(activeLine, activeBranches, 0); /* restart from the beginning if already at the end */
   playInterval = setInterval(function(){
     if(moveIndex >= activeLine.length){ stopPlay(); return; }
-    goToLineIndex(activeLine, moveIndex + 1);
+    goToLineIndex(activeLine, activeBranches, moveIndex + 1);
     if(moveIndex >= activeLine.length) stopPlay(); /* stop right on the final move, not one tick later */
   }, PLAY_MOVE_MS);
   updatePlayButton();
