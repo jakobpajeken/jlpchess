@@ -554,6 +554,13 @@ function createGameWidget(container, gameOrGames){
   var filesEl = container.querySelector('[data-role="files"]');
   var downloadBtn = container.querySelector('[data-role="download-btn"]');
   var downloadAllBtn = container.querySelector('[data-role="download-all-btn"]');
+  var choiceDialog = container.querySelector('[data-role="choice-dialog"]');
+  var choiceTitleEl = container.querySelector('[data-role="choice-title"]');
+  var choiceListEl = container.querySelector('[data-role="choice-list"]');
+  var choiceCancelEl = container.querySelector('[data-role="choice-cancel"]');
+  var isDe = document.documentElement.lang === 'de';
+  if(choiceTitleEl) choiceTitleEl.textContent = isDe ? 'Welcher Zug?' : 'Which move?';
+  if(choiceCancelEl) choiceCancelEl.textContent = isDe ? 'Abbrechen' : 'Cancel';
 
   var engine = null, historyVerbose = [], moveIndex = 0, gameComments = {}, currentGame = null;
   /* the SAN path (from move 1) of whatever line is currently being viewed —
