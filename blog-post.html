@@ -143,6 +143,16 @@
     background:var(--surface);border:1px solid var(--line);color:var(--ivory);
     font-family:'Inter',sans-serif;font-size:0.9rem;padding:11px 14px;min-width:220px;
   }
+  /* plain text link, not a bordered button — a secondary, quiet action,
+     not something competing with the game picker for attention. This was
+     missing entirely before, so these buttons were rendering with the
+     browser's raw default <button> chrome — about as loud as it gets. */
+  .embedded-game .game-download-btn{
+    background:none;border:none;color:var(--ivory-dim);
+    font-family:'Inter',sans-serif;font-size:0.82rem;padding:4px 0;cursor:pointer;
+    display:inline-flex;align-items:center;white-space:nowrap;text-decoration:none;
+  }
+  .embedded-game .game-download-btn:hover{color:var(--gold-bright);text-decoration:underline;}
   .embedded-game .games-layout{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start;}
   .embedded-game .board-wrap{display:flex;flex-direction:column;gap:10px;align-items:center;}
   .embedded-game .player-label{
