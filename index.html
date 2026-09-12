@@ -1887,6 +1887,30 @@ function hideMoveChoiceDialog(){
   if(dialog) dialog.hidden = true;
 }
 
+/* What the "next" button (and the right-arrow key) actually do: if the
+   choice dialog isn't open, this is just tryAdvance() — either the move
+   plays immediately, or a branch opens the dialog for you to choose.
+   If the dialog IS already open, this is now "confirm" instead of
+   "advance again": it plays whichever option is currently focused
+   (defaulting to the first one, the mainline continuation, since
+   showMoveChoiceDialog focuses it as soon as the dialog opens) — so
+   pressing the same key/button a second time plays the highlighted
+   choice rather than re-opening the same dialog. This is also what makes
+   the on-screen "»" button work as a phone's stand-in for the arrow key:
+   there's no keyboard to press ↓ or → on a touchscreen, so tapping "»"
+   again has to be the confirmation gesture instead. */
+function handleAdvancePress(){
+  var dialog = document.getElementById('move-choice-dialog');
+  if(dialog && !dialog.hidden){
+    var choiceBtns = Array.from(dialog.querySelectorAll('.move-choice-btn'));
+    var focusedIdx = choiceBtns.indexOf(document.activeElement);
+    if(focusedIdx >= 0) choiceBtns[focusedIdx].click();
+    else if(choiceBtns.length) choiceBtns[0].click();
+    return;
+  }
+  tryAdvance();
+}
+
 function formatPgnDate(d){
   var parts = d.split('.');
   if(parts.length === 3 && parts[0].length === 4){
