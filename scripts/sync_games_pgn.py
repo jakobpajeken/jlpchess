@@ -156,6 +156,13 @@ def main():
             game = make_game_from_pgn_text(entry["pgn"], wid, "games.json")
             if game:
                 to_append.append((wid, game))
+                # also normalize games.json's own copy right away (adds the
+                # WebsiteId/WebsiteSource tags to it too) instead of leaving
+                # that for next run to notice and fix
+                normalized = export_game(game)
+                if entry["pgn"].strip() != normalized:
+                    entry["pgn"] = normalized
+                    changed_games_json = True
 
     # ---- data/blog.json embedded games ----
     for post in blog_data:
