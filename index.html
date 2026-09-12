@@ -1740,7 +1740,7 @@ function loadGameObject(g){
     return false;
   }
   historyVerbose = gameEngine.history({ verbose: true });
-  gameComments = extractPgnComments(g.pgn);
+  gameComments = Array.isArray(g.annotations) ? buildAnnotationIndex(g.annotations) : commentsMapToIndex(extractPgnComments(g.pgn));
   gameEngine.reset();
   moveIndex = 0;
 
