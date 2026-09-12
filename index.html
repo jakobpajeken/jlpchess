@@ -1750,18 +1750,38 @@ function pgnMoveNumberPrefix(ply, isFirstInLine){
   if(isWhite) return moveNum + '.';
   return isFirstInLine ? moveNum + '...' : '';
 }
+/* German chess notation uses German piece initials (Dame, Turm, Läufer,
+   Springer) instead of the English ones SAN is written in — K stays K
+   (König), pawn moves and castling are unaffected either way. Purely a
+   display transformation: the underlying SAN chess.js works with never
+   changes, this only runs on the text shown to the reader. */
+function sanToGermanNotation(san){
+  if(!san || /^O-O(-O)?[+#]?$/.test(san)) return san;
+  var map = { Q:'D', R:'T', B:'L', N:'S' };
+  return san
+    .replace(/^([QRBN])/, function(m, p){ return map[p]; })
+    .replace(/=([QRBN])/, function(m, p){ return '=' + map[p]; });
+}
+function displaySan(san){
+  return currentSiteLang() === 'de' ? sanToGermanNotation(san) : san;
+}
 /* Renders one line (mainline or a variation) of the annotations tree back
    into ordinary, readable PGN-ish text, e.g. "12. Nf3 Nc6 13. Bc4 (13.
    Be2 O-O)" — recursing into any nested sub-variations attached along the
    way. This is text only: a variation is shown, not separately playable
    on the board — actually stepping through one would need a much bigger
-   change to how the board/move-list work here. */
+   change to how the board/move-list work here. Comments may be a plain
+   string (the older, mainline-only fallback extractor) or a {en,de} pair
+   (scripts/sync_games_pgn.py's real annotations, auto-translated from the
+   German originally typed in ChessBase) — pickLang() already handles
+   either shape the same way every other bilingual field on the site does. */
 function formatVariationLine(line){
   var parts = [];
   (line || []).forEach(function(entry, idx){
     var prefix = pgnMoveNumberPrefix(entry.ply, idx === 0);
-    var text = (prefix ? prefix + ' ' : '') + entry.san + (entry.nag || '');
-    if(entry.comment) text += ' {' + entry.comment + '}';
+    var text = (prefix ? prefix + ' ' : '') + displaySan(entry.san) + (entry.nag || '');
+    var comment = pickLang(entry.comment);
+    if(comment) text += ' {' + comment + '}';
     parts.push(text);
     (entry.variations || []).forEach(function(sub){
       parts.push('(' + formatVariationLine(sub) + ')');
