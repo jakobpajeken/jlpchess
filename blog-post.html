@@ -1133,8 +1133,8 @@ function createGameWidget(container, gameOrGames){
   container.querySelector('[data-nav="start"]').addEventListener('click', function(){ if(isChoiceDialogOpen()) return; manualGoToLine(activeLine, activeBranches, 0); });
   container.querySelector('[data-nav="prev"]').addEventListener('click', function(){ if(isChoiceDialogOpen()) return; manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1)); });
   container.querySelector('[data-nav="play"]').addEventListener('click', function(){ togglePlay(); });
-  container.querySelector('[data-nav="next"]').addEventListener('click', function(){ tryAdvance(); });
-  container.querySelector('[data-nav="end"]').addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, activeLine.length); });
+  container.querySelector('[data-nav="next"]').addEventListener('click', function(){ handleAdvancePress(); });
+  container.querySelector('[data-nav="end"]').addEventListener('click', function(){ if(isChoiceDialogOpen()) return; manualGoToLine(activeLine, activeBranches, activeLine.length); });
   container.querySelector('[data-nav="flip"]').addEventListener('click', function(){ setOrientation(orientation === 'black' ? 'white' : 'black'); });
   if(choiceCancelEl) choiceCancelEl.addEventListener('click', function(){ hideMoveChoiceDialog(); });
   if(choiceDialog) choiceDialog.addEventListener('click', function(e){ if(e.target === choiceDialog) hideMoveChoiceDialog(); });
@@ -1198,7 +1198,7 @@ function createGameWidget(container, gameOrGames){
       manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1));
       e.preventDefault();
     } else if(e.key === 'ArrowRight'){
-      tryAdvance();
+      handleAdvancePress();
       e.preventDefault();
     }
   });
