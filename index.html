@@ -1544,7 +1544,8 @@ function renderMoveList(){
   var list = document.getElementById('move-list');
   if(!list) return;
   list.innerHTML = '';
-  appendInlineAnnotation(list, gameComments[0]); /* comment before move 1, if any */
+  var mainlineSans = historyVerbose.map(function(m){ return m.san; });
+  appendInlineAnnotation(list, gameComments[0], []); /* comment before move 1, if any */
   for(var i = 0; i < historyVerbose.length; i += 2){
     var moveNum = (i / 2) + 1;
     var whitePly = i + 1, blackPly = i + 2;
@@ -1560,7 +1561,7 @@ function renderMoveList(){
        move (if the break happened right before it) needs its move number
        repeated as "12..." to stay readable — same convention already used
        when a variation resumes after its own break (pgnMoveNumberPrefix) */
-    var brokeFlow = appendInlineAnnotation(list, gameComments[whitePly]);
+    var brokeFlow = appendInlineAnnotation(list, gameComments[whitePly], mainlineSans.slice(0, whitePly));
     if(historyVerbose[i + 1]){
       var blackPair = document.createElement('span');
       blackPair.className = 'move-pair';
@@ -1572,7 +1573,7 @@ function renderMoveList(){
       }
       blackPair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, blackPly));
       list.appendChild(blackPair);
-      appendInlineAnnotation(list, gameComments[blackPly]);
+      appendInlineAnnotation(list, gameComments[blackPly], mainlineSans.slice(0, blackPly));
     }
   }
   highlightMoveList();
@@ -1580,25 +1581,77 @@ function renderMoveList(){
 
 /* Appends a comment (and any variations attached to the same move) right
    into the move list's own flowing text, immediately after the move it
-   belongs to. Returns true if anything was actually appended, so the
-   caller knows the flow was interrupted (see renderMoveList above). */
-function appendInlineAnnotation(list, annotation){
+   belongs to. `branchPath`: the SAN path (from move 1) up to and
+   including the mainline move this annotation is attached to — where any
+   attached variation branches off from. Returns true if anything was
+   actually appended, so the caller knows the flow was interrupted (see
+   renderMoveList above). */
+function appendInlineAnnotation(list, annotation, branchPath){
   if(!annotation) return false;
   var text = pickLang(annotation.comment);
   var hasVariations = annotation.variations && annotation.variations.length;
   if(!text && !hasVariations) return false;
   var box = document.createElement('span');
   box.className = 'game-comment-inline';
-  var html = '';
-  if(text) html += '<span class="game-comment-text">' + escapeHtml(text) + '</span>';
+  if(text){
+    var t = document.createElement('span');
+    t.className = 'game-comment-text';
+    t.textContent = text;
+    box.appendChild(t);
+  }
   if(hasVariations){
     annotation.variations.forEach(function(line){
-      html += '<span class="game-comment-variation">' + escapeHtml(formatVariationLine(line)) + '</span>';
+      var v = document.createElement('span');
+      v.className = 'game-comment-variation';
+      v.appendChild(document.createTextNode('('));
+      renderVariationLine(v, line, branchPath);
+      v.appendChild(document.createTextNode(')'));
+      box.appendChild(v);
     });
   }
-  box.innerHTML = html;
   list.appendChild(box);
   return true;
+}
+
+/* Renders one variation line — the actual game moves leading up to it
+   plus its own moves — as real, clickable move buttons (not static text),
+   so a side line is just as playable as the mainline: click any move in
+   it, or step through it with the arrow keys once you're on it. Recurses
+   into any sub-variations nested inside it, same as the mainline's own
+   comments do. `container`: where to append into. `line`: this
+   variation's own entries (ply/san/nag/comment/variations). `prefixPath`:
+   the SAN path (from move 1) leading up to this line's first move. */
+function renderVariationLine(container, line, prefixPath){
+  var path = prefixPath.slice();
+  (line || []).forEach(function(entry, idx){
+    path.push(entry.san);
+    var thisPath = path.slice();
+    var prefix = pgnMoveNumberPrefix(entry.ply, idx === 0);
+    if(prefix) container.appendChild(document.createTextNode(prefix + ' '));
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'move-btn variation-move-btn';
+    btn.textContent = displaySan(entry.san) + (entry.nag || '');
+    btn.__path = thisPath;
+    if(pickLang(entry.comment) || (entry.variations && entry.variations.length)){
+      btn.classList.add('annotated');
+    }
+    btn.addEventListener('click', function(){ manualGoToLine(thisPath, thisPath.length); });
+    container.appendChild(btn);
+    container.appendChild(document.createTextNode(' '));
+    var comment = pickLang(entry.comment);
+    if(comment){
+      var c = document.createElement('span');
+      c.className = 'variation-comment';
+      c.textContent = '{' + comment + '} ';
+      container.appendChild(c);
+    }
+    (entry.variations || []).forEach(function(sub){
+      container.appendChild(document.createTextNode('('));
+      renderVariationLine(container, sub, thisPath);
+      container.appendChild(document.createTextNode(') '));
+    });
+  });
 }
 
 function makeMoveBtn(san, ply){
@@ -1607,6 +1660,7 @@ function makeMoveBtn(san, ply){
   btn.className = 'move-btn';
   var annotation = gameComments[ply];
   btn.textContent = displaySan(san) + (annotation && annotation.nag ? annotation.nag : '');
+  btn.__path = historyVerbose.slice(0, ply).map(function(m){ return m.san; });
   /* small dot marker on any move that has a comment and/or a variation
      attached, so there's a visual hint of where to click before you've
      stepped through the whole game once */
