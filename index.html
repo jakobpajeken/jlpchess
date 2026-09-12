@@ -1751,13 +1751,72 @@ function highlightMoveList(){
    in and renders that position — line can be the mainline or any
    variation's own path, since chess.js's .move() takes a plain SAN string
    just as happily as historyVerbose's own move objects did. */
-function goToLineIndex(line, idx){
+function goToLineIndex(line, branches, idx){
+  hideMoveChoiceDialog();
   gameEngine.reset();
   for(var i = 0; i < idx; i++){ gameEngine.move(line[i]); }
   activeLine = line;
+  activeBranches = branches;
   moveIndex = idx;
   renderPosition(gameEngine.fen());
   highlightMoveList();
+}
+
+/* Advances one move forward along the current line — unless the position
+   we're actually AT right now had more than one possible next move (the
+   line's own next move, plus one or more variations branching off here),
+   in which case it asks which one via a small dialog instead of silently
+   picking one, mirroring how ChessBase itself prompts at a branch point
+   during replay. Used by the "next" button and the right-arrow key;
+   clicking a move directly in the notation always jumps straight there
+   without asking, since clicking already IS the choice. */
+function tryAdvance(){
+  if(!gameEngine) return;
+  var branches = moveIndex === 0 ? rootBranches : (activeBranches[moveIndex - 1] || []);
+  var hasNext = moveIndex < activeLine.length;
+  if(!branches.length){
+    if(hasNext) manualGoToLine(activeLine, activeBranches, moveIndex + 1);
+    return;
+  }
+  var prefixPath = activeLine.slice(0, moveIndex);
+  var prefixBranches = activeBranches.slice(0, moveIndex);
+  var options = [];
+  if(hasNext){
+    options.push({ san: activeLine[moveIndex], nag: '', go: function(){ manualGoToLine(activeLine, activeBranches, moveIndex + 1); } });
+  }
+  branches.forEach(function(varLine){
+    if(!varLine || !varLine.length) return;
+    var fullPath = prefixPath.concat(varLine.map(function(e){ return e.san; }));
+    var fullBranches = prefixBranches.concat(varLine.map(function(e){ return e.variations || []; }));
+    options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1); } });
+  });
+  if(options.length <= 1){
+    if(options.length === 1) options[0].go();
+    return;
+  }
+  showMoveChoiceDialog(options);
+}
+
+function showMoveChoiceDialog(options){
+  var dialog = document.getElementById('move-choice-dialog');
+  var list = document.getElementById('move-choice-list');
+  if(!dialog || !list) return;
+  stopPlay();
+  list.innerHTML = '';
+  options.forEach(function(opt){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'move-choice-btn';
+    btn.textContent = displaySan(opt.san) + (opt.nag || '');
+    btn.addEventListener('click', function(){ hideMoveChoiceDialog(); opt.go(); });
+    list.appendChild(btn);
+  });
+  dialog.hidden = false;
+}
+
+function hideMoveChoiceDialog(){
+  var dialog = document.getElementById('move-choice-dialog');
+  if(dialog) dialog.hidden = true;
 }
 
 function formatPgnDate(d){
