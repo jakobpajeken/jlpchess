@@ -233,6 +233,13 @@
   <div class="article-wrap">
     <a href="index.html#blog" class="back-link"><span aria-hidden="true">&larr;</span><span data-i18n="post.back">Back to all posts</span></a>
 
+    <!-- shown only when the loaded post has status:"draft" (set in
+         editor.html) — this page has no access control, so a draft is
+         only "unpublished" in the sense of not being linked from the
+         public blog list; this banner exists so a direct/shared link to
+         it is never mistaken for the live article -->
+    <div class="draft-banner" id="draft-banner" hidden data-i18n="post.draftBanner">⚠ Draft — not published yet. Only visible via this direct link.</div>
+
     <div class="article-head">
       <div class="eyebrow"><span class="rule"></span><span id="post-category" data-i18n="post.category">Add a category — e.g. Openings, Tournaments, Training</span></div>
       <h1 id="post-title" data-i18n="post.title">Add a post title here</h1>
