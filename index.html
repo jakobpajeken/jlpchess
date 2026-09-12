@@ -1883,6 +1883,7 @@ function loadGameObject(g){
   historyVerbose = gameEngine.history({ verbose: true });
   gameComments = Array.isArray(g.annotations) ? buildAnnotationIndex(g.annotations) : commentsMapToIndex(extractPgnComments(g.pgn));
   gameEngine.reset();
+  activeLine = historyVerbose.map(function(m){ return m.san; });
   moveIndex = 0;
 
   var headers = parsePgnHeaders(g.pgn);
