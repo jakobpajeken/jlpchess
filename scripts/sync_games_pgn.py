@@ -93,17 +93,13 @@ def translate_via_deepl(text, source, target):
 
 
 def translate_via_mymemory(text, source, target):
-    url = ("https://api.mymemory.translated.net/get?q=" + urllib.parse_quote(text)
+    url = ("https://api.mymemory.translated.net/get?q=" + urllib.parse.quote(text)
            + "&langpair=" + source.lower() + "|" + target.lower())
     data = _http_get_json(url)
     translated = (data.get("responseData") or {}).get("translatedText")
     if not translated or re.search(r"MYMEMORY WARNING|INVALID LANGPAIR|NO QUERY SPECIFIED", translated, re.I):
         raise RuntimeError("no usable translation")
     return translated
-
-
-import urllib.parse as _urllib_parse
-urllib.parse_quote = _urllib_parse.quote
 
 
 def translate_text(text, source, target):
