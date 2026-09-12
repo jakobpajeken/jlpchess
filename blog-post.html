@@ -455,8 +455,8 @@ function createGameWidget(container, gameOrGames){
   container.innerHTML =
     '<div class="games-controls-top">' +
       (hasPicker ? '<select data-role="game-select" aria-label="Select a game"></select>' : '') +
-      '<button type="button" class="game-download-btn" data-role="download-btn" data-i18n="games.download">⬇ Download PGN</button>' +
-      (hasPicker ? '<button type="button" class="game-download-btn" data-role="download-all-btn" data-i18n="games.downloadAll">⬇ Download all as PGN</button>' : '') +
+      '<button type="button" class="game-download-btn" data-role="download-btn"></button>' +
+      (hasPicker ? '<button type="button" class="game-download-btn" data-role="download-all-btn"></button>' : '') +
     '</div>' +
     '<div class="games-layout">' +
     '<div class="board-wrap">' +
