@@ -109,6 +109,8 @@
   .item-row .item-info{min-width:0;}
   .item-row .item-title{font-family:'Spectral',serif;font-size:1.02rem;color:var(--ivory);}
   .item-row .item-sub{font-size:0.82rem;color:var(--ivory-dim);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:56ch;}
+  .status-badge{display:inline-block;font-size:0.72rem;font-weight:600;padding:2px 8px;border-radius:3px;margin-left:8px;vertical-align:middle;background:#fdf3d9;color:#7a5a12;border:1px solid #d9a63d;}
+  .status-badge.inactive{background:#f1f1ee;color:var(--ivory-dim);border-color:var(--line);}
   .item-row .item-actions{display:flex;gap:8px;flex-shrink:0;}
   .empty-note{color:var(--ivory-dim);font-size:0.9rem;padding:20px 0;font-style:italic;}
 
@@ -1160,15 +1162,17 @@ function renderBlog(){
   if(!blogPosts.length){ list.innerHTML = '<div class="empty-note">Noch keine Beiträge. Die Website zeigt bis dahin ihre Platzhalter-Karten.</div>'; return; }
   list.innerHTML = '';
   blogPosts.forEach(function(p, idx){
+    var isDraft = p.status === 'draft';
     var row = document.createElement('div');
     row.className = 'item-row';
     row.innerHTML =
       '<div class="item-main">' +
       (p.image ? '<img class="item-thumb" src="' + escapeHtml(p.image) + '" alt="">' : '') +
-      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + '</div>' +
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + (isDraft ? ' <span class="status-badge">Entwurf</span>' : '') + '</div>' +
       '<div class="item-sub">' + escapeHtml(formatBlogDate(p.date, 'de')) + (p.date && p.excerpt ? ' · ' : '') + escapeHtml(previewLang(p.excerpt) || '') + '</div></div>' +
       '</div>' +
       '<div class="item-actions">' +
+      '<button type="button" class="btn small" data-toggle-status="' + idx + '">' + (isDraft ? 'Veröffentlichen' : 'Zu Entwurf') + '</button>' +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
       '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
       '</div>';
@@ -1176,6 +1180,20 @@ function renderBlog(){
   });
   list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openBlogForm(parseInt(b.dataset.edit, 10)); }); });
   list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteBlog(parseInt(b.dataset.del, 10)); }); });
+  list.querySelectorAll('[data-toggle-status]').forEach(function(b){ b.addEventListener('click', function(){ toggleBlogStatus(parseInt(b.dataset.toggleStatus, 10)); }); });
+}
+async function toggleBlogStatus(idx){
+  var post = blogPosts[idx];
+  var wasDraft = post.status === 'draft';
+  post.status = wasDraft ? 'published' : 'draft';
+  try{
+    await writeJson('blog.json', blogPosts);
+    renderBlog();
+    showToast(wasDraft ? 'Veröffentlicht ✓' : 'Als Entwurf markiert.');
+  }catch(err){
+    post.status = wasDraft ? 'draft' : 'published'; /* revert the in-memory flip if the write failed */
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
 }
 function makeGameId(){
   return 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
