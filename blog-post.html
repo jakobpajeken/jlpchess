@@ -748,7 +748,7 @@ function createGameWidget(container, gameOrGames){
   }
   function highlightMoveList(){
     container.querySelectorAll('.move-btn').forEach(function(btn){
-      var isActive = parseInt(btn.dataset.ply, 10) === moveIndex;
+      var isActive = pathIsActive(btn.__path);
       btn.classList.toggle('active', isActive);
       /* keep the current move in view by setting scrollTop on the
          move-list box directly, rather than scrollIntoView — which per
@@ -781,10 +781,13 @@ function createGameWidget(container, gameOrGames){
       }
     });
   }
-  function goToPly(ply){
+  /* Replays `line` (an array of SAN strings from move 1) up to `idx` moves
+     in — line can be the mainline or any variation's own path. */
+  function goToLineIndex(line, idx){
     engine.reset();
-    for(var i = 0; i < ply; i++){ engine.move(historyVerbose[i]); }
-    moveIndex = ply;
+    for(var i = 0; i < idx; i++){ engine.move(line[i]); }
+    activeLine = line;
+    moveIndex = idx;
     renderPosition(engine.fen());
     highlightMoveList();
   }
@@ -794,11 +797,11 @@ function createGameWidget(container, gameOrGames){
   }
   function startPlay(){
     if(playInterval) return;
-    if(moveIndex >= historyVerbose.length) goToPly(0);
+    if(moveIndex >= activeLine.length) goToLineIndex(activeLine, 0);
     playInterval = setInterval(function(){
-      if(moveIndex >= historyVerbose.length){ stopPlay(); return; }
-      goToPly(moveIndex + 1);
-      if(moveIndex >= historyVerbose.length) stopPlay(); /* stop right on the final move, not one tick later */
+      if(moveIndex >= activeLine.length){ stopPlay(); return; }
+      goToLineIndex(activeLine, moveIndex + 1);
+      if(moveIndex >= activeLine.length) stopPlay(); /* stop right on the final move, not one tick later */
     }, PLAY_MOVE_MS);
     updatePlayButton();
   }
