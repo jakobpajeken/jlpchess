@@ -1887,6 +1887,11 @@ function hideMoveChoiceDialog(){
   if(dialog) dialog.hidden = true;
 }
 
+function isChoiceDialogOpen(){
+  var dialog = document.getElementById('move-choice-dialog');
+  return !!(dialog && !dialog.hidden);
+}
+
 /* What the "next" button (and the right-arrow key) actually do: if the
    choice dialog isn't open, this is just tryAdvance() — either the move
    plays immediately, or a branch opens the dialog for you to choose.
