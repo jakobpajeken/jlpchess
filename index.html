@@ -388,9 +388,15 @@
      sub-variations in parens), not prose, so it stays in the monospace-ish
      Inter font rather than the italic serif used for actual comments —
      easier to read as notation that way */
-  .game-comment-variation{font-family:'Inter',sans-serif;font-size:0.86rem;color:var(--ivory-dim);}
+  .game-comment-variation{font-family:'Inter',sans-serif;font-size:0.86rem;color:var(--ivory-dim);line-height:1.9;}
   .game-comment-variation + .game-comment-variation{margin-top:6px;}
   .game-comment-variation::before{content:'↳ ';color:var(--gold-bright);}
+  /* a variation's moves are real .move-btn elements too (clickable, and
+     steppable with the arrow keys once you're on that line) — just sized
+     down to match the surrounding variation text instead of the mainline's
+     own larger notation */
+  .game-comment-variation .move-btn{font-size:0.86rem;padding:1px 3px;}
+  .variation-comment{font-style:italic;}
   .move-num{color:var(--ivory-dim);margin-right:2px;}
   .move-btn{
     background:none;border:none;color:var(--ivory-dim);cursor:pointer;
