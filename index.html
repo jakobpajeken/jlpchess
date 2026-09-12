@@ -425,7 +425,7 @@
       </div>
     </div>
     <div class="hero-stats">
-      <div class="stat"><div class="figure" id="fide-rating-figure">2482</div><div class="label" data-i18n="hero.stat1">FIDE rating</div></div>
+      <div class="stat"><div class="figure fide-rating-live" id="fide-rating-figure">2482</div><div class="label" data-i18n="hero.stat1">FIDE rating</div></div>
       <div class="stat"><div class="figure" id="world-rank-figure">#710</div><div class="label" data-i18n="hero.stat1b">World ranking</div></div>
       <div class="stat"><div class="figure" data-i18n="hero.stat2fig">2 GM norms</div><div class="label" data-i18n="hero.stat2">Towards the Grandmaster title</div></div>
       <div class="stat"><div class="figure" data-i18n="hero.stat3fig">5+ years</div><div class="label" data-i18n="hero.stat3">Coaching experience</div></div>
@@ -472,7 +472,7 @@
     <div class="section-head single scroll-target" id="about-bio" style="margin-bottom:20px;">
       <h2 data-i18n="about.heading">About me</h2>
     </div>
-    <p class="about-greeting" data-i18n="about.sub">Hello! I'm Jakob Leon Pajeken, an International Master and dedicated chess coach, currently rated <span id="fide-rating-sub">2482</span> FIDE with two GM norms.</p>
+    <p class="about-greeting" data-i18n="about.sub">Hello! I'm Jakob Leon Pajeken, an International Master and dedicated chess coach, currently rated <span class="fide-rating-live" id="fide-rating-sub">2482</span> FIDE with two GM norms.</p>
     <div class="about-stack">
       <div class="about-portrait-wrap">
         <div class="about-portrait"><img src="profile.jpg" alt="Jakob Pajeken at a chess tournament, making a move on the board"></div>
@@ -1120,10 +1120,14 @@ function formatBlogDate(iso, lang){
 }
 function applyFideRating(){
   if(fideRatingValue != null){
-    var figureEl = document.getElementById('fide-rating-figure');
-    var subEl = document.getElementById('fide-rating-sub');
-    if(figureEl) figureEl.textContent = fideRatingValue;
-    if(subEl) subEl.textContent = fideRatingValue;
+    /* shared class rather than one-off ids, so any number of "the current
+       live FIDE rating" spots (hero stat, About intro, now also the
+       Coaching pitch) can each just drop in a <span class="fide-rating-live">
+       with a static fallback number and get kept in sync here, without
+       wiring up a new getElementById call every time one more is added */
+    document.querySelectorAll('.fide-rating-live').forEach(function(el){
+      el.textContent = fideRatingValue;
+    });
   }
   if(worldRankValue != null){
     var rankEl = document.getElementById('world-rank-figure');
