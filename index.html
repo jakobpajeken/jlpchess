@@ -1554,11 +1554,11 @@ function makeMoveBtn(san, ply){
   btn.type = 'button';
   btn.className = 'move-btn';
   var annotation = gameComments[ply];
-  btn.textContent = san + (annotation && annotation.nag ? annotation.nag : '');
+  btn.textContent = displaySan(san) + (annotation && annotation.nag ? annotation.nag : '');
   /* small dot marker on any move that has a comment and/or a variation
      attached, so there's a visual hint of where to click before you've
      stepped through the whole game once */
-  if(annotation && (annotation.comment || (annotation.variations && annotation.variations.length))){
+  if(annotation && (pickLang(annotation.comment) || (annotation.variations && annotation.variations.length))){
     btn.classList.add('annotated');
   }
   btn.dataset.ply = ply;
