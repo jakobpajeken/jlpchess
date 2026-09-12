@@ -558,9 +558,8 @@ function createGameWidget(container, gameOrGames){
   var choiceTitleEl = container.querySelector('[data-role="choice-title"]');
   var choiceListEl = container.querySelector('[data-role="choice-list"]');
   var choiceCancelEl = container.querySelector('[data-role="choice-cancel"]');
-  var isDe = document.documentElement.lang === 'de';
-  if(choiceTitleEl) choiceTitleEl.textContent = isDe ? 'Welcher Zug?' : 'Which move?';
-  if(choiceCancelEl) choiceCancelEl.textContent = isDe ? 'Abbrechen' : 'Cancel';
+  if(choiceTitleEl) choiceTitleEl.textContent = document.documentElement.lang === 'de' ? 'Welcher Zug?' : 'Which move?';
+  if(choiceCancelEl) choiceCancelEl.textContent = document.documentElement.lang === 'de' ? 'Abbrechen' : 'Cancel';
 
   var engine = null, historyVerbose = [], moveIndex = 0, gameComments = {}, currentGame = null;
   /* the SAN path (from move 1) of whatever line is currently being viewed —
