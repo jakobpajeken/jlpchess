@@ -1682,16 +1682,52 @@ function openBlogForm(idx){
       '</div></div>';
     document.getElementById('bfg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
     var copyFromSelect = document.getElementById('bfg-copy-from');
+    var pgnDatabaseEntries = [];
+    /* labels an entry using the nice bilingual title already on the site
+       for it, if this exact game (matched by WebsiteId) is already
+       catalogued in games.json or a blog post — falling back to the raw
+       PGN headers (e.g. for a game that only exists in ChessBase so far,
+       not yet picked up anywhere on the site) */
+    function labelForPgnEntry(entry){
+      if(entry.websiteId){
+        var known = games.find(function(g){ return g.id === entry.websiteId; });
+        if(!known){
+          blogPosts.some(function(p){
+            known = (p.games || []).find(function(g){ return g.id === entry.websiteId; });
+            return !!known;
+          });
+        }
+        if(known) return previewLang(known.title) || '(ohne Titel)';
+      }
+      var h = entry.headers;
+      if(h.white && h.black) return h.white + ' – ' + h.black + (h.event ? ' (' + h.event + ')' : '');
+      return h.event || '(unbenannte Partie)';
+    }
+    fetchGamesPgnDatabase().then(function(entries){
+      if(!copyFromSelect) return; /* form may have been closed already */
+      if(entries === null){
+        copyFromSelect.innerHTML = '<option value="">Datenbank konnte nicht geladen werden</option>';
+        return;
+      }
+      pgnDatabaseEntries = entries;
+      if(!entries.length){
+        copyFromSelect.innerHTML = '<option value="">Noch keine Partien in der Datenbank</option>';
+        return;
+      }
+      copyFromSelect.innerHTML = '<option value="">— auswählen —</option>' +
+        entries.map(function(entry, i){ return '<option value="' + i + '">' + escapeHtml(labelForPgnEntry(entry)) + '</option>'; }).join('');
+    });
     if(copyFromSelect){
       copyFromSelect.addEventListener('change', function(){
         if(copyFromSelect.value === '') return;
-        var source = games[parseInt(copyFromSelect.value, 10)];
-        if(!source) return;
-        var srcTitle = splitLangValue(source.title);
+        var entry = pgnDatabaseEntries[parseInt(copyFromSelect.value, 10)];
+        if(!entry) return;
+        var known = entry.websiteId && games.find(function(g){ return g.id === entry.websiteId; });
+        var srcTitle = splitLangValue(known ? known.title : (entry.headers.white && entry.headers.black ? entry.headers.white + ' vs ' + entry.headers.black : entry.headers.event || ''));
         document.getElementById('bfg-title-en').value = srcTitle.en;
         document.getElementById('bfg-title-de').value = srcTitle.de;
-        document.getElementById('bfg-meta').value = source.meta || '';
-        document.getElementById('bfg-pgn').value = source.pgn || '';
+        document.getElementById('bfg-meta').value = known ? (known.meta || '') : '';
+        document.getElementById('bfg-pgn').value = entry.pgn;
         copyFromSelect.value = '';
         showToast('Übernommen — unten anpassen und speichern ✓');
       });
