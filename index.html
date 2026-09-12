@@ -372,7 +372,22 @@
   .board-nav button:hover{color:var(--gold-bright);border-color:var(--gold);}
   .game-title{font-family:'Spectral',serif;font-size:1.9rem;margin:20px 0 18px;color:var(--gold-bright);}
   .game-info{font-size:0.88rem;color:var(--ivory-dim);margin-bottom:18px;}
-  .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;max-height:460px;overflow-y:auto;font-size:0.98rem;}
+  .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;max-height:460px;overflow-y:scroll;font-size:0.98rem;scrollbar-width:auto;scrollbar-color:var(--gold) var(--line);}
+  /* a plain overlay scrollbar that only appears on hover/while scrolling is
+     easy to miss entirely on a long game — overflow-y:scroll above (not
+     auto) keeps the track always visible instead of only-when-needed, and
+     the WebKit-only pseudo-elements below add small clickable up/down
+     arrow buttons on top of that, like a classic scrollbar — nice for
+     stepping through a long comment without a trackpad/wheel. Firefox
+     doesn't support these, but still gets the always-visible, themed bar
+     via scrollbar-width/-color above. */
+  .move-list::-webkit-scrollbar{width:14px;}
+  .move-list::-webkit-scrollbar-track{background:var(--line);}
+  .move-list::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px;border:3px solid transparent;background-clip:padding-box;}
+  .move-list::-webkit-scrollbar-thumb:hover{background:var(--gold-bright);background-clip:padding-box;}
+  .move-list::-webkit-scrollbar-button{display:block;height:14px;background-color:var(--surface-raised);background-repeat:no-repeat;background-position:center;}
+  .move-list::-webkit-scrollbar-button:vertical:start:decrement{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M5 0 10 6 0 6Z' fill='%235b6474'/%3E%3C/svg%3E");}
+  .move-list::-webkit-scrollbar-button:vertical:end:increment{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0 10 0 5 6Z' fill='%235b6474'/%3E%3C/svg%3E");}
   /* a PGN comment (e.g. added in ChessBase) is rendered right inside the
      move list's own flowing text, directly after the move it belongs to —
      like a printed annotated game score — rather than pulled out into a
