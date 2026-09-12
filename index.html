@@ -1811,6 +1811,12 @@ function highlightMoveList(){
       }
     }
   });
+  /* ply 0 (before any move) has no move button to scroll to above — but it
+     can have its own intro comment sitting right at the very top of the
+     list, so stepping back to the start of the game (undoing the first
+     move) should jump back up to show it, not leave the view wherever it
+     happened to be scrolled to from browsing later moves. */
+  if(moveIndex === 0 && listEl) listEl.scrollTop = 0;
 }
 
 /* Replays `line` (an array of SAN strings from move 1) up to `idx` moves
