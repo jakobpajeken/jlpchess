@@ -1861,6 +1861,10 @@ function refreshGameTitleLanguage(){
   var blackName = headers.black || 'Black';
   titleEl.textContent = pickLang(currentGame.title) || (whiteName + ' vs ' + blackName);
   if(infoEl) infoEl.textContent = buildGameInfoText(headers, currentGame.meta);
+  /* move notation (German piece letters) and any comments/variations are
+     also language-dependent, so the whole move list needs rebuilding here
+     too — not just the title/info text above */
+  renderMoveList();
 }
 
 function loadGamesData(){
