@@ -503,7 +503,7 @@ function createGameWidget(container, gameOrGames){
   var downloadBtn = container.querySelector('[data-role="download-btn"]');
   var downloadAllBtn = container.querySelector('[data-role="download-all-btn"]');
 
-  var engine = null, historyVerbose = [], moveIndex = 0, gameComments = {};
+  var engine = null, historyVerbose = [], moveIndex = 0, gameComments = {}, currentGame = null;
   var orientation = 'white'; /* 'white' = normal view, 'black' = flipped */
   var whiteName = 'White', blackName = 'Black';
   var playInterval = null; /* set while auto-play is running, one move every 1.5s */
@@ -800,6 +800,7 @@ function createGameWidget(container, gameOrGames){
   embeddedGameWidgets.push(titleTrack);
 
   function loadGame(game){
+    currentGame = game;
     errorEl.textContent = '';
     if(typeof Chess === 'undefined'){
       errorEl.textContent = document.documentElement.lang === 'de'
