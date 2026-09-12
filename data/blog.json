@@ -63,5 +63,32 @@
       }
     ],
     "status": "published"
+  },
+  {
+    "title": {
+      "en": "2. ChessConnect Open in Hamburg",
+      "de": "2. ChessConnect Open in Hamburg"
+    },
+    "slug": "2-chessconnect-open-in-hamburg",
+    "status": "published",
+    "category": {
+      "en": "Tournaments",
+      "de": "Turnierbericht"
+    },
+    "date": "2026-09-12",
+    "author": "IM Jakob Leon Pajeken",
+    "image": "",
+    "imageCredit": "",
+    "excerpt": {
+      "en": "A commanding victory at the board—and a tournament that many other tournaments could learn a thing or two from. At the 2nd ChessConnect Open, the ChessConnect app ensured that the organization ran as smoothly and seamlessly as one would hope for at any tournament. A look behind the scenes shows why other organizers can learn a thing or two from this event.",
+      "de": "Souveräner Sieg am Brett – und ein Turnierablauf, von dem sich so manches Turnier eine Scheibe abschneiden kann .Beim 2. ChessConnect Open sorgte die ChessConnect App für eine Organisation, die so flüssig und reibungslos lief, wie man sie sich bei jedem Turnier wünschen würde. Ein Blick hinter die Kulissen zeigt, warum sich andere Veranstalter hier einiges abschauen können."
+    },
+    "lead": "",
+    "body": {
+      "en": [],
+      "de": []
+    },
+    "quote": "",
+    "games": []
   }
 ]
