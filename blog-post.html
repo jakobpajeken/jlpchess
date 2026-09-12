@@ -487,8 +487,9 @@ function createGameWidget(container, gameOrGames){
   var bottomNameEl = container.querySelector('[data-role="bottom-name"]');
   var ranksEl = container.querySelector('[data-role="ranks"]');
   var filesEl = container.querySelector('[data-role="files"]');
+  var commentEl = container.querySelector('[data-role="comment"]');
 
-  var engine = null, historyVerbose = [], moveIndex = 0;
+  var engine = null, historyVerbose = [], moveIndex = 0, gameComments = {};
   var orientation = 'white'; /* 'white' = normal view, 'black' = flipped */
   var whiteName = 'White', blackName = 'Black';
   var playInterval = null; /* set while auto-play is running, one move every 1.5s */
