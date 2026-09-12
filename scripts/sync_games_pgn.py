@@ -283,8 +283,13 @@ def extract_annotations(game, old_annotations=None):
     # simply shows up as soon as the game loads, before any move is
     # highlighted.
     intro = translate_comment(game.comment, (0, None), cache)
-    if intro.get("de") or intro.get("en"):
-        line = [{"ply": 0, "san": None, "nag": "", "comment": intro, "variations": []}] + line
+    # An alternative to White's very first move ("1. e4 (1. d4)") branches
+    # at the game root itself, same idea as any other branch point -- just
+    # one level up from what serialize_line() ever sees, so it's handled
+    # here instead.
+    root_variations = [serialize_line(child, game.board(), cache) for child in mainline[1:]] if len(mainline) > 1 else []
+    if intro.get("de") or intro.get("en") or root_variations:
+        line = [{"ply": 0, "san": None, "nag": "", "comment": intro, "variations": root_variations}] + line
     return line
 
 
