@@ -364,6 +364,13 @@
   .game-title{font-family:'Spectral',serif;font-size:2.15rem;margin-bottom:6px;}
   .game-info{font-size:0.88rem;color:var(--ivory-dim);margin-bottom:18px;}
   .move-list{display:flex;flex-wrap:wrap;gap:4px 10px;max-height:260px;overflow-y:auto;font-size:0.92rem;}
+  /* shows the PGN comment (e.g. added in ChessBase) attached to whichever
+     move is currently selected, if any — hidden entirely when that move
+     has none. Explicit [hidden] override since a bare display: on this
+     class would otherwise outrank the browser's own [hidden]{display:none}
+     and leave it visible regardless (see .article-cover for the same fix). */
+  .game-comment{margin-top:14px;padding:14px 16px;background:var(--surface-raised);border-left:2px solid var(--gold);font-family:'Spectral',serif;font-style:italic;font-size:0.92rem;line-height:1.55;color:var(--ivory);}
+  .game-comment[hidden]{display:none;}
   .move-num{color:var(--ivory-dim);margin-right:2px;}
   .move-btn{
     background:none;border:none;color:var(--ivory-dim);cursor:pointer;
