@@ -240,6 +240,12 @@
   .embedded-game .move-choice-btn:hover,.embedded-game .move-choice-btn:focus{border-color:var(--gold);color:var(--gold-bright);background:rgba(31,58,95,0.06);outline:none;}
   .embedded-game .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.76rem;cursor:pointer;padding:2px 0;text-decoration:underline;}
   .embedded-game .move-choice-cancel:hover{color:var(--gold-bright);}
+  /* bigger tap targets on touch devices — see index.html's dialog CSS for
+     the full rationale */
+  @media (pointer:coarse){
+    .embedded-game .move-choice-btn{padding:12px 14px;font-size:0.95rem;}
+    .embedded-game .move-choice-cancel{padding:10px 0;font-size:0.85rem;}
+  }
   @media (max-width:600px){
     .embedded-game .games-layout{grid-template-columns:1fr;}
     .embedded-game .board-wrap{align-items:flex-start;}
