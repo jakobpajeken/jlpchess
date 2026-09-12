@@ -1605,10 +1605,11 @@ function highlightMoveList(){
   var commentEl = document.getElementById('game-comment');
   if(commentEl){
     var annotation = gameComments[moveIndex];
+    var commentText = annotation ? pickLang(annotation.comment) : '';
     var hasVariations = annotation && annotation.variations && annotation.variations.length;
-    if(annotation && (annotation.comment || hasVariations)){
+    if(annotation && (commentText || hasVariations)){
       var html = '';
-      if(annotation.comment) html += '<div class="game-comment-text">' + escapeHtml(annotation.comment) + '</div>';
+      if(commentText) html += '<div class="game-comment-text">' + escapeHtml(commentText) + '</div>';
       if(hasVariations){
         annotation.variations.forEach(function(line){
           html += '<div class="game-comment-variation">' + escapeHtml(formatVariationLine(line)) + '</div>';
