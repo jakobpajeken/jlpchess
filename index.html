@@ -2528,7 +2528,7 @@ document.addEventListener('keydown', function(e){
     manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1));
     e.preventDefault();
   } else if(e.key === 'ArrowRight'){
-    tryAdvance();
+    handleAdvancePress();
     e.preventDefault();
   }
 });
