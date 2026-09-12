@@ -500,6 +500,8 @@ function createGameWidget(container, gameOrGames){
   var ranksEl = container.querySelector('[data-role="ranks"]');
   var filesEl = container.querySelector('[data-role="files"]');
   var commentEl = container.querySelector('[data-role="comment"]');
+  var downloadBtn = container.querySelector('[data-role="download-btn"]');
+  var downloadAllBtn = container.querySelector('[data-role="download-all-btn"]');
 
   var engine = null, historyVerbose = [], moveIndex = 0, gameComments = {};
   var orientation = 'white'; /* 'white' = normal view, 'black' = flipped */
