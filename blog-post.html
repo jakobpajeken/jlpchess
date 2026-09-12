@@ -533,6 +533,12 @@ function createGameWidget(container, gameOrGames){
   var downloadAllBtn = container.querySelector('[data-role="download-all-btn"]');
 
   var engine = null, historyVerbose = [], moveIndex = 0, gameComments = {}, currentGame = null;
+  /* the SAN path (from move 1) of whatever line is currently being viewed —
+     the mainline by default, or a variation's own path once you click into
+     one. Arrow keys and the prev/next/start/end buttons all step through
+     THIS line, not always the mainline — see index.html's activeLine for
+     the full rationale (mirrored here per-widget-instance). */
+  var activeLine = [];
   var orientation = 'white'; /* 'white' = normal view, 'black' = flipped */
   var whiteName = 'White', blackName = 'Black';
   var playInterval = null; /* set while auto-play is running, one move every 1.5s */
