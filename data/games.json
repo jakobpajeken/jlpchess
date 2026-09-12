@@ -9,6 +9,16 @@
     "id": "must-win-vs-gm-iniyan",
     "annotations": [
       {
+        "ply": 0,
+        "san": null,
+        "nag": "",
+        "comment": {
+          "de": "Diese Partie ist für mich mit Abstand die bedeutendste meiner bisherigen Karriere. Um die Bedeutung dieser Partie zu verstehen, muss man zunächst wissen, was dieser Turnierauftritt für mich überhaupt bedeutete. Vor dem Turnier hatte ich eine viermonatige Schachpause eingelegt. Niemand wusste so recht, was danach zu erwarten war. Umso sensationeller war mein Start: Nach sieben Runden hatte ich 6 Punkte auf dem Konto und lag damit klar auf GM-Norm-Kurs. Allerdings hatte ich bis dahin noch keinen einzigen Großmeister gespielt. In Runde 7 bekam ich schließlich meinen ersten GM – und damit begann die eigentliche Herausforderung. Für die GM-Norm brauchte ich noch zwei weitere Großmeister. In Runde 8 traf ich auf GM Tomas Laurusas aus Litauen. Ich spielte mit Fieber und verlor die Partie auf äußerst bittere Weise. Plötzlich stand ich vor der letzten Runde mit dem Rücken zur Wand. Das Motto war klar: Alles oder nichts. Dabei war die Ausgangssituation alles andere als ideal. Ich hatte Fieber, gerade eine schmerzhafte Niederlage hinter mir und zusätzlich ein Problem mit meiner Hotelbuchung. Aufgrund eines Missverständnisses musste ich am Morgen der neunten Runde fast eine Stunde zu Fuß zum Spielort laufen. Für eine entscheidende Partie am frühen Morgen war das natürlich alles andere als optimal. Doch ausgerechnet die Niederlage gegen Laurusas hatte auch einen entscheidenden positiven Nebeneffekt: Durch das Ergebnis bekam ich in der letzten Runde meinen dritten Großmeister, GM Iniyan Pa aus Indien. Ein Remis oder sogar ein Sieg in der achten Runde hätte mir diese Chance genommen. Jetzt war die Situation plötzlich glasklar: Wenn ich diese Partie gewinnen würde, hätte ich nicht nur die GM-Norm erreicht, sondern gleichzeitig den bis dahin größten Erfolg meiner Karriere gefeiert. Und plötzlich war da dieses Gefühl. Bis zu diesem Zeitpunkt hatte ich noch nie das Gefühl gehabt, wirklich etwas Großes im Schach erreicht zu haben. Jetzt war ich bereit, alles für diesen einen Sieg zu geben. Der Ehrgeiz, die Motivation und der pure Siegeswille waren stärker als alles, was ich bis dahin in einer Schachpartie erlebt hatte. Fieber, Müdigkeit, die bittere Niederlage aus der achten Runde und der lange Fußweg zum Spielort spielten keine Rolle mehr. Es gab nur noch ein Ziel: gewinnen:",
+          "en": "QUERY LENGTH LIMIT EXCEEDED. MAX ALLOWED QUERY : 500 CHARS"
+        },
+        "variations": []
+      },
+      {
         "ply": 1,
         "san": "e4",
         "nag": "",

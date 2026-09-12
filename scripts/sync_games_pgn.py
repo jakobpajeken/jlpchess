@@ -144,6 +144,20 @@ def nag_symbol(n):
     return NAG_SYMBOLS.get(n, "")
 
 
+def strip_pgn_commands(text):
+    """Removes PGN "command" annotations like [%evp ...], [%eval ...],
+    [%clk ...] -- structured data some annotation tools (ChessBase
+    included) embed inside comment text using PGN's official escape
+    syntax, e.g. an engine evaluation graph attached to a game's intro
+    comment. Not meant to be read as prose, so it's stripped before a
+    comment is translated or shown. Only [%evp ...] shows up anywhere in
+    the database as of this writing, but this stays general so a future
+    [%eval ...] or [%clk ...] on any move doesn't leak into the displayed
+    text either."""
+    text = re.sub(r"\[%[^\]]*\]", "", text or "")
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def slugify(text):
     text = (text or "").lower()
     text = re.sub(r"[^a-z0-9]+", "-", text)
@@ -205,7 +219,7 @@ def translate_comment(raw_comment, cache_key, cache):
     was already seen at this exact move last time, so an unattended sync
     running every ~10s doesn't re-translate every comment in the database
     on every single cycle — only ones that actually changed."""
-    text = (raw_comment or "").strip()
+    text = strip_pgn_commands(raw_comment)
     if not text:
         return {"de": "", "en": ""}
     cached = cache.get(cache_key)
@@ -249,7 +263,18 @@ def serialize_line(node, board, cache):
 def extract_annotations(game, old_annotations=None):
     cache = build_comment_cache(old_annotations)
     mainline = game.variations
-    return serialize_line(mainline[0], game.board(), cache) if mainline else []
+    line = serialize_line(mainline[0], game.board(), cache) if mainline else []
+    # A comment appearing before the very first move (common in ChessBase
+    # as scene-setting intro text for a game) is attached by python-chess
+    # to the game's root node, not to move 1 -- surfaced here as a
+    # synthetic ply-0 entry, which the client already renders correctly:
+    # every game starts at moveIndex 0 ("no move played yet"), so this
+    # simply shows up as soon as the game loads, before any move is
+    # highlighted.
+    intro = translate_comment(game.comment, (0, None), cache)
+    if intro.get("de") or intro.get("en"):
+        line = [{"ply": 0, "san": None, "nag": "", "comment": intro, "variations": []}] + line
+    return line
 
 
 def parse_pgn_database(path):
