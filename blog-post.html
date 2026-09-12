@@ -624,16 +624,18 @@ function createGameWidget(container, gameOrGames){
     btn.className = 'move-btn';
     var annotation = gameComments[ply];
     btn.textContent = displaySan(san) + (annotation && annotation.nag ? annotation.nag : '');
+    btn.__path = historyVerbose.slice(0, ply).map(function(m){ return m.san; });
     if(annotation && (pickLang(annotation.comment) || (annotation.variations && annotation.variations.length))){
       btn.classList.add('annotated');
     }
     btn.dataset.ply = ply;
-    btn.addEventListener('click', function(){ manualGoToPly(ply); });
+    btn.addEventListener('click', function(){ manualGoToLine(historyVerbose.map(function(m){ return m.san; }), ply); });
     return btn;
   }
   function renderMoveList(){
     listEl.innerHTML = '';
-    appendInlineAnnotation(gameComments[0]); /* comment before move 1, if any */
+    var mainlineSans = historyVerbose.map(function(m){ return m.san; });
+    appendInlineAnnotation(gameComments[0], []); /* comment before move 1, if any */
     for(var i = 0; i < historyVerbose.length; i += 2){
       var moveNum = (i / 2) + 1;
       var whitePly = i + 1, blackPly = i + 2;
@@ -648,7 +650,7 @@ function createGameWidget(container, gameOrGames){
       /* a comment/variation breaks the flow onto its own line, so black's
          move (if the break happened right before it) needs its move
          number repeated as "12..." to stay readable */
-      var brokeFlow = appendInlineAnnotation(gameComments[whitePly]);
+      var brokeFlow = appendInlineAnnotation(gameComments[whitePly], mainlineSans.slice(0, whitePly));
       if(historyVerbose[i + 1]){
         var blackPair = document.createElement('span');
         blackPair.className = 'move-pair';
@@ -660,31 +662,88 @@ function createGameWidget(container, gameOrGames){
         }
         blackPair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, blackPly));
         listEl.appendChild(blackPair);
-        appendInlineAnnotation(gameComments[blackPly]);
+        appendInlineAnnotation(gameComments[blackPly], mainlineSans.slice(0, blackPly));
       }
     }
     highlightMoveList();
   }
   /* Appends a comment (and any variations attached to the same move)
      right into the move list's own flowing text, immediately after the
-     move it belongs to. Returns true if anything was actually appended,
-     so the caller knows the flow was interrupted (see renderMoveList). */
-  function appendInlineAnnotation(annotation){
+     move it belongs to. `branchPath`: the SAN path (from move 1) up to
+     and including the mainline move this annotation is attached to.
+     Returns true if anything was actually appended, so the caller knows
+     the flow was interrupted (see renderMoveList). */
+  function appendInlineAnnotation(annotation, branchPath){
     if(!annotation) return false;
     var text = pickLang(annotation.comment);
     var hasVariations = annotation.variations && annotation.variations.length;
     if(!text && !hasVariations) return false;
     var box = document.createElement('span');
     box.className = 'game-comment-inline';
-    var html = '';
-    if(text) html += '<span class="game-comment-text">' + escapeHtml(text) + '</span>';
+    if(text){
+      var t = document.createElement('span');
+      t.className = 'game-comment-text';
+      t.textContent = text;
+      box.appendChild(t);
+    }
     if(hasVariations){
       annotation.variations.forEach(function(line){
-        html += '<span class="game-comment-variation">' + escapeHtml(formatVariationLine(line)) + '</span>';
+        var v = document.createElement('span');
+        v.className = 'game-comment-variation';
+        v.appendChild(document.createTextNode('('));
+        renderVariationLine(v, line, branchPath);
+        v.appendChild(document.createTextNode(')'));
+        box.appendChild(v);
       });
     }
-    box.innerHTML = html;
     listEl.appendChild(box);
+    return true;
+  }
+  /* Renders one variation line as real, clickable move buttons (not
+     static text), so a side line is just as playable as the mainline —
+     see index.html's renderVariationLine for the full rationale (mirrored
+     here per-widget-instance). */
+  function renderVariationLine(container, line, prefixPath){
+    if(!line || !line.length) return;
+    var fullPath = prefixPath.concat(line.map(function(e){ return e.san; }));
+    var cursor = prefixPath.length;
+    line.forEach(function(entry, idx){
+      cursor++;
+      var stepIdx = cursor;
+      var prefix = pgnMoveNumberPrefix(entry.ply, idx === 0);
+      if(prefix) container.appendChild(document.createTextNode(prefix + ' '));
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'move-btn variation-move-btn';
+      btn.textContent = displaySan(entry.san) + (entry.nag || '');
+      btn.__path = fullPath.slice(0, stepIdx);
+      if(pickLang(entry.comment) || (entry.variations && entry.variations.length)){
+        btn.classList.add('annotated');
+      }
+      btn.addEventListener('click', function(){ manualGoToLine(fullPath, stepIdx); });
+      container.appendChild(btn);
+      container.appendChild(document.createTextNode(' '));
+      var comment = pickLang(entry.comment);
+      if(comment){
+        var c = document.createElement('span');
+        c.className = 'variation-comment';
+        c.textContent = '{' + comment + '} ';
+        container.appendChild(c);
+      }
+      (entry.variations || []).forEach(function(sub){
+        container.appendChild(document.createTextNode('('));
+        renderVariationLine(container, sub, fullPath.slice(0, stepIdx));
+        container.appendChild(document.createTextNode(') '));
+      });
+    });
+  }
+  /* A button (mainline or variation) is active when its own path exactly
+     matches the currently active line up to the current move index. */
+  function pathIsActive(path){
+    if(!path || path.length !== moveIndex) return false;
+    for(var i = 0; i < path.length; i++){
+      if(path[i] !== activeLine[i]) return false;
+    }
     return true;
   }
   function highlightMoveList(){
