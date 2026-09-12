@@ -1035,6 +1035,8 @@ function createGameWidget(container, gameOrGames){
     gameComments = Array.isArray(game.annotations) ? buildAnnotationIndex(game.annotations) : commentsMapToIndex(extractPgnComments(game.pgn || ''));
     engine.reset();
     activeLine = historyVerbose.map(function(m){ return m.san; });
+    activeBranches = mainlineBranches();
+    rootBranches = (gameComments[0] && gameComments[0].variations) || [];
     moveIndex = 0;
 
     var headers = parsePgnHeaders(game.pgn || '');
