@@ -223,19 +223,22 @@
   .embedded-game .move-btn:hover{color:var(--ivory);}
   .embedded-game .move-btn.active{color:var(--gold-bright);background:rgba(31,58,95,0.14);}
   .embedded-game .move-btn.annotated{box-shadow:0 2px 0 0 var(--gold-bright);}
+  /* anchors the move-choice dialog to the notation column specifically
+     (not the whole widget/board) — see .move-choice-dialog below */
+  .embedded-game .game-meta{position:relative;}
   /* pops up when advancing lands on a move with more than one real
      option — see index.html's .move-choice-dialog for the full
-     rationale (mirrored here per-widget-instance, scoped to this
-     container rather than the whole page since several games can be
-     embedded in one post). */
-  .embedded-game .move-choice-dialog{position:fixed;inset:0;background:rgba(22,32,46,0.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+     rationale (mirrored here per-widget-instance). Positioned over the
+     notation column only (game-meta, its nearest positioned ancestor)
+     rather than the whole widget, so the board stays visible. */
+  .embedded-game .move-choice-dialog{position:absolute;inset:0;background:rgba(22,32,46,0.5);display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;}
   .embedded-game .move-choice-dialog[hidden]{display:none;}
-  .embedded-game .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:24px 26px;max-width:360px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.25);}
-  .embedded-game .move-choice-title{font-family:'Spectral',serif;font-size:1.15rem;margin-bottom:14px;color:var(--ivory);}
-  .embedded-game .move-choice-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
-  .embedded-game .move-choice-btn{background:none;border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:0.98rem;padding:10px 14px;cursor:pointer;text-align:left;border-radius:2px;}
-  .embedded-game .move-choice-btn:hover{border-color:var(--gold);color:var(--gold-bright);background:rgba(31,58,95,0.06);}
-  .embedded-game .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.86rem;cursor:pointer;padding:4px 0;text-decoration:underline;}
+  .embedded-game .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:14px 16px;max-width:260px;width:100%;box-shadow:0 8px 26px rgba(0,0,0,0.28);}
+  .embedded-game .move-choice-title{font-family:'Spectral',serif;font-size:0.92rem;margin-bottom:8px;color:var(--ivory);}
+  .embedded-game .move-choice-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+  .embedded-game .move-choice-btn{background:none;border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:0.86rem;padding:6px 10px;cursor:pointer;text-align:left;border-radius:2px;}
+  .embedded-game .move-choice-btn:hover,.embedded-game .move-choice-btn:focus{border-color:var(--gold);color:var(--gold-bright);background:rgba(31,58,95,0.06);outline:none;}
+  .embedded-game .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.76rem;cursor:pointer;padding:2px 0;text-decoration:underline;}
   .embedded-game .move-choice-cancel:hover{color:var(--gold-bright);}
   @media (max-width:600px){
     .embedded-game .games-layout{grid-template-columns:1fr;}
