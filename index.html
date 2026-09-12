@@ -430,6 +430,13 @@
   .move-choice-btn:hover,.move-choice-btn:focus{border-color:var(--gold);color:var(--gold-bright);background:rgba(31,58,95,0.06);outline:none;}
   .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.78rem;cursor:pointer;padding:2px 0;text-decoration:underline;}
   .move-choice-cancel:hover{color:var(--gold-bright);}
+  /* on a touch device there's no hover state and no keyboard focus ring to
+     lean on, so the tap targets themselves need to be comfortably big —
+     the compact sizing above is tuned for a mouse, not a fingertip */
+  @media (pointer:coarse){
+    .move-choice-btn{padding:12px 14px;font-size:0.95rem;}
+    .move-choice-cancel{padding:10px 0;font-size:0.85rem;}
+  }
   @media (max-width:720px){.games-layout{grid-template-columns:1fr;}.board-wrap{align-items:flex-start;}}
 
   /* process */
