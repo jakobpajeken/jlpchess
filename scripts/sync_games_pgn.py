@@ -381,7 +381,7 @@ def main():
                 consumed_ids.add(wid)
                 game = by_id[wid]
                 new_pgn = export_game(game)
-                new_annotations = extract_annotations(game)
+                new_annotations = extract_annotations(game, g.get("annotations"))
                 if (g.get("pgn") or "").strip() != new_pgn:
                     g["pgn"] = new_pgn
                     changed_blog_json = True
@@ -397,7 +397,7 @@ def main():
                     if g["pgn"].strip() != normalized:
                         g["pgn"] = normalized
                         changed_blog_json = True
-                    new_annotations = extract_annotations(game)
+                    new_annotations = extract_annotations(game, g.get("annotations"))
                     if g.get("annotations") != new_annotations:
                         g["annotations"] = new_annotations
                         changed_blog_json = True
