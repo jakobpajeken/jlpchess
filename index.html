@@ -376,11 +376,13 @@
   /* a PGN comment (e.g. added in ChessBase) is rendered right inside the
      move list's own flowing text, directly after the move it belongs to —
      like a printed annotated game score — rather than pulled out into a
-     separate panel elsewhere on the page. flex-basis:100% forces it onto
-     its own line within the move list's wrapping flex layout, same trick
-     used for a variation continuing past a line-wrap. */
-  .game-comment-inline{flex-basis:100%;display:flex;flex-direction:column;gap:6px;margin:4px 0 8px;padding:12px 14px;background:var(--surface-raised);border-left:2px solid var(--gold);font-size:0.92rem;line-height:1.55;color:var(--ivory);}
-  .game-comment-text{font-family:'Spectral',serif;font-style:italic;}
+     separate panel elsewhere on the page. Deliberately plain: same font
+     as the moves themselves, no card/box treatment, so it reads as part
+     of the notation, not a separate widget. flex-basis:100% forces it
+     onto its own line within the move list's wrapping flex layout, same
+     trick used for a variation continuing past a line-wrap. */
+  .game-comment-inline{flex-basis:100%;display:flex;flex-direction:column;gap:4px;margin:2px 0 8px;line-height:1.55;}
+  .game-comment-text{font-family:'Inter',sans-serif;color:var(--ivory);}
   .game-comment-text + .game-comment-variation{margin-top:10px;}
   /* a variation line is genuine PGN move text (SAN, move numbers, nested
      sub-variations in parens), not prose, so it stays in the monospace-ish
