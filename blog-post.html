@@ -453,7 +453,11 @@ function createGameWidget(container, gameOrGames){
   container.classList.add('embedded-game');
   container.tabIndex = 0; /* focusable, so arrow keys can target this specific widget when several are on one page */
   container.innerHTML =
-    (hasPicker ? '<div class="games-controls-top"><select data-role="game-select" aria-label="Select a game"></select></div>' : '') +
+    '<div class="games-controls-top">' +
+      (hasPicker ? '<select data-role="game-select" aria-label="Select a game"></select>' : '') +
+      '<button type="button" class="game-download-btn" data-role="download-btn" data-i18n="games.download">⬇ Download PGN</button>' +
+      (hasPicker ? '<button type="button" class="game-download-btn" data-role="download-all-btn" data-i18n="games.downloadAll">⬇ Download all as PGN</button>' : '') +
+    '</div>' +
     '<div class="games-layout">' +
     '<div class="board-wrap">' +
       '<div class="player-label" data-role="player-top"><span class="side-dot"></span><span data-role="top-name">Black</span></div>' +
