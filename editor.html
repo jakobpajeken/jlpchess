@@ -441,6 +441,40 @@ async function writeJson(name, data){
   var content = utf8ToBase64(JSON.stringify(data, null, 2) + '\n');
   await ghPutFile('data/' + name, content, 'Update ' + name + ' via online editor');
 }
+/* Splits the raw text of data/games.pgn into individual game blocks — just
+   enough parsing to list and copy whole games, not the full recursive
+   variation/NAG tree scripts/sync_games_pgn.py builds server-side with the
+   real "chess" library (deliberately not reimplemented here in JS: this is
+   only ever used to label options in a picker and copy one whole block
+   verbatim, never to interpret a game's structure, so the heavier parser
+   would be pure risk for no benefit). */
+function splitPgnDatabase(text){
+  var blocks = (text || '').split(/\n(?=\[Event )/).map(function(b){ return b.trim(); }).filter(Boolean);
+  return blocks.map(function(block){
+    var headers = {};
+    var re = /\[(\w+)\s+"([^"]*)"\]/g;
+    var m;
+    while((m = re.exec(block)) !== null){ headers[m[1].toLowerCase()] = m[2]; }
+    return { pgn: block, headers: headers, websiteId: headers.websiteid || null };
+  });
+}
+/* Fetches data/games.pgn fresh from GitHub every time it's opened, rather
+   than relying on the "games"/"blogPosts" arrays already loaded into this
+   session — those only pick up a ChessBase edit after
+   scripts/sync_games_pgn.py has had a sync cycle to run, so reading the
+   PGN file directly here means a game saved in ChessBase moments ago is
+   already pickable, without waiting on that. Returns null (rather than
+   throwing) on any failure, so callers can fall back to the games.json
+   array they already have instead of breaking the picker entirely. */
+async function fetchGamesPgnDatabase(){
+  try{
+    var file = await ghGetFile('data/games.pgn');
+    if(!file || !file.content) return [];
+    return splitPgnDatabase(base64ToUtf8(file.content));
+  }catch(e){
+    return null;
+  }
+}
 /* Bilder werden immer unter einem neuen, zeitgestempelten Dateinamen
    angelegt (nie überschrieben), daher ist vor dem Hochladen kein
    sha-Abgleich nötig. */
