@@ -1396,23 +1396,34 @@ function openBlogForm(idx){
      already supported this way, just with no button for it; italic is new
      on both ends, added right alongside it). With nothing selected, drops
      in placeholder markers around the cursor instead, ready to type into. */
-  function wrapSelection(marker, placeholder){
+  function wrapSelection(openMarker, closeMarker, placeholder){
+    if(closeMarker == null) closeMarker = openMarker;
     var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
     var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
     var value = bodyTextarea.value;
     var selected = value.slice(start, end) || placeholder;
     var before = value.slice(0, start);
     var after = value.slice(end);
-    bodyTextarea.value = before + marker + selected + marker + after;
-    var selStart = before.length + marker.length;
+    bodyTextarea.value = before + openMarker + selected + closeMarker + after;
+    var selStart = before.length + openMarker.length;
     bodyTextarea.focus();
     bodyTextarea.setSelectionRange(selStart, selStart + selected.length);
   }
   document.getElementById('bf-bold-btn').addEventListener('click', function(){
-    wrapSelection('**', 'fett');
+    wrapSelection('**', null, 'fett');
   });
   document.getElementById('bf-italic-btn').addEventListener('click', function(){
-    wrapSelection('*', 'kursiv');
+    wrapSelection('*', null, 'kursiv');
+  });
+
+  /* ---- font size: wraps the selection in [size=N]...[/size], N in px —
+     same idea as bold/italic above, just with a value to ask for first */
+  document.getElementById('bf-size-btn').addEventListener('click', function(){
+    var input = window.prompt('Schriftgröße in Pixel (normaler Fließtext ist ca. 16):', '24');
+    if(input == null) return;
+    var px = parseInt(input.trim(), 10);
+    if(!px || px < 8 || px > 96){ showToast('Bitte eine Zahl zwischen 8 und 96 eingeben.', true); return; }
+    wrapSelection('[size=' + px + ']', '[/size]', 'größerer Text');
   });
 
   /* ---- inline link insertion into the (English) body text — e.g. for
