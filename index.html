@@ -439,7 +439,8 @@
      would otherwise outrank the browser's own [hidden]{display:none}
      (equal specificity, source order) — same fix as every other [hidden]
      case on this site. */
-  .move-choice-dialog{position:absolute;grid-column:2;grid-row:1;inset:0;background:rgba(22,32,46,0.5);display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;}
+  .move-choice-dialog{position:absolute;grid-column:2;grid-row:1;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;pointer-events:none;}
+  .move-choice-dialog .move-choice-card{pointer-events:auto;}
   .move-choice-dialog[hidden]{display:none;}
   .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:14px 16px;max-width:260px;width:100%;box-shadow:0 8px 26px rgba(0,0,0,0.28);}
   .move-choice-title{font-family:'Spectral',serif;font-size:0.95rem;margin-bottom:8px;color:var(--ivory);}
