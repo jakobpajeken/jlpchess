@@ -491,6 +491,7 @@ function createGameWidget(container, gameOrGames){
       '<button type="button" class="game-download-btn" data-role="download-btn"></button>' +
       (hasPicker ? '<button type="button" class="game-download-btn" data-role="download-all-btn"></button>' : '') +
     '</div>' +
+    '<div class="game-title" data-role="title"></div>' +
     '<div class="games-layout">' +
     '<div class="board-wrap">' +
       '<div class="player-label" data-role="player-top"><span class="side-dot"></span><span data-role="top-name">Black</span></div>' +
@@ -512,11 +513,17 @@ function createGameWidget(container, gameOrGames){
       '</div>' +
     '</div>' +
     '<div class="game-meta">' +
-      '<div class="game-title" data-role="title"></div>' +
       '<div class="game-info" data-role="info"></div>' +
       '<div class="pgn-error" data-role="error"></div>' +
       '<div class="move-list" data-role="movelist"></div>' +
     '</div>' +
+    '</div>' +
+    '<div class="move-choice-dialog" data-role="choice-dialog" hidden>' +
+      '<div class="move-choice-card">' +
+        '<div class="move-choice-title" data-role="choice-title">Which move?</div>' +
+        '<div class="move-choice-list" data-role="choice-list"></div>' +
+        '<button type="button" class="move-choice-cancel" data-role="choice-cancel">Cancel</button>' +
+      '</div>' +
     '</div>';
 
   var selectEl = container.querySelector('[data-role="game-select"]');
