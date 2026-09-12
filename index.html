@@ -370,7 +370,7 @@
     padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.9rem;
   }
   .board-nav button:hover{color:var(--gold-bright);border-color:var(--gold);}
-  .game-title{font-family:'Spectral',serif;font-size:2.15rem;margin:20px 0 18px;}
+  .game-title{font-family:'Spectral',serif;font-size:1.9rem;margin:20px 0 18px;color:var(--gold-bright);}
   .game-info{font-size:0.88rem;color:var(--ivory-dim);margin-bottom:18px;}
   .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;max-height:460px;overflow-y:auto;font-size:0.98rem;}
   /* a PGN comment (e.g. added in ChessBase) is rendered right inside the
@@ -2387,7 +2387,7 @@ function advanceTesti(direction){
 function startTestiTimer(){
   if(testiTimer){ clearInterval(testiTimer); testiTimer = null; }
   if(!testiList || testiList.length <= 1) return;
-  testiTimer = setInterval(function(){ advanceTesti(1); }, 13000);
+  testiTimer = setInterval(function(){ advanceTesti(1); }, 11000);
 }
 /* arrow clicks / swipes call this — same as the auto-rotation, but also
    restarts the countdown so a manual jump doesn't get instantly overridden
