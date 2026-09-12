@@ -829,13 +829,63 @@ function createGameWidget(container, gameOrGames){
   }
   /* Replays `line` (an array of SAN strings from move 1) up to `idx` moves
      in — line can be the mainline or any variation's own path. */
-  function goToLineIndex(line, idx){
+  function goToLineIndex(line, branches, idx){
+    hideMoveChoiceDialog();
     engine.reset();
     for(var i = 0; i < idx; i++){ engine.move(line[i]); }
     activeLine = line;
+    activeBranches = branches;
     moveIndex = idx;
     renderPosition(engine.fen());
     highlightMoveList();
+  }
+  /* Advances one move forward along the current line, unless the move
+     we're actually at right now had more than one real option — the
+     line's own next move, plus one or more variations branching off here
+     — in which case it asks which one via a small dialog first. See
+     index.html's tryAdvance() for the full rationale. */
+  function tryAdvance(){
+    if(!engine) return;
+    var branches = moveIndex === 0 ? rootBranches : (activeBranches[moveIndex - 1] || []);
+    var hasNext = moveIndex < activeLine.length;
+    if(!branches.length){
+      if(hasNext) manualGoToLine(activeLine, activeBranches, moveIndex + 1);
+      return;
+    }
+    var prefixPath = activeLine.slice(0, moveIndex);
+    var prefixBranches = activeBranches.slice(0, moveIndex);
+    var options = [];
+    if(hasNext){
+      options.push({ san: activeLine[moveIndex], nag: '', go: function(){ manualGoToLine(activeLine, activeBranches, moveIndex + 1); } });
+    }
+    branches.forEach(function(varLine){
+      if(!varLine || !varLine.length) return;
+      var fullPath = prefixPath.concat(varLine.map(function(e){ return e.san; }));
+      var fullBranches = prefixBranches.concat(varLine.map(function(e){ return e.variations || []; }));
+      options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1); } });
+    });
+    if(options.length <= 1){
+      if(options.length === 1) options[0].go();
+      return;
+    }
+    showMoveChoiceDialog(options);
+  }
+  function showMoveChoiceDialog(options){
+    if(!choiceDialog || !choiceListEl) return;
+    stopPlay();
+    choiceListEl.innerHTML = '';
+    options.forEach(function(opt){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'move-choice-btn';
+      btn.textContent = displaySan(opt.san) + (opt.nag || '');
+      btn.addEventListener('click', function(){ hideMoveChoiceDialog(); opt.go(); });
+      choiceListEl.appendChild(btn);
+    });
+    choiceDialog.hidden = false;
+  }
+  function hideMoveChoiceDialog(){
+    if(choiceDialog) choiceDialog.hidden = true;
   }
   function stopPlay(){
     if(playInterval){ clearInterval(playInterval); playInterval = null; }
@@ -843,10 +893,10 @@ function createGameWidget(container, gameOrGames){
   }
   function startPlay(){
     if(playInterval) return;
-    if(moveIndex >= activeLine.length) goToLineIndex(activeLine, 0);
+    if(moveIndex >= activeLine.length) goToLineIndex(activeLine, activeBranches, 0);
     playInterval = setInterval(function(){
       if(moveIndex >= activeLine.length){ stopPlay(); return; }
-      goToLineIndex(activeLine, moveIndex + 1);
+      goToLineIndex(activeLine, activeBranches, moveIndex + 1);
       if(moveIndex >= activeLine.length) stopPlay(); /* stop right on the final move, not one tick later */
     }, PLAY_MOVE_MS);
     updatePlayButton();
@@ -864,9 +914,9 @@ function createGameWidget(container, gameOrGames){
   }
   /* manual navigation always stops any running auto-play first, so it
      never fights with a move the user just clicked */
-  function manualGoToLine(line, idx){
+  function manualGoToLine(line, branches, idx){
     stopPlay();
-    goToLineIndex(line, idx);
+    goToLineIndex(line, branches, idx);
   }
   function formatPgnDate(d){
     var parts = d.split('.');
