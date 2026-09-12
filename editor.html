@@ -1390,6 +1390,30 @@ function openBlogForm(idx){
     insertImageBtn.disabled = false;
   });
 
+  /* ---- bold / italic: wrap the current selection in ** or * (the same
+     markers renderInline() in blog-post.html already looks for — bold was
+     already supported this way, just with no button for it; italic is new
+     on both ends, added right alongside it). With nothing selected, drops
+     in placeholder markers around the cursor instead, ready to type into. */
+  function wrapSelection(marker, placeholder){
+    var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
+    var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
+    var value = bodyTextarea.value;
+    var selected = value.slice(start, end) || placeholder;
+    var before = value.slice(0, start);
+    var after = value.slice(end);
+    bodyTextarea.value = before + marker + selected + marker + after;
+    var selStart = before.length + marker.length;
+    bodyTextarea.focus();
+    bodyTextarea.setSelectionRange(selStart, selStart + selected.length);
+  }
+  document.getElementById('bf-bold-btn').addEventListener('click', function(){
+    wrapSelection('**', 'fett');
+  });
+  document.getElementById('bf-italic-btn').addEventListener('click', function(){
+    wrapSelection('*', 'kursiv');
+  });
+
   /* ---- inline link insertion into the (English) body text — e.g. for
      affiliate/partner links. Inserted inline at the cursor, not as its own
      paragraph like the image button above, since a link normally sits
