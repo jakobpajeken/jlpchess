@@ -379,6 +379,22 @@ document.querySelectorAll('.langtoggle button').forEach(function(btn){
   if(saved === 'de') applyLang('de');
 })();
 
+/* ---------- shared by every embedded-game widget's download buttons ---------- */
+function slugifyForFilename(text){
+  return (text || 'game').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'game';
+}
+function downloadTextFile(filename, content){
+  var blob = new Blob([content], { type: 'application/x-chess-pgn' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+
 /* ---------- load the real post from data/blog.json, if a slug is given ---------- */
 function escapeHtml(s){
   return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -869,6 +885,21 @@ function createGameWidget(container, gameOrGames){
   }
 
   loadGame(gamesList[0]);
+
+  var isDe = document.documentElement.lang === 'de';
+  if(downloadBtn){
+    downloadBtn.textContent = isDe ? '⬇ PGN herunterladen' : '⬇ Download PGN';
+    downloadBtn.addEventListener('click', function(){
+      if(!currentGame || !currentGame.pgn) return;
+      downloadTextFile(slugifyForFilename(pickLang(currentGame.title)) + '.pgn', currentGame.pgn);
+    });
+  }
+  if(downloadAllBtn){
+    downloadAllBtn.textContent = isDe ? '⬇ Alle als PGN herunterladen' : '⬇ Download all as PGN';
+    downloadAllBtn.addEventListener('click', function(){
+      downloadTextFile('games.pgn', gamesList.map(function(g){ return g.pgn; }).join('\n\n'));
+    });
+  }
 
   container.querySelector('[data-nav="start"]').addEventListener('click', function(){ manualGoToPly(0); });
   container.querySelector('[data-nav="prev"]').addEventListener('click', function(){ manualGoToPly(Math.max(0, moveIndex - 1)); });
