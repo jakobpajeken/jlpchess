@@ -497,6 +497,9 @@ def main():
         if wid and wid in consumed_ids:
             final_pgn_games.append(by_id[wid])
 
+    if recovered_ids:
+        rewrite_pgn = True
+
     if rewrite_pgn and final_pgn_games:
         # de-dupe while preserving first-seen order, in case a game ended
         # up referenced twice above (defensive; shouldn't normally happen)
@@ -514,10 +517,23 @@ def main():
             with open(PGN_PATH, encoding="utf-8") as f:
                 old_pgn_text = f.read()
         if old_pgn_text != new_pgn_text:
-            with open(PGN_PATH, "w", encoding="utf-8") as f:
-                f.write(new_pgn_text)
-            print("Rewrote games.pgn (%d games)" % len(ordered_unique))
+            try:
+                with open(PGN_PATH, "w", encoding="utf-8") as f:
+                    f.write(new_pgn_text)
+                print("Rewrote games.pgn (%d games)" % len(ordered_unique))
+            except OSError as e:
+                # Most often means ChessBase still has the database open
+                # (Windows file lock). Not fatal: games.json/blog.json are
+                # still saved below from whatever WAS readable this run, so
+                # the site stays current either way — only the corrected
+                # WebsiteId tag(s) fail to persist back into the file until
+                # it's free again, and this same rewrite is simply retried
+                # next cycle (~10s later) until it goes through.
+                print("Could not write games.pgn, left unchanged (will retry next cycle): %s" % e)
 
+    if recovered_ids:
+        print("Recovered missing WebsiteId tag(s) in games.pgn by matching game headers: %s"
+              % ", ".join(recovered_ids))
     if new_from_database:
         print("New game(s) found directly in games.pgn, added to games.json: %s"
               % ", ".join(g.headers["WebsiteId"] for g in new_from_database))
