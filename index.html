@@ -1367,6 +1367,14 @@ var sampleGames = [
 var currentGame = null;
 var historyVerbose = [];
 var moveIndex = 0;
+/* the SAN path (from move 1) of whatever line is currently being viewed —
+   the mainline by default, or a variation's own path once you click into
+   one. Arrow keys and the prev/next/start/end buttons all step through
+   THIS line, not always the mainline, so a variation is just as walkable
+   as the real game once you're inside it. See makeMoveBtn/renderVariationLine
+   for how a button's own path is attached, and goToLineIndex for how the
+   board gets replayed to match it. */
+var activeLine = [];
 var gameEngine = null;
 var playInterval = null; /* set while auto-play is running, one move every 1.5s */
 var PLAY_MOVE_MS = 1500;
@@ -1376,11 +1384,11 @@ function stopPlay(){
 }
 function startPlay(){
   if(playInterval || !gameEngine) return;
-  if(moveIndex >= historyVerbose.length) goToPly(0); /* restart from the beginning if already at the end */
+  if(moveIndex >= activeLine.length) goToLineIndex(activeLine, 0); /* restart from the beginning if already at the end */
   playInterval = setInterval(function(){
-    if(moveIndex >= historyVerbose.length){ stopPlay(); return; }
-    goToPly(moveIndex + 1);
-    if(moveIndex >= historyVerbose.length) stopPlay(); /* stop right on the final move, not one tick later */
+    if(moveIndex >= activeLine.length){ stopPlay(); return; }
+    goToLineIndex(activeLine, moveIndex + 1);
+    if(moveIndex >= activeLine.length) stopPlay(); /* stop right on the final move, not one tick later */
   }, PLAY_MOVE_MS);
   updatePlayButton();
 }
