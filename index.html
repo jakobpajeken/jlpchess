@@ -1570,6 +1570,16 @@ function highlightMoveList(){
       }
     }
   });
+  var commentEl = document.getElementById('game-comment');
+  if(commentEl){
+    var comment = gameComments[moveIndex];
+    if(comment){
+      commentEl.textContent = comment;
+      commentEl.hidden = false;
+    }else{
+      commentEl.hidden = true;
+    }
+  }
 }
 
 function goToPly(ply){
