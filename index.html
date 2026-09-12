@@ -2198,11 +2198,15 @@ function initGamesWidget(){
   var btnNext = document.getElementById('nav-next');
   var btnEnd = document.getElementById('nav-end');
   var btnFlip = document.getElementById('nav-flip');
-  if(btnStart) btnStart.addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, 0); });
-  if(btnPrev) btnPrev.addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1)); });
+  /* start/prev/end are unambiguous "go to a specific place" moves, so
+     while a choice is pending they're simply ignored rather than acted on
+     underneath the dialog — resolve the dialog (pick an option or Cancel)
+     first. next is the odd one out: see handleAdvancePress(). */
+  if(btnStart) btnStart.addEventListener('click', function(){ if(isChoiceDialogOpen()) return; manualGoToLine(activeLine, activeBranches, 0); });
+  if(btnPrev) btnPrev.addEventListener('click', function(){ if(isChoiceDialogOpen()) return; manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1)); });
   if(btnPlay) btnPlay.addEventListener('click', function(){ togglePlay(); });
-  if(btnNext) btnNext.addEventListener('click', function(){ tryAdvance(); });
-  if(btnEnd) btnEnd.addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, activeLine.length); });
+  if(btnNext) btnNext.addEventListener('click', function(){ handleAdvancePress(); });
+  if(btnEnd) btnEnd.addEventListener('click', function(){ if(isChoiceDialogOpen()) return; manualGoToLine(activeLine, activeBranches, activeLine.length); });
   if(btnFlip) btnFlip.addEventListener('click', function(){ setOrientation(boardOrientation === 'black' ? 'white' : 'black'); });
   var choiceDialog = document.getElementById('move-choice-dialog');
   var choiceCancel = document.getElementById('move-choice-cancel');
