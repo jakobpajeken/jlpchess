@@ -73,7 +73,18 @@ DEEPL_PROXY_URL = "https://jlpdeepl.jakobpajeken.workers.dev"
 
 def _http_post_json(url, payload, timeout=15):
     data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+    # A real User-Agent matters here: Cloudflare (the DeepL proxy worker
+    # runs on it) blocks the default "Python-urllib/x.x" UA outright with a
+    # 403, no matter how short or ordinary the payload is -- confirmed by
+    # testing the exact same request with and without this header. Without
+    # it, every DeepL call silently "fails" and every comment falls back to
+    # MyMemory, which is worse and outright rejects anything over 500
+    # characters -- so this one header was quietly downgrading every
+    # translation in the database.
+    req = urllib.request.Request(url, data=data, headers={
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0",
+    })
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
