@@ -223,15 +223,13 @@
   .embedded-game .move-btn:hover{color:var(--ivory);}
   .embedded-game .move-btn.active{color:var(--gold-bright);background:rgba(31,58,95,0.14);}
   .embedded-game .move-btn.annotated{box-shadow:0 2px 0 0 var(--gold-bright);}
-  /* anchors the move-choice dialog to the notation column specifically
-     (not the whole widget/board) — see .move-choice-dialog below */
-  .embedded-game .game-meta{position:relative;}
   /* pops up when advancing lands on a move with more than one real
-     option — see index.html's .move-choice-dialog for the full
-     rationale (mirrored here per-widget-instance). Positioned over the
-     notation column only (game-meta, its nearest positioned ancestor)
-     rather than the whole widget, so the board stays visible. */
-  .embedded-game .move-choice-dialog{position:absolute;inset:0;background:rgba(22,32,46,0.5);display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;}
+     option — see index.html's .move-choice-dialog for the full rationale
+     (mirrored here per-widget-instance). A grid item of .games-layout in
+     its own right, placed onto a specific cell via grid-column/grid-row:
+     the notation column on desktop, the board's cell on mobile (see the
+     media query below) — same technique as index.html. */
+  .embedded-game .move-choice-dialog{position:absolute;grid-column:2;grid-row:1;inset:0;background:rgba(22,32,46,0.5);display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;}
   .embedded-game .move-choice-dialog[hidden]{display:none;}
   .embedded-game .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:14px 16px;max-width:260px;width:100%;box-shadow:0 8px 26px rgba(0,0,0,0.28);}
   .embedded-game .move-choice-title{font-family:'Spectral',serif;font-size:0.92rem;margin-bottom:8px;color:var(--ivory);}
@@ -249,6 +247,10 @@
   @media (max-width:600px){
     .embedded-game .games-layout{grid-template-columns:1fr;}
     .embedded-game .board-wrap{align-items:flex-start;}
+    .embedded-game .move-choice-dialog{grid-column:1;grid-row:1;}
+    .embedded-game .move-choice-card{max-width:200px;padding:10px 12px;}
+    .embedded-game .move-choice-title{font-size:0.82rem;margin-bottom:6px;}
+    .embedded-game .move-choice-list{gap:4px;margin-bottom:8px;}
   }
   .article-footer{
     margin-top:56px;padding-top:32px;border-top:1px solid var(--line);
