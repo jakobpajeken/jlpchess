@@ -1528,7 +1528,14 @@ function makeMoveBtn(san, ply){
   var btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'move-btn';
-  btn.textContent = san;
+  var annotation = gameComments[ply];
+  btn.textContent = san + (annotation && annotation.nag ? annotation.nag : '');
+  /* small dot marker on any move that has a comment and/or a variation
+     attached, so there's a visual hint of where to click before you've
+     stepped through the whole game once */
+  if(annotation && (annotation.comment || (annotation.variations && annotation.variations.length))){
+    btn.classList.add('annotated');
+  }
   btn.dataset.ply = ply;
   btn.addEventListener('click', function(){ manualGoToPly(ply); });
   return btn;
