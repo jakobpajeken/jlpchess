@@ -1668,14 +1668,26 @@ function makeMoveBtn(san, ply){
     btn.classList.add('annotated');
   }
   btn.dataset.ply = ply;
-  btn.addEventListener('click', function(){ manualGoToPly(ply); });
+  btn.addEventListener('click', function(){ manualGoToLine(historyVerbose.map(function(m){ return m.san; }), ply); });
   return btn;
+}
+
+/* A button (mainline or variation) is active when its own path exactly
+   matches the currently active line up to the current move index —
+   ply alone can't tell them apart, since a mainline move and a variation
+   move can share the same ply number. */
+function pathIsActive(path){
+  if(!path || path.length !== moveIndex) return false;
+  for(var i = 0; i < path.length; i++){
+    if(path[i] !== activeLine[i]) return false;
+  }
+  return true;
 }
 
 function highlightMoveList(){
   var listEl = document.getElementById('move-list');
   document.querySelectorAll('.move-btn').forEach(function(btn){
-    var isActive = parseInt(btn.dataset.ply, 10) === moveIndex;
+    var isActive = pathIsActive(btn.__path);
     btn.classList.toggle('active', isActive);
     /* keep the current move in view as you step through — scrolled by
        hand (setting scrollTop on the move-list box directly) rather than
