@@ -1601,9 +1601,24 @@ function openBlogForm(idx){
        and browsers silently drop a nested <form> tag (forms cannot nest),
        so the "save" action here is a regular button with a click handler
        rather than a submit event. */
+    /* lets you start from a game that's already in the PGN database
+       (data/games.pgn, via games.json — every game there ends up listed
+       here, including ones added straight in ChessBase and picked up by
+       scripts/sync_games_pgn.py) instead of re-pasting PGN text by hand.
+       Copies title/meta/pgn in as a starting point; this new entry still
+       gets its own fresh id once saved, so it's an independent copy from
+       here on, not a live link back to the original. */
+    var copyOptions = games.map(function(g, i){
+      return '<option value="' + i + '">' + escapeHtml(previewLang(g.title) || '(ohne Titel)') + '</option>';
+    }).join('');
     gamesFormSlot.innerHTML =
       '<div class="entry-form" id="bf-game-form">' +
       '<h3>' + (editingGame ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
+      (games.length ?
+        '<div class="field"><label>Aus vorhandenen Partien übernehmen (optional)</label>' +
+        '<span class="hint">Kopiert Titel und PGN einer bereits vorhandenen Partie hierher — danach frei anpassbar. Betrifft nur dieses Formular, die Original-Partie bleibt unverändert.</span>' +
+        '<select id="bfg-copy-from"><option value="">— auswählen —</option>' + copyOptions + '</select></div>'
+        : '') +
       '<div class="form-row">' +
       '<div class="field"><label>Titel (Englisch)</label>' +
       '<div class="cover-row"><input type="text" id="bfg-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan" style="flex:1;">' +
@@ -1624,6 +1639,21 @@ function openBlogForm(idx){
       '<button type="button" class="btn" id="bfg-cancel">Abbrechen</button>' +
       '</div></div>';
     document.getElementById('bfg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
+    var copyFromSelect = document.getElementById('bfg-copy-from');
+    if(copyFromSelect){
+      copyFromSelect.addEventListener('change', function(){
+        if(copyFromSelect.value === '') return;
+        var source = games[parseInt(copyFromSelect.value, 10)];
+        if(!source) return;
+        var srcTitle = splitLangValue(source.title);
+        document.getElementById('bfg-title-en').value = srcTitle.en;
+        document.getElementById('bfg-title-de').value = srcTitle.de;
+        document.getElementById('bfg-meta').value = source.meta || '';
+        document.getElementById('bfg-pgn').value = source.pgn || '';
+        copyFromSelect.value = '';
+        showToast('Übernommen — unten anpassen und speichern ✓');
+      });
+    }
     wireTranslateButton('bfg-title-translate', 'bfg-title-en', 'bfg-title-de', 'EN', 'DE');
     wireTranslateButton('bfg-title-translate-rev', 'bfg-title-de', 'bfg-title-en', 'DE', 'EN');
     var previewEl = document.getElementById('bfg-preview');
