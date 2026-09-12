@@ -1609,6 +1609,60 @@ function parsePgnHeaders(pgnText){
   return headers;
 }
 
+/* Pulls { ply: commentText } out of a PGN string's movetext, independent
+   of chess.js — this version of the library silently discards comments
+   while parsing (no get_comment()/get_comments() API at all), so text
+   annotations added in ChessBase (or anywhere else) need their own,
+   separate extraction to ever be shown. Ply is 1-indexed to match
+   historyVerbose's own indexing (ply 1 = White's 1st move, 2 = Black's
+   1st, ...). Variations in parentheses are skipped over entirely — their
+   moves don't advance the mainline ply count and their comments are
+   dropped — rather than risk misattributing either to the wrong move;
+   showing sub-lines is a bigger feature for another time. */
+function extractPgnComments(pgnText){
+  var movetext = (pgnText || '').replace(/\[[^\]]*\]\s*/g, '');
+  var comments = {};
+  var ply = 0;
+  var i = 0, len = movetext.length;
+  while(i < len){
+    var ch = movetext[i];
+    if(ch === '{'){
+      var end = movetext.indexOf('}', i);
+      if(end === -1) break;
+      var text = movetext.slice(i + 1, end).replace(/\s+/g, ' ').trim();
+      if(text) comments[ply] = comments[ply] ? comments[ply] + ' ' + text : text;
+      i = end + 1;
+      continue;
+    }
+    if(ch === '('){
+      var depth = 1, j = i + 1;
+      while(j < len && depth > 0){
+        if(movetext[j] === '(') depth++;
+        else if(movetext[j] === ')') depth--;
+        j++;
+      }
+      i = j;
+      continue;
+    }
+    if(ch === ';'){
+      var nl = movetext.indexOf('\n', i);
+      i = (nl === -1) ? len : nl + 1;
+      continue;
+    }
+    if(/\s/.test(ch)){ i++; continue; }
+    var k = i;
+    while(k < len && !/\s/.test(movetext[k]) && movetext[k] !== '{' && movetext[k] !== '('){ k++; }
+    var token = movetext.slice(i, k);
+    i = k;
+    if(/^\d+\.+$/.test(token)) continue;                    /* move number, e.g. "12." / "12..." */
+    if(/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)) continue;     /* result */
+    if(/^\$\d+$/.test(token)) continue;                      /* NAG */
+    ply++;
+  }
+  return comments;
+}
+var gameComments = {};
+
 function loadGameObject(g){
   stopPlay();
   currentGame = g;
@@ -1618,6 +1672,7 @@ function loadGameObject(g){
     return false;
   }
   historyVerbose = gameEngine.history({ verbose: true });
+  gameComments = extractPgnComments(g.pgn);
   gameEngine.reset();
   moveIndex = 0;
 
