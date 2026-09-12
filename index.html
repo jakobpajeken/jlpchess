@@ -2279,10 +2279,10 @@ document.addEventListener('keydown', function(e){
   if(tag === 'input' || tag === 'textarea') return;
   if(!gameEngine) return;
   if(e.key === 'ArrowLeft'){
-    manualGoToPly(Math.max(0, moveIndex - 1));
+    manualGoToLine(activeLine, Math.max(0, moveIndex - 1));
     e.preventDefault();
   } else if(e.key === 'ArrowRight'){
-    manualGoToPly(Math.min(historyVerbose.length, moveIndex + 1));
+    manualGoToLine(activeLine, Math.min(activeLine.length, moveIndex + 1));
     e.preventDefault();
   }
 });
