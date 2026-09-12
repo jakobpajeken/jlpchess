@@ -793,6 +793,8 @@ function renderRealPost(post){
   var lang = document.documentElement.lang === 'de' ? 'de' : 'en';
   document.title = pickLang(post.title) + ' — IM Jakob Leon Pajeken';
   var setText = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || ''; };
+  var draftBanner = document.getElementById('draft-banner');
+  if(draftBanner) draftBanner.hidden = post.status !== 'draft';
   setText('post-category', pickLang(post.category));
   setText('post-title', pickLang(post.title));
   setText('post-author', post.author || 'IM Jakob Leon Pajeken');
