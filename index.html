@@ -2130,6 +2130,10 @@ function initGamesWidget(){
   if(btnNext) btnNext.addEventListener('click', function(){ tryAdvance(); });
   if(btnEnd) btnEnd.addEventListener('click', function(){ manualGoToLine(activeLine, activeBranches, activeLine.length); });
   if(btnFlip) btnFlip.addEventListener('click', function(){ setOrientation(boardOrientation === 'black' ? 'white' : 'black'); });
+  var choiceDialog = document.getElementById('move-choice-dialog');
+  var choiceCancel = document.getElementById('move-choice-cancel');
+  if(choiceCancel) choiceCancel.addEventListener('click', function(){ hideMoveChoiceDialog(); });
+  if(choiceDialog) choiceDialog.addEventListener('click', function(e){ if(e.target === choiceDialog) hideMoveChoiceDialog(); });
 }
 initGamesWidget();
 
