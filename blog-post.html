@@ -836,6 +836,9 @@ function createGameWidget(container, gameOrGames){
         }
       }
     });
+    /* ply 0 (before any move) has no move button to scroll to above — see
+       index.html's highlightMoveList() for the full rationale. */
+    if(moveIndex === 0) listEl.scrollTop = 0;
   }
   /* Replays `line` (an array of SAN strings from move 1) up to `idx` moves
      in — line can be the mainline or any variation's own path. */
