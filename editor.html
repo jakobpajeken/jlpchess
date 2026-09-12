@@ -1683,25 +1683,28 @@ function openBlogForm(idx){
     document.getElementById('bfg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
     var copyFromSelect = document.getElementById('bfg-copy-from');
     var pgnDatabaseEntries = [];
-    /* labels an entry using the nice bilingual title already on the site
-       for it, if this exact game (matched by WebsiteId) is already
-       catalogued in games.json or a blog post — falling back to the raw
-       PGN headers (e.g. for a game that only exists in ChessBase so far,
-       not yet picked up anywhere on the site) */
+    /* labels every entry primarily by the players (White – Black) — a
+       title is something you add afterward in the form below, not
+       something this list should need to guess at, so a game that has
+       none yet is just as easy to find by name as one that does. If this
+       exact game (matched by WebsiteId) already carries a title on the
+       site, that's appended too, so an already-catalogued game stays
+       just as recognisable as it always was. */
     function labelForPgnEntry(entry){
+      var h = entry.headers;
+      var nameLabel = (h.white && h.black) ? (h.white + ' – ' + h.black) : (h.event || '(unbenannte Partie)');
+      var known = null;
       if(entry.websiteId){
-        var known = games.find(function(g){ return g.id === entry.websiteId; });
+        known = games.find(function(g){ return g.id === entry.websiteId; });
         if(!known){
           blogPosts.some(function(p){
             known = (p.games || []).find(function(g){ return g.id === entry.websiteId; });
             return !!known;
           });
         }
-        if(known) return previewLang(known.title) || '(ohne Titel)';
       }
-      var h = entry.headers;
-      if(h.white && h.black) return h.white + ' – ' + h.black + (h.event ? ' (' + h.event + ')' : '');
-      return h.event || '(unbenannte Partie)';
+      var existingTitle = known ? previewLang(known.title) : '';
+      return existingTitle ? (nameLabel + ' — ' + existingTitle) : nameLabel;
     }
     fetchGamesPgnDatabase().then(function(entries){
       if(!copyFromSelect) return; /* form may have been closed already */
