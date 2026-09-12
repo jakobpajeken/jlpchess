@@ -191,6 +191,8 @@
   .embedded-game .game-info{font-size:0.84rem;color:var(--ivory-dim);margin-bottom:16px;}
   .embedded-game .pgn-error{font-size:0.84rem;color:#b04e2e;min-height:1.2em;}
   .embedded-game .move-list{display:flex;flex-wrap:wrap;gap:4px 10px;max-height:220px;overflow-y:auto;font-size:0.9rem;}
+  .embedded-game .game-comment{margin-top:14px;padding:14px 16px;background:var(--surface);border-left:2px solid var(--gold);font-family:'Spectral',serif;font-style:italic;font-size:0.92rem;line-height:1.55;color:var(--ivory);}
+  .embedded-game .game-comment[hidden]{display:none;}
   .embedded-game .move-num{color:var(--ivory-dim);margin-right:2px;}
   .embedded-game .move-btn{
     background:none;border:none;color:var(--ivory-dim);cursor:pointer;
@@ -627,6 +629,15 @@ function createGameWidget(container, gameOrGames){
         }
       }
     });
+    if(commentEl){
+      var comment = gameComments[moveIndex];
+      if(comment){
+        commentEl.textContent = comment;
+        commentEl.hidden = false;
+      }else{
+        commentEl.hidden = true;
+      }
+    }
   }
   function goToPly(ply){
     engine.reset();
