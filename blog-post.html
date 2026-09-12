@@ -910,21 +910,6 @@ function createGameWidget(container, gameOrGames){
   function displaySan(san){
     return document.documentElement.lang === 'de' ? sanToGermanNotation(san) : san;
   }
-  function formatVariationLine(line){
-    var parts = [];
-    (line || []).forEach(function(entry, idx){
-      var prefix = pgnMoveNumberPrefix(entry.ply, idx === 0);
-      var text = (prefix ? prefix + ' ' : '') + displaySan(entry.san) + (entry.nag || '');
-      var comment = pickLang(entry.comment);
-      if(comment) text += ' {' + comment + '}';
-      parts.push(text);
-      (entry.variations || []).forEach(function(sub){
-        parts.push('(' + formatVariationLine(sub) + ')');
-      });
-    });
-    return parts.join(' ');
-  }
-
   buildBoardSquares();
 
   /* holds this widget's currently-shown title, kept up to date by loadGame()
@@ -954,6 +939,7 @@ function createGameWidget(container, gameOrGames){
     historyVerbose = engine.history({ verbose: true });
     gameComments = Array.isArray(game.annotations) ? buildAnnotationIndex(game.annotations) : commentsMapToIndex(extractPgnComments(game.pgn || ''));
     engine.reset();
+    activeLine = historyVerbose.map(function(m){ return m.san; });
     moveIndex = 0;
 
     var headers = parsePgnHeaders(game.pgn || '');
