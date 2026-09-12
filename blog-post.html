@@ -818,9 +818,9 @@ function createGameWidget(container, gameOrGames){
   }
   /* manual navigation always stops any running auto-play first, so it
      never fights with a move the user just clicked */
-  function manualGoToPly(ply){
+  function manualGoToLine(line, idx){
     stopPlay();
-    goToPly(ply);
+    goToLineIndex(line, idx);
   }
   function formatPgnDate(d){
     var parts = d.split('.');
