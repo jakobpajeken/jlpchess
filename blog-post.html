@@ -575,7 +575,11 @@ function createGameWidget(container, gameOrGames){
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'move-btn';
-    btn.textContent = san;
+    var annotation = gameComments[ply];
+    btn.textContent = san + (annotation && annotation.nag ? annotation.nag : '');
+    if(annotation && (annotation.comment || (annotation.variations && annotation.variations.length))){
+      btn.classList.add('annotated');
+    }
     btn.dataset.ply = ply;
     btn.addEventListener('click', function(){ manualGoToPly(ply); });
     return btn;
