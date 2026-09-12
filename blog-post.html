@@ -885,6 +885,8 @@ function createGameWidget(container, gameOrGames){
       choiceListEl.appendChild(btn);
     });
     choiceDialog.hidden = false;
+    var firstBtn = choiceListEl.querySelector('.move-choice-btn');
+    if(firstBtn) firstBtn.focus(); /* so the arrow keys have something to move from right away */
   }
   function hideMoveChoiceDialog(){
     if(choiceDialog) choiceDialog.hidden = true;
@@ -1121,7 +1123,21 @@ function createGameWidget(container, gameOrGames){
     var tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
     if(tag === 'input' || tag === 'textarea') return;
     if(choiceDialog && !choiceDialog.hidden){
-      if(e.key === 'Escape'){ hideMoveChoiceDialog(); e.preventDefault(); }
+      /* while a choice is pending, the arrow keys move between the
+         options instead of stepping the board underneath the dialog —
+         see index.html's keydown handler for the full rationale. */
+      var choiceBtns = Array.from(choiceDialog.querySelectorAll('.move-choice-btn'));
+      var focusedIdx = choiceBtns.indexOf(document.activeElement);
+      if(e.key === 'Escape'){
+        hideMoveChoiceDialog();
+        e.preventDefault();
+      } else if(e.key === 'ArrowDown' || e.key === 'ArrowRight'){
+        if(choiceBtns.length) choiceBtns[(focusedIdx + 1 + choiceBtns.length) % choiceBtns.length].focus();
+        e.preventDefault();
+      } else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft'){
+        if(choiceBtns.length) choiceBtns[(focusedIdx - 1 + choiceBtns.length) % choiceBtns.length].focus();
+        e.preventDefault();
+      }
       return; /* a choice is pending — don't also step the board underneath it */
     }
     if(e.key === 'ArrowLeft'){
