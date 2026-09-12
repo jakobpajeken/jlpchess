@@ -1116,6 +1116,33 @@ function createGameWidget(container, gameOrGames){
   if(choiceCancelEl) choiceCancelEl.addEventListener('click', function(){ hideMoveChoiceDialog(); });
   if(choiceDialog) choiceDialog.addEventListener('click', function(e){ if(e.target === choiceDialog) hideMoveChoiceDialog(); });
 
+  /* swipe left/right on the board is the touch equivalent of the arrow
+     keys (there's no keyboard on a phone) — see index.html's board swipe
+     handler for the full rationale (mirrored here per-widget-instance,
+     scoped to this container since several games can be embedded in one
+     post). Ignored while the dialog itself is open. */
+  var boardWrap = container.querySelector('.board-wrap');
+  if(boardWrap){
+    var boardTouchX = null, boardTouchY = null;
+    boardWrap.addEventListener('touchstart', function(e){
+      var t = e.touches[0];
+      boardTouchX = t.clientX;
+      boardTouchY = t.clientY;
+    }, { passive: true });
+    boardWrap.addEventListener('touchend', function(e){
+      if(boardTouchX === null) return;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - boardTouchX;
+      var dy = t.clientY - boardTouchY;
+      boardTouchX = null;
+      if(choiceDialog && !choiceDialog.hidden) return;
+      if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5){
+        if(dx > 0) tryAdvance();
+        else manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1));
+      }
+    }, { passive: true });
+  }
+
   /* arrow-key navigation, scoped to this widget via focus — several games
      can be embedded in one post, so a page-wide keydown listener wouldn't
      know which board to step through */
