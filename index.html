@@ -202,16 +202,19 @@
   .offer-card:first-child{padding-top:0;}
   .offer-card:last-child{border-bottom:none;padding-bottom:0;}
   .offer-card h3{font-size:1.375rem;margin-bottom:10px;}
-  .offer-card p{margin:0 0 12px;color:var(--ivory-dim);font-size:0.95rem;max-width:70ch;}
+  .offer-card p{margin:0 0 12px;color:var(--ivory-dim);font-size:0.95rem;}
   .offer-card p:last-child{margin-bottom:0;}
   .offer-card strong{color:var(--ivory);font-weight:500;}
 
   /* standalone "training games & matches" callout — deliberately outside
      the regular offer-grid, with a gold border instead of a plain hairline
      one, so it reads as its own, separately bookable thing rather than a
-     fourth item in the "how I coach" set above it */
+     fourth item in the "how I coach" set above it. margin-top used to be
+     1px, tuned for when offer-grid was a boxed 3-column grid it needed to
+     visually align flush with — now that offer-grid is a plain stacked
+     list, that left almost no breathing room above this box at all. */
   .training-game-box{
-    margin-top:1px;background:var(--surface-raised);border:1px solid var(--gold);
+    margin-top:56px;background:var(--surface-raised);border:1px solid var(--gold);
     padding:40px 44px;
   }
   .training-game-box h3{font-family:'Spectral',serif;font-size:1.5rem;color:var(--gold-bright);margin-bottom:16px;}
