@@ -2418,21 +2418,24 @@ document.addEventListener('keydown', function(e){
   if(!gameEngine) return;
   var dialog = document.getElementById('move-choice-dialog');
   if(dialog && !dialog.hidden){
-    /* while a choice is pending, the arrow keys move between the options
-       instead of stepping the board underneath the dialog — up/down and
-       left/right both work, since it reads equally well as a short list
-       (up/down) or as "one more option over" (left/right, the same keys
-       that opened the dialog in the first place) */
+    /* while a choice is pending: up/down cycle which option is focused,
+       right arrow plays whichever one is currently focused (same gesture
+       that opened the dialog in the first place, now "confirming" it
+       instead of stepping past it), Escape cancels. */
     var choiceBtns = Array.from(dialog.querySelectorAll('.move-choice-btn'));
     var focusedIdx = choiceBtns.indexOf(document.activeElement);
     if(e.key === 'Escape'){
       hideMoveChoiceDialog();
       e.preventDefault();
-    } else if(e.key === 'ArrowDown' || e.key === 'ArrowRight'){
+    } else if(e.key === 'ArrowDown'){
       if(choiceBtns.length) choiceBtns[(focusedIdx + 1 + choiceBtns.length) % choiceBtns.length].focus();
       e.preventDefault();
     } else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft'){
       if(choiceBtns.length) choiceBtns[(focusedIdx - 1 + choiceBtns.length) % choiceBtns.length].focus();
+      e.preventDefault();
+    } else if(e.key === 'ArrowRight'){
+      if(focusedIdx >= 0) choiceBtns[focusedIdx].click();
+      else if(choiceBtns.length) choiceBtns[0].click(); /* nothing focused yet — play the first/default option */
       e.preventDefault();
     }
     return; /* a choice is pending — don't also step the board underneath it */
