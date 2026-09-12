@@ -285,6 +285,29 @@ def default_title_from_headers(game):
     return game.headers.get("Event", "").strip() or "Untitled game"
 
 
+def header_fingerprint(pgn_text):
+    """A fallback identity fingerprint (White+Black+Event+Date+Round) used
+    only when a game's WebsiteId tag has gone missing from games.pgn.
+    Observed in practice: ChessBase does not reliably preserve custom PGN
+    tags it doesn't recognise when IT saves the database, so the very act
+    of editing and saving a game there can strip the tag that normally
+    links it back to its games.json/blog.json entry. Without this
+    fallback, that edited game would look brand new on the next sync: its
+    real edits would get misfiled as a new entry while the existing entry
+    it belongs to silently stops receiving updates. The standard 7-tag
+    roster fields used here are specific enough for a personal games
+    archive of this size that a false match is effectively a non-issue."""
+    if not pgn_text:
+        return None
+    headers = {}
+    for m in re.finditer(r'\[(\w+)\s+"([^"]*)"\]', pgn_text):
+        headers[m.group(1)] = m.group(2).strip()
+    key = tuple((headers.get(k) or "").strip().lower() for k in ("White", "Black", "Event", "Date", "Round"))
+    if not any(key):
+        return None
+    return key
+
+
 def main():
     games_data = load_json(GAMES_JSON)
     blog_data = load_json(BLOG_JSON)
@@ -294,6 +317,42 @@ def main():
         blog_data = []
 
     pgn_games = parse_pgn_database(PGN_PATH)  # [(wid_or_None, Game), ...] in file order
+
+    # Recover a WebsiteId tag that went missing from games.pgn (see
+    # header_fingerprint() above) by matching against the fingerprint of
+    # each known entry's own last-synced PGN, before anything below treats
+    # an untagged game as brand new.
+    fp_to_id = {}
+    for entry in games_data:
+        if entry.get("id"):
+            fp = header_fingerprint(entry.get("pgn"))
+            if fp:
+                fp_to_id[fp] = None if (fp in fp_to_id and fp_to_id[fp] != entry["id"]) else entry["id"]
+    for post in blog_data:
+        for g in post.get("games") or []:
+            if g.get("id"):
+                fp = header_fingerprint(g.get("pgn"))
+                if fp:
+                    fp_to_id[fp] = None if (fp in fp_to_id and fp_to_id[fp] != g["id"]) else g["id"]
+
+    known_ids_for_recovery = set(e.get("id") for e in games_data if e.get("id"))
+    for post in blog_data:
+        known_ids_for_recovery.update(g.get("id") for g in (post.get("games") or []) if g.get("id"))
+
+    recovered_ids = []
+    recovered_pgn_games = []
+    for wid, game in pgn_games:
+        if not wid or wid not in known_ids_for_recovery:
+            fp = header_fingerprint(export_game(game))
+            recovered = fp_to_id.get(fp) if fp else None
+            if recovered:
+                game.headers["WebsiteId"] = recovered
+                if not game.headers.get("WebsiteSource"):
+                    game.headers["WebsiteSource"] = "games.json"
+                wid = recovered
+                recovered_ids.append(recovered)
+        recovered_pgn_games.append((wid, game))
+    pgn_games = recovered_pgn_games
 
     used_ids = set()
     for wid, _ in pgn_games:
