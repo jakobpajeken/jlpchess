@@ -6,7 +6,603 @@
     },
     "meta": "",
     "pgn": "[Event \"Riga Tech op-A\"]\n[Site \"Riga\"]\n[Date \"2024.08.11\"]\n[Round \"9\"]\n[White \"Pajeken, Jakob Leon\"]\n[Black \"Iniyan, Panneerseluam\"]\n[Result \"1-0\"]\n[ECO \"B84\"]\n[WhiteElo \"2416\"]\n[BlackElo \"2547\"]\n[WebsiteId \"must-win-vs-gm-iniyan\"]\n[WebsiteSource \"games.json\"]\n\n1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be3 e6 7. Be2 Qc7 8. Qd2\nb5 9. a3 Bb7 10. f3 Nbd7 11. O-O-O Rc8 12. g4 Ne5 13. g5 Nfd7 14. f4 Nc4 15.\nBxc4 Qxc4 16. Nb3 b4 17. axb4 Qxb4 18. Qe2 Nb6 19. Bxb6 Qxb6 20. f5 Be7 21.\nRhg1 O-O 22. f6 Bd8 23. Rg3 g6 24. Rh3 h5 25. Kb1 a5 26. Rd4 e5 27. Rd1 Qb4 28.\nNd5 Qc4 29. Qxc4 Rxc4 30. Nd2 Rc5 31. Rc3 Rxc3 32. Nxc3 Bc7 33. Nc4 Ba6 34. Na3\nRe8 35. Nab5 Bb8 36. Ka2 Rc8 37. Kb3 Rc6 38. Ka4 Kf8 39. Kxa5 Ke8 40. Rd2 Kd7\n41. Nd5 Bb7 42. c4 Ra6+ 43. Kb4 Ra1 44. c5 Re1 45. Nb6+ Kc6 46. Nxd6 Ba6 47.\nNxf7 Rxe4+ 48. Ka5 Bc7 49. Kxa6 Bxb6 50. Nxe5+ 1-0",
-    "id": "must-win-vs-gm-iniyan"
+    "id": "must-win-vs-gm-iniyan",
+    "annotations": [
+      {
+        "ply": 1,
+        "san": "e4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 2,
+        "san": "c5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 3,
+        "san": "Nf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 4,
+        "san": "d6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 5,
+        "san": "d4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 6,
+        "san": "cxd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 7,
+        "san": "Nxd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 8,
+        "san": "Nf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 9,
+        "san": "Nc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 10,
+        "san": "a6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 11,
+        "san": "Be3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 12,
+        "san": "e6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 13,
+        "san": "Be2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 14,
+        "san": "Qc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 15,
+        "san": "Qd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 16,
+        "san": "b5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 17,
+        "san": "a3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 18,
+        "san": "Bb7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 19,
+        "san": "f3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 20,
+        "san": "Nbd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 21,
+        "san": "O-O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 22,
+        "san": "Rc8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 23,
+        "san": "g4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 24,
+        "san": "Ne5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 25,
+        "san": "g5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 26,
+        "san": "Nfd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 27,
+        "san": "f4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 28,
+        "san": "Nc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 29,
+        "san": "Bxc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 30,
+        "san": "Qxc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 31,
+        "san": "Nb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 32,
+        "san": "b4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 33,
+        "san": "axb4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 34,
+        "san": "Qxb4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 35,
+        "san": "Qe2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 36,
+        "san": "Nb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 37,
+        "san": "Bxb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 38,
+        "san": "Qxb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 39,
+        "san": "f5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 40,
+        "san": "Be7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 41,
+        "san": "Rhg1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 42,
+        "san": "O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 43,
+        "san": "f6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 44,
+        "san": "Bd8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 45,
+        "san": "Rg3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 46,
+        "san": "g6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 47,
+        "san": "Rh3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 48,
+        "san": "h5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 49,
+        "san": "Kb1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 50,
+        "san": "a5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 51,
+        "san": "Rd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 52,
+        "san": "e5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 53,
+        "san": "Rd1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 54,
+        "san": "Qb4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 55,
+        "san": "Nd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 56,
+        "san": "Qc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 57,
+        "san": "Qxc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 58,
+        "san": "Rxc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 59,
+        "san": "Nd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 60,
+        "san": "Rc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 61,
+        "san": "Rc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 62,
+        "san": "Rxc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 63,
+        "san": "Nxc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 64,
+        "san": "Bc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 65,
+        "san": "Nc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 66,
+        "san": "Ba6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 67,
+        "san": "Na3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 68,
+        "san": "Re8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 69,
+        "san": "Nab5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 70,
+        "san": "Bb8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 71,
+        "san": "Ka2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 72,
+        "san": "Rc8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 73,
+        "san": "Kb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 74,
+        "san": "Rc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 75,
+        "san": "Ka4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 76,
+        "san": "Kf8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 77,
+        "san": "Kxa5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 78,
+        "san": "Ke8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 79,
+        "san": "Rd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 80,
+        "san": "Kd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 81,
+        "san": "Nd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 82,
+        "san": "Bb7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 83,
+        "san": "c4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 84,
+        "san": "Ra6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 85,
+        "san": "Kb4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 86,
+        "san": "Ra1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 87,
+        "san": "c5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 88,
+        "san": "Re1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 89,
+        "san": "Nb6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 90,
+        "san": "Kc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 91,
+        "san": "Nxd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 92,
+        "san": "Ba6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 93,
+        "san": "Nxf7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 94,
+        "san": "Rxe4+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 95,
+        "san": "Ka5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 96,
+        "san": "Bc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 97,
+        "san": "Kxa6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 98,
+        "san": "Bxb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 99,
+        "san": "Nxe5+",
+        "nag": "",
+        "comment": ""
+      }
+    ]
   },
   {
     "title": {
@@ -15,7 +611,291 @@
     },
     "meta": "",
     "pgn": "[Event \"Uppsala Young Champions 9th\"]\n[Site \"Uppsala\"]\n[Date \"2022.10.31\"]\n[Round \"5\"]\n[White \"Pajeken, Jakob Leon\"]\n[Black \"Kruckenhauser, Arthur\"]\n[Result \"1-0\"]\n[ECO \"B84\"]\n[WhiteElo \"2461\"]\n[BlackElo \"2327\"]\n[WebsiteId \"my-best-sacrifice-ever\"]\n[WebsiteSource \"games.json\"]\n\n1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be2 e6 7. Be3 Qc7 8. Qd2\nb5 9. a3 Bb7 10. f3 h5 11. a4 b4 12. Na2 d5 13. e5 Nfd7 14. f4 Nc5 15. O-O Ne4\n16. Qe1 g5 17. Rd1 gxf4 18. Rxf4 Bg7 19. Qxb4 Bxe5 20. Nxe6 fxe6 21. Bxh5+ Kd7\n22. Rf7+ Kc6 23. Qc4+ dxc4 24. Nb4# 1-0",
-    "id": "my-best-sacrifice-ever"
+    "id": "my-best-sacrifice-ever",
+    "annotations": [
+      {
+        "ply": 1,
+        "san": "e4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 2,
+        "san": "c5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 3,
+        "san": "Nf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 4,
+        "san": "d6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 5,
+        "san": "d4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 6,
+        "san": "cxd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 7,
+        "san": "Nxd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 8,
+        "san": "Nf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 9,
+        "san": "Nc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 10,
+        "san": "a6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 11,
+        "san": "Be2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 12,
+        "san": "e6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 13,
+        "san": "Be3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 14,
+        "san": "Qc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 15,
+        "san": "Qd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 16,
+        "san": "b5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 17,
+        "san": "a3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 18,
+        "san": "Bb7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 19,
+        "san": "f3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 20,
+        "san": "h5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 21,
+        "san": "a4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 22,
+        "san": "b4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 23,
+        "san": "Na2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 24,
+        "san": "d5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 25,
+        "san": "e5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 26,
+        "san": "Nfd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 27,
+        "san": "f4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 28,
+        "san": "Nc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 29,
+        "san": "O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 30,
+        "san": "Ne4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 31,
+        "san": "Qe1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 32,
+        "san": "g5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 33,
+        "san": "Rd1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 34,
+        "san": "gxf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 35,
+        "san": "Rxf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 36,
+        "san": "Bg7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 37,
+        "san": "Qxb4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 38,
+        "san": "Bxe5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 39,
+        "san": "Nxe6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 40,
+        "san": "fxe6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 41,
+        "san": "Bxh5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 42,
+        "san": "Kd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 43,
+        "san": "Rf7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 44,
+        "san": "Kc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 45,
+        "san": "Qc4+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 46,
+        "san": "dxc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 47,
+        "san": "Nb4#",
+        "nag": "",
+        "comment": ""
+      }
+    ]
   },
   {
     "title": {
@@ -24,7 +904,825 @@
     },
     "meta": "",
     "pgn": "[Event \"Braunschweig CC 150 Ann\"]\n[Site \"Braunschweig\"]\n[Date \"2019.10.23\"]\n[Round \"4\"]\n[White \"Krasenkow, Michal\"]\n[Black \"Pajeken, Jakob Leon\"]\n[Result \"0-1\"]\n[ECO \"D01\"]\n[WhiteElo \"2622\"]\n[BlackElo \"2323\"]\n[WhiteFideId \"-1\"]\n[BlackFideId \"-1\"]\n[PlyCount \"136\"]\n[EventDate \"2019.10.21\"]\n[EventType \"tourn\"]\n[EventRounds \"9\"]\n[EventCountry \"GER\"]\n[EventCategory \"8\"]\n[SourceTitle \"CBM 192 Extra\"]\n[Source \"Chessbase\"]\n[SourceDate \"2019.11.06\"]\n[SourceVersion \"1\"]\n[SourceVersionDate \"2019.11.06\"]\n[SourceQuality \"1\"]\n[WebsiteId \"my-first-win-against-a-gm\"]\n[WebsiteSource \"games.json\"]\n\n1. d4 d5 2. Nc3 Nf6 3. Bg5 Nbd7 4. Qd2 c6 5. O-O-O b5 6. f3 b4 7. Nb1 a5 8. e4\ndxe4 9. Qe1 exf3 10. Nxf3 Qc7 11. Nbd2 e6 12. Qh4 Be7 13. Nc4 Ba6 14. Nce5 Nxe5\n15. dxe5 Nd5 16. Bxa6 Rxa6 17. Rd4 Bc5 18. Rc4 Qa7 19. Nd2 Be3 20. Bxe3 Nxe3\n21. Rd4 Qe7 22. Qe4 Nf5 23. Rd3 h5 24. Qc4 Rb6 25. Ne4 O-O 26. h4 Rb5 27. Qxc6\nRxe5 28. g3 Qe8 29. Qxe8 Rxe8 30. Ng5 f6 31. Nh3 Re4 32. Rf1 Rc8 33. Nf4 Nd4\n34. Rf2 e5 35. Nd5 Rc5 36. Ne3 Kf7 37. Kd2 Ke6 38. c3 bxc3+ 39. bxc3 Nb5 40.\nKc2 Nd6 41. Rfd2 Nb5 42. Nd1 Rec4 43. Rd8 Nxc3 44. R2d6+ Kf7 45. R6d7+ Kg6 46.\nNb2 Re4 47. Nd3 Rc6 48. Rg8 a4 49. Rgxg7+ Kf5 50. Kb2 Re2+ 51. Ka3 Rc4 52. Nb4\nNxa2 53. Nxa2 Re3+ 54. Kb2 a3+ 55. Kb1 Re1+ 56. Nc1 Rexc1+ 57. Ka2 R4c3 58. Rd2\ne4 59. Rd5+ Ke6 60. Ra5 e3 61. Ra6+ Rc6 62. Ra8 Rc8 63. Ra4 R8c2+ 64. Kxa3 Ra1+\n65. Kb3 Rxa4 66. Kxc2 Rd4 67. Ra7 Kf5 68. Kc3 e2 0-1",
-    "id": "my-first-win-against-a-gm"
+    "id": "my-first-win-against-a-gm",
+    "annotations": [
+      {
+        "ply": 1,
+        "san": "d4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 2,
+        "san": "d5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 3,
+        "san": "Nc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 4,
+        "san": "Nf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 5,
+        "san": "Bg5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 6,
+        "san": "Nbd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 7,
+        "san": "Qd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 8,
+        "san": "c6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 9,
+        "san": "O-O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 10,
+        "san": "b5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 11,
+        "san": "f3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 12,
+        "san": "b4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 13,
+        "san": "Nb1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 14,
+        "san": "a5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 15,
+        "san": "e4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 16,
+        "san": "dxe4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 17,
+        "san": "Qe1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 18,
+        "san": "exf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 19,
+        "san": "Nxf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 20,
+        "san": "Qc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 21,
+        "san": "Nbd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 22,
+        "san": "e6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 23,
+        "san": "Qh4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 24,
+        "san": "Be7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 25,
+        "san": "Nc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 26,
+        "san": "Ba6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 27,
+        "san": "Nce5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 28,
+        "san": "Nxe5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 29,
+        "san": "dxe5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 30,
+        "san": "Nd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 31,
+        "san": "Bxa6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 32,
+        "san": "Rxa6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 33,
+        "san": "Rd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 34,
+        "san": "Bc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 35,
+        "san": "Rc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 36,
+        "san": "Qa7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 37,
+        "san": "Nd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 38,
+        "san": "Be3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 39,
+        "san": "Bxe3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 40,
+        "san": "Nxe3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 41,
+        "san": "Rd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 42,
+        "san": "Qe7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 43,
+        "san": "Qe4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 44,
+        "san": "Nf5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 45,
+        "san": "Rd3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 46,
+        "san": "h5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 47,
+        "san": "Qc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 48,
+        "san": "Rb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 49,
+        "san": "Ne4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 50,
+        "san": "O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 51,
+        "san": "h4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 52,
+        "san": "Rb5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 53,
+        "san": "Qxc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 54,
+        "san": "Rxe5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 55,
+        "san": "g3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 56,
+        "san": "Qe8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 57,
+        "san": "Qxe8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 58,
+        "san": "Rxe8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 59,
+        "san": "Ng5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 60,
+        "san": "f6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 61,
+        "san": "Nh3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 62,
+        "san": "Re4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 63,
+        "san": "Rf1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 64,
+        "san": "Rc8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 65,
+        "san": "Nf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 66,
+        "san": "Nd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 67,
+        "san": "Rf2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 68,
+        "san": "e5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 69,
+        "san": "Nd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 70,
+        "san": "Rc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 71,
+        "san": "Ne3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 72,
+        "san": "Kf7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 73,
+        "san": "Kd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 74,
+        "san": "Ke6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 75,
+        "san": "c3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 76,
+        "san": "bxc3+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 77,
+        "san": "bxc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 78,
+        "san": "Nb5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 79,
+        "san": "Kc2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 80,
+        "san": "Nd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 81,
+        "san": "Rfd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 82,
+        "san": "Nb5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 83,
+        "san": "Nd1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 84,
+        "san": "Rec4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 85,
+        "san": "Rd8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 86,
+        "san": "Nxc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 87,
+        "san": "R2d6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 88,
+        "san": "Kf7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 89,
+        "san": "R6d7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 90,
+        "san": "Kg6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 91,
+        "san": "Nb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 92,
+        "san": "Re4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 93,
+        "san": "Nd3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 94,
+        "san": "Rc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 95,
+        "san": "Rg8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 96,
+        "san": "a4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 97,
+        "san": "Rgxg7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 98,
+        "san": "Kf5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 99,
+        "san": "Kb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 100,
+        "san": "Re2+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 101,
+        "san": "Ka3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 102,
+        "san": "Rc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 103,
+        "san": "Nb4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 104,
+        "san": "Nxa2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 105,
+        "san": "Nxa2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 106,
+        "san": "Re3+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 107,
+        "san": "Kb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 108,
+        "san": "a3+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 109,
+        "san": "Kb1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 110,
+        "san": "Re1+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 111,
+        "san": "Nc1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 112,
+        "san": "Rexc1+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 113,
+        "san": "Ka2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 114,
+        "san": "R4c3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 115,
+        "san": "Rd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 116,
+        "san": "e4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 117,
+        "san": "Rd5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 118,
+        "san": "Ke6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 119,
+        "san": "Ra5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 120,
+        "san": "e3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 121,
+        "san": "Ra6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 122,
+        "san": "Rc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 123,
+        "san": "Ra8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 124,
+        "san": "Rc8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 125,
+        "san": "Ra4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 126,
+        "san": "R8c2+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 127,
+        "san": "Kxa3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 128,
+        "san": "Ra1+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 129,
+        "san": "Kb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 130,
+        "san": "Rxa4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 131,
+        "san": "Kxc2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 132,
+        "san": "Rd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 133,
+        "san": "Ra7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 134,
+        "san": "Kf5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 135,
+        "san": "Kc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 136,
+        "san": "e2",
+        "nag": "",
+        "comment": ""
+      }
+    ]
   },
   {
     "title": {
@@ -33,7 +1731,1341 @@
     },
     "meta": "",
     "pgn": "[Event \"Copenhagen Obro CXU op\"]\n[Site \"Copenhagen\"]\n[Date \"2026.07.23\"]\n[Round \"5\"]\n[White \"Solodovnichenko, Yuri\"]\n[Black \"Pajeken, Jakob Leon\"]\n[Result \"1/2-1/2\"]\n[ECO \"C48\"]\n[WhiteElo \"2515\"]\n[BlackElo \"2475\"]\n[WhiteFideId \"-1\"]\n[BlackFideId \"-1\"]\n[PlyCount \"222\"]\n[EventDate \"2026.07.20\"]\n[EventType \"tourn\"]\n[EventRounds \"9\"]\n[EventCountry \"DEN\"]\n[SourceTitle \"CB30_2026\"]\n[SourceDate \"2026.07.29\"]\n[SourceVersion \"1\"]\n[SourceVersionDate \"2026.07.29\"]\n[SourceQuality \"1\"]\n[WebsiteId \"tenacious-defence\"]\n[WebsiteSource \"games.json\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Nc3 Nf6 4. Bb5 Bd6 5. d3 O-O 6. Bg5 h6 7. Bh4 Nd4 8.\nNxd4 exd4 9. Ne2 c6 10. Ba4 Re8 11. Bb3 Bc5 12. O-O d5 13. Bxf6 Qxf6 14. exd5\ncxd5 15. Bxd5 Bg4 16. f3 Bd7 17. Ng3 Bd6 18. f4 Bxf4 19. Nh5 Bxh2+ 20. Kxh2\nQd6+ 21. Nf4 Re5 22. Bb3 g5 23. Qh5 gxf4 24. Qxf7+ Kh8 25. Qxf4 Bc6 26. Rae1\nRh5+ 27. Kg1 Qxf4 28. Rxf4 Rg5 29. Re2 Rd8 30. g4 a5 31. a4 Rd7 32. Re8+ Kh7\n33. Ref8 h5 34. Kh2 hxg4 35. Kg3 Re7 36. Rxd4 Re1 37. Rf7+ Kh6 38. Rd6+ Rg6 39.\nRxg6+ Kxg6 40. Kxg4 Rg1+ 41. Kh4 Rb1 42. Rc7 Kf5 43. Kg3 Rxb2 44. Kf2 Ke5 45.\nKe3 Kd6 46. Rg7 Rb1 47. Kd4 b6 48. Kc3 Rh1 49. Rg4 Rh5 50. Kd4 Rh2 51. Rg6+ Kc7\n52. Rg7+ Kd6 53. Rg4 Bf3 54. Rf4 Bc6 55. Kc3 Rh5 56. Rf6+ Kc7 57. Kb2 Rh4 58.\nc4 Rh2+ 59. Kc3 Rh3 60. Re6 Rg3 61. Bc2 Kd7 62. Rh6 Kc7 63. Rh4 Kd6 64. Rf4 Kc7\n65. Rf2 Kd6 66. Kb2 Rg4 67. Rf6+ Kc7 68. Bd1 Rg1 69. Bc2 Rg2 70. Kc3 Rg3 71.\nRf1 Kd6 72. Re1 Bd7 73. Rh1 Bc6 74. Rh4 Kc7 75. Kd4 Rg1 76. c5 Rc1 77. cxb6+\nKxb6 78. Bb3 Rb1 79. Kc3 Rc1+ 80. Kb2 Rg1 81. Rh6 Kc7 82. d4 Rg3 83. d5 Rxb3+\n84. Kxb3 Bxd5+ 85. Ka3 Bc6 86. Rh5 Kb6 87. Kb3 Be8 88. Rh6+ Bc6 89. Kc3 Kc5 90.\nRh4 Kb6 91. Rc4 Bd5 92. Rd4 Bc6 93. Kd3 Be8 94. Ke4 Kc5 95. Ke5 Bf7 96. Rh4 Bb3\n97. Kf6 Bc2 98. Ke6 Bb3+ 99. Kd7 Bxa4+ 100. Rxa4 Kb5 101. Ra1 a4 102. Kd6 Kb4\n103. Kd5 a3 104. Kd4 Kb3 105. Rb1+ Kc2 106. Rh1 a2 107. Kc4 Kb2 108. Rh2+ Ka3\n109. Rh3+ Kb2 110. Rh2+ Ka3 111. Rxa2+ Kxa2 1/2-1/2",
-    "id": "tenacious-defence"
+    "id": "tenacious-defence",
+    "annotations": [
+      {
+        "ply": 1,
+        "san": "e4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 2,
+        "san": "e5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 3,
+        "san": "Nf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 4,
+        "san": "Nc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 5,
+        "san": "Nc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 6,
+        "san": "Nf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 7,
+        "san": "Bb5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 8,
+        "san": "Bd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 9,
+        "san": "d3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 10,
+        "san": "O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 11,
+        "san": "Bg5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 12,
+        "san": "h6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 13,
+        "san": "Bh4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 14,
+        "san": "Nd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 15,
+        "san": "Nxd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 16,
+        "san": "exd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 17,
+        "san": "Ne2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 18,
+        "san": "c6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 19,
+        "san": "Ba4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 20,
+        "san": "Re8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 21,
+        "san": "Bb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 22,
+        "san": "Bc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 23,
+        "san": "O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 24,
+        "san": "d5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 25,
+        "san": "Bxf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 26,
+        "san": "Qxf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 27,
+        "san": "exd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 28,
+        "san": "cxd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 29,
+        "san": "Bxd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 30,
+        "san": "Bg4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 31,
+        "san": "f3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 32,
+        "san": "Bd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 33,
+        "san": "Ng3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 34,
+        "san": "Bd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 35,
+        "san": "f4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 36,
+        "san": "Bxf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 37,
+        "san": "Nh5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 38,
+        "san": "Bxh2+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 39,
+        "san": "Kxh2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 40,
+        "san": "Qd6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 41,
+        "san": "Nf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 42,
+        "san": "Re5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 43,
+        "san": "Bb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 44,
+        "san": "g5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 45,
+        "san": "Qh5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 46,
+        "san": "gxf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 47,
+        "san": "Qxf7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 48,
+        "san": "Kh8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 49,
+        "san": "Qxf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 50,
+        "san": "Bc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 51,
+        "san": "Rae1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 52,
+        "san": "Rh5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 53,
+        "san": "Kg1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 54,
+        "san": "Qxf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 55,
+        "san": "Rxf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 56,
+        "san": "Rg5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 57,
+        "san": "Re2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 58,
+        "san": "Rd8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 59,
+        "san": "g4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 60,
+        "san": "a5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 61,
+        "san": "a4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 62,
+        "san": "Rd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 63,
+        "san": "Re8+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 64,
+        "san": "Kh7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 65,
+        "san": "Ref8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 66,
+        "san": "h5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 67,
+        "san": "Kh2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 68,
+        "san": "hxg4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 69,
+        "san": "Kg3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 70,
+        "san": "Re7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 71,
+        "san": "Rxd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 72,
+        "san": "Re1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 73,
+        "san": "Rf7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 74,
+        "san": "Kh6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 75,
+        "san": "Rd6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 76,
+        "san": "Rg6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 77,
+        "san": "Rxg6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 78,
+        "san": "Kxg6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 79,
+        "san": "Kxg4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 80,
+        "san": "Rg1+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 81,
+        "san": "Kh4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 82,
+        "san": "Rb1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 83,
+        "san": "Rc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 84,
+        "san": "Kf5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 85,
+        "san": "Kg3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 86,
+        "san": "Rxb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 87,
+        "san": "Kf2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 88,
+        "san": "Ke5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 89,
+        "san": "Ke3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 90,
+        "san": "Kd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 91,
+        "san": "Rg7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 92,
+        "san": "Rb1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 93,
+        "san": "Kd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 94,
+        "san": "b6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 95,
+        "san": "Kc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 96,
+        "san": "Rh1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 97,
+        "san": "Rg4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 98,
+        "san": "Rh5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 99,
+        "san": "Kd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 100,
+        "san": "Rh2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 101,
+        "san": "Rg6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 102,
+        "san": "Kc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 103,
+        "san": "Rg7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 104,
+        "san": "Kd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 105,
+        "san": "Rg4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 106,
+        "san": "Bf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 107,
+        "san": "Rf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 108,
+        "san": "Bc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 109,
+        "san": "Kc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 110,
+        "san": "Rh5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 111,
+        "san": "Rf6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 112,
+        "san": "Kc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 113,
+        "san": "Kb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 114,
+        "san": "Rh4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 115,
+        "san": "c4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 116,
+        "san": "Rh2+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 117,
+        "san": "Kc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 118,
+        "san": "Rh3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 119,
+        "san": "Re6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 120,
+        "san": "Rg3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 121,
+        "san": "Bc2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 122,
+        "san": "Kd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 123,
+        "san": "Rh6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 124,
+        "san": "Kc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 125,
+        "san": "Rh4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 126,
+        "san": "Kd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 127,
+        "san": "Rf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 128,
+        "san": "Kc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 129,
+        "san": "Rf2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 130,
+        "san": "Kd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 131,
+        "san": "Kb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 132,
+        "san": "Rg4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 133,
+        "san": "Rf6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 134,
+        "san": "Kc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 135,
+        "san": "Bd1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 136,
+        "san": "Rg1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 137,
+        "san": "Bc2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 138,
+        "san": "Rg2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 139,
+        "san": "Kc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 140,
+        "san": "Rg3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 141,
+        "san": "Rf1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 142,
+        "san": "Kd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 143,
+        "san": "Re1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 144,
+        "san": "Bd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 145,
+        "san": "Rh1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 146,
+        "san": "Bc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 147,
+        "san": "Rh4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 148,
+        "san": "Kc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 149,
+        "san": "Kd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 150,
+        "san": "Rg1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 151,
+        "san": "c5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 152,
+        "san": "Rc1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 153,
+        "san": "cxb6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 154,
+        "san": "Kxb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 155,
+        "san": "Bb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 156,
+        "san": "Rb1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 157,
+        "san": "Kc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 158,
+        "san": "Rc1+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 159,
+        "san": "Kb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 160,
+        "san": "Rg1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 161,
+        "san": "Rh6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 162,
+        "san": "Kc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 163,
+        "san": "d4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 164,
+        "san": "Rg3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 165,
+        "san": "d5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 166,
+        "san": "Rxb3+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 167,
+        "san": "Kxb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 168,
+        "san": "Bxd5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 169,
+        "san": "Ka3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 170,
+        "san": "Bc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 171,
+        "san": "Rh5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 172,
+        "san": "Kb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 173,
+        "san": "Kb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 174,
+        "san": "Be8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 175,
+        "san": "Rh6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 176,
+        "san": "Bc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 177,
+        "san": "Kc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 178,
+        "san": "Kc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 179,
+        "san": "Rh4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 180,
+        "san": "Kb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 181,
+        "san": "Rc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 182,
+        "san": "Bd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 183,
+        "san": "Rd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 184,
+        "san": "Bc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 185,
+        "san": "Kd3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 186,
+        "san": "Be8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 187,
+        "san": "Ke4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 188,
+        "san": "Kc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 189,
+        "san": "Ke5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 190,
+        "san": "Bf7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 191,
+        "san": "Rh4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 192,
+        "san": "Bb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 193,
+        "san": "Kf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 194,
+        "san": "Bc2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 195,
+        "san": "Ke6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 196,
+        "san": "Bb3+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 197,
+        "san": "Kd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 198,
+        "san": "Bxa4+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 199,
+        "san": "Rxa4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 200,
+        "san": "Kb5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 201,
+        "san": "Ra1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 202,
+        "san": "a4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 203,
+        "san": "Kd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 204,
+        "san": "Kb4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 205,
+        "san": "Kd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 206,
+        "san": "a3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 207,
+        "san": "Kd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 208,
+        "san": "Kb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 209,
+        "san": "Rb1+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 210,
+        "san": "Kc2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 211,
+        "san": "Rh1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 212,
+        "san": "a2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 213,
+        "san": "Kc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 214,
+        "san": "Kb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 215,
+        "san": "Rh2+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 216,
+        "san": "Ka3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 217,
+        "san": "Rh3+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 218,
+        "san": "Kb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 219,
+        "san": "Rh2+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 220,
+        "san": "Ka3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 221,
+        "san": "Rxa2+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 222,
+        "san": "Kxa2",
+        "nag": "",
+        "comment": ""
+      }
+    ]
   },
   {
     "title": {
@@ -42,7 +3074,645 @@
     },
     "meta": "",
     "pgn": "[Event \"AUT-chT 2425\"]\n[Site \"Austria\"]\n[Date \"2025.04.04\"]\n[Round \"9.2\"]\n[White \"Petrov, Nikita\"]\n[Black \"Pajeken, Jakob Leon\"]\n[Result \"0-1\"]\n[ECO \"A08\"]\n[WhiteElo \"2567\"]\n[BlackElo \"2435\"]\n[WhiteFideId \"-1\"]\n[BlackFideId \"-1\"]\n[PlyCount \"106\"]\n[EventDate \"2024.10.09\"]\n[EventType \"team-tourn\"]\n[EventRounds \"11\"]\n[EventCountry \"AUT\"]\n[SourceTitle \"EXT 2026\"]\n[Source \"ChessBase\"]\n[SourceDate \"2025.10.11\"]\n[SourceVersion \"1\"]\n[SourceVersionDate \"2025.10.11\"]\n[SourceQuality \"1\"]\n[WhiteTeam \"Pinggau Friedberg\"]\n[BlackTeam \"Raika Feffernitz\"]\n[WhiteTeamCountry \"AUT\"]\n[BlackTeamCountry \"AUT\"]\n[WebsiteId \"never-give-up\"]\n[WebsiteSource \"games.json\"]\n\n1. Nf3 d5 2. g3 Nf6 3. Bg2 c5 4. O-O g6 5. d3 Bg7 6. Nbd2 O-O 7. e4 Nc6 8. Re1\nQc7 9. exd5 Nxd5 10. Nb3 Bg4 11. h3 Bxf3 12. Qxf3 Rad8 13. c3 b6 14. Qe2 Rd7\n15. Bd2 Rfd8 16. Rad1 h5 17. h4 e5 18. Bg5 f6 19. Bc1 Nde7 20. Bh3 Rd6 21. Na1\nf5 22. Bg5 Qd7 23. Bf1 e4 24. Bxe7 Nxe7 25. f4 Nc6 26. Qg2 exd3 27. Nb3 c4 28.\nNd2 b5 29. a4 a6 30. axb5 axb5 31. Ra1 Re8 32. Rxe8+ Qxe8 33. Ra6 Qd7 34. Qf2\nNd4 35. Ra8+ Kh7 36. Kh2 Nb3 37. Nxb3 cxb3 38. Ra7 Qd8 39. Qd2 Kh6 40. Ra3 Qg8\n41. Ra1 Qc4 42. Rd1 b4 43. Bxd3 bxc3 44. Bxc4 Rxd2+ 45. Rxd2 c2 46. Bxb3 c1=Q\n47. Rg2 Bxb2 48. Bd5 Bd4 49. Bf3 Qe1 50. Bd5 Be3 51. Bf7 Kg7 52. Bb3 Kf6 53.\nBc4 Bxf4 0-1",
-    "id": "never-give-up"
+    "id": "never-give-up",
+    "annotations": [
+      {
+        "ply": 1,
+        "san": "Nf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 2,
+        "san": "d5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 3,
+        "san": "g3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 4,
+        "san": "Nf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 5,
+        "san": "Bg2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 6,
+        "san": "c5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 7,
+        "san": "O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 8,
+        "san": "g6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 9,
+        "san": "d3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 10,
+        "san": "Bg7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 11,
+        "san": "Nbd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 12,
+        "san": "O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 13,
+        "san": "e4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 14,
+        "san": "Nc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 15,
+        "san": "Re1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 16,
+        "san": "Qc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 17,
+        "san": "exd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 18,
+        "san": "Nxd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 19,
+        "san": "Nb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 20,
+        "san": "Bg4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 21,
+        "san": "h3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 22,
+        "san": "Bxf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 23,
+        "san": "Qxf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 24,
+        "san": "Rad8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 25,
+        "san": "c3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 26,
+        "san": "b6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 27,
+        "san": "Qe2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 28,
+        "san": "Rd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 29,
+        "san": "Bd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 30,
+        "san": "Rfd8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 31,
+        "san": "Rad1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 32,
+        "san": "h5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 33,
+        "san": "h4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 34,
+        "san": "e5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 35,
+        "san": "Bg5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 36,
+        "san": "f6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 37,
+        "san": "Bc1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 38,
+        "san": "Nde7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 39,
+        "san": "Bh3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 40,
+        "san": "Rd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 41,
+        "san": "Na1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 42,
+        "san": "f5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 43,
+        "san": "Bg5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 44,
+        "san": "Qd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 45,
+        "san": "Bf1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 46,
+        "san": "e4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 47,
+        "san": "Bxe7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 48,
+        "san": "Nxe7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 49,
+        "san": "f4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 50,
+        "san": "Nc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 51,
+        "san": "Qg2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 52,
+        "san": "exd3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 53,
+        "san": "Nb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 54,
+        "san": "c4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 55,
+        "san": "Nd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 56,
+        "san": "b5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 57,
+        "san": "a4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 58,
+        "san": "a6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 59,
+        "san": "axb5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 60,
+        "san": "axb5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 61,
+        "san": "Ra1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 62,
+        "san": "Re8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 63,
+        "san": "Rxe8+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 64,
+        "san": "Qxe8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 65,
+        "san": "Ra6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 66,
+        "san": "Qd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 67,
+        "san": "Qf2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 68,
+        "san": "Nd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 69,
+        "san": "Ra8+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 70,
+        "san": "Kh7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 71,
+        "san": "Kh2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 72,
+        "san": "Nb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 73,
+        "san": "Nxb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 74,
+        "san": "cxb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 75,
+        "san": "Ra7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 76,
+        "san": "Qd8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 77,
+        "san": "Qd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 78,
+        "san": "Kh6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 79,
+        "san": "Ra3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 80,
+        "san": "Qg8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 81,
+        "san": "Ra1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 82,
+        "san": "Qc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 83,
+        "san": "Rd1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 84,
+        "san": "b4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 85,
+        "san": "Bxd3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 86,
+        "san": "bxc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 87,
+        "san": "Bxc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 88,
+        "san": "Rxd2+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 89,
+        "san": "Rxd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 90,
+        "san": "c2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 91,
+        "san": "Bxb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 92,
+        "san": "c1=Q",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 93,
+        "san": "Rg2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 94,
+        "san": "Bxb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 95,
+        "san": "Bd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 96,
+        "san": "Bd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 97,
+        "san": "Bf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 98,
+        "san": "Qe1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 99,
+        "san": "Bd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 100,
+        "san": "Be3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 101,
+        "san": "Bf7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 102,
+        "san": "Kg7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 103,
+        "san": "Bb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 104,
+        "san": "Kf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 105,
+        "san": "Bc4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 106,
+        "san": "Bxf4",
+        "nag": "",
+        "comment": ""
+      }
+    ]
   },
   {
     "title": {
@@ -51,6 +3721,1472 @@
     },
     "meta": "",
     "pgn": "[Event \"Skanderborg Smuk\"]\n[Site \"Skanderborg\"]\n[Date \"2026.08.23\"]\n[Round \"9\"]\n[White \"Aczel, Gergely\"]\n[Black \"Pajeken, Jakob Leon\"]\n[Result \"1/2-1/2\"]\n[ECO \"A29\"]\n[WhiteElo \"2445\"]\n[BlackElo \"2483\"]\n[WhiteFideId \"-1\"]\n[BlackFideId \"-1\"]\n[PlyCount \"244\"]\n[EventDate \"2026.08.15\"]\n[EventType \"tourn\"]\n[EventRounds \"9\"]\n[EventCountry \"DEN\"]\n[EventCategory \"8\"]\n[SourceTitle \"CB34_2026\"]\n[SourceDate \"2026.08.26\"]\n[SourceVersion \"1\"]\n[SourceVersionDate \"2026.08.26\"]\n[SourceQuality \"1\"]\n[WebsiteId \"pure-madness\"]\n[WebsiteSource \"games.json\"]\n\n1. c4 e5 2. Nc3 Nf6 3. Nf3 Nc6 4. d3 d5 5. cxd5 Nxd5 6. g3 Bc5 7. Bg2 O-O 8.\nO-O h6 9. Nxd5 Qxd5 10. b3 Rd8 11. Bb2 Qe6 12. Rc1 Qe7 13. Nd2 Bd4 14. Qc2 Bd7\n15. Rfe1 Nb4 16. Qb1 Bxb2 17. Qxb2 Bc6 18. Nf3 e4 19. Ne5 exd3 20. Nxc6 bxc6\n21. exd3 Qg5 22. Bf1 Rab8 23. d4 Qa5 24. Re7 Kf8 25. Rce1 Nd5 26. R7e5 Qc3 27.\nQxc3 Nxc3 28. Ra5 Rb7 29. Rc1 Ne4 30. Ra4 Rd6 31. Bg2 f5 32. g4 g6 33. gxf5\ngxf5 34. Ra5 Rf6 35. Bxe4 fxe4 36. Re5 Rb4 37. Rxe4 Rd6 38. Rc5 Rb5 39. Rc3\nRg5+ 40. Rg3 Rf5 41. Kg2 Rdf6 42. Re2 Rf4 43. Rge3 Rg4+ 44. Kf1 Rxd4 45. Re8+\nKg7 46. R2e7+ Kg6 47. Rxc7 a5 48. Ra7 Rd5 49. Rg8+ Kh5 50. Re7 Rd1+ 51. Re1\nRfd6 52. Re8 Kg4 53. Rxd1 Rxd1+ 54. Kg2 Kf4 55. Re6 Rd2 56. a4 Rb2 57. Rxc6\nRxb3 58. Rc4+ Kg5 59. Rc5+ Kh4 60. Rxa5 Rb4 61. Ra8 h5 62. a5 Rg4+ 63. Kf3 Kh3\n64. a6 Ra4 65. a7 Kxh2 66. Ke3 h4 67. f4 h3 68. f5 Ra6 69. Kf4 Ra4+ 70. Ke5\nRa5+ 71. Ke6 Ra6+ 72. Ke7 Kg3 73. f6 h2 74. f7 h1=Q 75. Rg8+ Kf2 76. f8=Q+ Ke1\n77. Qe8 Rxa7+ 78. Kf8+ Kf2 79. Qf7+ Rxf7+ 80. Kxf7 Ke3 81. Rg6 Qb7+ 82. Ke8 Kf4\n83. Kd8 Kf5 84. Rd6 Qf7 85. Rb6 Ke5 86. Rb5+ Kd6 87. Rb6+ Kd5 88. Rb3 Kc6 89.\nRc3+ Kb6 90. Re3 Qf6+ 91. Ke8 Qg6+ 92. Kd7 Kc5 93. Re5+ Kd4 94. Re6 Qg8 95.\nRd6+ Ke5 96. Ra6 Qf7+ 97. Kd8 Kd5 98. Rb6 Kc5 99. Ra6 Qf3 100. Kc7 Qf4+ 101.\nKd7 Qf5+ 102. Kc7 Qh7+ 103. Kc8 Qe7 104. Ra3 Kb6 105. Rb3+ Ka6 106. Rd3 Qe5\n107. Rd7 Kb6 108. Rd6+ Kc5 109. Rh6 Qf5+ 110. Kb7 Qf3+ 111. Ka7 Qg4 112. Rb6\nQd7+ 113. Rb7 Qd4 114. Rb6 Qa4+ 115. Ra6 Qd7+ 116. Kb8 Kb5 117. Ra7 Qd8+ 118.\nKb7 Qb6+ 119. Ka8 Kc6 120. Rc7+ Kd5 121. Rd7+ Kc5 122. Rc7+ Qxc7 1/2-1/2",
-    "id": "pure-madness"
+    "id": "pure-madness",
+    "annotations": [
+      {
+        "ply": 1,
+        "san": "c4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 2,
+        "san": "e5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 3,
+        "san": "Nc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 4,
+        "san": "Nf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 5,
+        "san": "Nf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 6,
+        "san": "Nc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 7,
+        "san": "d3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 8,
+        "san": "d5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 9,
+        "san": "cxd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 10,
+        "san": "Nxd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 11,
+        "san": "g3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 12,
+        "san": "Bc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 13,
+        "san": "Bg2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 14,
+        "san": "O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 15,
+        "san": "O-O",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 16,
+        "san": "h6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 17,
+        "san": "Nxd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 18,
+        "san": "Qxd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 19,
+        "san": "b3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 20,
+        "san": "Rd8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 21,
+        "san": "Bb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 22,
+        "san": "Qe6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 23,
+        "san": "Rc1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 24,
+        "san": "Qe7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 25,
+        "san": "Nd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 26,
+        "san": "Bd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 27,
+        "san": "Qc2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 28,
+        "san": "Bd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 29,
+        "san": "Rfe1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 30,
+        "san": "Nb4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 31,
+        "san": "Qb1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 32,
+        "san": "Bxb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 33,
+        "san": "Qxb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 34,
+        "san": "Bc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 35,
+        "san": "Nf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 36,
+        "san": "e4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 37,
+        "san": "Ne5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 38,
+        "san": "exd3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 39,
+        "san": "Nxc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 40,
+        "san": "bxc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 41,
+        "san": "exd3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 42,
+        "san": "Qg5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 43,
+        "san": "Bf1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 44,
+        "san": "Rab8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 45,
+        "san": "d4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 46,
+        "san": "Qa5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 47,
+        "san": "Re7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 48,
+        "san": "Kf8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 49,
+        "san": "Rce1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 50,
+        "san": "Nd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 51,
+        "san": "R7e5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 52,
+        "san": "Qc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 53,
+        "san": "Qxc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 54,
+        "san": "Nxc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 55,
+        "san": "Ra5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 56,
+        "san": "Rb7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 57,
+        "san": "Rc1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 58,
+        "san": "Ne4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 59,
+        "san": "Ra4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 60,
+        "san": "Rd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 61,
+        "san": "Bg2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 62,
+        "san": "f5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 63,
+        "san": "g4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 64,
+        "san": "g6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 65,
+        "san": "gxf5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 66,
+        "san": "gxf5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 67,
+        "san": "Ra5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 68,
+        "san": "Rf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 69,
+        "san": "Bxe4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 70,
+        "san": "fxe4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 71,
+        "san": "Re5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 72,
+        "san": "Rb4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 73,
+        "san": "Rxe4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 74,
+        "san": "Rd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 75,
+        "san": "Rc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 76,
+        "san": "Rb5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 77,
+        "san": "Rc3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 78,
+        "san": "Rg5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 79,
+        "san": "Rg3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 80,
+        "san": "Rf5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 81,
+        "san": "Kg2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 82,
+        "san": "Rdf6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 83,
+        "san": "Re2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 84,
+        "san": "Rf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 85,
+        "san": "Rge3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 86,
+        "san": "Rg4+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 87,
+        "san": "Kf1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 88,
+        "san": "Rxd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 89,
+        "san": "Re8+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 90,
+        "san": "Kg7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 91,
+        "san": "R2e7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 92,
+        "san": "Kg6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 93,
+        "san": "Rxc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 94,
+        "san": "a5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 95,
+        "san": "Ra7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 96,
+        "san": "Rd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 97,
+        "san": "Rg8+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 98,
+        "san": "Kh5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 99,
+        "san": "Re7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 100,
+        "san": "Rd1+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 101,
+        "san": "Re1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 102,
+        "san": "Rfd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 103,
+        "san": "Re8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 104,
+        "san": "Kg4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 105,
+        "san": "Rxd1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 106,
+        "san": "Rxd1+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 107,
+        "san": "Kg2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 108,
+        "san": "Kf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 109,
+        "san": "Re6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 110,
+        "san": "Rd2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 111,
+        "san": "a4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 112,
+        "san": "Rb2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 113,
+        "san": "Rxc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 114,
+        "san": "Rxb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 115,
+        "san": "Rc4+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 116,
+        "san": "Kg5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 117,
+        "san": "Rc5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 118,
+        "san": "Kh4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 119,
+        "san": "Rxa5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 120,
+        "san": "Rb4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 121,
+        "san": "Ra8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 122,
+        "san": "h5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 123,
+        "san": "a5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 124,
+        "san": "Rg4+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 125,
+        "san": "Kf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 126,
+        "san": "Kh3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 127,
+        "san": "a6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 128,
+        "san": "Ra4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 129,
+        "san": "a7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 130,
+        "san": "Kxh2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 131,
+        "san": "Ke3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 132,
+        "san": "h4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 133,
+        "san": "f4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 134,
+        "san": "h3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 135,
+        "san": "f5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 136,
+        "san": "Ra6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 137,
+        "san": "Kf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 138,
+        "san": "Ra4+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 139,
+        "san": "Ke5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 140,
+        "san": "Ra5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 141,
+        "san": "Ke6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 142,
+        "san": "Ra6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 143,
+        "san": "Ke7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 144,
+        "san": "Kg3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 145,
+        "san": "f6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 146,
+        "san": "h2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 147,
+        "san": "f7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 148,
+        "san": "h1=Q",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 149,
+        "san": "Rg8+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 150,
+        "san": "Kf2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 151,
+        "san": "f8=Q+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 152,
+        "san": "Ke1",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 153,
+        "san": "Qe8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 154,
+        "san": "Rxa7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 155,
+        "san": "Kf8+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 156,
+        "san": "Kf2",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 157,
+        "san": "Qf7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 158,
+        "san": "Rxf7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 159,
+        "san": "Kxf7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 160,
+        "san": "Ke3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 161,
+        "san": "Rg6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 162,
+        "san": "Qb7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 163,
+        "san": "Ke8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 164,
+        "san": "Kf4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 165,
+        "san": "Kd8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 166,
+        "san": "Kf5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 167,
+        "san": "Rd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 168,
+        "san": "Qf7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 169,
+        "san": "Rb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 170,
+        "san": "Ke5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 171,
+        "san": "Rb5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 172,
+        "san": "Kd6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 173,
+        "san": "Rb6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 174,
+        "san": "Kd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 175,
+        "san": "Rb3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 176,
+        "san": "Kc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 177,
+        "san": "Rc3+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 178,
+        "san": "Kb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 179,
+        "san": "Re3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 180,
+        "san": "Qf6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 181,
+        "san": "Ke8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 182,
+        "san": "Qg6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 183,
+        "san": "Kd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 184,
+        "san": "Kc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 185,
+        "san": "Re5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 186,
+        "san": "Kd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 187,
+        "san": "Re6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 188,
+        "san": "Qg8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 189,
+        "san": "Rd6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 190,
+        "san": "Ke5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 191,
+        "san": "Ra6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 192,
+        "san": "Qf7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 193,
+        "san": "Kd8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 194,
+        "san": "Kd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 195,
+        "san": "Rb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 196,
+        "san": "Kc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 197,
+        "san": "Ra6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 198,
+        "san": "Qf3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 199,
+        "san": "Kc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 200,
+        "san": "Qf4+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 201,
+        "san": "Kd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 202,
+        "san": "Qf5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 203,
+        "san": "Kc7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 204,
+        "san": "Qh7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 205,
+        "san": "Kc8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 206,
+        "san": "Qe7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 207,
+        "san": "Ra3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 208,
+        "san": "Kb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 209,
+        "san": "Rb3+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 210,
+        "san": "Ka6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 211,
+        "san": "Rd3",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 212,
+        "san": "Qe5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 213,
+        "san": "Rd7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 214,
+        "san": "Kb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 215,
+        "san": "Rd6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 216,
+        "san": "Kc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 217,
+        "san": "Rh6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 218,
+        "san": "Qf5+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 219,
+        "san": "Kb7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 220,
+        "san": "Qf3+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 221,
+        "san": "Ka7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 222,
+        "san": "Qg4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 223,
+        "san": "Rb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 224,
+        "san": "Qd7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 225,
+        "san": "Rb7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 226,
+        "san": "Qd4",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 227,
+        "san": "Rb6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 228,
+        "san": "Qa4+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 229,
+        "san": "Ra6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 230,
+        "san": "Qd7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 231,
+        "san": "Kb8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 232,
+        "san": "Kb5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 233,
+        "san": "Ra7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 234,
+        "san": "Qd8+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 235,
+        "san": "Kb7",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 236,
+        "san": "Qb6+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 237,
+        "san": "Ka8",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 238,
+        "san": "Kc6",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 239,
+        "san": "Rc7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 240,
+        "san": "Kd5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 241,
+        "san": "Rd7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 242,
+        "san": "Kc5",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 243,
+        "san": "Rc7+",
+        "nag": "",
+        "comment": ""
+      },
+      {
+        "ply": 244,
+        "san": "Qxc7",
+        "nag": "",
+        "comment": ""
+      }
+    ]
   }
 ]

@@ -15,24 +15,34 @@ recognise "this is the same game" even after ChessBase has reformatted the
 movetext, added comments, changed the Elo tags, etc. — matching is never
 done by comparing PGN text.
 
-Direction 1 — ChessBase -> website (the main point of this):
-  For every game in games.pgn that has a WebsiteId already used by a game
-  in games.json/blog.json, that JSON entry's "pgn" field is replaced with
-  a freshly exported copy of the games.pgn version (headers + moves +
-  comments + variations), so the board viewer on the site shows exactly
-  what was last saved from ChessBase.
+Fully two-way:
+  - A game edited in ChessBase (comments, NAGs, variations, moves — saved
+    back into games.pgn) has its update reflected in the matching
+    games.json/blog.json entry.
+  - A game added directly in ChessBase — pasted in fresh, no WebsiteId yet
+    — is picked up as new and added as its own entry in games.json (the
+    "My most memorable games" list), with a stable id assigned so it's
+    recognised from then on. There's no way to know from the database
+    alone which blog post (if any) it belongs "inside", so new database
+    games always land in games.json, not embedded in a post — move it
+    into a post afterwards with editor.html if that's where it belongs.
+  - A game added through editor.html (no WebsiteId yet, since it's brand
+    new) is added to games.pgn the same way, so it becomes available to
+    open and annotate in ChessBase too.
 
-Direction 2 — website -> ChessBase (keeps the database complete over time):
-  Any game in games.json/blog.json that has no WebsiteId yet (i.e. it was
-  never synced before — a brand new game added through editor.html) gets
-  one assigned and is appended to games.pgn, so it becomes available to
-  open and annotate next time the database is loaded in ChessBase. This
-  never touches a game already in games.pgn, so it can't undo comments
-  ChessBase already has for it.
+Every game's PGN is also parsed into a structured "annotations" tree
+(comments, NAGs as symbols, and nested variations, arbitrarily deep) and
+stored as a second field alongside "pgn" — see extract_annotations() below
+for the exact shape. That's what the site actually renders; "pgn" itself
+stays the flat mainline text chess.js (the board-stepping library used by
+the site) needs, which cannot represent variations or NAGs at all, hence
+the second, richer field just for display.
 
 Titles, the short "meta" line, and which blog post a game is embedded in
-are intentionally left alone here — those stay owned by editor.html; only
-the "pgn" field itself (the actual moves/headers/comments) is synced.
+are intentionally left alone here for games that already exist on the
+site — those stay owned by editor.html; only "pgn" and "annotations" are
+synced for them. A newly-discovered database game DOES get its title set
+(from the PGN's White/Black tags, since it has no title yet at all).
 
 Requires the "chess" package (`python -m pip install chess`) - already
 installed on this machine as of when this script was written.
@@ -53,6 +63,23 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAMES_JSON = os.path.join(REPO_ROOT, "data", "games.json")
 BLOG_JSON = os.path.join(REPO_ROOT, "data", "blog.json")
 PGN_PATH = os.path.join(REPO_ROOT, "data", "games.pgn")
+
+# The common subset of the standard NAG (Numeric Annotation Glyph) table —
+# move-quality and position-evaluation symbols, which cover the vast
+# majority of what ChessBase (or any annotator) actually uses in practice.
+# Anything outside this set (rare ones like zugzwang, time-pressure,
+# counterplay symbols) is simply omitted rather than guessed at.
+NAG_SYMBOLS = {
+    1: "!", 2: "?", 3: "!!", 4: "??", 5: "!?", 6: "?!",
+    10: "=", 13: "∞",             # unclear (infinity symbol)
+    14: "⩲", 15: "⩱",        # slight edge, white/black
+    16: "±", 17: "∓",        # moderate edge, white/black
+    18: "+−", 19: "−+",      # decisive edge, white/black
+}
+
+
+def nag_symbol(n):
+    return NAG_SYMBOLS.get(n, "")
 
 
 def slugify(text):
@@ -85,11 +112,46 @@ def export_game(game):
     return game.accept(exporter).strip()
 
 
+def serialize_line(node, board):
+    """node: a GameNode with a move set (never the game root). board: the
+    position immediately BEFORE node.move. Returns a list of move dicts
+    describing this line (following each node's own mainline child, i.e.
+    variations[0]) up to wherever it ends; any sibling alternatives at a
+    given move are attached to that move's dict as a "variations" list of
+    further such lists, recursively — so a variation can itself contain
+    its own sub-variations, matching what PGN itself allows."""
+    line = []
+    cur = node
+    cur_board = board
+    while cur is not None:
+        san = cur_board.san(cur.move)
+        next_board = cur_board.copy()
+        next_board.push(cur.move)
+        entry = {
+            "ply": cur.ply(),
+            "san": san,
+            "nag": "".join(nag_symbol(n) for n in sorted(cur.nags) if nag_symbol(n)),
+            "comment": (cur.comment or "").strip(),
+        }
+        children = cur.variations
+        if len(children) > 1:
+            entry["variations"] = [serialize_line(child, next_board) for child in children[1:]]
+        line.append(entry)
+        cur_board = next_board
+        cur = children[0] if children else None
+    return line
+
+
+def extract_annotations(game):
+    mainline = game.variations
+    return serialize_line(mainline[0], game.board()) if mainline else []
+
+
 def parse_pgn_database(path):
-    """Returns {website_id: chess.pgn.Game} for every game in the file that
-    already carries a WebsiteId tag. Games without one (shouldn't normally
-    happen, since this script is what adds that tag) are skipped."""
-    games = {}
+    """Returns an ordered list of (website_id_or_None, chess.pgn.Game) for
+    every game in the file, in file order — website_id is None for a game
+    that has no WebsiteId tag yet (new, direct-in-ChessBase content)."""
+    games = []
     if not os.path.exists(path):
         return games
     with open(path, encoding="utf-8") as f:
@@ -97,9 +159,7 @@ def parse_pgn_database(path):
             game = chess.pgn.read_game(f)
             if game is None:
                 break
-            wid = game.headers.get("WebsiteId")
-            if wid:
-                games[wid] = game
+            games.append((game.headers.get("WebsiteId") or None, game))
     return games
 
 
@@ -112,6 +172,14 @@ def make_game_from_pgn_text(pgn_text, website_id, website_source):
     return game
 
 
+def default_title_from_headers(game):
+    white = game.headers.get("White", "").strip()
+    black = game.headers.get("Black", "").strip()
+    if white and black and white != "?" and black != "?":
+        return white + " vs " + black
+    return game.headers.get("Event", "").strip() or "Untitled game"
+
+
 def main():
     games_data = load_json(GAMES_JSON)
     blog_data = load_json(BLOG_JSON)
@@ -120,8 +188,19 @@ def main():
     if blog_data is None:
         blog_data = []
 
-    existing = parse_pgn_database(PGN_PATH)
-    used_ids = set(existing.keys())
+    pgn_games = parse_pgn_database(PGN_PATH)  # [(wid_or_None, Game), ...] in file order
+
+    used_ids = set()
+    for wid, _ in pgn_games:
+        if wid:
+            used_ids.add(wid)
+    for entry in games_data:
+        if entry.get("id"):
+            used_ids.add(entry["id"])
+    for post in blog_data:
+        for g in post.get("games") or []:
+            if g.get("id"):
+                used_ids.add(g["id"])
 
     def ensure_id(current_id, title_en):
         if current_id:
@@ -135,9 +214,18 @@ def main():
         used_ids.add(candidate)
         return candidate
 
+    # id -> Game, for every tagged game currently in the database
+    by_id = {wid: game for wid, game in pgn_games if wid}
+
     changed_games_json = False
     changed_blog_json = False
-    to_append = []  # (website_id, chess.pgn.Game) new to the database this run
+    rewrite_pgn = False
+    # games.pgn is fully rebuilt (not just appended to) whenever anything
+    # changes, so a freshly-assigned WebsiteId on a database-native game
+    # actually gets saved — this list is that rebuild, seeded with every
+    # game already in the file (tagging the untagged ones as we go).
+    final_pgn_games = []
+    consumed_ids = set()  # ids from pgn_games that correspond to a known JSON entry (handled below)
 
     # ---- data/games.json entries ("My most memorable games") ----
     for entry in games_data:
@@ -147,21 +235,30 @@ def main():
             wid = ensure_id(None, title_en)
             entry["id"] = wid
             changed_games_json = True
-        if wid in existing:
-            new_pgn = export_game(existing[wid])
+        if wid in by_id:
+            consumed_ids.add(wid)
+            game = by_id[wid]
+            new_pgn = export_game(game)
+            new_annotations = extract_annotations(game)
             if (entry.get("pgn") or "").strip() != new_pgn:
                 entry["pgn"] = new_pgn
                 changed_games_json = True
+            if entry.get("annotations") != new_annotations:
+                entry["annotations"] = new_annotations
+                changed_games_json = True
         elif entry.get("pgn"):
+            # not in the database yet -> add it (JSON -> PGN)
             game = make_game_from_pgn_text(entry["pgn"], wid, "games.json")
             if game:
-                to_append.append((wid, game))
-                # also normalize games.json's own copy right away (adds the
-                # WebsiteId/WebsiteSource tags to it too) instead of leaving
-                # that for next run to notice and fix
+                final_pgn_games.append(game)
+                rewrite_pgn = True
                 normalized = export_game(game)
                 if entry["pgn"].strip() != normalized:
                     entry["pgn"] = normalized
+                    changed_games_json = True
+                new_annotations = extract_annotations(game)
+                if entry.get("annotations") != new_annotations:
+                    entry["annotations"] = new_annotations
                     changed_games_json = True
 
     # ---- data/blog.json embedded games ----
@@ -175,35 +272,100 @@ def main():
                 g["id"] = wid
                 changed_blog_json = True
             source = "blog.json:" + (post.get("slug") or "")
-            if wid in existing:
-                new_pgn = export_game(existing[wid])
+            if wid in by_id:
+                consumed_ids.add(wid)
+                game = by_id[wid]
+                new_pgn = export_game(game)
+                new_annotations = extract_annotations(game)
                 if (g.get("pgn") or "").strip() != new_pgn:
                     g["pgn"] = new_pgn
+                    changed_blog_json = True
+                if g.get("annotations") != new_annotations:
+                    g["annotations"] = new_annotations
                     changed_blog_json = True
             elif g.get("pgn"):
                 game = make_game_from_pgn_text(g["pgn"], wid, source)
                 if game:
-                    to_append.append((wid, game))
+                    final_pgn_games.append(game)
+                    rewrite_pgn = True
                     normalized = export_game(game)
                     if g["pgn"].strip() != normalized:
                         g["pgn"] = normalized
                         changed_blog_json = True
+                    new_annotations = extract_annotations(game)
+                    if g.get("annotations") != new_annotations:
+                        g["annotations"] = new_annotations
+                        changed_blog_json = True
 
-    if to_append:
-        mode = "a" if os.path.exists(PGN_PATH) else "w"
-        with open(PGN_PATH, mode, encoding="utf-8") as f:
-            for wid, game in to_append:
-                f.write(export_game(game) + "\n\n")
-        print("Appended %d new game(s) to games.pgn: %s" % (len(to_append), ", ".join(w for w, _ in to_append)))
+    # ---- games present in games.pgn but not (yet) known to either JSON
+    #      file: either brand new content pasted straight into the
+    #      database, or a game whose WebsiteId tag was present but doesn't
+    #      match anything (e.g. the tag was hand-edited) — treated the
+    #      same way, added as a new games.json entry rather than dropped. ----
+    new_from_database = []
+    for wid, game in pgn_games:
+        if wid and wid in consumed_ids:
+            continue
+        # give it a real, unused id (reusing its own tag if it had one
+        # that just didn't match anything above)
+        new_id = ensure_id(wid if wid and wid not in used_ids else None, default_title_from_headers(game))
+        game.headers["WebsiteId"] = new_id
+        game.headers["WebsiteSource"] = "games.json"
+        new_from_database.append(game)
+
+    for game in new_from_database:
+        wid = game.headers["WebsiteId"]
+        title_en = default_title_from_headers(game)
+        games_data.append({
+            "id": wid,
+            "title": {"en": title_en, "de": ""},
+            "meta": "",
+            "pgn": export_game(game),
+            "annotations": extract_annotations(game),
+        })
+        changed_games_json = True
+        final_pgn_games.append(game)
+        rewrite_pgn = True
+
+    # any tagged game already in games.pgn that WAS matched above also
+    # needs to be carried into the rebuild, unchanged, so it isn't lost
+    for wid, game in pgn_games:
+        if wid and wid in consumed_ids:
+            final_pgn_games.append(by_id[wid])
+
+    if rewrite_pgn and final_pgn_games:
+        # de-dupe while preserving first-seen order, in case a game ended
+        # up referenced twice above (defensive; shouldn't normally happen)
+        seen = set()
+        ordered_unique = []
+        for game in final_pgn_games:
+            wid = game.headers.get("WebsiteId")
+            if wid in seen:
+                continue
+            seen.add(wid)
+            ordered_unique.append(game)
+        new_pgn_text = "\n\n".join(export_game(g) for g in ordered_unique) + "\n"
+        old_pgn_text = None
+        if os.path.exists(PGN_PATH):
+            with open(PGN_PATH, encoding="utf-8") as f:
+                old_pgn_text = f.read()
+        if old_pgn_text != new_pgn_text:
+            with open(PGN_PATH, "w", encoding="utf-8") as f:
+                f.write(new_pgn_text)
+            print("Rewrote games.pgn (%d games)" % len(ordered_unique))
+
+    if new_from_database:
+        print("New game(s) found directly in games.pgn, added to games.json: %s"
+              % ", ".join(g.headers["WebsiteId"] for g in new_from_database))
 
     if changed_games_json:
         save_json(GAMES_JSON, games_data)
-        print("Updated games.json from games.pgn")
+        print("Updated games.json")
     if changed_blog_json:
         save_json(BLOG_JSON, blog_data)
-        print("Updated blog.json from games.pgn")
+        print("Updated blog.json")
 
-    if not to_append and not changed_games_json and not changed_blog_json:
+    if not new_from_database and not changed_games_json and not changed_blog_json and not rewrite_pgn:
         print("games.pgn already in sync, nothing to do.")
 
 
