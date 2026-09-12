@@ -1647,23 +1647,20 @@ function openBlogForm(idx){
        so the "save" action here is a regular button with a click handler
        rather than a submit event. */
     /* lets you start from a game that's already in the PGN database
-       (data/games.pgn, via games.json — every game there ends up listed
-       here, including ones added straight in ChessBase and picked up by
-       scripts/sync_games_pgn.py) instead of re-pasting PGN text by hand.
-       Copies title/meta/pgn in as a starting point; this new entry still
-       gets its own fresh id once saved, so it's an independent copy from
-       here on, not a live link back to the original. */
-    var copyOptions = games.map(function(g, i){
-      return '<option value="' + i + '">' + escapeHtml(previewLang(g.title) || '(ohne Titel)') + '</option>';
-    }).join('');
+       (data/games.pgn) instead of re-pasting PGN text by hand. Copies
+       title/meta/pgn in as a starting point; this new entry still gets
+       its own fresh id once saved, so it's an independent copy from here
+       on, not a live link back to the original. Reads games.pgn fresh
+       every time this opens (see fetchGamesPgnDatabase()), not the
+       games/blogPosts arrays already loaded into this session, so a game
+       saved in ChessBase moments ago — before scripts/sync_games_pgn.py
+       has even had a sync cycle to notice it — is already pickable here. */
     gamesFormSlot.innerHTML =
       '<div class="entry-form" id="bf-game-form">' +
       '<h3>' + (editingGame ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
-      (games.length ?
-        '<div class="field"><label>Aus vorhandenen Partien übernehmen (optional)</label>' +
-        '<span class="hint">Kopiert Titel und PGN einer bereits vorhandenen Partie hierher — danach frei anpassbar. Betrifft nur dieses Formular, die Original-Partie bleibt unverändert.</span>' +
-        '<select id="bfg-copy-from"><option value="">— auswählen —</option>' + copyOptions + '</select></div>'
-        : '') +
+      '<div class="field"><label>Aus der PGN-Datenbank übernehmen (optional)</label>' +
+      '<span class="hint">Kopiert Titel und PGN einer bereits vorhandenen Partie hierher — danach frei anpassbar. Betrifft nur dieses Formular, die Original-Partie bleibt unverändert.</span>' +
+      '<select id="bfg-copy-from"><option value="">Lädt Partien-Datenbank …</option></select></div>' +
       '<div class="form-row">' +
       '<div class="field"><label>Titel (Englisch)</label>' +
       '<div class="cover-row"><input type="text" id="bfg-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan" style="flex:1;">' +
