@@ -174,14 +174,56 @@ def export_game(game):
     return game.accept(exporter).strip()
 
 
-def serialize_line(node, board):
+def build_comment_cache(tree):
+    """Flattens an existing annotations tree (mainline + every nested
+    variation) into { (ply, san): {"de":..., "en":...} }, so a later
+    extraction run can reuse a comment's already-translated pair instead of
+    calling the translation API again for text that hasn't changed since
+    last time. Keyed by (ply, san) rather than ply alone, since a mainline
+    move and a variation move can share the same ply number but are
+    different moves entirely."""
+    cache = {}
+
+    def walk(line):
+        for entry in line or []:
+            comment = entry.get("comment")
+            if isinstance(comment, dict) and (comment.get("de") or comment.get("en")):
+                cache[(entry.get("ply"), entry.get("san"))] = comment
+            for variation in entry.get("variations") or []:
+                walk(variation)
+
+    walk(tree or [])
+    return cache
+
+
+def translate_comment(raw_comment, cache_key, cache):
+    """Comments are assumed to be written in German — ChessBase is Jakob's
+    own working tool, and German is the natural language for his own
+    analysis notes. The original German is kept byte-for-byte as typed (in
+    "de"); "en" is filled in by machine translation. Reuses a cached
+    translation instead of re-calling the API when this exact German text
+    was already seen at this exact move last time, so an unattended sync
+    running every ~10s doesn't re-translate every comment in the database
+    on every single cycle — only ones that actually changed."""
+    text = (raw_comment or "").strip()
+    if not text:
+        return {"de": "", "en": ""}
+    cached = cache.get(cache_key)
+    if cached and (cached.get("de") or "").strip() == text:
+        return cached
+    return {"de": text, "en": translate_text(text, "DE", "EN")}
+
+
+def serialize_line(node, board, cache):
     """node: a GameNode with a move set (never the game root). board: the
     position immediately BEFORE node.move. Returns a list of move dicts
     describing this line (following each node's own mainline child, i.e.
     variations[0]) up to wherever it ends; any sibling alternatives at a
     given move are attached to that move's dict as a "variations" list of
     further such lists, recursively — so a variation can itself contain
-    its own sub-variations, matching what PGN itself allows."""
+    its own sub-variations, matching what PGN itself allows. cache: the
+    (ply, san) -> {de, en} lookup built by build_comment_cache() from
+    whatever annotations tree this game had before this run."""
     line = []
     cur = node
     cur_board = board
@@ -193,20 +235,21 @@ def serialize_line(node, board):
             "ply": cur.ply(),
             "san": san,
             "nag": "".join(nag_symbol(n) for n in sorted(cur.nags) if nag_symbol(n)),
-            "comment": (cur.comment or "").strip(),
+            "comment": translate_comment(cur.comment, (cur.ply(), san), cache),
         }
         children = cur.variations
         if len(children) > 1:
-            entry["variations"] = [serialize_line(child, next_board) for child in children[1:]]
+            entry["variations"] = [serialize_line(child, next_board, cache) for child in children[1:]]
         line.append(entry)
         cur_board = next_board
         cur = children[0] if children else None
     return line
 
 
-def extract_annotations(game):
+def extract_annotations(game, old_annotations=None):
+    cache = build_comment_cache(old_annotations)
     mainline = game.variations
-    return serialize_line(mainline[0], game.board()) if mainline else []
+    return serialize_line(mainline[0], game.board(), cache) if mainline else []
 
 
 def parse_pgn_database(path):
