@@ -56,445 +56,667 @@
             "ply": 1,
             "san": "Nf3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 2,
             "san": "d5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 3,
             "san": "g3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 4,
             "san": "c5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 5,
             "san": "Bg2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 6,
             "san": "Nf6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 7,
             "san": "O-O",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 8,
             "san": "e6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 9,
             "san": "c4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 10,
             "san": "d4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 11,
             "san": "e3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 12,
             "san": "Nc6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 13,
             "san": "d3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 14,
             "san": "Bd6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 15,
             "san": "exd4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 16,
             "san": "cxd4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 17,
             "san": "Na3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 18,
             "san": "O-O",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 19,
             "san": "Nc2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 20,
             "san": "e5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 21,
             "san": "b4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 22,
             "san": "a6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 23,
             "san": "c5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 24,
             "san": "Bc7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 25,
             "san": "Bg5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 26,
             "san": "h6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 27,
             "san": "Bxf6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 28,
             "san": "Qxf6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 29,
             "san": "Nd2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 30,
             "san": "Qg6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 31,
             "san": "a4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 32,
             "san": "Bg4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 33,
             "san": "Bf3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 34,
             "san": "Bf5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 35,
             "san": "Ne4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 36,
             "san": "Bh3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 37,
             "san": "Re1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 38,
             "san": "f5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 39,
             "san": "Nd2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 40,
             "san": "e4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 41,
             "san": "dxe4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 42,
             "san": "f4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 43,
             "san": "Bg2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 44,
             "san": "fxg3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 45,
             "san": "fxg3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 46,
             "san": "Bxg3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 47,
             "san": "hxg3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 48,
             "san": "Qxg3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 49,
             "san": "Re2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 50,
             "san": "d3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 51,
             "san": "Qe1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 52,
             "san": "Qxe1+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 53,
             "san": "Rexe1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 54,
             "san": "Bxg2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 55,
             "san": "Ne3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 56,
             "san": "Bf3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 57,
             "san": "Nd5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 58,
             "san": "Be2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 59,
             "san": "Nc3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 60,
             "san": "Nd4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 61,
             "san": "Nxe2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 62,
             "san": "dxe2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 63,
             "san": "Rab1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 64,
             "san": "Rf4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 65,
             "san": "b5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 66,
             "san": "axb5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 67,
             "san": "axb5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 68,
             "san": "Ra2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 69,
             "san": "c6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 70,
             "san": "Rxd2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 71,
             "san": "cxb7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 72,
             "san": "Rf8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 73,
             "san": "Kg2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 74,
             "san": "Nc2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           }
         ]
       },
@@ -511,1465 +733,2197 @@
             "ply": 1,
             "san": "c4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 2,
             "san": "e5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 3,
             "san": "Nc3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 4,
             "san": "Nf6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 5,
             "san": "Nf3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 6,
             "san": "Nc6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 7,
             "san": "d3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 8,
             "san": "d5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 9,
             "san": "cxd5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 10,
             "san": "Nxd5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 11,
             "san": "g3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 12,
             "san": "Bc5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 13,
             "san": "Bg2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 14,
             "san": "O-O",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 15,
             "san": "O-O",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 16,
             "san": "h6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 17,
             "san": "Nxd5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 18,
             "san": "Qxd5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 19,
             "san": "b3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 20,
             "san": "Rd8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 21,
             "san": "Bb2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 22,
             "san": "Qe6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 23,
             "san": "Rc1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 24,
             "san": "Qe7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 25,
             "san": "Nd2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 26,
             "san": "Bd4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 27,
             "san": "Qc2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 28,
             "san": "Bd7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 29,
             "san": "Rfe1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 30,
             "san": "Nb4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 31,
             "san": "Qb1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 32,
             "san": "Bxb2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 33,
             "san": "Qxb2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 34,
             "san": "Bc6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 35,
             "san": "Nf3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 36,
             "san": "e4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 37,
             "san": "Ne5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 38,
             "san": "exd3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 39,
             "san": "Nxc6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 40,
             "san": "bxc6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 41,
             "san": "exd3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 42,
             "san": "Qg5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 43,
             "san": "Bf1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 44,
             "san": "Rab8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 45,
             "san": "d4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 46,
             "san": "Qa5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 47,
             "san": "Re7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 48,
             "san": "Kf8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 49,
             "san": "Rce1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 50,
             "san": "Nd5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 51,
             "san": "R7e5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 52,
             "san": "Qc3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 53,
             "san": "Qxc3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 54,
             "san": "Nxc3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 55,
             "san": "Ra5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 56,
             "san": "Rb7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 57,
             "san": "Rc1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 58,
             "san": "Ne4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 59,
             "san": "Ra4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 60,
             "san": "Rd6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 61,
             "san": "Bg2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 62,
             "san": "f5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 63,
             "san": "g4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 64,
             "san": "g6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 65,
             "san": "gxf5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 66,
             "san": "gxf5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 67,
             "san": "Ra5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 68,
             "san": "Rf6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 69,
             "san": "Bxe4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 70,
             "san": "fxe4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 71,
             "san": "Re5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 72,
             "san": "Rb4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 73,
             "san": "Rxe4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 74,
             "san": "Rd6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 75,
             "san": "Rc5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 76,
             "san": "Rb5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 77,
             "san": "Rc3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 78,
             "san": "Rg5+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 79,
             "san": "Rg3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 80,
             "san": "Rf5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 81,
             "san": "Kg2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 82,
             "san": "Rdf6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 83,
             "san": "Re2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 84,
             "san": "Rf4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 85,
             "san": "Rge3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 86,
             "san": "Rg4+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 87,
             "san": "Kf1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 88,
             "san": "Rxd4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 89,
             "san": "Re8+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 90,
             "san": "Kg7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 91,
             "san": "R2e7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 92,
             "san": "Kg6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 93,
             "san": "Rxc7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 94,
             "san": "a5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 95,
             "san": "Ra7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 96,
             "san": "Rd5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 97,
             "san": "Rg8+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 98,
             "san": "Kh5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 99,
             "san": "Re7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 100,
             "san": "Rd1+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 101,
             "san": "Re1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 102,
             "san": "Rfd6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 103,
             "san": "Re8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 104,
             "san": "Kg4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 105,
             "san": "Rxd1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 106,
             "san": "Rxd1+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 107,
             "san": "Kg2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 108,
             "san": "Kf4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 109,
             "san": "Re6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 110,
             "san": "Rd2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 111,
             "san": "a4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 112,
             "san": "Rb2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 113,
             "san": "Rxc6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 114,
             "san": "Rxb3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 115,
             "san": "Rc4+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 116,
             "san": "Kg5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 117,
             "san": "Rc5+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 118,
             "san": "Kh4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 119,
             "san": "Rxa5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 120,
             "san": "Rb4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 121,
             "san": "Ra8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 122,
             "san": "h5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 123,
             "san": "a5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 124,
             "san": "Rg4+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 125,
             "san": "Kf3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 126,
             "san": "Kh3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 127,
             "san": "a6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 128,
             "san": "Ra4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 129,
             "san": "a7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 130,
             "san": "Kxh2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 131,
             "san": "Ke3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 132,
             "san": "h4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 133,
             "san": "f4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 134,
             "san": "h3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 135,
             "san": "f5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 136,
             "san": "Ra6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 137,
             "san": "Kf4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 138,
             "san": "Ra4+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 139,
             "san": "Ke5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 140,
             "san": "Ra5+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 141,
             "san": "Ke6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 142,
             "san": "Ra6+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 143,
             "san": "Ke7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 144,
             "san": "Kg3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 145,
             "san": "f6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 146,
             "san": "h2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 147,
             "san": "f7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 148,
             "san": "h1=Q",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 149,
             "san": "Rg8+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 150,
             "san": "Kf2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 151,
             "san": "f8=Q+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 152,
             "san": "Ke1",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 153,
             "san": "Qe8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 154,
             "san": "Rxa7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 155,
             "san": "Kf8+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 156,
             "san": "Kf2",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 157,
             "san": "Qf7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 158,
             "san": "Rxf7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 159,
             "san": "Kxf7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 160,
             "san": "Ke3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 161,
             "san": "Rg6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 162,
             "san": "Qb7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 163,
             "san": "Ke8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 164,
             "san": "Kf4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 165,
             "san": "Kd8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 166,
             "san": "Kf5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 167,
             "san": "Rd6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 168,
             "san": "Qf7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 169,
             "san": "Rb6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 170,
             "san": "Ke5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 171,
             "san": "Rb5+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 172,
             "san": "Kd6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 173,
             "san": "Rb6+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 174,
             "san": "Kd5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 175,
             "san": "Rb3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 176,
             "san": "Kc6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 177,
             "san": "Rc3+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 178,
             "san": "Kb6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 179,
             "san": "Re3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 180,
             "san": "Qf6+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 181,
             "san": "Ke8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 182,
             "san": "Qg6+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 183,
             "san": "Kd7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 184,
             "san": "Kc5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 185,
             "san": "Re5+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 186,
             "san": "Kd4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 187,
             "san": "Re6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 188,
             "san": "Qg8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 189,
             "san": "Rd6+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 190,
             "san": "Ke5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 191,
             "san": "Ra6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 192,
             "san": "Qf7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 193,
             "san": "Kd8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 194,
             "san": "Kd5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 195,
             "san": "Rb6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 196,
             "san": "Kc5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 197,
             "san": "Ra6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 198,
             "san": "Qf3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 199,
             "san": "Kc7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 200,
             "san": "Qf4+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 201,
             "san": "Kd7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 202,
             "san": "Qf5+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 203,
             "san": "Kc7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 204,
             "san": "Qh7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 205,
             "san": "Kc8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 206,
             "san": "Qe7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 207,
             "san": "Ra3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 208,
             "san": "Kb6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 209,
             "san": "Rb3+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 210,
             "san": "Ka6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 211,
             "san": "Rd3",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 212,
             "san": "Qe5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 213,
             "san": "Rd7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 214,
             "san": "Kb6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 215,
             "san": "Rd6+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 216,
             "san": "Kc5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 217,
             "san": "Rh6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 218,
             "san": "Qf5+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 219,
             "san": "Kb7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 220,
             "san": "Qf3+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 221,
             "san": "Ka7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 222,
             "san": "Qg4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 223,
             "san": "Rb6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 224,
             "san": "Qd7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 225,
             "san": "Rb7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 226,
             "san": "Qd4",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 227,
             "san": "Rb6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 228,
             "san": "Qa4+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 229,
             "san": "Ra6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 230,
             "san": "Qd7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 231,
             "san": "Kb8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 232,
             "san": "Kb5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 233,
             "san": "Ra7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 234,
             "san": "Qd8+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 235,
             "san": "Kb7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 236,
             "san": "Qb6+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 237,
             "san": "Ka8",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 238,
             "san": "Kc6",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 239,
             "san": "Rc7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 240,
             "san": "Kd5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 241,
             "san": "Rd7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 242,
             "san": "Kc5",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 243,
             "san": "Rc7+",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           },
           {
             "ply": 244,
             "san": "Qxc7",
             "nag": "",
-            "comment": ""
+            "comment": {
+              "de": "",
+              "en": ""
+            }
           }
         ]
       }
