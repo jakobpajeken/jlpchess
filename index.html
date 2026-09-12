@@ -407,6 +407,23 @@
   /* small dot under any move with a comment/variation attached, so it's
      visible at a glance which moves are worth clicking on */
   .move-btn.annotated{box-shadow:0 2px 0 0 var(--gold-bright);}
+  /* pops up when advancing (next button / right arrow) lands on a move
+     that had more than one real option — the line you're already on, plus
+     at least one variation branching off right there — so you can pick
+     which one to actually play, instead of one just silently winning.
+     Explicit [hidden] override since the display:flex below would
+     otherwise outrank the browser's own [hidden]{display:none} (equal
+     specificity, source order) — same fix as every other [hidden] case
+     on this site. */
+  .move-choice-dialog{position:fixed;inset:0;background:rgba(22,32,46,0.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .move-choice-dialog[hidden]{display:none;}
+  .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:24px 26px;max-width:360px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.25);}
+  .move-choice-title{font-family:'Spectral',serif;font-size:1.2rem;margin-bottom:14px;color:var(--ivory);}
+  .move-choice-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+  .move-choice-btn{background:none;border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:1rem;padding:10px 14px;cursor:pointer;text-align:left;border-radius:2px;}
+  .move-choice-btn:hover{border-color:var(--gold);color:var(--gold-bright);background:rgba(31,58,95,0.06);}
+  .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.88rem;cursor:pointer;padding:4px 0;text-decoration:underline;}
+  .move-choice-cancel:hover{color:var(--gold-bright);}
   @media (max-width:720px){.games-layout{grid-template-columns:1fr;}.board-wrap{align-items:flex-start;}}
 
   /* process */
