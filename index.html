@@ -1622,27 +1622,36 @@ function appendInlineAnnotation(list, annotation, branchPath){
 /* Renders one variation line — the actual game moves leading up to it
    plus its own moves — as real, clickable move buttons (not static text),
    so a side line is just as playable as the mainline: click any move in
-   it, or step through it with the arrow keys once you're on it. Recurses
-   into any sub-variations nested inside it, same as the mainline's own
-   comments do. `container`: where to append into. `line`: this
-   variation's own entries (ply/san/nag/comment/variations). `prefixPath`:
-   the SAN path (from move 1) leading up to this line's first move. */
+   it, or step through it with the arrow keys once you're on it. Every
+   button in THIS line shares the same full SAN path (prefixPath + all of
+   `line`'s own moves) as its arrow-key line, each stopping at its own
+   position within it — so clicking any one move and then pressing the
+   arrow keys naturally continues along the rest of that same variation,
+   not just back and forth on the one move you clicked. Recurses into any
+   sub-variations nested inside it (each with its own, shorter full path,
+   branching right after the move it's attached to), same as the
+   mainline's own comments do. `container`: where to append into. `line`:
+   this variation's own entries (ply/san/nag/comment/variations).
+   `prefixPath`: the SAN path (from move 1) leading up to this line's
+   first move. */
 function renderVariationLine(container, line, prefixPath){
-  var path = prefixPath.slice();
-  (line || []).forEach(function(entry, idx){
-    path.push(entry.san);
-    var thisPath = path.slice();
+  if(!line || !line.length) return;
+  var fullPath = prefixPath.concat(line.map(function(e){ return e.san; }));
+  var cursor = prefixPath.length;
+  line.forEach(function(entry, idx){
+    cursor++;
+    var stepIdx = cursor;
     var prefix = pgnMoveNumberPrefix(entry.ply, idx === 0);
     if(prefix) container.appendChild(document.createTextNode(prefix + ' '));
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'move-btn variation-move-btn';
     btn.textContent = displaySan(entry.san) + (entry.nag || '');
-    btn.__path = thisPath;
+    btn.__path = fullPath.slice(0, stepIdx);
     if(pickLang(entry.comment) || (entry.variations && entry.variations.length)){
       btn.classList.add('annotated');
     }
-    btn.addEventListener('click', function(){ manualGoToLine(thisPath, thisPath.length); });
+    btn.addEventListener('click', function(){ manualGoToLine(fullPath, stepIdx); });
     container.appendChild(btn);
     container.appendChild(document.createTextNode(' '));
     var comment = pickLang(entry.comment);
