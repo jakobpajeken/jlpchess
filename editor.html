@@ -1715,10 +1715,12 @@ function openTestiForm(idx){
   var t = editing ? testimonials[idx] : { quote: '', who: '' };
   var quoteSplit = splitLangValue(t.quote);
   var whoSplit = splitLangValue(t.who);
+  var isActive = t.active !== false; /* missing "active" counts as active, same as on the live site */
   var slot = document.getElementById('testi-form-slot');
   slot.innerHTML =
     '<form class="entry-form" id="testi-form">' +
     '<h3>' + (editing ? 'Testimonial bearbeiten' : 'Neues Testimonial') + '</h3>' +
+    '<label class="checkbox-row"><input type="checkbox" id="tf-active"' + (isActive ? ' checked' : '') + '> Aktiv (in der Rotation auf der Website sichtbar)</label>' +
     '<div class="field"><label>Zitat (Englisch)</label><span class="hint">Leer lassen, wenn nur die deutsche Version gebraucht wird — oder automatisch übersetzen.</span>' +
     '<div class="cover-row" style="align-items:flex-start;"><textarea id="tf-quote-en" placeholder="What changed in their game or how they train?" style="flex:1;">' + escapeHtml(quoteSplit.en) + '</textarea>' +
     '<button type="button" class="btn small" id="tf-quote-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
