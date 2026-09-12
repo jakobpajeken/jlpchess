@@ -1300,15 +1300,20 @@ function openBlogForm(idx){
     '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-lead-de" style="flex:1;">' + escapeHtml(leadSplit.de) + '</textarea>' +
     '<button type="button" class="btn small" id="bf-lead-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '</div>' +
-    '<div class="field"><label>Text (Englisch)</label><span class="hint">Jeden Absatz durch eine Leerzeile trennen. Markierten Text mit <strong>F</strong>/<em>K</em> fett bzw. kursiv machen. Mit den weiteren Knöpfen fügst du an der Cursor-Position ein Bild, einen Link (z. B. Affiliate-Link) oder eine Partie ein.</span>' +
+    '<div class="field"><label>Text (Englisch)</label><span class="hint">Jeden Absatz durch eine Leerzeile trennen. Markierten Text mit <strong>F</strong>/<em>K</em>/<u>U</u> fett, kursiv bzw. unterstrichen machen. Mit den weiteren Knöpfen fügst du an der Cursor-Position ein Bild, einen Link (z. B. Affiliate-Link) oder eine Partie ein.</span>' +
     '<div class="inline-image-row"><button type="button" class="btn small" id="bf-bold-btn" title="Fett"><strong>F</strong></button>' +
     '<button type="button" class="btn small" id="bf-italic-btn" title="Kursiv"><em>K</em></button>' +
+    '<button type="button" class="btn small" id="bf-underline-btn" title="Unterstrichen"><u>U</u></button>' +
     '<button type="button" class="btn small" id="bf-size-btn" title="Schriftgröße">🔠 Größe</button>' +
     '<button type="button" class="btn small" id="bf-insert-image">🖼 Bild in Text einfügen</button>' +
     '<button type="button" class="btn small" id="bf-insert-link">🔗 Link einfügen</button>' +
     '<input type="file" id="bf-body-image-file" accept="image/*" hidden></div>' +
     '<textarea id="bf-body-en" class="tall">' + escapeHtml(bodyEnParas.join('\n\n')) + '</textarea></div>' +
-    '<div class="field"><label>Text (Deutsch)</label><span class="hint">Wird Absatz für Absatz automatisch übersetzt (Bilder/Partien bleiben an der gleichen Stelle) — danach frei bearbeitbar.</span>' +
+    '<div class="field"><label>Text (Deutsch)</label><span class="hint">Wird Absatz für Absatz automatisch übersetzt (Bilder/Partien bleiben an der gleichen Stelle) — danach frei bearbeitbar. Markierten Text mit <strong>F</strong>/<em>K</em>/<u>U</u> fett, kursiv bzw. unterstrichen machen.</span>' +
+    '<div class="inline-image-row"><button type="button" class="btn small" id="bf-bold-btn-de" title="Fett"><strong>F</strong></button>' +
+    '<button type="button" class="btn small" id="bf-italic-btn-de" title="Kursiv"><em>K</em></button>' +
+    '<button type="button" class="btn small" id="bf-underline-btn-de" title="Unterstrichen"><u>U</u></button>' +
+    '<button type="button" class="btn small" id="bf-size-btn-de" title="Schriftgröße">🔠 Größe</button></div>' +
     '<textarea id="bf-body-de" class="tall">' + escapeHtml(bodyDeParas.join('\n\n')) + '</textarea></div>' +
     '<div class="field"><label>Partien in diesem Beitrag (optional)</label>' +
     '<span class="hint">Hier Partien hinzufügen, dann mit „In Text einfügen“ an der gewünschten Stelle im englischen Text platzieren. Mehrere Partien ankreuzen und „Auswahl als ein Brett einfügen“ klicken, um sie wie auf der Karriere-Seite in einem gemeinsamen Brett mit Auswahlmenü darzustellen.</span>' +
