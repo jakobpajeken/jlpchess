@@ -407,21 +407,24 @@
   /* small dot under any move with a comment/variation attached, so it's
      visible at a glance which moves are worth clicking on */
   .move-btn.annotated{box-shadow:0 2px 0 0 var(--gold-bright);}
-  /* anchors the move-choice dialog to the notation column specifically
-     (not the whole page/board) — see .move-choice-dialog below */
-  .game-meta{position:relative;}
   /* pops up when advancing (next button / right arrow) lands on a move
      that had more than one real option — the line you're already on, plus
      at least one variation branching off right there — so you can pick
      which one to actually play, instead of one just silently winning.
-     Positioned over the notation column only (game-meta, its nearest
-     positioned ancestor) rather than the whole viewport, so the board
-     stays visible and it doesn't read as a big, page-wide modal.
-     Explicit [hidden] override since the display:flex below would
-     otherwise outrank the browser's own [hidden]{display:none} (equal
-     specificity, source order) — same fix as every other [hidden] case
-     on this site. */
-  .move-choice-dialog{position:absolute;inset:0;background:rgba(22,32,46,0.5);display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;}
+     A grid item of .games-layout in its own right (not nested inside
+     .game-meta or .board-wrap), positioned absolutely but placed onto a
+     specific grid cell via grid-column/grid-row — an absolutely
+     positioned grid item uses that cell as its containing block, so
+     inset:0 fills exactly that cell without disturbing the other items'
+     own layout. On desktop that's the notation column (over .game-meta,
+     board stays visible); on mobile, where the layout stacks into one
+     column and the board is the thing right under your thumb, it's
+     repositioned onto the board's cell instead (see the media query
+     below). Explicit [hidden] override since the display:flex below
+     would otherwise outrank the browser's own [hidden]{display:none}
+     (equal specificity, source order) — same fix as every other [hidden]
+     case on this site. */
+  .move-choice-dialog{position:absolute;grid-column:2;grid-row:1;inset:0;background:rgba(22,32,46,0.5);display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;}
   .move-choice-dialog[hidden]{display:none;}
   .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:14px 16px;max-width:260px;width:100%;box-shadow:0 8px 26px rgba(0,0,0,0.28);}
   .move-choice-title{font-family:'Spectral',serif;font-size:0.95rem;margin-bottom:8px;color:var(--ivory);}
