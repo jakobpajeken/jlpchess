@@ -567,8 +567,13 @@ function createGameWidget(container, gameOrGames){
      the mainline by default, or a variation's own path once you click into
      one. Arrow keys and the prev/next/start/end buttons all step through
      THIS line, not always the mainline — see index.html's activeLine for
-     the full rationale (mirrored here per-widget-instance). */
+     the full rationale (mirrored here per-widget-instance). activeBranches
+     runs parallel to it (alternatives branching off after each move);
+     rootBranches is the same for the very first move. See index.html's
+     tryAdvance() for how these power the move-choice dialog. */
   var activeLine = [];
+  var activeBranches = [];
+  var rootBranches = [];
   var orientation = 'white'; /* 'white' = normal view, 'black' = flipped */
   var whiteName = 'White', blackName = 'Black';
   var playInterval = null; /* set while auto-play is running, one move every 1.5s */
