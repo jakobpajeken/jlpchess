@@ -1423,9 +1423,9 @@ function updatePlayButton(){
    running auto-play first, so it never fights with a move the user just
    clicked. `line` is the SAN path to replay from move 1 (the mainline, or
    a variation's own path); `idx` is how far into it to stop. */
-function manualGoToLine(line, idx){
+function manualGoToLine(line, branches, idx){
   stopPlay();
-  goToLineIndex(line, idx);
+  goToLineIndex(line, branches, idx);
 }
 /* 'white' = normal view (White at the bottom); 'black' = flipped (Black at
    the bottom). Defaults to flipped automatically whenever Jakob is playing
