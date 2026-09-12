@@ -370,9 +370,9 @@
     padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.9rem;
   }
   .board-nav button:hover{color:var(--gold-bright);border-color:var(--gold);}
-  .game-title{font-family:'Spectral',serif;font-size:2.15rem;margin-bottom:6px;}
+  .game-title{font-family:'Spectral',serif;font-size:2.15rem;margin:20px 0 18px;}
   .game-info{font-size:0.88rem;color:var(--ivory-dim);margin-bottom:18px;}
-  .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;max-height:260px;overflow-y:auto;font-size:0.92rem;}
+  .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;max-height:460px;overflow-y:auto;font-size:0.98rem;}
   /* a PGN comment (e.g. added in ChessBase) is rendered right inside the
      move list's own flowing text, directly after the move it belongs to —
      like a printed annotated game score — rather than pulled out into a
@@ -802,6 +802,8 @@
         <button type="button" id="games-download-all-btn" class="game-download-btn" data-i18n="games.downloadAll">⬇ Download all as PGN</button>
       </div>
 
+      <div id="game-title" class="game-title"></div>
+
       <div class="games-layout">
         <div class="board-wrap">
           <div class="player-label" id="player-top"><span class="side-dot"></span><span id="player-top-name">Black</span></div>
@@ -827,7 +829,6 @@
           </div>
         </div>
         <div class="game-meta">
-          <div id="game-title" class="game-title"></div>
           <div id="game-info" class="game-info"></div>
           <div id="move-list" class="move-list"></div>
         </div>
