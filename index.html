@@ -1858,6 +1858,8 @@ function showMoveChoiceDialog(options){
     list.appendChild(btn);
   });
   dialog.hidden = false;
+  var firstBtn = list.querySelector('.move-choice-btn');
+  if(firstBtn) firstBtn.focus(); /* so the arrow keys have something to move from right away */
 }
 
 function hideMoveChoiceDialog(){
