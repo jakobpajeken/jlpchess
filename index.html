@@ -1663,7 +1663,7 @@ function renderVariationLine(container, line, prefixPath){
     }
     (entry.variations || []).forEach(function(sub){
       container.appendChild(document.createTextNode('('));
-      renderVariationLine(container, sub, thisPath);
+      renderVariationLine(container, sub, fullPath.slice(0, stepIdx));
       container.appendChild(document.createTextNode(') '));
     });
   });
