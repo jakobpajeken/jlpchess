@@ -374,6 +374,11 @@
   .step-num{font-family:'Spectral',serif;font-size:1.3rem;color:var(--gold-bright);}
   .step-row h3{font-size:1.05rem;margin-bottom:6px;}
   .step-row p{margin:0;color:var(--ivory-dim);font-size:0.94rem;max-width:60ch;}
+  /* small direct CTA on the trial-session step, jumping straight to the
+     full contact box below instead of making the reader scroll or hunt
+     for the nav */
+  .step-cta{display:inline-block;margin-top:10px;font-size:0.88rem;color:var(--gold-bright);text-decoration:none;}
+  .step-cta:hover{text-decoration:underline;}
 
   /* cta */
   .cta-box{background:var(--surface-raised);border:1px solid var(--line);padding:56px;display:grid;grid-template-columns:1.2fr 0.8fr;gap:40px;align-items:center;}
@@ -618,7 +623,7 @@
         </div>
         <div class="step-row">
           <div class="step-num">02</div>
-          <div><h3 data-i18n="process.s2title">Free trial session (60 mins)</h3><p data-i18n="process.s2body">We look at a few of your recent games together, so I can identify real patterns, not just the last mistake you noticed. And we'll discuss the next steps together — including pricing, which depends on your goals and how we work together.</p></div>
+          <div><h3 data-i18n="process.s2title">Free trial session (60 mins)</h3><p data-i18n="process.s2body">We look at a few of your recent games together, so I can identify real patterns, not just the last mistake you noticed. And we'll discuss the next steps together — including pricing, which depends on your goals and how we work together.</p><a href="#coaching-cta" class="step-cta" data-goto-tab="coaching" data-goto-section="coaching-cta" data-i18n="process.s2cta">Book now →</a></div>
         </div>
         <div class="step-row">
           <div class="step-num">03</div>
@@ -965,6 +970,7 @@ const i18n = {
   "process.s1title":{en:"Get in touch",de:"Kontaktaufnahme"},
   "process.s1body":{en:"<strong>Send me a short introduction of yourself:</strong> your age, your current chess level, your chess goals, and what chess means to you.",de:"<strong>Schreib mir eine Nachricht mit einer kurzen Vorstellung von dir:</strong> deinem Alter, deinem aktuellen Schachlevel, deinen schachlichen Zielen und dem, was Schach für dich bedeutet."},
   "process.s2title":{en:"Free trial session (60 mins)",de:"Kostenloses Erstgespräch (60 min)"},
+  "process.s2cta":{en:"Book now →",de:"Jetzt buchen →"},
   "process.s2body":{en:"We look at a few of your recent games together, so I can identify real patterns, not just the last mistake you noticed. And we'll discuss the next steps together — including pricing, which depends on your goals and how we work together.",de:"Wir schauen uns gemeinsam einige deiner letzten Partien an, damit ich echte Muster erkennen kann — nicht nur den letzten Fehler, der dir aufgefallen ist. Und wir besprechen, wie es weitergehen soll — auch der Preis richtet sich nach deinen Zielen und dem Umfang der Zusammenarbeit und wird hier gemeinsam geklärt."},
   "process.s3title":{en:"Tailored plan",de:"Individueller Plan"},
   "process.s3body":{en:"Based on that, I set out where the training will focus first — openings, calculation, endgames, or how you train between sessions.",de:"Darauf aufbauend lege ich fest, worauf sich das Training zuerst konzentriert — Eröffnungen, Berechnung, Endspiele oder dein Training zwischen den Stunden."},
