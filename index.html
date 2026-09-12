@@ -440,7 +440,18 @@
     .move-choice-btn{padding:12px 14px;font-size:0.95rem;}
     .move-choice-cancel{padding:10px 0;font-size:0.85rem;}
   }
-  @media (max-width:720px){.games-layout{grid-template-columns:1fr;}.board-wrap{align-items:flex-start;}}
+  @media (max-width:720px){
+    .games-layout{grid-template-columns:1fr;}
+    .board-wrap{align-items:flex-start;}
+    /* once the layout stacks into one column, .board-wrap becomes row 1
+       and .game-meta row 2 (still both in column 1) — move the dialog
+       onto the board's cell instead of the notation's, and shrink it: a
+       phone screen has much less room to spare than a desktop window. */
+    .move-choice-dialog{grid-column:1;grid-row:1;}
+    .move-choice-card{max-width:200px;padding:10px 12px;}
+    .move-choice-title{font-size:0.85rem;margin-bottom:6px;}
+    .move-choice-list{gap:4px;margin-bottom:8px;}
+  }
 
   /* process */
   .steps{border-top:1px solid var(--line);}
