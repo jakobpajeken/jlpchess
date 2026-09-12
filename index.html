@@ -1405,10 +1405,11 @@ function updatePlayButton(){
 }
 /* manual navigation (buttons, move clicks, keyboard) always stops any
    running auto-play first, so it never fights with a move the user just
-   clicked */
-function manualGoToPly(ply){
+   clicked. `line` is the SAN path to replay from move 1 (the mainline, or
+   a variation's own path); `idx` is how far into it to stop. */
+function manualGoToLine(line, idx){
   stopPlay();
-  goToPly(ply);
+  goToLineIndex(line, idx);
 }
 /* 'white' = normal view (White at the bottom); 'black' = flipped (Black at
    the bottom). Defaults to flipped automatically whenever Jakob is playing
@@ -1655,10 +1656,15 @@ function highlightMoveList(){
   });
 }
 
-function goToPly(ply){
+/* Replays `line` (an array of SAN strings from move 1) up to `idx` moves
+   in and renders that position — line can be the mainline or any
+   variation's own path, since chess.js's .move() takes a plain SAN string
+   just as happily as historyVerbose's own move objects did. */
+function goToLineIndex(line, idx){
   gameEngine.reset();
-  for(var i = 0; i < ply; i++){ gameEngine.move(historyVerbose[i]); }
-  moveIndex = ply;
+  for(var i = 0; i < idx; i++){ gameEngine.move(line[i]); }
+  activeLine = line;
+  moveIndex = idx;
   renderPosition(gameEngine.fen());
   highlightMoveList();
 }
