@@ -2417,7 +2417,23 @@ document.addEventListener('keydown', function(e){
   if(!gameEngine) return;
   var dialog = document.getElementById('move-choice-dialog');
   if(dialog && !dialog.hidden){
-    if(e.key === 'Escape'){ hideMoveChoiceDialog(); e.preventDefault(); }
+    /* while a choice is pending, the arrow keys move between the options
+       instead of stepping the board underneath the dialog — up/down and
+       left/right both work, since it reads equally well as a short list
+       (up/down) or as "one more option over" (left/right, the same keys
+       that opened the dialog in the first place) */
+    var choiceBtns = Array.from(dialog.querySelectorAll('.move-choice-btn'));
+    var focusedIdx = choiceBtns.indexOf(document.activeElement);
+    if(e.key === 'Escape'){
+      hideMoveChoiceDialog();
+      e.preventDefault();
+    } else if(e.key === 'ArrowDown' || e.key === 'ArrowRight'){
+      if(choiceBtns.length) choiceBtns[(focusedIdx + 1 + choiceBtns.length) % choiceBtns.length].focus();
+      e.preventDefault();
+    } else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft'){
+      if(choiceBtns.length) choiceBtns[(focusedIdx - 1 + choiceBtns.length) % choiceBtns.length].focus();
+      e.preventDefault();
+    }
     return; /* a choice is pending — don't also step the board underneath it */
   }
   if(e.key === 'ArrowLeft'){
