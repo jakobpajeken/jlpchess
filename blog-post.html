@@ -200,7 +200,7 @@
   .embedded-game .game-title{font-family:'Spectral',serif;font-size:1.3rem;margin:16px 0 14px;color:var(--gold-bright);}
   .embedded-game .game-info{font-size:0.84rem;color:var(--ivory-dim);margin-bottom:16px;}
   .embedded-game .pgn-error{font-size:0.84rem;color:#b04e2e;min-height:1.2em;}
-  .embedded-game .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;max-height:460px;overflow-y:scroll;font-size:0.98rem;scrollbar-width:auto;scrollbar-color:var(--gold) var(--line);}
+  .embedded-game .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;max-height:460px;overflow-y:scroll;padding-right:12px;font-size:0.98rem;scrollbar-width:auto;scrollbar-color:var(--gold) var(--line);}
   /* always-visible scrollbar with clickable up/down arrow buttons — see
      index.html's .move-list for the full rationale (mirrored here). */
   .embedded-game .move-list::-webkit-scrollbar{width:14px;}
@@ -217,7 +217,7 @@
      themselves, no card/box treatment. flex-basis:100% forces it onto its
      own line inside the move list's wrapping flex layout. */
   .embedded-game .game-comment-inline{flex-basis:100%;display:flex;flex-direction:column;gap:4px;margin:2px 0 8px;line-height:1.55;}
-  .embedded-game .game-comment-text{font-family:'Inter',sans-serif;color:var(--ivory);}
+  .embedded-game .game-comment-text{font-family:'Inter',sans-serif;color:var(--ivory);text-align:justify;}
   .embedded-game .game-comment-text + .game-comment-variation{margin-top:10px;}
   .embedded-game .game-comment-variation{font-family:'Inter',sans-serif;font-size:0.86rem;color:var(--ivory-dim);line-height:1.9;}
   .embedded-game .game-comment-variation + .game-comment-variation{margin-top:6px;}
@@ -238,7 +238,8 @@
      its own right, placed onto a specific cell via grid-column/grid-row:
      the notation column on desktop, the board's cell on mobile (see the
      media query below) — same technique as index.html. */
-  .embedded-game .move-choice-dialog{position:absolute;grid-column:2;grid-row:1;inset:0;background:rgba(22,32,46,0.5);display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;}
+  .embedded-game .move-choice-dialog{position:absolute;grid-column:2;grid-row:1;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;pointer-events:none;}
+  .embedded-game .move-choice-dialog .move-choice-card{pointer-events:auto;}
   .embedded-game .move-choice-dialog[hidden]{display:none;}
   .embedded-game .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:14px 16px;max-width:260px;width:100%;box-shadow:0 8px 26px rgba(0,0,0,0.28);}
   .embedded-game .move-choice-title{font-family:'Spectral',serif;font-size:0.92rem;margin-bottom:8px;color:var(--ivory);}
