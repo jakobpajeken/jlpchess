@@ -1870,30 +1870,6 @@ function sanToGermanNotation(san){
 function displaySan(san){
   return currentSiteLang() === 'de' ? sanToGermanNotation(san) : san;
 }
-/* Renders one line (mainline or a variation) of the annotations tree back
-   into ordinary, readable PGN-ish text, e.g. "12. Nf3 Nc6 13. Bc4 (13.
-   Be2 O-O)" — recursing into any nested sub-variations attached along the
-   way. This is text only: a variation is shown, not separately playable
-   on the board — actually stepping through one would need a much bigger
-   change to how the board/move-list work here. Comments may be a plain
-   string (the older, mainline-only fallback extractor) or a {en,de} pair
-   (scripts/sync_games_pgn.py's real annotations, auto-translated from the
-   German originally typed in ChessBase) — pickLang() already handles
-   either shape the same way every other bilingual field on the site does. */
-function formatVariationLine(line){
-  var parts = [];
-  (line || []).forEach(function(entry, idx){
-    var prefix = pgnMoveNumberPrefix(entry.ply, idx === 0);
-    var text = (prefix ? prefix + ' ' : '') + displaySan(entry.san) + (entry.nag || '');
-    var comment = pickLang(entry.comment);
-    if(comment) text += ' {' + comment + '}';
-    parts.push(text);
-    (entry.variations || []).forEach(function(sub){
-      parts.push('(' + formatVariationLine(sub) + ')');
-    });
-  });
-  return parts.join(' ');
-}
 var gameComments = {}; /* the active game's annotation index, keyed by ply */
 
 function loadGameObject(g){
@@ -2038,11 +2014,11 @@ function initGamesWidget(){
   var btnNext = document.getElementById('nav-next');
   var btnEnd = document.getElementById('nav-end');
   var btnFlip = document.getElementById('nav-flip');
-  if(btnStart) btnStart.addEventListener('click', function(){ manualGoToPly(0); });
-  if(btnPrev) btnPrev.addEventListener('click', function(){ manualGoToPly(Math.max(0, moveIndex - 1)); });
+  if(btnStart) btnStart.addEventListener('click', function(){ manualGoToLine(activeLine, 0); });
+  if(btnPrev) btnPrev.addEventListener('click', function(){ manualGoToLine(activeLine, Math.max(0, moveIndex - 1)); });
   if(btnPlay) btnPlay.addEventListener('click', function(){ togglePlay(); });
-  if(btnNext) btnNext.addEventListener('click', function(){ manualGoToPly(Math.min(historyVerbose.length, moveIndex + 1)); });
-  if(btnEnd) btnEnd.addEventListener('click', function(){ manualGoToPly(historyVerbose.length); });
+  if(btnNext) btnNext.addEventListener('click', function(){ manualGoToLine(activeLine, Math.min(activeLine.length, moveIndex + 1)); });
+  if(btnEnd) btnEnd.addEventListener('click', function(){ manualGoToLine(activeLine, activeLine.length); });
   if(btnFlip) btnFlip.addEventListener('click', function(){ setOrientation(boardOrientation === 'black' ? 'white' : 'black'); });
 }
 initGamesWidget();
