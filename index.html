@@ -1711,9 +1711,15 @@ function renderBlogGrid(){
   var grid = document.getElementById('blog-grid');
   if(!grid) return;
   var readMore = document.documentElement.lang === 'de' ? 'Weiterlesen →' : 'Read more →';
+  /* drafts (status:"draft", set in editor.html) never show in the public
+     list — only reachable by whoever has the direct blog-post.html link,
+     e.g. to proofread before flipping it to published. Posts saved before
+     this field existed have no status at all, which counts as published
+     so they don't silently vanish from the live site. */
+  var publicPosts = blogPostsData.filter(function(p){ return p.status !== 'draft'; });
   /* newest first: editor.html always appends new posts to the end of the
      array, so the last entry is the most recently added one */
-  var ordered = blogPostsData.slice().reverse();
+  var ordered = publicPosts.slice().reverse();
   var visible = ordered.slice(0, blogVisibleCount);
   var lang = currentSiteLang();
   grid.innerHTML = visible.map(function(post){
@@ -1874,8 +1880,13 @@ function renderTestiGrid(){
   var wrap = document.getElementById('testi-wrap');
   if(!grid) return;
   var lang = currentSiteLang();
-  if(Array.isArray(testimonialsData) && testimonialsData.length){
-    testiList = testimonialsData.map(function(t){ return { quote: pickLang(t.quote), who: pickLang(t.who) }; });
+  /* inactive testimonials (active:false, set in editor.html) stay out of
+     the public rotation without needing to be deleted — entries saved
+     before this field existed have no "active" property at all, which
+     counts as active so nothing already live silently disappears */
+  var activeTestimonials = Array.isArray(testimonialsData) ? testimonialsData.filter(function(t){ return t.active !== false; }) : [];
+  if(activeTestimonials.length){
+    testiList = activeTestimonials.map(function(t){ return { quote: pickLang(t.quote), who: pickLang(t.who) }; });
   } else {
     /* keep the fallback quote (still real data-i18n placeholder text) */
     testiList = [{ quote: i18n['testi.q1'][lang], who: i18n['testi.w1'][lang] }];
