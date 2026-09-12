@@ -1606,6 +1606,7 @@ function openBlogForm(idx){
       var entry = {
         title: joinLangValue(titleEn, document.getElementById('bf-title-de').value),
         slug: editing ? (p.slug || uniqueSlug(titleEn, idx)) : uniqueSlug(titleEn, null),
+        status: document.getElementById('bf-status').value,
         category: joinLangValue(document.getElementById('bf-category-en').value, document.getElementById('bf-category-de').value),
         date: document.getElementById('bf-date').value,
         author: document.getElementById('bf-author').value.trim() || DEFAULT_BLOG_AUTHOR,
