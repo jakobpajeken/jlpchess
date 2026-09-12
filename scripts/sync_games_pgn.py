@@ -108,7 +108,7 @@ def translate_via_mymemory(text, source, target):
            + "&langpair=" + source.lower() + "|" + target.lower())
     data = _http_get_json(url)
     translated = (data.get("responseData") or {}).get("translatedText")
-    if not translated or re.search(r"MYMEMORY WARNING|INVALID LANGPAIR|NO QUERY SPECIFIED", translated, re.I):
+    if not translated or re.search(r"MYMEMORY WARNING|INVALID LANGPAIR|NO QUERY SPECIFIED|QUERY LENGTH LIMIT EXCEEDED", translated, re.I):
         raise RuntimeError("no usable translation")
     return translated
 
