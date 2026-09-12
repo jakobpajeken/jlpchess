@@ -1202,10 +1202,21 @@ function openBlogForm(idx){
   var postGames = (p.games || []).map(function(g){ return { id: g.id || makeGameId(), title: g.title, meta: g.meta || '', pgn: g.pgn || '' }; });
   var catOptionsEn = collectCategoryOptions('en').map(function(c){ return '<option value="' + escapeHtml(c) + '">'; }).join('');
   var catOptionsDe = collectCategoryOptions('de').map(function(c){ return '<option value="' + escapeHtml(c) + '">'; }).join('');
+  /* new posts default to Entwurf, so writing something doesn't put it live
+     right away — has to be explicitly switched to "Veröffentlicht" here or
+     via the list's own toggle button. An existing post with no status at
+     all (saved before this field existed) counts as published, matching
+     what's already true for it on the live site. */
+  var statusValue = editing ? (p.status === 'draft' ? 'draft' : 'published') : 'draft';
   var slot = document.getElementById('blog-form-slot');
   slot.innerHTML =
     '<form class="entry-form" id="blog-form">' +
     '<h3>' + (editing ? 'Beitrag bearbeiten' : 'Neuer Beitrag') + '</h3>' +
+    '<div class="field"><label>Status</label><span class="hint">Ein Entwurf ist nicht im öffentlichen Blog gelistet — nur über einen direkten Link erreichbar (mit deutlichem Entwurf-Hinweis).</span>' +
+    '<select id="bf-status">' +
+    '<option value="draft"' + (statusValue === 'draft' ? ' selected' : '') + '>Entwurf</option>' +
+    '<option value="published"' + (statusValue === 'published' ? ' selected' : '') + '>Veröffentlicht</option>' +
+    '</select></div>' +
     '<div class="translate-row">' +
     '<button type="button" class="btn" id="bf-translate-all">🌐 Gesamten Beitrag ins Deutsche übersetzen</button>' +
     '<button type="button" class="btn" id="bf-translate-all-rev">🌐 Gesamten Beitrag ins Englische übersetzen</button>' +
