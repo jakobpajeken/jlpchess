@@ -1259,13 +1259,16 @@ document.addEventListener('click', function(e){
 });
 /* deep link support, e.g. index.html#blog coming back from a blog post, or
    index.html#coaching-testimonials linking straight to one dropdown section.
-   Skipped on a plain reload: showTab() keeps the URL's #hash in sync with
-   whatever tab/section is open (via history.replaceState) so a COPIED link
-   reopens at the same spot — but that means the hash from wherever you last
-   clicked is still sitting in the address bar, and hitting reload isn't the
-   same as following a link, so it shouldn't keep landing there instead of
-   the top. A genuine navigation here (an external link, a bookmark, coming
-   back from blog-post.html) still honors the hash exactly as before. */
+   Handled differently on a plain reload: showTab() keeps the URL's #hash in
+   sync with whatever tab/section is open (via history.replaceState) so a
+   COPIED link reopens at the same spot — but that means the hash from
+   wherever you last clicked is still sitting in the address bar, and
+   hitting reload isn't the same as following a link, so it shouldn't keep
+   scrolling to that specific spot. Reload instead stays on whichever TAB
+   was open (switched with no scroll animation of its own) but always lands
+   at the very top of the page. A genuine navigation here (an external
+   link, a bookmark, coming back from blog-post.html) still honors the full
+   hash — tab AND section — exactly as before. */
 (function(){
   var hash = location.hash.replace('#', '');
   if(!hash) return;
@@ -1273,6 +1276,23 @@ document.addEventListener('click', function(e){
   var navType = (navEntries && navEntries[0] && navEntries[0].type) ||
     (performance.navigation && performance.navigation.type === 1 ? 'reload' : null);
   if(navType === 'reload'){
+    var reloadTabId = document.querySelector('.tabbar button[data-tab="' + hash + '"]') ? hash : null;
+    if(!reloadTabId){
+      var reloadTarget = document.getElementById(hash);
+      var reloadPanel = reloadTarget && reloadTarget.closest('.tabpanel');
+      if(reloadPanel) reloadTabId = reloadPanel.id;
+    }
+    /* same tab/panel switch as the top of showTab(), just without its
+       scrollIntoView — this only ever needs to change which panel is
+       active, since the scroll position is handled below regardless */
+    if(reloadTabId){
+      document.querySelectorAll('.tabbar button[data-tab]').forEach(function(btn){
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === reloadTabId);
+      });
+      document.querySelectorAll('.tabpanel').forEach(function(panel){
+        panel.classList.toggle('active-panel', panel.id === reloadTabId);
+      });
+    }
     try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
     window.scrollTo(0, 0);
     return;
