@@ -737,6 +737,39 @@ function createGameWidget(container, gameOrGames){
     }
     return comments;
   }
+  function commentsMapToIndex(comments){
+    var index = {};
+    Object.keys(comments || {}).forEach(function(ply){
+      index[ply] = { comment: comments[ply], variations: [] };
+    });
+    return index;
+  }
+  /* same tree-consuming helpers as index.html's games widget — see the
+     comments there. Kept in sync. */
+  function buildAnnotationIndex(tree){
+    var index = {};
+    (tree || []).forEach(function(entry){ index[entry.ply] = entry; });
+    return index;
+  }
+  function pgnMoveNumberPrefix(ply, isFirstInLine){
+    var moveNum = Math.ceil(ply / 2);
+    var isWhite = (ply % 2) === 1;
+    if(isWhite) return moveNum + '.';
+    return isFirstInLine ? moveNum + '...' : '';
+  }
+  function formatVariationLine(line){
+    var parts = [];
+    (line || []).forEach(function(entry, idx){
+      var prefix = pgnMoveNumberPrefix(entry.ply, idx === 0);
+      var text = (prefix ? prefix + ' ' : '') + entry.san + (entry.nag || '');
+      if(entry.comment) text += ' {' + entry.comment + '}';
+      parts.push(text);
+      (entry.variations || []).forEach(function(sub){
+        parts.push('(' + formatVariationLine(sub) + ')');
+      });
+    });
+    return parts.join(' ');
+  }
 
   buildBoardSquares();
 
@@ -764,7 +797,7 @@ function createGameWidget(container, gameOrGames){
       return;
     }
     historyVerbose = engine.history({ verbose: true });
-    gameComments = extractPgnComments(game.pgn || '');
+    gameComments = Array.isArray(game.annotations) ? buildAnnotationIndex(game.annotations) : commentsMapToIndex(extractPgnComments(game.pgn || ''));
     engine.reset();
     moveIndex = 0;
 
