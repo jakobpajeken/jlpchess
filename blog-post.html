@@ -1005,11 +1005,11 @@ function createGameWidget(container, gameOrGames){
     });
   }
 
-  container.querySelector('[data-nav="start"]').addEventListener('click', function(){ manualGoToPly(0); });
-  container.querySelector('[data-nav="prev"]').addEventListener('click', function(){ manualGoToPly(Math.max(0, moveIndex - 1)); });
+  container.querySelector('[data-nav="start"]').addEventListener('click', function(){ manualGoToLine(activeLine, 0); });
+  container.querySelector('[data-nav="prev"]').addEventListener('click', function(){ manualGoToLine(activeLine, Math.max(0, moveIndex - 1)); });
   container.querySelector('[data-nav="play"]').addEventListener('click', function(){ togglePlay(); });
-  container.querySelector('[data-nav="next"]').addEventListener('click', function(){ manualGoToPly(Math.min(historyVerbose.length, moveIndex + 1)); });
-  container.querySelector('[data-nav="end"]').addEventListener('click', function(){ manualGoToPly(historyVerbose.length); });
+  container.querySelector('[data-nav="next"]').addEventListener('click', function(){ manualGoToLine(activeLine, Math.min(activeLine.length, moveIndex + 1)); });
+  container.querySelector('[data-nav="end"]').addEventListener('click', function(){ manualGoToLine(activeLine, activeLine.length); });
   container.querySelector('[data-nav="flip"]').addEventListener('click', function(){ setOrientation(orientation === 'black' ? 'white' : 'black'); });
 
   /* arrow-key navigation, scoped to this widget via focus — several games
@@ -1019,10 +1019,10 @@ function createGameWidget(container, gameOrGames){
     var tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
     if(tag === 'input' || tag === 'textarea') return;
     if(e.key === 'ArrowLeft'){
-      manualGoToPly(Math.max(0, moveIndex - 1));
+      manualGoToLine(activeLine, Math.max(0, moveIndex - 1));
       e.preventDefault();
     } else if(e.key === 'ArrowRight'){
-      manualGoToPly(Math.min(historyVerbose.length, moveIndex + 1));
+      manualGoToLine(activeLine, Math.min(activeLine.length, moveIndex + 1));
       e.preventDefault();
     }
   });
