@@ -635,29 +635,29 @@ document.getElementById('openai-clear-btn').addEventListener('click', function()
   if(getOpenAiKey()) document.getElementById('openai-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
   updateOpenAiStatus();
 })();
-/* Sends `prompt` to Groq (openai/gpt-oss-120b, OpenAI-compatible chat
-   completions API) and returns its plain-text reply. Throws with a
-   message safe to show directly in a toast if the key is missing, the
-   request fails, or the model declined to answer.
+/* Sends `prompt` to OpenAI's chat completions API and returns its
+   plain-text reply. Throws with a message safe to show directly in a
+   toast if the key is missing, the request fails, or the model declined
+   to answer.
 
-   A 503/5xx here would mean Groq's own servers are overloaded – rare in
-   practice on their free tier, but this keeps the same automatic-retry
-   safety net used before (a few attempts with a short growing pause)
-   rather than assuming it can never happen. `onRetry(attempt,
-   maxAttempts)`, if given, is called before each retry so the caller can
-   show "trying again …" instead of leaving the user staring at a stuck
-   spinner with no explanation. */
+   A 503/5xx here would mean OpenAI's own servers are overloaded – rare in
+   practice, but this keeps the same automatic-retry safety net used
+   before (a few attempts with a short growing pause) rather than
+   assuming it can never happen. `onRetry(attempt, maxAttempts)`, if
+   given, is called before each retry so the caller can show "trying
+   again …" instead of leaving the user staring at a stuck spinner with
+   no explanation. */
 async function askAI(prompt, onRetry){
-  var key = getGroqKey();
+  var key = getOpenAiKey();
   if(!key) throw new Error('Kein KI-Schlüssel hinterlegt (oben eintragen).');
   var maxAttempts = 4; /* 1 initial try + up to 3 retries */
   for(var attempt = 1; attempt <= maxAttempts; attempt++){
     var resp, networkErr = null;
     try{
-      resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      resp = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({ model: 'openai/gpt-oss-120b', messages: [{ role: 'user', content: prompt }] })
+        body: JSON.stringify({ model: 'gpt-5.4', messages: [{ role: 'user', content: prompt }] })
       });
     }catch(e){ networkErr = e; }
     if(networkErr){
