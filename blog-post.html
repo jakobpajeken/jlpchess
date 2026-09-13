@@ -1325,7 +1325,13 @@ function renderRealPost(post){
         .replace(/__([^_]+)__/g, '<u>$1</u>')
         .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
         .replace(/\[size=(\d+)\]([\s\S]*?)\[\/size\]/g, '<span style="font-size:$1px">$2</span>')
-        .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, '<span style="color:#2563eb">$1</span>');
+        /* !important is required here: .article-body strong{color:var(--ivory)}
+           sets an explicit color directly on <strong>, and an element's own
+           explicit color always beats a merely-inherited one from an
+           ancestor span, regardless of the ancestor's specificity – so
+           without !important, blue text that's also bold (a very natural
+           combination to reach for) silently rendered as plain ivory */
+        .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, '<span style="color:#2563eb!important">$1</span>');
     };
     var html = '';
     var lead = pickLang(post.lead);
