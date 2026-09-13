@@ -570,6 +570,78 @@ document.getElementById('gh-disconnect-btn').addEventListener('click', function(
 })();
 
 /* ============================================================
+   KI-Schreibhilfe (Google Gemini, kostenloses Kontingent)
+   ------------------------------------------------------------
+   Entirely optional and independent of the GitHub connection above —
+   this only powers the "✨ KI-Hilfe" buttons next to the blog body
+   text fields. The key lives in localStorage on this device only,
+   same as the GitHub token, and is sent to nobody but Google's own
+   API when a request is actually made.
+   "gemini-flash-latest" is Google's own self-updating alias for
+   whichever current Flash model is recommended right now, so this
+   doesn't need to be hand-updated every time Google ships a new
+   version (see https://ai.google.dev/gemini-api/docs/models).
+   ============================================================ */
+var GEMINI_KEY_STORAGE = 'jlp_gemini_api_key';
+function getGeminiKey(){
+  try{ return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }catch(e){ return ''; }
+}
+function updateGeminiStatus(){
+  var status = document.getElementById('gemini-status');
+  var clearBtn = document.getElementById('gemini-clear-btn');
+  var hasKey = !!getGeminiKey();
+  if(status) status.textContent = hasKey ? 'KI-Schreibhilfe im Blog-Editor ist aktiv.' : 'Ohne Schlüssel keine KI-Schreibhilfe im Blog-Editor.';
+  if(clearBtn) clearBtn.hidden = !hasKey;
+}
+document.getElementById('gemini-save-btn').addEventListener('click', function(){
+  var val = document.getElementById('gemini-key-input').value.trim();
+  if(!val){ showToast('Bitte einen Schlüssel einfügen.', true); return; }
+  try{ localStorage.setItem(GEMINI_KEY_STORAGE, val); }catch(e){}
+  document.getElementById('gemini-key-input').value = '';
+  updateGeminiStatus();
+  showToast('KI-Schlüssel gespeichert ✓');
+});
+document.getElementById('gemini-clear-btn').addEventListener('click', function(){
+  try{ localStorage.removeItem(GEMINI_KEY_STORAGE); }catch(e){}
+  updateGeminiStatus();
+  showToast('KI-Schlüssel entfernt.');
+});
+(function(){
+  if(getGeminiKey()) document.getElementById('gemini-key-input').placeholder = '•••• bereits gespeichert — neuen Schlüssel einfügen zum Ändern';
+  updateGeminiStatus();
+})();
+/* Sends `prompt` to Gemini and returns its plain-text reply. Throws with a
+   message safe to show directly in a toast if the key is missing, the
+   request fails, or Gemini declined to answer (e.g. safety filters). */
+async function askGemini(prompt){
+  var key = getGeminiKey();
+  if(!key) throw new Error('Kein KI-Schlüssel hinterlegt (oben eintragen).');
+  var resp;
+  try{
+    resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+  }catch(e){ throw new Error('KI-Anfrage fehlgeschlagen (keine Verbindung).'); }
+  if(!resp.ok){
+    if(resp.status === 400 || resp.status === 401 || resp.status === 403){
+      throw new Error('KI-Schlüssel ungültig oder abgelehnt (Status ' + resp.status + ').');
+    }
+    if(resp.status === 429) throw new Error('KI-Kontingent gerade ausgeschöpft — kurz warten und nochmal versuchen.');
+    throw new Error('KI-Anfrage fehlgeschlagen (Status ' + resp.status + ').');
+  }
+  var data = await resp.json();
+  var candidate = data && data.candidates && data.candidates[0];
+  var text = candidate && candidate.content && candidate.content.parts && candidate.content.parts.map(function(p){ return p.text || ''; }).join('');
+  if(!text){
+    var reason = candidate && candidate.finishReason;
+    throw new Error(reason ? ('KI hat keine Antwort geliefert (' + reason + ').') : 'KI hat keine Antwort geliefert.');
+  }
+  return text.trim();
+}
+
+/* ============================================================
    Helpers
    ============================================================ */
 function escapeHtml(s){
