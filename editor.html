@@ -1485,6 +1485,12 @@ function openBlogForm(idx){
     '<option value="published"' + (statusValue === 'published' ? ' selected' : '') + '>Veröffentlicht</option>' +
     '</select></div>' +
     '<div class="translate-row">' +
+    '<button type="button" class="btn solid" id="bf-ai-fill-btn">✨ Gesamten Beitrag von der KI erstellen lassen</button>' +
+    '<span class="status" id="bf-ai-fill-status"></span>' +
+    '</div>' +
+    '<div id="bf-ai-fill-panel" class="ai-panel" hidden></div>' +
+    '<span class="hint">Beschreibe Thema, Kernaussagen und Ton – die KI schreibt Titel, Kategorie, Kurztext, Einleitung, Haupttext und optional ein Zitat, jeweils auf Englisch und Deutsch, und füllt sie direkt unten aus. Titelfoto, Datum, Autor und Status bleiben unangetastet; alles Ausgefüllte bleibt danach frei editierbar, bevor du speicherst.</span>' +
+    '<div class="translate-row">' +
     '<button type="button" class="btn" id="bf-translate-all">🌐 Gesamten Beitrag ins Deutsche übersetzen</button>' +
     '<button type="button" class="btn" id="bf-translate-all-rev">🌐 Gesamten Beitrag ins Englische übersetzen</button>' +
     '<span class="status" id="bf-translate-status"></span>' +
