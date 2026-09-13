@@ -3347,44 +3347,24 @@
     "games": []
   },
   {
+    "title": "Neder",
     "slug": "neder",
     "status": "draft",
+    "category": "",
     "date": "2026-09-13",
     "author": "Guest author",
     "image": "",
     "imageCaption": "",
     "imageCredit": "",
-    "games": [],
-    "title": {
-      "en": "Neder",
-      "de": ""
-    },
-    "category": {
-      "en": "",
-      "de": ""
-    },
-    "excerpt": {
-      "en": "",
-      "de": ""
-    },
-    "lead": {
-      "en": "",
-      "de": ""
-    },
-    "quote": {
-      "en": "",
-      "de": ""
-    },
+    "excerpt": "",
+    "lead": "",
     "body": {
       "en": [
         "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
       ],
       "de": []
     },
-    "submittedBy": {
-      "name": "",
-      "contact": "",
-      "submittedAt": "2026-09-13T21:24:17.584Z"
-    }
+    "quote": "",
+    "games": []
   }
 ]
