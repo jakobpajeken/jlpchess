@@ -589,45 +589,50 @@ document.getElementById('gh-disconnect-btn').addEventListener('click', function(
 })();
 
 /* ============================================================
-   KI-Schreibhilfe (Google Gemini, kostenloses Kontingent)
+   KI-Schreibhilfe (Groq, kostenloses Kontingent)
    ------------------------------------------------------------
    Entirely optional and independent of the GitHub connection above –
    this only powers the "✨ KI-Hilfe" buttons next to the blog body
    text fields. The key lives in localStorage on this device only,
-   same as the GitHub token, and is sent to nobody but Google's own
-   API when a request is actually made.
-   "gemini-flash-latest" is Google's own self-updating alias for
-   whichever current Flash model is recommended right now, so this
-   doesn't need to be hand-updated every time Google ships a new
-   version (see https://ai.google.dev/gemini-api/docs/models).
+   same as the GitHub token, and is sent to nobody but Groq's own API
+   when a request is actually made.
+   Switched from Google Gemini to Groq (openai/gpt-oss-120b, an open
+   OpenAI model hosted on Groq's infrastructure): Gemini's free
+   gemini-flash-latest tier was returning 503 "model overloaded" often
+   enough to be genuinely disruptive, and retrying alone (still done
+   below, as a defensive fallback) wasn't enough – Groq's free tier
+   is, in practice, far less prone to that kind of overload, and
+   gpt-oss-120b is a strong general-purpose model for this kind of
+   writing task. See https://console.groq.com/docs/models for the
+   current model list if this ever needs to change again.
    ============================================================ */
-var GEMINI_KEY_STORAGE = 'jlp_gemini_api_key';
-function getGeminiKey(){
-  try{ return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }catch(e){ return ''; }
+var GROQ_KEY_STORAGE = 'jlp_groq_api_key';
+function getGroqKey(){
+  try{ return localStorage.getItem(GROQ_KEY_STORAGE) || ''; }catch(e){ return ''; }
 }
-function updateGeminiStatus(){
-  var status = document.getElementById('gemini-status');
-  var clearBtn = document.getElementById('gemini-clear-btn');
-  var hasKey = !!getGeminiKey();
+function updateGroqStatus(){
+  var status = document.getElementById('groq-status');
+  var clearBtn = document.getElementById('groq-clear-btn');
+  var hasKey = !!getGroqKey();
   if(status) status.textContent = hasKey ? 'KI-Schreibhilfe im Blog-Editor ist aktiv.' : 'Ohne Schlüssel keine KI-Schreibhilfe im Blog-Editor.';
   if(clearBtn) clearBtn.hidden = !hasKey;
 }
-document.getElementById('gemini-save-btn').addEventListener('click', function(){
-  var val = document.getElementById('gemini-key-input').value.trim();
+document.getElementById('groq-save-btn').addEventListener('click', function(){
+  var val = document.getElementById('groq-key-input').value.trim();
   if(!val){ showToast('Bitte einen Schlüssel einfügen.', true); return; }
-  try{ localStorage.setItem(GEMINI_KEY_STORAGE, val); }catch(e){}
-  document.getElementById('gemini-key-input').value = '';
-  updateGeminiStatus();
+  try{ localStorage.setItem(GROQ_KEY_STORAGE, val); }catch(e){}
+  document.getElementById('groq-key-input').value = '';
+  updateGroqStatus();
   showToast('KI-Schlüssel gespeichert ✓');
 });
-document.getElementById('gemini-clear-btn').addEventListener('click', function(){
-  try{ localStorage.removeItem(GEMINI_KEY_STORAGE); }catch(e){}
-  updateGeminiStatus();
+document.getElementById('groq-clear-btn').addEventListener('click', function(){
+  try{ localStorage.removeItem(GROQ_KEY_STORAGE); }catch(e){}
+  updateGroqStatus();
   showToast('KI-Schlüssel entfernt.');
 });
 (function(){
-  if(getGeminiKey()) document.getElementById('gemini-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
-  updateGeminiStatus();
+  if(getGroqKey()) document.getElementById('groq-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
+  updateGroqStatus();
 })();
 /* Sends `prompt` to Gemini and returns its plain-text reply. Throws with a
    message safe to show directly in a toast if the key is missing, the
