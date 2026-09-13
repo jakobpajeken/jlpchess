@@ -1289,16 +1289,44 @@ async function translateBodyParagraph(para, sourceLang, targetLang){
     var translatedCaption = await translateText(caption, sourceLang, targetLang);
     return '![' + translatedCaption + ']' + imgMatch[2];
   }
-  /* inline links (e.g. an affiliate link mid-sentence – [text](url)),
-     [size=N]...[/size] spans, and [color=blue]...[/color] spans all need
-     their own inner text translated but their markup (the URL / the
-     pixel size / the fixed blue) left completely alone – pull each one
-     out into a placeholder token before translating the surrounding
-     prose, so the translator never even sees (and so can't mangle) the
-     raw markdown/size/color syntax itself, then translate each span's
-     own text separately and stitch the markup back around it. */
+  /* **bold**, *italic*, __underline__ spans, inline links (e.g. an
+     affiliate link mid-sentence – [text](url)), [size=N]...[/size]
+     spans, and [color=blue]...[/color] spans all need their own inner
+     text translated but their markup (the asterisks/underscores, the
+     URL, the pixel size, the fixed blue) left completely alone – pull
+     each one out into a placeholder token before translating the
+     surrounding prose, so the translator never even sees (and so can't
+     mangle) the raw markdown syntax itself, then translate each span's
+     own text separately and stitch the markup back around it.
+     Order matters, same reasoning as blog-post.html's renderInline():
+     **bold** is extracted before *italic* so italic's single-asterisk
+     regex doesn't misfire on bold's own already-claimed asterisks; link/
+     size/color come after all three so a bold/italic/underlined phrase
+     INSIDE one of them (e.g. [color=blue]**important**[/color]) has
+     already become a token by the time color's regex runs, and color's
+     own capture ends up holding that token rather than raw "**...**" –
+     resolved back into real markup below in ascending index order, so a
+     nested token is always already resolved before the placeholder that
+     contains it gets built. (The one combination this doesn't harden is
+     size and color nested inside EACH OTher – rare enough in practice
+     not to be worth the added complexity here.) */
   var placeholders = [];
   var withPlaceholders = para
+    .replace(/\*\*([^*]+)\*\*/g, function(match, inner){
+      var token = '⟦P' + placeholders.length + '⟧';
+      placeholders.push({ type: 'bold', text: inner });
+      return token;
+    })
+    .replace(/\*([^*]+)\*/g, function(match, inner){
+      var token = '⟦P' + placeholders.length + '⟧';
+      placeholders.push({ type: 'italic', text: inner });
+      return token;
+    })
+    .replace(/__([^_]+)__/g, function(match, inner){
+      var token = '⟦P' + placeholders.length + '⟧';
+      placeholders.push({ type: 'underline', text: inner });
+      return token;
+    })
     .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(match, text, url){
       var token = '⟦P' + placeholders.length + '⟧';
       placeholders.push({ type: 'link', text: text, url: url });
@@ -1315,14 +1343,40 @@ async function translateBodyParagraph(para, sourceLang, targetLang){
       return token;
     });
   if(!placeholders.length) return await translateText(para, sourceLang, targetLang);
-  var translatedText = await translateText(withPlaceholders, sourceLang, targetLang);
+  /* Translates `text`, which may itself still contain ⟦Pn⟧ tokens (a
+     placeholder's own .text can hold a nested token, per the ordering
+     above) – splits on the token pattern first so only the REAL prose
+     segments are ever handed to the translator, and every token passes
+     through completely untouched, wherever it lands in the string. */
+  async function translatePreservingTokens(text){
+    var parts = text.split(/(⟦P\d+⟧)/g);
+    var out = '';
+    for(var k = 0; k < parts.length; k++){
+      if(/^⟦P\d+⟧$/.test(parts[k])) out += parts[k];
+      else if(parts[k]) out += await translateText(parts[k], sourceLang, targetLang);
+    }
+    return out;
+  }
+  var translatedText = await translatePreservingTokens(withPlaceholders);
+  var resolved = [];
   for(var i = 0; i < placeholders.length; i++){
     var p = placeholders[i];
-    var translatedInner = await translateText(p.text, sourceLang, targetLang);
-    var replacement = p.type === 'link' ? '[' + translatedInner + '](' + p.url + ')'
+    var translatedInner = await translatePreservingTokens(p.text);
+    /* any token still sitting inside translatedInner references an
+       earlier (lower-index) placeholder – those were extracted first,
+       so they're already fully resolved by this point in the loop. */
+    for(var j = 0; j < i; j++){
+      translatedInner = translatedInner.split('⟦P' + j + '⟧').join(resolved[j]);
+    }
+    resolved[i] = p.type === 'bold' ? '**' + translatedInner + '**'
+      : p.type === 'italic' ? '*' + translatedInner + '*'
+      : p.type === 'underline' ? '__' + translatedInner + '__'
+      : p.type === 'link' ? '[' + translatedInner + '](' + p.url + ')'
       : p.type === 'size' ? '[size=' + p.px + ']' + translatedInner + '[/size]'
       : '[color=blue]' + translatedInner + '[/color]';
-    translatedText = translatedText.split('⟦P' + i + '⟧').join(replacement);
+  }
+  for(var r = 0; r < resolved.length; r++){
+    translatedText = translatedText.split('⟦P' + r + '⟧').join(resolved[r]);
   }
   return translatedText;
 }
