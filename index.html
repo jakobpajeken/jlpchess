@@ -1877,14 +1877,25 @@ function tryAdvance(){
      branch point it came from, activeLine is still "attached" to that
      variation — so its own "continue as-is" option and the variation
      itself describe the exact same move, and would otherwise show up
-     here twice with an identical label. Collapse those into one. */
+     here twice. Matched by SAN alone (not the NAG too): the "continue
+     as-is" option never carries a NAG of its own (it doesn't have an
+     annotation entry to read one from), so on a real match it'd
+     otherwise slip past a stricter check as merely looking similar
+     ("Sc3" next to "Sc3!") instead of being recognised as the same move.
+     Whichever copy actually carries the NAG wins the label. */
   var seenOptions = {};
-  options = options.filter(function(opt){
-    var key = opt.san + '|' + (opt.nag || '');
-    if(seenOptions[key]) return false;
-    seenOptions[key] = true;
-    return true;
+  var dedupedOptions = [];
+  options.forEach(function(opt){
+    var existing = seenOptions[opt.san];
+    if(!existing){
+      seenOptions[opt.san] = opt;
+      dedupedOptions.push(opt);
+    } else if(!existing.nag && opt.nag){
+      dedupedOptions[dedupedOptions.indexOf(existing)] = opt;
+      seenOptions[opt.san] = opt;
+    }
   });
+  options = dedupedOptions;
   if(options.length <= 1){
     if(options.length === 1) options[0].go();
     return;
