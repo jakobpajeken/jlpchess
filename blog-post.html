@@ -724,7 +724,7 @@ function createGameWidget(container, gameOrGames){
   function renderMoveList(){
     listEl.innerHTML = '';
     var mainlineSans = historyVerbose.map(function(m){ return m.san; });
-    appendInlineAnnotation(gameComments[0], [], []); /* comment before move 1, if any */
+    appendInlineAnnotation(gameComments[0], [], [], mainlineSans.slice(0, 1)); /* comment before move 1, if any */
     for(var i = 0; i < historyVerbose.length; i += 2){
       var moveNum = (i / 2) + 1;
       var whitePly = i + 1, blackPly = i + 2;
@@ -739,7 +739,7 @@ function createGameWidget(container, gameOrGames){
       /* a comment/variation breaks the flow onto its own line, so black's
          move (if the break happened right before it) needs its move
          number repeated as "12..." to stay readable */
-      var brokeFlow = appendInlineAnnotation(gameComments[whitePly], mainlineSans.slice(0, whitePly), mainlineBranches().slice(0, whitePly));
+      var brokeFlow = appendInlineAnnotation(gameComments[whitePly], mainlineSans.slice(0, whitePly), mainlineBranches().slice(0, whitePly), mainlineSans.slice(0, whitePly + 1));
       if(historyVerbose[i + 1]){
         var blackPair = document.createElement('span');
         blackPair.className = 'move-pair';
@@ -751,7 +751,7 @@ function createGameWidget(container, gameOrGames){
         }
         blackPair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, blackPly));
         listEl.appendChild(blackPair);
-        appendInlineAnnotation(gameComments[blackPly], mainlineSans.slice(0, blackPly), mainlineBranches().slice(0, blackPly));
+        appendInlineAnnotation(gameComments[blackPly], mainlineSans.slice(0, blackPly), mainlineBranches().slice(0, blackPly), mainlineSans.slice(0, blackPly + 1));
       }
     }
     highlightMoveList();
@@ -763,7 +763,7 @@ function createGameWidget(container, gameOrGames){
      mainline move this annotation is attached to. Returns true if
      anything was actually appended, so the caller knows the flow was
      interrupted (see renderMoveList). */
-  function appendInlineAnnotation(annotation, branchPath, branchBranches){
+  function appendInlineAnnotation(annotation, branchPath, branchBranches, branchDefaultSansPlusOne){
     if(!annotation) return false;
     var text = pickLang(annotation.comment);
     var hasVariations = annotation.variations && annotation.variations.length;
@@ -781,7 +781,7 @@ function createGameWidget(container, gameOrGames){
         var v = document.createElement('span');
         v.className = 'game-comment-variation';
         v.appendChild(document.createTextNode('('));
-        renderVariationLine(v, line, branchPath, branchBranches);
+        renderVariationLine(v, line, branchPath, branchBranches, branchDefaultSansPlusOne);
         v.appendChild(document.createTextNode(')'));
         box.appendChild(v);
       });
