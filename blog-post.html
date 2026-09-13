@@ -119,6 +119,15 @@
     line-height:1.55;margin-bottom:28px;
   }
   .article-body strong{color:var(--ivory);font-weight:500;}
+  /* [color=blue] text (editor.html's "F" button): strong and a both set
+     their OWN explicit color above, so a merely-inherited color from an
+     ancestor .color-blue span loses to those regardless of !important on
+     the span itself – !important only wins the cascade for a property on
+     the element that declares it, not for descendants that declare their
+     own value. So the override has to target strong/a themselves. */
+  .article-body .color-blue,
+  .article-body .color-blue strong,
+  .article-body .color-blue a{color:#2563eb!important;}
   .article-body blockquote{
     margin:36px 0;padding:4px 0 4px 24px;border-left:2px solid var(--gold);
     font-family:'Spectral',serif;font-style:italic;font-size:1.15rem;
@@ -1325,13 +1334,14 @@ function renderRealPost(post){
         .replace(/__([^_]+)__/g, '<u>$1</u>')
         .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
         .replace(/\[size=(\d+)\]([\s\S]*?)\[\/size\]/g, '<span style="font-size:$1px">$2</span>')
-        /* !important is required here: .article-body strong{color:var(--ivory)}
-           sets an explicit color directly on <strong>, and an element's own
-           explicit color always beats a merely-inherited one from an
-           ancestor span, regardless of the ancestor's specificity – so
-           without !important, blue text that's also bold (a very natural
-           combination to reach for) silently rendered as plain ivory */
-        .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, '<span style="color:#2563eb!important">$1</span>');
+        /* uses a class (.color-blue, defined in the <style> block above),
+           not an inline style: strong/a inside the span set their OWN
+           explicit color via .article-body strong/a, which always beats a
+           merely-inherited color regardless of !important on the ancestor
+           span – so the override has to specifically target
+           .color-blue strong / .color-blue a too, which only a stylesheet
+           rule (not an inline style on the outer span) can express */
+        .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, '<span class="color-blue">$1</span>');
     };
     var html = '';
     var lead = pickLang(post.lead);
