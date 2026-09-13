@@ -1854,7 +1854,9 @@ function openBlogForm(idx){
         try{
           var prompt = instruction + '\n\nText:\n' + source +
             '\n\nGib ausschließlich den überarbeiteten Text zurück – ohne Erklärung, ohne Anführungszeichen, ohne Einleitung davor.';
-          var reply = await askGemini(prompt);
+          var reply = await askGemini(prompt, function(attempt, max){
+            resultEl.innerHTML = '<p class="hint">KI-Dienst gerade überlastet – neuer Versuch (' + (attempt + 1) + '/' + max + ') …</p>';
+          });
           resultEl.innerHTML =
             '<div class="field"><label>Vorschlag der KI – hier noch anpassbar</label>' +
             '<textarea id="' + panel.id + '-reply" class="mono tall">' + escapeHtml(reply) + '</textarea></div>' +
@@ -1929,7 +1931,9 @@ function openBlogForm(idx){
         resultEl.innerHTML = '';
         try{
           var prompt = buildBlogFillPrompt(instruction, collectCategoryOptions('en'), collectCategoryOptions('de'));
-          var reply = await askGemini(prompt);
+          var reply = await askGemini(prompt, function(attempt, max){
+            statusEl.textContent = 'KI-Dienst gerade überlastet – neuer Versuch (' + (attempt + 1) + '/' + max + ') …';
+          });
           var post = parseAiBlogPost(reply);
           document.getElementById('bf-title-en').value = post.title.en;
           document.getElementById('bf-title-de').value = post.title.de;
