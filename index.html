@@ -1706,6 +1706,20 @@ function mainlineBranches(){
     return (annotated && annotated.variations) || [];
   });
 }
+/* the true mainline's own entry objects (ply/san/nag/comment/arrows/
+   highlights/variations), synthesizing a minimal placeholder for any
+   move with no annotation attached at all (most moves) – same fallback
+   used to initialize activeEntries in loadGameObject, factored out here
+   so renderMoveList's calls into appendInlineAnnotation/
+   renderVariationLine can pass the TRUE mainline entries regardless of
+   which line activeEntries currently reflects (that array follows
+   whatever variation you're viewing; the always-visible notation panel
+   below always shows the real mainline, independent of that). */
+function mainlineEntries(){
+  return historyVerbose.map(function(m, i){
+    return gameComments[i + 1] || { ply: i + 1, san: m.san, nag: '', comment: { de: '', en: '' }, variations: [] };
+  });
+}
 
 /* Appends a comment (and any variations attached to the same move) right
    into the move list's own flowing text, immediately after the move it
@@ -2193,9 +2207,7 @@ function loadGameObject(g){
   activeLine = historyVerbose.map(function(m){ return m.san; });
   activeBranches = mainlineBranches();
   activeDefaultSans = activeLine.slice();
-  activeEntries = historyVerbose.map(function(m, i){
-    return gameComments[i + 1] || { ply: i + 1, san: m.san, nag: '', comment: { de: '', en: '' }, variations: [] };
-  });
+  activeEntries = mainlineEntries();
   rootBranches = (gameComments[0] && gameComments[0].variations) || [];
   moveIndex = 0;
 
