@@ -996,6 +996,7 @@ function createGameWidget(container, gameOrGames){
     var prefixPath = activeLine.slice(0, moveIndex);
     var prefixBranches = activeBranches.slice(0, moveIndex);
     var prefixDefaultSans = activeDefaultSans.slice(0, moveIndex);
+    var prefixEntries = activeEntries.slice(0, moveIndex);
     var options = [];
     if(hasNext){
       /* true default at this position – see index.html's tryAdvance() for
@@ -1007,7 +1008,8 @@ function createGameWidget(container, gameOrGames){
       var fullPath = prefixPath.concat(varLine.map(function(e){ return e.san; }));
       var fullBranches = prefixBranches.concat(varLine.map(function(e){ return e.variations || []; }));
       var fullDefaultSans = prefixDefaultSans.concat([activeDefaultSans[moveIndex]]).concat(varLine.slice(1).map(function(e){ return e.san; }));
-      options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1, fullDefaultSans); } });
+      var fullEntries = prefixEntries.concat(varLine);
+      options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1, fullDefaultSans, fullEntries); } });
     });
     /* de-dupe VISUAL entries only – never decides whether the dialog
        itself pops up (branches.length >= 1, checked above, already means
@@ -1088,9 +1090,9 @@ function createGameWidget(container, gameOrGames){
   }
   /* manual navigation always stops any running auto-play first, so it
      never fights with a move the user just clicked */
-  function manualGoToLine(line, branches, idx, defaultSans){
+  function manualGoToLine(line, branches, idx, defaultSans, entries){
     stopPlay();
-    goToLineIndex(line, branches, idx, defaultSans);
+    goToLineIndex(line, branches, idx, defaultSans, entries);
   }
   function formatPgnDate(d){
     var parts = d.split('.');
