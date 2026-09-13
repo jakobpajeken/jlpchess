@@ -1661,7 +1661,8 @@ function renderMoveList(){
   if(!list) return;
   list.innerHTML = '';
   var mainlineSans = historyVerbose.map(function(m){ return m.san; });
-  appendInlineAnnotation(list, gameComments[0], [], [], mainlineSans.slice(0, 1)); /* comment before move 1, if any */
+  var mlEntries = mainlineEntries();
+  appendInlineAnnotation(list, gameComments[0], [], [], mainlineSans.slice(0, 1), []); /* comment before move 1, if any */
   for(var i = 0; i < historyVerbose.length; i += 2){
     var moveNum = (i / 2) + 1;
     var whitePly = i + 1, blackPly = i + 2;
@@ -1677,7 +1678,7 @@ function renderMoveList(){
        move (if the break happened right before it) needs its move number
        repeated as "12..." to stay readable – same convention already used
        when a variation resumes after its own break (pgnMoveNumberPrefix) */
-    var brokeFlow = appendInlineAnnotation(list, gameComments[whitePly], mainlineSans.slice(0, whitePly), mainlineBranches().slice(0, whitePly), mainlineSans.slice(0, whitePly + 1));
+    var brokeFlow = appendInlineAnnotation(list, gameComments[whitePly], mainlineSans.slice(0, whitePly), mainlineBranches().slice(0, whitePly), mainlineSans.slice(0, whitePly + 1), mlEntries.slice(0, whitePly));
     if(historyVerbose[i + 1]){
       var blackPair = document.createElement('span');
       blackPair.className = 'move-pair';
@@ -1689,7 +1690,7 @@ function renderMoveList(){
       }
       blackPair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, blackPly));
       list.appendChild(blackPair);
-      appendInlineAnnotation(list, gameComments[blackPly], mainlineSans.slice(0, blackPly), mainlineBranches().slice(0, blackPly), mainlineSans.slice(0, blackPly + 1));
+      appendInlineAnnotation(list, gameComments[blackPly], mainlineSans.slice(0, blackPly), mainlineBranches().slice(0, blackPly), mainlineSans.slice(0, blackPly + 1), mlEntries.slice(0, blackPly));
     }
   }
   highlightMoveList();
