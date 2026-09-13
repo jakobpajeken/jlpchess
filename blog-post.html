@@ -554,7 +554,10 @@ function createGameWidget(container, gameOrGames){
       '<div class="board-frame">' +
         '<div class="ranks-col" data-role="ranks" aria-hidden="true"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div>' +
         '<div class="board-and-files">' +
-          '<div class="chess-board" aria-label="Chess board"></div>' +
+          '<div class="board-stack">' +
+            '<div class="chess-board" aria-label="Chess board"></div>' +
+            '<svg class="board-arrows-overlay" data-role="arrows" viewBox="0 0 8 8" aria-hidden="true"></svg>' +
+          '</div>' +
           '<div class="files-row" data-role="files" aria-hidden="true"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div>' +
         '</div>' +
       '</div>' +
