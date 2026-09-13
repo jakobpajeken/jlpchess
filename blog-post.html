@@ -965,7 +965,7 @@ function createGameWidget(container, gameOrGames){
   }
   /* Replays `line` (an array of SAN strings from move 1) up to `idx` moves
      in – line can be the mainline or any variation's own path. */
-  function goToLineIndex(line, branches, idx, defaultSans){
+  function goToLineIndex(line, branches, idx, defaultSans, entries){
     hideMoveChoiceDialog();
     engine.reset();
     for(var i = 0; i < idx; i++){ engine.move(line[i]); }
@@ -974,9 +974,11 @@ function createGameWidget(container, gameOrGames){
     /* only passed when actually switching onto a different line – see
        index.html's goToLineIndex for the full rationale (mirrored here). */
     if(defaultSans) activeDefaultSans = defaultSans;
+    if(entries) activeEntries = entries;
     moveIndex = idx;
     renderPosition(engine.fen());
     highlightMoveList();
+    renderBoardAnnotations();
   }
   /* Advances one move forward along the current line, unless the move
      we're actually at right now had more than one real option – the
