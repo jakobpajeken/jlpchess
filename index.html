@@ -1712,6 +1712,85 @@ function renderBoardAnnotations(){
     svg.appendChild(poly);
   });
 }
+/* Click-to-move: lets a visitor play out their own moves from wherever
+   they're currently looking at a game – "what if I tried this instead?"
+   – purely client-side and ephemeral (never written back to games.json,
+   gone on reload). A manual move is appended onto whatever line is
+   currently active in exactly the same way choosing a stored variation
+   already is (see tryAdvance's own go() closures) – structurally
+   there's no difference between "a move someone already annotated" and
+   "a move typed in just now", so all the existing prev/next/arrow-key
+   navigation built on activeLine/activeBranches/activeDefaultSans/
+   activeEntries keeps working with no special case for it: stepping
+   back out of a hand-played move returns to the real game exactly like
+   stepping out of any other variation does. */
+var selectedSquare = null;
+function domSquareToAlgebraic(row, col, flipped){
+  var rank = flipped ? row + 1 : 8 - row;
+  var fileIdx = flipped ? 7 - col : col;
+  return String.fromCharCode(97 + fileIdx) + rank;
+}
+function clearSquareSelection(){
+  selectedSquare = null;
+  var board = document.getElementById('chess-board');
+  if(!board) return;
+  Array.prototype.forEach.call(board.children, function(sq){
+    sq.classList.remove('selected', 'legal-move', 'legal-capture');
+  });
+}
+function showLegalMovesFrom(square){
+  var board = document.getElementById('chess-board');
+  if(!board) return;
+  var flipped = boardOrientation === 'black';
+  gameEngine.moves({ square: square, verbose: true }).forEach(function(m){
+    var rc = squareRowCol(m.to);
+    var row = flipped ? 7 - rc.row : rc.row;
+    var col = flipped ? 7 - rc.col : rc.col;
+    var sq = board.children[row * 8 + col];
+    if(sq) sq.classList.add(m.captured ? 'legal-capture' : 'legal-move');
+  });
+}
+function onBoardSquareClick(sqEl){
+  if(!gameEngine || isChoiceDialogOpen()) return;
+  var flipped = boardOrientation === 'black';
+  var square = domSquareToAlgebraic(parseInt(sqEl.dataset.row, 10), parseInt(sqEl.dataset.col, 10), flipped);
+  if(selectedSquare){
+    if(selectedSquare === square){ clearSquareSelection(); return; }
+    var candidates = gameEngine.moves({ square: selectedSquare, verbose: true }).filter(function(m){ return m.to === square; });
+    if(candidates.length){
+      /* a pawn reaching the last rank has one candidate per promotion
+         piece, all sharing the same "to" square – default to queen
+         rather than asking, same simplification a quick "try a move"
+         board can reasonably make. */
+      var chosen = candidates.length > 1 ? (candidates.filter(function(m){ return m.promotion === 'q'; })[0] || candidates[0]) : candidates[0];
+      clearSquareSelection();
+      makeManualMove(chosen);
+      return;
+    }
+    clearSquareSelection();
+    var otherPiece = gameEngine.get(square);
+    if(otherPiece && otherPiece.color === gameEngine.turn()){
+      selectedSquare = square;
+      sqEl.classList.add('selected');
+      showLegalMovesFrom(square);
+    }
+    return;
+  }
+  var piece = gameEngine.get(square);
+  if(piece && piece.color === gameEngine.turn()){
+    selectedSquare = square;
+    sqEl.classList.add('selected');
+    showLegalMovesFrom(square);
+  }
+}
+function makeManualMove(moveObj){
+  stopPlay();
+  var newLine = activeLine.slice(0, moveIndex).concat([moveObj.san]);
+  var newBranches = activeBranches.slice(0, moveIndex).concat([[]]);
+  var newDefaultSans = activeDefaultSans.slice(0, moveIndex).concat([moveObj.san]);
+  var newEntries = activeEntries.slice(0, moveIndex).concat([{ ply: moveIndex + 1, san: moveObj.san, nag: '', comment: { de: '', en: '' }, variations: [] }]);
+  manualGoToLine(newLine, newBranches, moveIndex + 1, newDefaultSans, newEntries);
+}
 function applyPlayerLabels(){
   var topEl = document.getElementById('player-top');
   var bottomEl = document.getElementById('player-bottom');
