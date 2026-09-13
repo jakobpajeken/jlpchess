@@ -1298,50 +1298,62 @@ async function translateBodyParagraph(para, sourceLang, targetLang){
      surrounding prose, so the translator never even sees (and so can't
      mangle) the raw markdown syntax itself, then translate each span's
      own text separately and stitch the markup back around it.
-     Order matters, same reasoning as blog-post.html's renderInline():
-     **bold** is extracted before *italic* so italic's single-asterisk
-     regex doesn't misfire on bold's own already-claimed asterisks; link/
-     size/color come after all three so a bold/italic/underlined phrase
-     INSIDE one of them (e.g. [color=blue]**important**[/color]) has
-     already become a token by the time color's regex runs, and color's
-     own capture ends up holding that token rather than raw "**...**" –
-     resolved back into real markup below in ascending index order, so a
-     nested token is always already resolved before the placeholder that
-     contains it gets built. (The one combination this doesn't harden is
-     size and color nested inside EACH OTher – rare enough in practice
-     not to be worth the added complexity here.) */
+     extract() is RECURSIVE: after matching e.g. **...**, it re-runs the
+     whole chain on the captured inner text before storing it, so it
+     doesn't matter which type is nested inside which – a heading like
+     **[color=blue][size=24]Text[/size][/color]** (bold OUTSIDE color,
+     the site's actual heading convention) and one like
+     [color=blue]**important**[/color] (bold INSIDE color) both fully
+     decompose correctly. A non-recursive, fixed-order version of this
+     shipped briefly and only handled the second case – bold, being
+     matched first at the top level, would swallow an entire
+     unextracted "[color=blue][size=24]...[/size][/color]" span as one
+     opaque blob (nothing else had a chance to see it yet), so those
+     markers went completely unprotected into the translator and came
+     back as literal, broken "[color=blue]" text with a leftover
+     unresolved ⟦P0⟧ token where the real text should be. Recursing into
+     the captured inner text before storing it means whichever type
+     happens to be innermost always gets its own placeholder FIRST
+     (lowest index), so by the time an outer placeholder is resolved
+     below, any token still inside its own .text is already resolved –
+     same ascending-index guarantee as before, just no longer dependent
+     on guessing the "always this order" case that turned out to be
+     wrong for how headings are actually written on this site. */
   var placeholders = [];
-  var withPlaceholders = para
-    .replace(/\*\*([^*]+)\*\*/g, function(match, inner){
-      var token = '⟦P' + placeholders.length + '⟧';
-      placeholders.push({ type: 'bold', text: inner });
-      return token;
-    })
-    .replace(/\*([^*]+)\*/g, function(match, inner){
-      var token = '⟦P' + placeholders.length + '⟧';
-      placeholders.push({ type: 'italic', text: inner });
-      return token;
-    })
-    .replace(/__([^_]+)__/g, function(match, inner){
-      var token = '⟦P' + placeholders.length + '⟧';
-      placeholders.push({ type: 'underline', text: inner });
-      return token;
-    })
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(match, text, url){
-      var token = '⟦P' + placeholders.length + '⟧';
-      placeholders.push({ type: 'link', text: text, url: url });
-      return token;
-    })
-    .replace(/\[size=(\d+)\]([\s\S]*?)\[\/size\]/g, function(match, px, inner){
-      var token = '⟦P' + placeholders.length + '⟧';
-      placeholders.push({ type: 'size', px: px, text: inner });
-      return token;
-    })
-    .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, function(match, inner){
-      var token = '⟦P' + placeholders.length + '⟧';
-      placeholders.push({ type: 'color', text: inner });
-      return token;
-    });
+  function extract(text){
+    return text
+      .replace(/\*\*([^*]+)\*\*/g, function(match, inner){
+        var token = '⟦P' + placeholders.length + '⟧';
+        placeholders.push({ type: 'bold', text: extract(inner) });
+        return token;
+      })
+      .replace(/\*([^*]+)\*/g, function(match, inner){
+        var token = '⟦P' + placeholders.length + '⟧';
+        placeholders.push({ type: 'italic', text: extract(inner) });
+        return token;
+      })
+      .replace(/__([^_]+)__/g, function(match, inner){
+        var token = '⟦P' + placeholders.length + '⟧';
+        placeholders.push({ type: 'underline', text: extract(inner) });
+        return token;
+      })
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(match, text, url){
+        var token = '⟦P' + placeholders.length + '⟧';
+        placeholders.push({ type: 'link', text: extract(text), url: url });
+        return token;
+      })
+      .replace(/\[size=(\d+)\]([\s\S]*?)\[\/size\]/g, function(match, px, inner){
+        var token = '⟦P' + placeholders.length + '⟧';
+        placeholders.push({ type: 'size', px: px, text: extract(inner) });
+        return token;
+      })
+      .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, function(match, inner){
+        var token = '⟦P' + placeholders.length + '⟧';
+        placeholders.push({ type: 'color', text: extract(inner) });
+        return token;
+      });
+  }
+  var withPlaceholders = extract(para);
   if(!placeholders.length) return await translateText(para, sourceLang, targetLang);
   /* Translates `text`, which may itself still contain ⟦Pn⟧ tokens (a
      placeholder's own .text can hold a nested token, per the ordering
