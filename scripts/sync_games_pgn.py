@@ -155,6 +155,38 @@ def nag_symbol(n):
     return NAG_SYMBOLS.get(n, "")
 
 
+def extract_arrows_and_highlights(raw_comment):
+    """Parses the [%cal ...] (colored arrows) and [%csl ...] (colored
+    square highlights) PGN comment commands -- the standard ChessBase
+    annotation format for drawing arrows/markers on the board, also used
+    by lichess and chess.com -- into structured data the client can draw
+    as an SVG overlay on its own board. Runs on the RAW comment (before
+    strip_pgn_commands would otherwise just discard these as noise), so
+    this has to be called first; strip_pgn_commands still runs afterward
+    to remove them from the displayed prose text as before.
+    [%cal Gc3c5,Rd4e5] -> two arrows: green c3->c5, red d4->e5.
+    [%csl Ge4,Rf7] -> two highlighted squares: green e4, red f7.
+    Color codes are ChessBase/lichess's usual four: G(reen) R(ed) Y(ellow)
+    B(lue). Returns (arrows, highlights), both lists of dicts, empty if
+    the comment has none -- most moves won't."""
+    text = raw_comment or ""
+    arrows = []
+    for m in re.finditer(r"\[%cal ([^\]]*)\]", text):
+        for item in m.group(1).split(","):
+            item = item.strip()
+            mm = re.match(r"^([A-Za-z])([a-h][1-8])([a-h][1-8])$", item)
+            if mm:
+                arrows.append({"color": mm.group(1).upper(), "from": mm.group(2), "to": mm.group(3)})
+    highlights = []
+    for m in re.finditer(r"\[%csl ([^\]]*)\]", text):
+        for item in m.group(1).split(","):
+            item = item.strip()
+            mm = re.match(r"^([A-Za-z])([a-h][1-8])$", item)
+            if mm:
+                highlights.append({"color": mm.group(1).upper(), "square": mm.group(2)})
+    return arrows, highlights
+
+
 def strip_pgn_commands(text):
     """Removes PGN "command" annotations like [%evp ...], [%eval ...],
     [%clk ...] -- structured data some annotation tools (ChessBase
