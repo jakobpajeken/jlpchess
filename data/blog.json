@@ -3150,5 +3150,27 @@
     },
     "quote": "",
     "games": []
+  },
+  {
+    "title": {
+      "en": "A Revolutionary Idea in the “Keymer System”",
+      "de": "Eine revolutionäre Idee im „Keymer-System“"
+    },
+    "slug": "a-revolutionary-idea-in-the-keymer-system",
+    "status": "draft",
+    "category": "",
+    "date": "2026-09-13",
+    "author": "IM Jakob Leon Pajeken",
+    "image": "",
+    "imageCaption": "",
+    "imageCredit": "",
+    "excerpt": "",
+    "lead": "",
+    "body": {
+      "en": [],
+      "de": []
+    },
+    "quote": "",
+    "games": []
   }
 ]
