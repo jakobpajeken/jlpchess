@@ -1688,7 +1688,7 @@ function mainlineBranches(){
    this annotation is attached to – where any attached variation branches
    off from. Returns true if anything was actually appended, so the
    caller knows the flow was interrupted (see renderMoveList above). */
-function appendInlineAnnotation(list, annotation, branchPath, branchBranches){
+function appendInlineAnnotation(list, annotation, branchPath, branchBranches, branchDefaultSansPlusOne){
   if(!annotation) return false;
   var text = pickLang(annotation.comment);
   var hasVariations = annotation.variations && annotation.variations.length;
@@ -1706,7 +1706,7 @@ function appendInlineAnnotation(list, annotation, branchPath, branchBranches){
       var v = document.createElement('span');
       v.className = 'game-comment-variation';
       v.appendChild(document.createTextNode('('));
-      renderVariationLine(v, line, branchPath, branchBranches);
+      renderVariationLine(v, line, branchPath, branchBranches, branchDefaultSansPlusOne);
       v.appendChild(document.createTextNode(')'));
       box.appendChild(v);
     });
