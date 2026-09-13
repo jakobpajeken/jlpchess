@@ -1324,10 +1324,9 @@ function renderRealPost(post){
          otherwise need their own nested parsing — order between size and
          color doesn't matter, since either can freely nest inside the
          other. [color=blue] is the one fixed shade editor.html's button
-         offers — a brighter, more saturated blue (#2563eb) than the
-         site's own accent navy (--gold-bright, #35577f), which is too
-         dark/desaturated to read as "blue" at running-text size. Not a
-         free color picker. */
+         offers — a proper navy blue (#1e3a8a), distinct enough from the
+         site's own muted accent navy (--gold-bright, #35577f) to read
+         clearly as "blue" at running-text size. Not a free color picker. */
       return escapeHtml(text)
         .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
         .replace(/\*([^*]+)\*/g, '<em>$1</em>')

@@ -1534,7 +1534,7 @@ function openBlogForm(idx){
     '<button type="button" class="btn small" id="bf-italic-btn" title="Kursiv"><em>K</em></button>' +
     '<button type="button" class="btn small" id="bf-underline-btn" title="Unterstrichen"><u>U</u></button>' +
     '<button type="button" class="btn small" id="bf-size-btn" title="Schriftgröße">🔠 Größe</button>' +
-    '<button type="button" class="btn small" id="bf-color-btn" title="Blau" style="color:#2563eb;font-weight:700;">F</button>' +
+    '<button type="button" class="btn small" id="bf-color-btn" title="Blau" style="color:#1e3a8a;font-weight:700;">F</button>' +
     '<button type="button" class="btn small" id="bf-insert-image">🖼 Bild in Text einfügen</button>' +
     '<button type="button" class="btn small" id="bf-insert-link">🔗 Link einfügen</button>' +
     '<button type="button" class="btn small" id="bf-ai-btn" title="Markierten Text (oder alles) von der KI überarbeiten lassen">✨ KI-Hilfe</button>' +
@@ -1546,7 +1546,7 @@ function openBlogForm(idx){
     '<button type="button" class="btn small" id="bf-italic-btn-de" title="Kursiv"><em>K</em></button>' +
     '<button type="button" class="btn small" id="bf-underline-btn-de" title="Unterstrichen"><u>U</u></button>' +
     '<button type="button" class="btn small" id="bf-size-btn-de" title="Schriftgröße">🔠 Größe</button>' +
-    '<button type="button" class="btn small" id="bf-color-btn-de" title="Blau" style="color:#2563eb;font-weight:700;">F</button>' +
+    '<button type="button" class="btn small" id="bf-color-btn-de" title="Blau" style="color:#1e3a8a;font-weight:700;">F</button>' +
     '<button type="button" class="btn small" id="bf-ai-btn-de" title="Markierten Text (oder alles) von der KI überarbeiten lassen">✨ KI-Hilfe</button></div>' +
     '<div id="bf-ai-panel-de" class="ai-panel" hidden></div>' +
     '<textarea id="bf-body-de" class="tall">' + escapeHtml(bodyDeParas.join('\n\n')) + '</textarea></div>' +
@@ -1680,12 +1680,10 @@ function openBlogForm(idx){
         wrapSelectionIn(textarea, '[size=' + px + ']', '[/size]', 'größerer Text');
       });
     }
-    /* the one fixed shade this button offers is a clear, legible blue
-       (#2563eb) tuned specifically for body text — the site's own accent
-       navy (--gold-bright, #35577f) reads fine for headings/links but is
-       too dark and desaturated to register as "blue" in running prose,
-       so this uses a brighter, more saturated shade in the same cool-blue
-       family instead of a free color picker */
+    /* the one fixed shade this button offers is a proper navy blue
+       (#1e3a8a) — distinct from the site's own muted accent navy
+       (--gold-bright, #35577f), which is too dark/desaturated to register
+       as "blue" in running prose — not a free color picker */
     if(colorBtn) colorBtn.addEventListener('click', function(){ wrapSelectionIn(textarea, '[color=blue]', '[/color]', 'blauer Text'); });
   }
   wireFormattingButtons('', bodyTextarea);
