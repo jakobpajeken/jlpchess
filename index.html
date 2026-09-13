@@ -1930,6 +1930,7 @@ function tryAdvance(){
        declaration for why this can't just be activeLine[moveIndex]. */
     options.push({ san: activeDefaultSans[moveIndex], nag: '', go: function(){ manualGoToLine(activeLine, activeBranches, moveIndex + 1); } });
   }
+  var prefixEntries = activeEntries.slice(0, moveIndex);
   branches.forEach(function(varLine){
     if(!varLine || !varLine.length) return;
     var fullPath = prefixPath.concat(varLine.map(function(e){ return e.san; }));
@@ -1943,7 +1944,12 @@ function tryAdvance(){
        since varLine[0] itself is the move landing on moveIndex, already
        covered by the preserved element). */
     var fullDefaultSans = prefixDefaultSans.concat([activeDefaultSans[moveIndex]]).concat(varLine.slice(1).map(function(e){ return e.san; }));
-    options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1, fullDefaultSans); } });
+    /* fullEntries, unlike fullDefaultSans, doesn't need the "preserve the
+       old one" step – varLine's own entries (which already carry
+       comment/arrows/highlights) simply become the new entries for this
+       stretch of the line, same as fullPath/fullBranches. */
+    var fullEntries = prefixEntries.concat(varLine);
+    options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1, fullDefaultSans, fullEntries); } });
   });
   /* de-dupe VISUAL entries only: after entering a variation and then
      rewinding back to the branch point it came from, activeLine is still
