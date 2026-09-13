@@ -234,19 +234,19 @@
   </details>
 
   <div class="status-bar" id="ai-status-bar">
-    <input type="password" id="gemini-key-input" placeholder="Gemini-API-Schlüssel (optional)" autocomplete="off"
+    <input type="password" id="mistral-key-input" placeholder="Mistral-API-Schlüssel (optional)" autocomplete="off"
       style="background:var(--surface);border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:0.9rem;padding:10px 12px;min-width:280px;">
-    <button type="button" class="btn solid" id="gemini-save-btn">🤖 Speichern</button>
-    <button type="button" class="btn" id="gemini-clear-btn" hidden>Entfernen</button>
-    <span id="gemini-status" style="color:var(--ivory-dim);">Ohne Schlüssel keine KI-Schreibhilfe im Blog-Editor.</span>
+    <button type="button" class="btn solid" id="mistral-save-btn">🤖 Speichern</button>
+    <button type="button" class="btn" id="mistral-clear-btn" hidden>Entfernen</button>
+    <span id="mistral-status" style="color:var(--ivory-dim);">Ohne Schlüssel keine KI-Schreibhilfe im Blog-Editor.</span>
   </div>
   <details style="margin:0 0 22px;">
     <summary style="cursor:pointer;color:var(--gold-bright);font-size:0.9rem;">Wie bekomme ich einen kostenlosen KI-Schlüssel?</summary>
     <div style="margin-top:12px;padding:18px 20px;border:1px solid var(--line);background:var(--surface);color:var(--ivory-dim);font-size:0.9rem;line-height:1.6;">
-      1. Auf <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--gold-bright);">aistudio.google.com/apikey</a> mit einem Google-Konto anmelden (kostenlos, keine Zahlungsdaten nötig)<br>
-      2. <strong>„Create API key"</strong> klicken<br>
-      3. Den erzeugten Schlüssel kopieren und hier oben einfügen. Er bleibt nur in diesem Browser gespeichert und wird ausschließlich direkt an Google gesendet, wenn du die KI-Hilfe im Blog-Editor benutzt.<br>
-      4. Das kostenlose Kontingent reicht für gelegentliches Schreiben locker aus (Google kann es jederzeit ändern).
+      1. Auf <a href="https://console.mistral.ai" target="_blank" rel="noopener" style="color:var(--gold-bright);">console.mistral.ai</a> mit Telefonnummer anmelden (kostenlos, keine Zahlungsdaten/Kreditkarte nötig)<br>
+      2. Links im Menü <strong>„API Keys"</strong> → <strong>„Create new key"</strong> klicken<br>
+      3. Den erzeugten Schlüssel kopieren und hier oben einfügen. Er bleibt nur in diesem Browser gespeichert und wird ausschließlich direkt an Mistral gesendet, wenn du die KI-Hilfe im Blog-Editor benutzt.<br>
+      4. Das kostenlose „Experiment"-Kontingent (u. a. für Mistral Large) reicht für gelegentliches Schreiben locker aus, ist aber auf wenige Anfragen pro Minute begrenzt – nach einem Klick also kurz warten, bevor der nächste losgeht.
     </div>
   </details>
 
