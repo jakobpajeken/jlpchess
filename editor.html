@@ -679,7 +679,7 @@ async function askAI(prompt, onRetry){
           await new Promise(function(r){ setTimeout(r, attempt * 1000); });
           continue;
         }
-        throw new Error('KI-Dienst bei Groq gerade überlastet (Status ' + resp.status + '). Bitte in ein, zwei Minuten nochmal versuchen.');
+        throw new Error('KI-Dienst bei OpenAI gerade überlastet (Status ' + resp.status + '). Bitte in ein, zwei Minuten nochmal versuchen.');
       }
       throw new Error('KI-Anfrage fehlgeschlagen (Status ' + resp.status + ').');
     }
