@@ -442,9 +442,8 @@
   .move-choice-dialog{position:absolute;grid-column:2;grid-row:1;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;pointer-events:none;}
   .move-choice-dialog .move-choice-card{pointer-events:auto;}
   .move-choice-dialog[hidden]{display:none;}
-  .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:14px 16px;max-width:260px;width:100%;box-shadow:0 8px 26px rgba(0,0,0,0.28);}
-  .move-choice-title{font-family:'Spectral',serif;font-size:0.95rem;margin-bottom:8px;color:var(--ivory);}
-  .move-choice-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+  .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:10px;max-width:200px;width:100%;box-shadow:0 8px 26px rgba(0,0,0,0.28);}
+  .move-choice-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;}
   .move-choice-btn{background:none;border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:0.88rem;padding:6px 10px;cursor:pointer;text-align:left;border-radius:2px;}
   .move-choice-btn:hover,.move-choice-btn:focus{border-color:var(--gold);color:var(--gold-bright);background:rgba(31,58,95,0.06);outline:none;}
   .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.78rem;cursor:pointer;padding:2px 0;text-decoration:underline;}
@@ -464,9 +463,7 @@
        onto the board's cell instead of the notation's, and shrink it: a
        phone screen has much less room to spare than a desktop window. */
     .move-choice-dialog{grid-column:1;grid-row:1;}
-    .move-choice-card{max-width:200px;padding:10px 12px;}
-    .move-choice-title{font-size:0.85rem;margin-bottom:6px;}
-    .move-choice-list{gap:4px;margin-bottom:8px;}
+    .move-choice-list{gap:4px;margin-bottom:6px;}
   }
 
   /* process */
