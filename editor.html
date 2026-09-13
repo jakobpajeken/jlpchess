@@ -589,50 +589,51 @@ document.getElementById('gh-disconnect-btn').addEventListener('click', function(
 })();
 
 /* ============================================================
-   KI-Schreibhilfe (Groq, kostenloses Kontingent)
+   KI-Schreibhilfe (OpenAI / ChatGPT)
    ------------------------------------------------------------
    Entirely optional and independent of the GitHub connection above –
    this only powers the "✨ KI-Hilfe" buttons next to the blog body
    text fields. The key lives in localStorage on this device only,
-   same as the GitHub token, and is sent to nobody but Groq's own API
-   when a request is actually made.
-   Switched from Google Gemini to Groq (openai/gpt-oss-120b, an open
-   OpenAI model hosted on Groq's infrastructure): Gemini's free
-   gemini-flash-latest tier was returning 503 "model overloaded" often
-   enough to be genuinely disruptive, and retrying alone (still done
-   below, as a defensive fallback) wasn't enough – Groq's free tier
-   is, in practice, far less prone to that kind of overload, and
-   gpt-oss-120b is a strong general-purpose model for this kind of
-   writing task. See https://console.groq.com/docs/models for the
-   current model list if this ever needs to change again.
+   same as the GitHub token, and is sent to nobody but OpenAI's own
+   API when a request is actually made.
+   History: Google Gemini's free gemini-flash-latest tier returned 503
+   "model overloaded" too often -> switched to Groq (free, rarely
+   overloaded, but Jakob found its output quality not good enough) ->
+   switched to OpenAI's own API on his explicit request. Unlike Gemini
+   and Groq, this is NOT free – it needs an OpenAI account with a
+   payment method on file (usage-based, but very cheap for occasional
+   use). gpt-5.4 was picked as OpenAI's own general "recommended
+   workhorse" tier at the time this was written – see
+   https://developers.openai.com/api/docs/models for the current model
+   list if this ever needs to change again.
    ============================================================ */
-var GROQ_KEY_STORAGE = 'jlp_groq_api_key';
-function getGroqKey(){
-  try{ return localStorage.getItem(GROQ_KEY_STORAGE) || ''; }catch(e){ return ''; }
+var OPENAI_KEY_STORAGE = 'jlp_openai_api_key';
+function getOpenAiKey(){
+  try{ return localStorage.getItem(OPENAI_KEY_STORAGE) || ''; }catch(e){ return ''; }
 }
-function updateGroqStatus(){
-  var status = document.getElementById('groq-status');
-  var clearBtn = document.getElementById('groq-clear-btn');
-  var hasKey = !!getGroqKey();
+function updateOpenAiStatus(){
+  var status = document.getElementById('openai-status');
+  var clearBtn = document.getElementById('openai-clear-btn');
+  var hasKey = !!getOpenAiKey();
   if(status) status.textContent = hasKey ? 'KI-Schreibhilfe im Blog-Editor ist aktiv.' : 'Ohne Schlüssel keine KI-Schreibhilfe im Blog-Editor.';
   if(clearBtn) clearBtn.hidden = !hasKey;
 }
-document.getElementById('groq-save-btn').addEventListener('click', function(){
-  var val = document.getElementById('groq-key-input').value.trim();
+document.getElementById('openai-save-btn').addEventListener('click', function(){
+  var val = document.getElementById('openai-key-input').value.trim();
   if(!val){ showToast('Bitte einen Schlüssel einfügen.', true); return; }
-  try{ localStorage.setItem(GROQ_KEY_STORAGE, val); }catch(e){}
-  document.getElementById('groq-key-input').value = '';
-  updateGroqStatus();
+  try{ localStorage.setItem(OPENAI_KEY_STORAGE, val); }catch(e){}
+  document.getElementById('openai-key-input').value = '';
+  updateOpenAiStatus();
   showToast('KI-Schlüssel gespeichert ✓');
 });
-document.getElementById('groq-clear-btn').addEventListener('click', function(){
-  try{ localStorage.removeItem(GROQ_KEY_STORAGE); }catch(e){}
-  updateGroqStatus();
+document.getElementById('openai-clear-btn').addEventListener('click', function(){
+  try{ localStorage.removeItem(OPENAI_KEY_STORAGE); }catch(e){}
+  updateOpenAiStatus();
   showToast('KI-Schlüssel entfernt.');
 });
 (function(){
-  if(getGroqKey()) document.getElementById('groq-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
-  updateGroqStatus();
+  if(getOpenAiKey()) document.getElementById('openai-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
+  updateOpenAiStatus();
 })();
 /* Sends `prompt` to Groq (openai/gpt-oss-120b, OpenAI-compatible chat
    completions API) and returns its plain-text reply. Throws with a
