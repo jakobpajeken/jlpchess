@@ -1798,6 +1798,44 @@ function openBlogForm(idx){
      current selection in the matching markers (the same ones renderInline()
      in blog-post.html looks for); with nothing selected, drops in
      placeholder markers around the cursor instead, ready to type into. */
+  /* Same toggle-off idea as wrapSelectionIn below, but for [size=N] where
+     N varies per use so it can't be matched as a fixed string. Checks
+     both the "selection includes the markers" and "markers sit right
+     outside the selection" cases, using a regex for the opening
+     [size=digits] instead of an exact string. Returns true (and has
+     already updated the textarea) if something was unwrapped; false if
+     there was nothing to toggle off, so the caller knows to fall
+     through to its normal "ask for a size, then wrap" flow instead. */
+  function toggleOffDynamicSize(textarea){
+    var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+    var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+    var value = textarea.value;
+    var selected = value.slice(start, end);
+    var before = value.slice(0, start);
+    var after = value.slice(end);
+    var closeMarker = '[/size]';
+
+    var selMatch = /^\[size=\d+\]/.exec(selected);
+    if(selMatch && selected.slice(selected.length - closeMarker.length) === closeMarker){
+      var innerA = selected.slice(selMatch[0].length, selected.length - closeMarker.length);
+      textarea.value = before + innerA + after;
+      textarea.focus();
+      textarea.setSelectionRange(start, start + innerA.length);
+      return true;
+    }
+
+    var openMatch = /\[size=\d+\]$/.exec(before);
+    if(openMatch && after.slice(0, closeMarker.length) === closeMarker){
+      var newBefore = before.slice(0, before.length - openMatch[0].length);
+      var newAfter = after.slice(closeMarker.length);
+      var innerB = selected;
+      textarea.value = newBefore + innerB + newAfter;
+      textarea.focus();
+      textarea.setSelectionRange(newBefore.length, newBefore.length + innerB.length);
+      return true;
+    }
+    return false;
+  }
   /* Wraps the selection in openMarker/closeMarker – but toggles it off
      instead if it's already wrapped, so clicking e.g. Bold a second time
      on text that's already bold removes the markers rather than nesting
@@ -1856,6 +1894,14 @@ function openBlogForm(idx){
     if(underlineBtn) underlineBtn.addEventListener('click', function(){ wrapSelectionIn(textarea, '__', null, 'unterstrichen'); });
     if(sizeBtn){
       sizeBtn.addEventListener('click', function(){
+        /* [size=N] carries a number that varies per use, so it can't be
+           toggled with a fixed marker like wrapSelectionIn's other
+           callers – detect an existing [size=ANY_NUMBER]...[/size]
+           around/in the selection first and just remove it (no prompt),
+           same toggle-off idea as Bold/Italic/etc. Only if nothing's
+           there does this fall through to asking for a size and
+           wrapping, as before. */
+        if(toggleOffDynamicSize(textarea)) return;
         var input = window.prompt('Schriftgröße in Pixel (normaler Fließtext ist ca. 16):', '24');
         if(input == null) return;
         var px = parseInt(input.trim(), 10);
