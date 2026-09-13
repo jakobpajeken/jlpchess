@@ -530,8 +530,18 @@ async function saveDraft(){
     excerpt: document.getElementById('g-excerpt').value,
     lead: document.getElementById('g-lead').value,
     body: bodyParas,
-    quote: document.getElementById('g-quote').value
+    quote: document.getElementById('g-quote').value,
+    imageCaption: document.getElementById('g-cover-caption').value,
+    imageCredit: document.getElementById('g-cover-credit').value,
+    games: postGames.map(function(g){ return { id: g.id, title: g.title, meta: g.meta, pgn: g.pgn }; })
   };
+  if(pendingCoverFile){
+    try{ payload.coverImage = { base64: await fileToDataUrl(pendingCoverFile), filename: pendingCoverFile.name }; }
+    catch(e){ showStatus('Could not read the cover photo file.', 'err'); return null; }
+  }
+  if(pendingInlineImages.length){
+    payload.inlineImages = pendingInlineImages.map(function(img){ return { id: img.id, base64: img.dataUrl, filename: img.filename }; });
+  }
 
   var resp;
   try{
@@ -551,6 +561,14 @@ async function saveDraft(){
     return null;
   }
   savedSlug = data.slug;
+  pendingCoverFile = null;
+  if(data.coverImagePath) lastCoverImagePath = data.coverImagePath;
+  if(data.imageMap){
+    Object.keys(data.imageMap).forEach(function(id){
+      bodyTextarea.value = bodyTextarea.value.split('pending:' + id).join(data.imageMap[id]);
+    });
+  }
+  pendingInlineImages = [];
   stashLocalPreview(data.slug, data.lang);
   return data;
 }
