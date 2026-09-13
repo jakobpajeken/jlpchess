@@ -251,13 +251,13 @@ function showStatus(msg, kind){
 
 async function saveDraft(){
   if(!GUEST_WORKER_URL){
-    showStatus('Diese Seite ist noch nicht fertig eingerichtet (Worker-URL fehlt). Bitte Jakob Bescheid geben.', 'err');
+    showStatus('This page isn’t fully set up yet (missing Worker URL). Please let Jakob know.', 'err');
     return null;
   }
   var title = document.getElementById('g-title').value.trim();
   var bodyText = document.getElementById('g-body').value.trim();
-  if(!title){ showStatus('Bitte einen Titel eingeben.', 'err'); return null; }
-  if(!bodyText){ showStatus('Bitte einen Haupttext eingeben.', 'err'); return null; }
+  if(!title){ showStatus('Please enter a title.', 'err'); return null; }
+  if(!bodyText){ showStatus('Please enter some body text.', 'err'); return null; }
   var bodyParas = bodyText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean);
 
   var payload = {
@@ -282,13 +282,13 @@ async function saveDraft(){
       body: JSON.stringify(payload)
     });
   }catch(e){
-    showStatus('Verbindung fehlgeschlagen. Bitte kurz warten und nochmal versuchen.', 'err');
+    showStatus('Connection failed. Please wait a moment and try again.', 'err');
     return null;
   }
   var data;
   try{ data = await resp.json(); }catch(e){ data = {}; }
   if(!resp.ok || !data.ok){
-    showStatus(data.error || ('Speichern fehlgeschlagen (Status ' + resp.status + ').'), 'err');
+    showStatus(data.error || ('Saving failed (status ' + resp.status + ').'), 'err');
     return null;
   }
   savedSlug = data.slug;
@@ -298,11 +298,11 @@ async function saveDraft(){
 document.getElementById('g-preview-btn').addEventListener('click', async function(){
   var btn = this;
   btn.disabled = true;
-  showStatus('Speichere …');
+  showStatus('Saving …');
   var data = await saveDraft();
   btn.disabled = false;
   if(!data) return;
-  showStatus('Gespeichert ✓ – Vorschau öffnet sich in einem neuen Tab.', 'ok');
+  showStatus('Saved ✓ – preview opens in a new tab.', 'ok');
   window.open('blog-post.html?slug=' + encodeURIComponent(data.slug) + '&lang=' + encodeURIComponent(data.lang), '_blank');
 });
 </script>
