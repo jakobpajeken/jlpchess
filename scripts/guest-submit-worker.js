@@ -155,6 +155,64 @@ function uniqueSlug(base, existingSlugs){
 function todayInBerlin(){
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date());
 }
+
+/* splits a "data:<mime>;base64,<data>" URL (what a browser's FileReader
+   produces) into its parts; null if it doesn't look like one at all */
+function parseDataUrl(dataUrl){
+  var m = /^data:([^;]+);base64,([\s\S]*)$/.exec(dataUrl || '');
+  if(!m) return null;
+  return { mime: m[1], base64: m[2] };
+}
+function base64ByteLength(b64){
+  var s = (b64 || '').replace(/[^A-Za-z0-9+/=]/g, '');
+  var padding = s.slice(-2) === '==' ? 2 : (s.slice(-1) === '=' ? 1 : 0);
+  return Math.floor(s.length * 3 / 4) - padding;
+}
+/* uploads one already-validated image to images/blog/ and returns its
+   repo-relative path. Each filename is unique (timestamp + random), so
+   this is always a fresh file – never overwrites an existing one, no
+   need to look up a sha first the way updating blog.json does. */
+async function uploadImage(env, base64Content, ext, slug, hint){
+  var filename = (slug || 'gast') + '-' + (hint || 'bild') + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6) + ext;
+  var path = 'images/blog/' + filename;
+  var putResp = await fetch(contentsUrl(path), {
+    method: 'PUT',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, ghHeaders(env)),
+    body: JSON.stringify({
+      message: 'Add image ' + filename + ' via guest-editor.html',
+      content: base64Content,
+      branch: REPO_BRANCH,
+      committer: { name: 'Guest submission (jlpchess)', email: 'jakobpajeken@gmail.com' }
+    })
+  });
+  if(!putResp.ok){
+    var msg = 'HTTP ' + putResp.status;
+    try{ var errJson = await putResp.json(); if(errJson.message) msg = errJson.message; }catch(e){}
+    throw new Error(msg);
+  }
+  return path;
+}
+/* keeps only well-formed games, caps how many a single post can carry.
+   Title/meta are stored as plain strings (not the bilingual {en,de}
+   shape the rest of the post uses) – same as editor.html's own game
+   entries, since pickLang()/previewLang() already accept a plain string
+   anywhere on the site. */
+function sanitizeGames(rawGames){
+  if(!Array.isArray(rawGames)) return [];
+  var out = [];
+  rawGames.slice(0, MAX_GAMES_PER_POST).forEach(function(g){
+    if(!g || typeof g !== 'object') return;
+    var pgn = (g.pgn || '').toString().trim();
+    if(!pgn) return;
+    out.push({
+      id: (typeof g.id === 'string' && /^[a-z0-9]{1,40}$/i.test(g.id)) ? g.id : ('g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
+      title: (g.title || '').toString().trim() || 'Untitled game',
+      meta: (g.meta || '').toString().trim(),
+      pgn: pgn
+    });
+  });
+  return out;
+}
 /* same house style as editor.html's own normalizeDashes – applied here
    too since a guest's browser goes through none of the site's own JS */
 function normalizeDashes(value){
@@ -252,12 +310,63 @@ export default {
       posts.push(entry);
     }
 
+    /* ---- images: upload a cover photo and/or any inline images the
+       guest inserted, then swap their "pending:<id>" placeholders in the
+       body text for the real path GitHub just gave them. Validated here
+       (never trust the client's own size/type check) before anything is
+       written. ---- */
+    var coverImagePath = null;
+    var imageMap = {};
+    if(body.coverImage && typeof body.coverImage === 'object' && body.coverImage.base64){
+      var coverParsed = parseDataUrl(body.coverImage.base64);
+      if(!coverParsed || !ALLOWED_IMAGE_TYPES[coverParsed.mime]){
+        return jsonResponse({ error: 'Cover photo must be a JPG, PNG, WebP or GIF file.' }, 400, origin);
+      }
+      if(base64ByteLength(coverParsed.base64) > MAX_IMAGE_BYTES){
+        return jsonResponse({ error: 'Cover photo is too large (max 4 MB).' }, 400, origin);
+      }
+      try{
+        coverImagePath = await uploadImage(env, coverParsed.base64, ALLOWED_IMAGE_TYPES[coverParsed.mime], entry.slug, 'cover');
+      }catch(e){
+        return jsonResponse({ error: 'Cover photo upload failed: ' + e.message }, 502, origin);
+      }
+    }
+    var inlineImages = Array.isArray(body.inlineImages) ? body.inlineImages.slice(0, MAX_INLINE_IMAGES) : [];
+    for(var ii = 0; ii < inlineImages.length; ii++){
+      var img = inlineImages[ii];
+      if(!img || !img.id || !img.base64) continue;
+      var imgParsed = parseDataUrl(img.base64);
+      if(!imgParsed || !ALLOWED_IMAGE_TYPES[imgParsed.mime]){
+        return jsonResponse({ error: 'One of the inserted images has an unsupported file type (use JPG, PNG, WebP or GIF).' }, 400, origin);
+      }
+      if(base64ByteLength(imgParsed.base64) > MAX_IMAGE_BYTES){
+        return jsonResponse({ error: 'One of the inserted images is too large (max 4 MB each).' }, 400, origin);
+      }
+      try{
+        imageMap[img.id] = await uploadImage(env, imgParsed.base64, ALLOWED_IMAGE_TYPES[imgParsed.mime], entry.slug, 'img');
+      }catch(e){
+        return jsonResponse({ error: 'Image upload failed: ' + e.message }, 502, origin);
+      }
+    }
+    if(Object.keys(imageMap).length){
+      bodyParas = bodyParas.map(function(para){
+        Object.keys(imageMap).forEach(function(id){
+          para = para.split('pending:' + id).join(imageMap[id]);
+        });
+        return para;
+      });
+    }
+
     entry.title = langField(entry.title, title);
     entry.category = langField(entry.category, body.category);
     entry.excerpt = langField(entry.excerpt, body.excerpt);
     entry.lead = langField(entry.lead, body.lead);
     entry.quote = langField(entry.quote, body.quote);
     entry.body = langBody(entry.body, bodyParas);
+    if(coverImagePath) entry.image = coverImagePath; /* else: leave whatever it already was untouched */
+    entry.imageCaption = langField(entry.imageCaption, body.imageCaption);
+    entry.imageCredit = (body.imageCredit || '').toString().trim();
+    entry.games = sanitizeGames(body.games);
     entry.status = 'draft'; /* never anything else, no matter what a submission claims */
     /* not part of the public schema – purely so the editor's blog list
        (and this Worker's own idx lookup above) can tell a guest draft
