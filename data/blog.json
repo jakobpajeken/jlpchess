@@ -2944,7 +2944,10 @@
     "date": "2026-09-12",
     "author": "IM Jakob Leon Pajeken",
     "image": "images/blog/2-chessconnect-rapid-open-when-a-tournament-just-goes-smooth-1789301107167.jpeg",
-    "imageCaption": "",
+    "imageCaption": {
+      "en": "The three winners, from left to right: Jakob Pajeken (1st), Florian Popist (3rd), Taron Kachatryan (2nd)",
+      "de": "Die drei Sieger v.l.n.r Jakob Pajeken(1.) Florian Popist (3.) Taron Kachatryan (2.)"
+    },
     "imageCredit": "",
     "excerpt": {
       "en": "A commanding victory at the board–and a tournament that many other tournaments could learn a thing or two from.",
