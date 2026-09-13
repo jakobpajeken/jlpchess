@@ -1576,6 +1576,11 @@ function buildBoardSquares(){
       sq.className = 'chess-square ' + (isLight ? 'light' : 'dark');
       sq.dataset.row = r;
       sq.dataset.col = c;
+      /* click-to-move: wired once here, on the square element itself,
+         rather than re-attached on every renderPosition() (which only
+         ever touches .innerHTML, never recreates these 64 divs) – see
+         onBoardSquareClick for the actual move logic. */
+      sq.addEventListener('click', function(){ onBoardSquareClick(this); });
       board.appendChild(sq);
     }
   }
