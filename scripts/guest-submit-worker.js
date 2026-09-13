@@ -80,6 +80,18 @@ var BLOG_JSON_PATH = 'data/blog.json';
    what's already in blog.json on every request. */
 var MAX_PENDING_GUEST_DRAFTS = 8;
 
+/* Images: guests can attach a cover photo and/or images inline in the
+   text, uploaded to images/blog/ via this Worker's own GITHUB_TOKEN
+   (guests never touch GitHub directly). Bounded so a submission can't be
+   used to dump huge or unlimited files into the repo. */
+var MAX_IMAGE_BYTES = 4 * 1024 * 1024; /* 4 MB per image, decoded */
+var MAX_INLINE_IMAGES = 4; /* per submission, in addition to one cover photo */
+var ALLOWED_IMAGE_TYPES = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif' };
+
+/* Games: embedded directly on the post entry (entry.games), same shape
+   editor.html itself writes – no separate GitHub write needed. */
+var MAX_GAMES_PER_POST = 8;
+
 var ALLOWED_ORIGINS = [
   'https://jakobpajeken.github.io',
   'http://localhost:8722'
