@@ -638,29 +638,30 @@ document.getElementById('mistral-clear-btn').addEventListener('click', function(
   if(getMistralKey()) document.getElementById('mistral-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
   updateMistralStatus();
 })();
-/* Sends `prompt` to Gemini and returns its plain-text reply. Throws with a
+/* Sends `prompt` to Mistral (mistral-large-latest, OpenAI-compatible chat
+   completions shape) and returns its plain-text reply. Throws with a
    message safe to show directly in a toast if the key is missing, the
-   request fails, or Gemini declined to answer (e.g. safety filters).
+   request fails, or the model declined to answer.
 
-   Status 503 ("model overloaded") is a common, purely transient response
-   from Google's own Gemini servers being under heavy load – it has
-   nothing to do with this site, the prompt, or the API key. Retries a
-   few times with a growing pause (1s, 2s, 4s, 8s, 16s – 5 retries, ~30s
-   total) before finally giving up; bumped up from the original 3 retries
-   since those alone weren't enough to ride out a busy period. `onRetry
-   (attempt, maxAttempts)`, if given, is called before each retry so the
-   caller can show "trying again …" instead of a stuck spinner. */
+   The free "Experiment" tier is capped at a low requests-per-minute
+   limit rather than being prone to outright server overload, so 429
+   (rate limited) is the failure actually worth retrying here – waiting
+   roughly a minute clears it, since the limit is a rolling per-minute
+   window. 503/5xx (genuine server trouble) also gets a shorter
+   exponential backoff, same safety net used for the earlier providers.
+   `onRetry(attempt, maxAttempts)`, if given, is called before each retry
+   so the caller can show "trying again …" instead of a stuck spinner. */
 async function askAI(prompt, onRetry){
-  var key = getGeminiKey();
+  var key = getMistralKey();
   if(!key) throw new Error('Kein KI-Schlüssel hinterlegt (oben eintragen).');
-  var maxAttempts = 6; /* 1 initial try + up to 5 retries */
+  var maxAttempts = 4; /* 1 initial try + up to 3 retries */
   for(var attempt = 1; attempt <= maxAttempts; attempt++){
     var resp, networkErr = null;
     try{
-      resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
+      resp = await fetch('https://api.mistral.ai/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+        body: JSON.stringify({ model: 'mistral-large-latest', messages: [{ role: 'user', content: prompt }] })
       });
     }catch(e){ networkErr = e; }
     if(networkErr){
@@ -675,22 +676,29 @@ async function askAI(prompt, onRetry){
       if(resp.status === 400 || resp.status === 401 || resp.status === 403){
         throw new Error('KI-Schlüssel ungültig oder abgelehnt (Status ' + resp.status + ').');
       }
-      if(resp.status === 429) throw new Error('KI-Kontingent gerade ausgeschöpft – kurz warten und nochmal versuchen.');
+      if(resp.status === 429){
+        if(attempt < maxAttempts){
+          if(onRetry) onRetry(attempt, maxAttempts);
+          await new Promise(function(r){ setTimeout(r, 20000); }); /* the free tier's RPM window is short, so a flat ~20s covers it without an overly long wait */
+          continue;
+        }
+        throw new Error('KI-Kontingent (Anfragen pro Minute) gerade ausgeschöpft – das kostenlose Mistral-Kontingent lässt nur wenige Anfragen pro Minute zu. Bitte kurz warten und nochmal versuchen.');
+      }
       if(resp.status === 503 || resp.status >= 500){
         if(attempt < maxAttempts){
           if(onRetry) onRetry(attempt, maxAttempts);
           await new Promise(function(r){ setTimeout(r, Math.pow(2, attempt - 1) * 1000); });
           continue;
         }
-        throw new Error('KI-Dienst bei Google gerade überlastet (Status ' + resp.status + ') – das liegt an Googles Gemini-Servern, nicht an dieser Website. Bitte in ein paar Minuten nochmal versuchen.');
+        throw new Error('KI-Dienst bei Mistral gerade überlastet (Status ' + resp.status + '). Bitte in ein, zwei Minuten nochmal versuchen.');
       }
       throw new Error('KI-Anfrage fehlgeschlagen (Status ' + resp.status + ').');
     }
     var data = await resp.json();
-    var candidate = data && data.candidates && data.candidates[0];
-    var text = candidate && candidate.content && candidate.content.parts && candidate.content.parts.map(function(p){ return p.text || ''; }).join('');
+    var choice = data && data.choices && data.choices[0];
+    var text = choice && choice.message && choice.message.content;
     if(!text){
-      var reason = candidate && candidate.finishReason;
+      var reason = choice && choice.finish_reason;
       throw new Error(reason ? ('KI hat keine Antwort geliefert (' + reason + ').') : 'KI hat keine Antwort geliefert.');
     }
     return text.trim();
