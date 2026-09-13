@@ -182,11 +182,15 @@
     height:min(440px,90vw);width:16px;font-size:0.72rem;color:var(--ivory-dim);text-align:center;}
   .embedded-game .ranks-col span{flex:1;display:flex;align-items:center;justify-content:center;}
   .embedded-game .board-and-files{display:flex;flex-direction:column;gap:4px;}
+  /* see index.html's .board-stack for the full rationale (mirrored
+     here, one instance per embedded widget). */
+  .embedded-game .board-stack{position:relative;width:min(440px,90vw);}
   .embedded-game .chess-board{
-    width:min(440px,90vw);aspect-ratio:1;display:grid;
+    width:100%;aspect-ratio:1;display:grid;
     grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);
     border:1px solid var(--line);
   }
+  .embedded-game .board-arrows-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
   .embedded-game .files-row{display:flex;width:min(440px,90vw);}
   .embedded-game .files-row span{flex:1;text-align:center;font-size:0.72rem;color:var(--ivory-dim);}
   .embedded-game .chess-square{display:flex;align-items:center;justify-content:center;user-select:none;}
