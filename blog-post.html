@@ -590,6 +590,7 @@ function createGameWidget(container, gameOrGames){
 
   var selectEl = container.querySelector('[data-role="game-select"]');
   var boardEl = container.querySelector('.chess-board');
+  var arrowsEl = container.querySelector('[data-role="arrows"]');
   var listEl = container.querySelector('[data-role="movelist"]');
   var titleEl = container.querySelector('[data-role="title"]');
   var infoEl = container.querySelector('[data-role="info"]');
@@ -622,6 +623,9 @@ function createGameWidget(container, gameOrGames){
      default once a variation has been chosen there – see index.html's
      activeDefaultSans for the full rationale (mirrored here). */
   var activeDefaultSans = [];
+  /* follows activeLine (reassigned wholesale, never preserved) – see
+     index.html's activeEntries for the full rationale (mirrored here). */
+  var activeEntries = [];
   var rootBranches = [];
   var orientation = 'white'; /* 'white' = normal view, 'black' = flipped */
   var whiteName = 'White', blackName = 'Black';
