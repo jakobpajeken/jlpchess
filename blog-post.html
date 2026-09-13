@@ -471,6 +471,14 @@ var MONTH_NAMES_FULL = {
   en:['January','February','March','April','May','June','July','August','September','October','November','December'],
   de:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
 };
+/* see index.html's isBlogPostPubliclyVisible() for the full rationale —
+   a "scheduled" post publishes itself the moment its own "date" arrives,
+   checked fresh on every page load. */
+function isScheduledPostDue(post){
+  if(!post || !post.date) return false;
+  var publishAt = new Date(post.date + 'T00:00:00');
+  return !isNaN(publishAt.getTime()) && publishAt <= new Date();
+}
 function formatBlogDate(iso, lang){
   if(!iso) return '';
   var parts = String(iso).split('-');
