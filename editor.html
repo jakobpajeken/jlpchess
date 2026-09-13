@@ -660,6 +660,82 @@ async function askGemini(prompt){
   return text.trim();
 }
 
+/* Builds the prompt for "Gesamten Beitrag von der KI erstellen lassen" –
+   unlike askGemini's other caller (the small per-textarea "KI-Hilfe" that
+   only rewrites text already on the page), this asks Gemini to understand
+   the FULL shape of a blog post in this editor and write every text field
+   itself, in both languages, from a short instruction. existingCatsEn/De
+   are passed in so Gemini reuses an existing category instead of
+   inventing near-duplicates every time. */
+function buildBlogFillPrompt(instruction, existingCatsEn, existingCatsDe){
+  return [
+    'You are helping IM Jakob Leon Pajeken, a professional chess coach, write a post for the blog on his coaching website. Write in his voice: knowledgeable, concrete and encouraging, speaking directly to chess students and their parents - never generic filler.',
+    '',
+    'Task from the site editor (may be written in English or German): ' + instruction,
+    '',
+    'Produce the ENTIRE blog post as a single JSON object, written natively and fluently in BOTH English and German for every field (write each language as a native speaker would - do not machine-translate one from the other), with EXACTLY this shape and nothing else:',
+    '{',
+    '  "title": {"en": "...", "de": "..."},',
+    '  "category": {"en": "...", "de": "..."},',
+    '  "excerpt": {"en": "...", "de": "..."},',
+    '  "lead": {"en": "...", "de": "..."},',
+    '  "body": {"en": ["paragraph 1", "paragraph 2", "..."], "de": ["Absatz 1", "Absatz 2", "..."]},',
+    '  "quote": {"en": "...", "de": "..."},',
+    '  "imageCaption": {"en": "...", "de": "..."}',
+    '}',
+    '',
+    'Field notes:',
+    '- title: short and specific, no clickbait.',
+    '- category: a short 1-2 word topic label. Reuse one of these EXISTING categories if one genuinely fits (English: ' + (existingCatsEn.join(', ') || 'none yet') + ' | German: ' + (existingCatsDe.join(', ') || 'none yet') + '); only invent a new one if none fit.',
+    '- excerpt: one or two sentences - the teaser shown on the blog overview card.',
+    '- lead: one short paragraph, shown larger right under the title, that pulls the reader in.',
+    '- body: 5 to 9 paragraphs as separate array entries (each entry is exactly one paragraph, no blank lines inside an entry), forming a complete, well-structured article with a real beginning, middle and end.',
+    '- quote: an optional short pull-quote in Jakob\'s own voice that genuinely fits the post; use "" for both languages if none fits well - never force one.',
+    '- imageCaption: a short caption for a possible cover photo related to the topic; use "" for both languages if nothing sensible comes to mind - the actual photo is chosen separately by Jakob afterward, not by you.',
+    '',
+    'Formatting allowed INSIDE body paragraphs only, used sparingly and only where it genuinely helps: **bold**, *italic*, __underline__, [link text](https://example.com) for a real external URL if relevant, [size=NUMBER]bigger text[/size] for occasional emphasis, [color=blue]highlighted text[/color] for the site\'s own accent color. Do NOT use any [game:...] or [games:...] marker and do NOT use an image marker like ![caption](path) anywhere - you have no knowledge of which real games or photos exist in the site\'s database, and inventing one would break the page; Jakob adds those manually afterward through the editor\'s own tools.',
+    '',
+    'Return ONLY the JSON object - no markdown code fence, no explanation before or after it.'
+  ].join('\n');
+}
+/* Parses Gemini's reply into the shape the blog form needs, tolerating the
+   most common ways a model still wraps "JSON-only" output (a ```json
+   fence, or stray prose around the object) despite being told not to.
+   Throws a message safe to show directly in a toast/panel. */
+function parseAiBlogPost(reply){
+  var text = (reply || '').trim();
+  var fenceMatch = /^```(?:json)?\s*([\s\S]*?)\s*```$/.exec(text);
+  if(fenceMatch) text = fenceMatch[1].trim();
+  if(!fenceMatch){
+    var braceMatch = /\{[\s\S]*\}/.exec(text);
+    if(braceMatch) text = braceMatch[0];
+  }
+  var data;
+  try{ data = JSON.parse(text); }
+  catch(e){ throw new Error('Antwort der KI konnte nicht gelesen werden (kein gültiges JSON). Bitte nochmal versuchen, ggf. mit einer genaueren Anweisung.'); }
+  function lang(obj){
+    obj = obj || {};
+    return { en: (obj.en == null ? '' : obj.en).toString().trim(), de: (obj.de == null ? '' : obj.de).toString().trim() };
+  }
+  function bodyLang(obj){
+    obj = obj || {};
+    function paras(v){ return Array.isArray(v) ? v.map(function(s){ return (s == null ? '' : s).toString().trim(); }).filter(Boolean) : []; }
+    return { en: paras(obj.en), de: paras(obj.de) };
+  }
+  var post = {
+    title: lang(data.title),
+    category: lang(data.category),
+    excerpt: lang(data.excerpt),
+    lead: lang(data.lead),
+    body: bodyLang(data.body),
+    quote: lang(data.quote),
+    imageCaption: lang(data.imageCaption)
+  };
+  if(!post.title.en && !post.title.de) throw new Error('Antwort der KI enthielt keinen Titel. Bitte nochmal versuchen oder die Anweisung genauer fassen.');
+  if(!post.body.en.length && !post.body.de.length) throw new Error('Antwort der KI enthielt keinen Haupttext. Bitte nochmal versuchen oder die Anweisung genauer fassen.');
+  return post;
+}
+
 /* ============================================================
    Helpers
    ============================================================ */
