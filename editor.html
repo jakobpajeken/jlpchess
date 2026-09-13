@@ -1868,6 +1868,64 @@ function openBlogForm(idx){
     btn.disabled = false;
   });
 
+  /* ---- translate only the body text (EN -> DE) – leaves title, category,
+     excerpt, lead and quote completely untouched, for when only the
+     main text changed and re-translating everything would be overkill
+     or would clobber hand-edited other fields ---- */
+  document.getElementById('bf-translate-body').addEventListener('click', async function(){
+    var btn = this;
+    var statusEl = document.getElementById('bf-translate-status');
+    var bodyDeEl = document.getElementById('bf-body-de');
+    if(bodyDeEl.value.trim() && !confirm('Der bestehende deutsche Haupttext wird überschrieben. Fortfahren?')) return;
+    btn.disabled = true;
+    statusEl.textContent = 'Übersetze Haupttext …';
+    try{
+      var bodyEnText = document.getElementById('bf-body-en').value.trim();
+      var bodyParas = bodyEnText ? bodyEnText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+      if(bodyParas.length){
+        var translated = [];
+        for(var i = 0; i < bodyParas.length; i++){
+          statusEl.textContent = 'Übersetze Absatz ' + (i + 1) + ' von ' + bodyParas.length + ' …';
+          translated.push(await translateBodyParagraph(bodyParas[i], 'EN', 'DE'));
+        }
+        bodyDeEl.value = translated.join('\n\n');
+      }
+      statusEl.textContent = 'Haupttext übersetzt ✓ – bitte prüfen.';
+      showToast('Haupttext übersetzt ✓ – bitte prüfen und ggf. anpassen.');
+    }catch(err){
+      statusEl.textContent = '';
+      showToast('Übersetzung fehlgeschlagen: ' + (err && err.message ? err.message : 'Verbindung zum Übersetzungsdienst nicht möglich.'), true);
+    }
+    btn.disabled = false;
+  });
+  /* ---- same, DE -> EN ---- */
+  document.getElementById('bf-translate-body-rev').addEventListener('click', async function(){
+    var btn = this;
+    var statusEl = document.getElementById('bf-translate-status');
+    var bodyEnEl = document.getElementById('bf-body-en');
+    if(bodyEnEl.value.trim() && !confirm('Der bestehende englische Haupttext wird überschrieben. Fortfahren?')) return;
+    btn.disabled = true;
+    statusEl.textContent = 'Übersetze Haupttext …';
+    try{
+      var bodyDeText = document.getElementById('bf-body-de').value.trim();
+      var bodyParasDe = bodyDeText ? bodyDeText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+      if(bodyParasDe.length){
+        var translatedEn = [];
+        for(var j = 0; j < bodyParasDe.length; j++){
+          statusEl.textContent = 'Übersetze Absatz ' + (j + 1) + ' von ' + bodyParasDe.length + ' …';
+          translatedEn.push(await translateBodyParagraph(bodyParasDe[j], 'DE', 'EN'));
+        }
+        bodyEnEl.value = translatedEn.join('\n\n');
+      }
+      statusEl.textContent = 'Haupttext übersetzt ✓ – bitte prüfen.';
+      showToast('Haupttext übersetzt ✓ – bitte prüfen und ggf. anpassen.');
+    }catch(err){
+      statusEl.textContent = '';
+      showToast('Übersetzung fehlgeschlagen: ' + (err && err.message ? err.message : 'Verbindung zum Übersetzungsdienst nicht möglich.'), true);
+    }
+    btn.disabled = false;
+  });
+
   /* ---- helper: insert a marker string into the body textarea at the cursor, with blank-line spacing ---- */
   function insertMarkerIntoBody(marker){
     var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
