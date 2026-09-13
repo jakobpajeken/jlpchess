@@ -1857,7 +1857,7 @@ function openBlogForm(idx){
         try{
           var prompt = instruction + '\n\nText:\n' + source +
             '\n\nGib ausschließlich den überarbeiteten Text zurück – ohne Erklärung, ohne Anführungszeichen, ohne Einleitung davor.';
-          var reply = await askGemini(prompt, function(attempt, max){
+          var reply = await askAI(prompt, function(attempt, max){
             resultEl.innerHTML = '<p class="hint">KI-Dienst gerade überlastet – neuer Versuch (' + (attempt + 1) + '/' + max + ') …</p>';
           });
           resultEl.innerHTML =
@@ -1885,7 +1885,7 @@ function openBlogForm(idx){
       });
     }
     btn.addEventListener('click', function(){
-      if(!getGeminiKey()){
+      if(!getGroqKey()){
         showToast('Bitte oben zuerst einen kostenlosen KI-Schlüssel eintragen.', true);
         return;
       }
@@ -1934,7 +1934,7 @@ function openBlogForm(idx){
         resultEl.innerHTML = '';
         try{
           var prompt = buildBlogFillPrompt(instruction, collectCategoryOptions('en'), collectCategoryOptions('de'));
-          var reply = await askGemini(prompt, function(attempt, max){
+          var reply = await askAI(prompt, function(attempt, max){
             statusEl.textContent = 'KI-Dienst gerade überlastet – neuer Versuch (' + (attempt + 1) + '/' + max + ') …';
           });
           var post = parseAiBlogPost(reply);
@@ -1968,7 +1968,7 @@ function openBlogForm(idx){
       });
     }
     btn.addEventListener('click', function(){
-      if(!getGeminiKey()){
+      if(!getGroqKey()){
         showToast('Bitte oben zuerst einen kostenlosen KI-Schlüssel eintragen.', true);
         return;
       }
