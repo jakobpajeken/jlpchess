@@ -18,15 +18,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Add a post title here — IM Jakob Leon Pajeken</title>
+<title>Add a post title here – IM Jakob Leon Pajeken</title>
 <!-- simple blue rook favicon: bold geometric silhouette (crenellated top),
      transparent background (no box), filling almost the whole canvas so
-     it stays legible at tiny tab sizes — navy fill matches --gold, so
+     it stays legible at tiny tab sizes – navy fill matches --gold, so
      update it here too if the site's theme changes again -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='6' width='24' height='4' fill='%231f3a5f'/%3E%3Crect x='4' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='13.5' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='23' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='6' y='10' width='20' height='16' fill='%231f3a5f'/%3E%3Crect x='4' y='26' width='24' height='4' rx='2' fill='%231f3a5f'/%3E%3C/svg%3E">
 <style>
   /* Fonts are self-hosted (fonts/*.woff2) instead of loaded live from
-     Google's servers — see index.html for why. Kept in sync there. */
+     Google's servers – see index.html for why. Kept in sync there. */
   @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
   @font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
   @font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
@@ -38,7 +38,7 @@
   @font-face{font-family:'Spectral SC';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/SpectralSC-500-normal.woff2') format('woff2');}
 
   :root{
-    /* "Oxford & Kreide" — kept in sync with index.html's palette */
+    /* "Oxford & Kreide" – kept in sync with index.html's palette */
     --ink:#f1f2f0;
     --surface:#ffffff;
     --surface-raised:#ffffff;
@@ -48,7 +48,7 @@
     --gold-bright:#35577f;
     --line:rgba(22,32,46,0.13);
     --max:1080px;
-    /* cool marble/slate board — kept in sync with index.html's palette */
+    /* cool marble/slate board – kept in sync with index.html's palette */
     --sq-light:#dde1dc;
     --sq-dark:#5f7487;
     --piece-white:#fbf8f2;
@@ -70,7 +70,7 @@
   }
   .eyebrow .rule{width:30px;height:1px;background:var(--gold);display:inline-block;}
 
-  /* header — matches index.html */
+  /* header – matches index.html */
   header{
     position:sticky;top:0;z-index:30;background:rgba(241,242,240,0.88);
     backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
@@ -104,8 +104,8 @@
   .article-meta .readtime{font-size:0.76rem;opacity:0.68;}
   .article-cover{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;margin-top:36px;background:var(--surface);}
   /* the class's own display:block above ties with the browser's built-in
-     [hidden]{display:none} rule (same specificity) and — being an author
-     rule — wins the cascade regardless of source order, so a post with no
+     [hidden]{display:none} rule (same specificity) and – being an author
+     rule – wins the cascade regardless of source order, so a post with no
      cover photo showed a blank white 16:9 box instead of nothing; this
      rule outranks both by adding the attribute to the selector */
   .article-cover[hidden]{display:none;}
@@ -132,10 +132,10 @@
   }
   .article-figure figcaption.credit{margin-top:4px;font-size:0.72rem;opacity:0.75;font-style:normal;}
 
-  /* embedded game-replay widget — same look as the "Best games" tool on
+  /* embedded game-replay widget – same look as the "Best games" tool on
      the career page (index.html). A [game:ID] marker embeds one game with
      no picker; a [games:ID,ID,...] marker embeds several sharing a single
-     board, with a dropdown above it to switch between them — same idea as
+     board, with a dropdown above it to switch between them – same idea as
      the career page's game picker. */
   .embedded-game{margin:44px 0;padding:36px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
   .embedded-game .games-controls-top{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;}
@@ -143,10 +143,10 @@
     background:var(--surface);border:1px solid var(--line);color:var(--ivory);
     font-family:'Inter',sans-serif;font-size:0.9rem;padding:11px 14px;min-width:220px;
   }
-  /* plain text link, not a bordered button — a secondary, quiet action,
+  /* plain text link, not a bordered button – a secondary, quiet action,
      not something competing with the game picker for attention. This was
      missing entirely before, so these buttons were rendering with the
-     browser's raw default <button> chrome — about as loud as it gets. */
+     browser's raw default <button> chrome – about as loud as it gets. */
   .embedded-game .game-download-btn{
     background:none;border:none;color:var(--ivory-dim);
     font-family:'Inter',sans-serif;font-size:0.82rem;padding:4px 0;cursor:pointer;
@@ -201,7 +201,7 @@
   .embedded-game .game-info{font-size:0.84rem;color:var(--ivory-dim);margin-bottom:16px;}
   .embedded-game .pgn-error{font-size:0.84rem;color:#b04e2e;min-height:1.2em;}
   .embedded-game .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;max-height:460px;overflow-y:scroll;padding-right:24px;font-size:0.98rem;text-align:justify;scrollbar-width:auto;scrollbar-color:var(--gold) var(--line);}
-  /* always-visible scrollbar with clickable up/down arrow buttons — see
+  /* always-visible scrollbar with clickable up/down arrow buttons – see
      index.html's .move-list for the full rationale (mirrored here). */
   .embedded-game .move-list::-webkit-scrollbar{width:14px;}
   .embedded-game .move-list::-webkit-scrollbar-track{background:var(--line);}
@@ -212,7 +212,7 @@
   .embedded-game .move-list::-webkit-scrollbar-button:vertical:end:increment{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0 10 0 5 6Z' fill='%235b6474'/%3E%3C/svg%3E");}
   /* a PGN comment is rendered right inside the move list's own flowing
      text, directly after the move it belongs to, rather than pulled out
-     into a separate panel — see index.html's .game-comment-inline for the
+     into a separate panel – see index.html's .game-comment-inline for the
      full rationale. Deliberately plain: same font as the moves
      themselves, no card/box treatment. flex-basis:100% forces it onto its
      own line inside the move list's wrapping flex layout. */
@@ -233,11 +233,11 @@
   .embedded-game .move-btn.active{color:var(--gold-bright);background:rgba(31,58,95,0.14);}
   .embedded-game .move-btn.annotated{box-shadow:0 2px 0 0 var(--gold-bright);}
   /* pops up when advancing lands on a move with more than one real
-     option — see index.html's .move-choice-dialog for the full rationale
+     option – see index.html's .move-choice-dialog for the full rationale
      (mirrored here per-widget-instance). A grid item of .games-layout in
      its own right, placed onto a specific cell via grid-column/grid-row:
      the notation column on desktop, the board's cell on mobile (see the
-     media query below) — same technique as index.html. */
+     media query below) – same technique as index.html. */
   .embedded-game .move-choice-dialog{position:absolute;grid-column:2;grid-row:1;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;pointer-events:none;}
   .embedded-game .move-choice-dialog .move-choice-card{pointer-events:auto;}
   .embedded-game .move-choice-dialog[hidden]{display:none;}
@@ -247,7 +247,7 @@
   .embedded-game .move-choice-btn:hover,.embedded-game .move-choice-btn:focus{border-color:var(--gold);color:var(--gold-bright);background:rgba(31,58,95,0.06);outline:none;}
   .embedded-game .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.76rem;cursor:pointer;padding:2px 0;text-decoration:underline;}
   .embedded-game .move-choice-cancel:hover{color:var(--gold-bright);}
-  /* bigger tap targets on touch devices — see index.html's dialog CSS for
+  /* bigger tap targets on touch devices – see index.html's dialog CSS for
      the full rationale */
   @media (pointer:coarse){
     .embedded-game .move-choice-btn{padding:12px 14px;font-size:0.95rem;}
@@ -298,14 +298,14 @@
     <a href="index.html#blog" class="back-link"><span aria-hidden="true">&larr;</span><span data-i18n="post.back">Back to all posts</span></a>
 
     <!-- shown only when the loaded post has status:"draft" (set in
-         editor.html) — this page has no access control, so a draft is
+         editor.html) – this page has no access control, so a draft is
          only "unpublished" in the sense of not being linked from the
          public blog list; this banner exists so a direct/shared link to
          it is never mistaken for the live article -->
-    <div class="draft-banner" id="draft-banner" hidden data-i18n="post.draftBanner">⚠ Draft — not published yet. Only visible via this direct link.</div>
+    <div class="draft-banner" id="draft-banner" hidden data-i18n="post.draftBanner">⚠ Draft – not published yet. Only visible via this direct link.</div>
 
     <div class="article-head">
-      <div class="eyebrow"><span class="rule"></span><span id="post-category" data-i18n="post.category">Add a category — e.g. Openings, Tournaments, Training</span></div>
+      <div class="eyebrow"><span class="rule"></span><span id="post-category" data-i18n="post.category">Add a category – e.g. Openings, Tournaments, Training</span></div>
       <h1 id="post-title" data-i18n="post.title">Add a post title here</h1>
       <div class="article-meta">
         <span id="post-author" data-i18n="post.author">Add an author name</span>
@@ -320,11 +320,11 @@
     <div class="photo-credit" id="post-cover-credit" hidden></div>
 
     <div class="article-body" id="post-body">
-      <p class="lead" data-i18n="post.lead">Add a short lead paragraph here — one or two sentences that pull the reader in. It's shown a little larger than the rest of the text, right under the title.</p>
-      <p data-i18n="post.p1">Add your first paragraph here. Replace this placeholder with the real content of the post — an opening idea, a tournament story, or a training method.</p>
-      <p data-i18n="post.p2">Add a second paragraph here. Copy this &lt;p&gt; tag as many times as you need to extend the post — the layout will keep the same comfortable reading width.</p>
-      <blockquote data-i18n="post.quote">Add a pull quote here — a key idea, a memorable line from a game, or a takeaway worth highlighting on its own.</blockquote>
-      <p data-i18n="post.p3">Add a closing paragraph here — a takeaway for the reader, a question to think about, or a pointer to what to study next.</p>
+      <p class="lead" data-i18n="post.lead">Add a short lead paragraph here – one or two sentences that pull the reader in. It's shown a little larger than the rest of the text, right under the title.</p>
+      <p data-i18n="post.p1">Add your first paragraph here. Replace this placeholder with the real content of the post – an opening idea, a tournament story, or a training method.</p>
+      <p data-i18n="post.p2">Add a second paragraph here. Copy this &lt;p&gt; tag as many times as you need to extend the post – the layout will keep the same comfortable reading width.</p>
+      <blockquote data-i18n="post.quote">Add a pull quote here – a key idea, a memorable line from a game, or a takeaway worth highlighting on its own.</blockquote>
+      <p data-i18n="post.p3">Add a closing paragraph here – a takeaway for the reader, a question to think about, or a pointer to what to study next.</p>
     </div>
 
     <div class="article-footer">
@@ -346,17 +346,17 @@
 <script>
 var i18n = {
   "post.back":{en:"Back to all posts",de:"Zurück zu allen Beiträgen"},
-  "post.draftBanner":{en:"⚠ Draft — not published yet. Only visible via this direct link.",de:"⚠ Entwurf — noch nicht veröffentlicht. Nur über diesen direkten Link sichtbar."},
-  "post.category":{en:"Add a category — e.g. Openings, Tournaments, Training",de:"Kategorie einfügen — z. B. Eröffnungen, Turniere, Training"},
+  "post.draftBanner":{en:"⚠ Draft – not published yet. Only visible via this direct link.",de:"⚠ Entwurf – noch nicht veröffentlicht. Nur über diesen direkten Link sichtbar."},
+  "post.category":{en:"Add a category – e.g. Openings, Tournaments, Training",de:"Kategorie einfügen – z. B. Eröffnungen, Turniere, Training"},
   "post.title":{en:"Add a post title here",de:"Hier einen Titel einfügen"},
   "post.author":{en:"Add an author name",de:"Autor einfügen"},
   "post.date":{en:"Add a date",de:"Datum einfügen"},
   "post.readtime":{en:"Add a read time, e.g. 5 min read",de:"Lesedauer einfügen, z. B. 5 Min. Lesezeit"},
-  "post.lead":{en:"Add a short lead paragraph here — one or two sentences that pull the reader in. It's shown a little larger than the rest of the text, right under the title.",de:"Hier einen kurzen Einleitungssatz einfügen — ein bis zwei Sätze, die zum Weiterlesen einladen. Er wird etwas größer dargestellt als der restliche Text, direkt unter dem Titel."},
-  "post.p1":{en:"Add your first paragraph here. Replace this placeholder with the real content of the post — an opening idea, a tournament story, or a training method.",de:"Hier den ersten Absatz einfügen. Ersetze diesen Platzhalter durch den eigentlichen Inhalt des Beitrags — eine Eröffnungsidee, eine Turniergeschichte oder eine Trainingsmethode."},
-  "post.p2":{en:"Add a second paragraph here. Copy this &lt;p&gt; tag as many times as you need to extend the post — the layout will keep the same comfortable reading width.",de:"Hier einen zweiten Absatz einfügen. Kopiere dieses &lt;p&gt;-Tag so oft wie nötig, um den Beitrag zu erweitern — das Layout behält dabei die angenehme Lesebreite."},
-  "post.quote":{en:"Add a pull quote here — a key idea, a memorable line from a game, or a takeaway worth highlighting on its own.",de:"Hier ein hervorgehobenes Zitat einfügen — eine Kernidee, einen einprägsamen Satz aus einer Partie, oder eine Erkenntnis, die es wert ist, besonders hervorgehoben zu werden."},
-  "post.p3":{en:"Add a closing paragraph here — a takeaway for the reader, a question to think about, or a pointer to what to study next.",de:"Hier einen Schlussabsatz einfügen — eine Erkenntnis für die Leser, eine Frage zum Nachdenken, oder einen Hinweis, was als Nächstes zu üben ist."},
+  "post.lead":{en:"Add a short lead paragraph here – one or two sentences that pull the reader in. It's shown a little larger than the rest of the text, right under the title.",de:"Hier einen kurzen Einleitungssatz einfügen – ein bis zwei Sätze, die zum Weiterlesen einladen. Er wird etwas größer dargestellt als der restliche Text, direkt unter dem Titel."},
+  "post.p1":{en:"Add your first paragraph here. Replace this placeholder with the real content of the post – an opening idea, a tournament story, or a training method.",de:"Hier den ersten Absatz einfügen. Ersetze diesen Platzhalter durch den eigentlichen Inhalt des Beitrags – eine Eröffnungsidee, eine Turniergeschichte oder eine Trainingsmethode."},
+  "post.p2":{en:"Add a second paragraph here. Copy this &lt;p&gt; tag as many times as you need to extend the post – the layout will keep the same comfortable reading width.",de:"Hier einen zweiten Absatz einfügen. Kopiere dieses &lt;p&gt;-Tag so oft wie nötig, um den Beitrag zu erweitern – das Layout behält dabei die angenehme Lesebreite."},
+  "post.quote":{en:"Add a pull quote here – a key idea, a memorable line from a game, or a takeaway worth highlighting on its own.",de:"Hier ein hervorgehobenes Zitat einfügen – eine Kernidee, einen einprägsamen Satz aus einer Partie, oder eine Erkenntnis, die es wert ist, besonders hervorgehoben zu werden."},
+  "post.p3":{en:"Add a closing paragraph here – a takeaway for the reader, a question to think about, or a pointer to what to study next.",de:"Hier einen Schlussabsatz einfügen – eine Erkenntnis für die Leser, eine Frage zum Nachdenken, oder einen Hinweis, was als Nächstes zu üben ist."},
   "post.moreposts":{en:"← More posts",de:"← Weitere Beiträge"},
   "post.footernote":{en:"Tournament results and ratings as reported by the player",de:"Turnierergebnisse und Elo-Zahlen nach Angaben des Spielers"},
   "post.footerprivacy":{en:"Privacy Policy",de:"Datenschutz"}
@@ -375,7 +375,7 @@ function applyLang(lang){
   });
   document.documentElement.lang = lang;
   try{ localStorage.setItem('jlp-lang', lang); }catch(e){}
-  /* Links back to index.html must carry the language along too — without
+  /* Links back to index.html must carry the language along too – without
      it, index.html falls back to English by default, so reading a German
      post and clicking "back" or the site name could silently land you on
      the English homepage (the reverse of the "wrong language" bug on the
@@ -387,13 +387,13 @@ function applyLang(lang){
   document.querySelectorAll('.back-link, [data-i18n="post.moreposts"]').forEach(function(a){
     a.setAttribute('href', 'index.html?lang=' + lang + '#blog');
   });
-  /* same reasoning for the footer's Datenschutz link — Impressum stays
+  /* same reasoning for the footer's Datenschutz link – Impressum stays
      German-only on purpose, so it needs no lang param */
   var privacyLink = document.querySelector('a[href^="datenschutz.html"]');
   if(privacyLink) privacyLink.setAttribute('href', 'datenschutz.html?lang=' + lang);
   /* the loaded post's title/category/date/read time/body/quote are all
      language-dependent now (translated body, formatted date), so the whole
-     post is re-rendered rather than patched — simpler and always correct,
+     post is re-rendered rather than patched – simpler and always correct,
      at the small cost of resetting any embedded game's move navigation */
   if(loadedRealPost && currentRealPost && typeof renderRealPost === 'function'){
     renderRealPost(currentRealPost);
@@ -401,7 +401,7 @@ function applyLang(lang){
     refreshEmbeddedGameTitles();
   }
 }
-/* ?lang=de / ?lang=en in the URL — lets a link to this post open directly
+/* ?lang=de / ?lang=en in the URL – lets a link to this post open directly
    in a given language (e.g. blog-post.html?slug=x&lang=de), same idea as
    on index.html. Takes priority over the remembered choice; the URL is
    only rewritten to include it once the visitor actually switches. */
@@ -507,7 +507,7 @@ var pieceFallbackGlyph = {
   bK:'♚', bQ:'♛', bR:'♜', bB:'♝', bN:'♞', bP:'♟'
 };
 
-var embeddedGameWidgets = []; /* { titleEl, title, fallbackTitle } — re-translated on lang toggle */
+var embeddedGameWidgets = []; /* { titleEl, title, fallbackTitle } – re-translated on lang toggle */
 
 function isJakobBlack(headers){
   return !!(headers && headers.black && /pajeken/i.test(headers.black));
@@ -577,10 +577,10 @@ function createGameWidget(container, gameOrGames){
   if(choiceCancelEl) choiceCancelEl.textContent = document.documentElement.lang === 'de' ? 'Abbrechen' : 'Cancel';
 
   var engine = null, historyVerbose = [], moveIndex = 0, gameComments = {}, currentGame = null;
-  /* the SAN path (from move 1) of whatever line is currently being viewed —
+  /* the SAN path (from move 1) of whatever line is currently being viewed –
      the mainline by default, or a variation's own path once you click into
      one. Arrow keys and the prev/next/start/end buttons all step through
-     THIS line, not always the mainline — see index.html's activeLine for
+     THIS line, not always the mainline – see index.html's activeLine for
      the full rationale (mirrored here per-widget-instance). activeBranches
      runs parallel to it (alternatives branching off after each move);
      rootBranches is the same for the very first move. See index.html's
@@ -668,7 +668,7 @@ function createGameWidget(container, gameOrGames){
     applyPlayerLabels();
   }
   /* activeBranches, but derived fresh from the mainline (historyVerbose +
-     gameComments) rather than whatever line is currently active — see
+     gameComments) rather than whatever line is currently active – see
      index.html's mainlineBranches() for the full rationale. */
   function mainlineBranches(){
     return historyVerbose.map(function(m, i){
@@ -759,7 +759,7 @@ function createGameWidget(container, gameOrGames){
     return true;
   }
   /* Renders one variation line as real, clickable move buttons (not
-     static text), so a side line is just as playable as the mainline —
+     static text), so a side line is just as playable as the mainline –
      see index.html's renderVariationLine for the full rationale (mirrored
      here per-widget-instance). */
   function renderVariationLine(container, line, prefixPath, prefixBranches){
@@ -811,18 +811,18 @@ function createGameWidget(container, gameOrGames){
       var isActive = pathIsActive(btn.__path);
       btn.classList.toggle('active', isActive);
       /* keep the current move in view by setting scrollTop on the
-         move-list box directly, rather than scrollIntoView — which per
+         move-list box directly, rather than scrollIntoView – which per
          spec scrolls EVERY scrollable ancestor it finds, including the
          page itself; this way only the box moves, never the page.
          Scrolls the MINIMUM distance needed (like scrollIntoView's
-         block:'nearest') instead of always re-centering the active move —
+         block:'nearest') instead of always re-centering the active move –
          centering caused every click past the halfway point to compute a
          target beyond the max scrollTop, which browsers silently clamp to
          the bottom, so it looked like every click jumped straight to the
          end of the notation. This way, stepping to the next move only
          scrolls (by roughly one line) when that move isn't already
          visible, and does nothing at all when it already is.
-         Uses getBoundingClientRect() rather than offsetTop — offsetTop is
+         Uses getBoundingClientRect() rather than offsetTop – offsetTop is
          relative to the nearest POSITIONED ancestor, which here isn't the
          scrollable move-list box itself, so it returned huge, wrong
          numbers that always clamped straight to the bottom too. */
@@ -840,12 +840,12 @@ function createGameWidget(container, gameOrGames){
         }
       }
     });
-    /* ply 0 (before any move) has no move button to scroll to above — see
+    /* ply 0 (before any move) has no move button to scroll to above – see
        index.html's highlightMoveList() for the full rationale. */
     if(moveIndex === 0) listEl.scrollTop = 0;
   }
   /* Replays `line` (an array of SAN strings from move 1) up to `idx` moves
-     in — line can be the mainline or any variation's own path. */
+     in – line can be the mainline or any variation's own path. */
   function goToLineIndex(line, branches, idx){
     hideMoveChoiceDialog();
     engine.reset();
@@ -857,9 +857,9 @@ function createGameWidget(container, gameOrGames){
     highlightMoveList();
   }
   /* Advances one move forward along the current line, unless the move
-     we're actually at right now had more than one real option — the
+     we're actually at right now had more than one real option – the
      line's own next move, plus one or more variations branching off here
-     — in which case it asks which one via a small dialog first. See
+     – in which case it asks which one via a small dialog first. See
      index.html's tryAdvance() for the full rationale. */
   function tryAdvance(){
     if(!engine) return;
@@ -883,8 +883,8 @@ function createGameWidget(container, gameOrGames){
     });
     /* de-dupe: after entering a variation and rewinding back to its own
        branch point, activeLine's own "continue as-is" option and the
-       variation describe the same move — matched by SAN alone, since
-       "continue as-is" never carries a NAG of its own — see index.html's
+       variation describe the same move – matched by SAN alone, since
+       "continue as-is" never carries a NAG of its own – see index.html's
        tryAdvance() for the full rationale. */
     var seenOptions = {};
     var dedupedOptions = [];
@@ -927,7 +927,7 @@ function createGameWidget(container, gameOrGames){
   function isChoiceDialogOpen(){
     return !!(choiceDialog && !choiceDialog.hidden);
   }
-  /* see index.html's handleAdvancePress() for the full rationale — this
+  /* see index.html's handleAdvancePress() for the full rationale – this
      is what the "»" button and the right-arrow key both call. */
   function handleAdvancePress(){
     if(isChoiceDialogOpen()){
@@ -982,7 +982,7 @@ function createGameWidget(container, gameOrGames){
     while((m = re.exec(pgnText)) !== null){ headers[m[1].toLowerCase()] = m[2]; }
     return headers;
   }
-  /* same extraction as index.html's games widget — see the comment there
+  /* same extraction as index.html's games widget – see the comment there
      for why this is needed independently of chess.js. Kept in sync. */
   function extractPgnComments(pgnText){
     var movetext = (pgnText || '').replace(/\[[^\]]*\]\s*/g, '');
@@ -1033,7 +1033,7 @@ function createGameWidget(container, gameOrGames){
     });
     return index;
   }
-  /* same tree-consuming helpers as index.html's games widget — see the
+  /* same tree-consuming helpers as index.html's games widget – see the
      comments there. Kept in sync. */
   function buildAnnotationIndex(tree){
     var index = {};
@@ -1046,7 +1046,7 @@ function createGameWidget(container, gameOrGames){
     if(isWhite) return moveNum + '.';
     return isFirstInLine ? moveNum + '...' : '';
   }
-  /* same German-notation conversion as index.html's games widget — see
+  /* same German-notation conversion as index.html's games widget – see
      the comment there. Kept in sync. */
   function sanToGermanNotation(san){
     if(!san || /^O-O(-O)?[+#]?$/.test(san)) return san;
@@ -1098,7 +1098,7 @@ function createGameWidget(container, gameOrGames){
     if(headers.whiteelo) whiteName += ' (' + headers.whiteelo + ')';
     if(headers.blackelo) blackName += ' (' + headers.blackelo + ')';
     /* whenever Jakob is playing Black, default to viewing the board from
-       Black's side — the flip button can still override this */
+       Black's side – the flip button can still override this */
     orientation = isJakobBlack(headers) ? 'black' : 'white';
     renderCoordinates();
     renderPosition(engine.fen());
@@ -1165,7 +1165,7 @@ function createGameWidget(container, gameOrGames){
   if(choiceDialog) choiceDialog.addEventListener('click', function(e){ if(e.target === choiceDialog) hideMoveChoiceDialog(); });
 
   /* swipe left/right on the board is the touch equivalent of the arrow
-     keys (there's no keyboard on a phone) — see index.html's board swipe
+     keys (there's no keyboard on a phone) – see index.html's board swipe
      handler for the full rationale (mirrored here per-widget-instance,
      scoped to this container since several games can be embedded in one
      post). Ignored while the dialog itself is open. */
@@ -1191,7 +1191,7 @@ function createGameWidget(container, gameOrGames){
     }, { passive: true });
   }
 
-  /* arrow-key navigation, scoped to this widget via focus — several games
+  /* arrow-key navigation, scoped to this widget via focus – several games
      can be embedded in one post, so a page-wide keydown listener wouldn't
      know which board to step through */
   container.addEventListener('keydown', function(e){
@@ -1199,7 +1199,7 @@ function createGameWidget(container, gameOrGames){
     if(tag === 'input' || tag === 'textarea') return;
     if(choiceDialog && !choiceDialog.hidden){
       /* while a choice is pending: up/down cycle which option is focused,
-         right arrow plays whichever one is currently focused — see
+         right arrow plays whichever one is currently focused – see
          index.html's keydown handler for the full rationale. */
       var choiceBtns = Array.from(choiceDialog.querySelectorAll('.move-choice-btn'));
       var focusedIdx = choiceBtns.indexOf(document.activeElement);
@@ -1214,16 +1214,16 @@ function createGameWidget(container, gameOrGames){
         e.preventDefault();
       } else if(e.key === 'ArrowRight'){
         if(focusedIdx >= 0) choiceBtns[focusedIdx].click();
-        else if(choiceBtns.length) choiceBtns[0].click(); /* nothing focused yet — play the first/default option */
+        else if(choiceBtns.length) choiceBtns[0].click(); /* nothing focused yet – play the first/default option */
         e.preventDefault();
       } else if(e.key === 'ArrowLeft'){
-        /* left doesn't cycle the options — it closes the dialog and steps
-           one move back, same as when no choice is pending — see
+        /* left doesn't cycle the options – it closes the dialog and steps
+           one move back, same as when no choice is pending – see
            index.html's keydown handler for the full rationale. */
         manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1));
         e.preventDefault();
       }
-      return; /* a choice is pending — don't also step the board underneath it */
+      return; /* a choice is pending – don't also step the board underneath it */
     }
     if(e.key === 'ArrowLeft'){
       manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1));
@@ -1241,13 +1241,13 @@ function refreshEmbeddedGameTitles(){
 }
 var currentRealPost = null; /* the loaded post object, kept around so a language toggle can re-render it */
 /* a paragraph written as ![caption](path/to/image.jpg) or
-   ![caption](path/to/image.jpg "Photo credit") — inserted by the
-   "Bild einfügen" button in editor.html — renders as an inline photo
+   ![caption](path/to/image.jpg "Photo credit") – inserted by the
+   "Bild einfügen" button in editor.html – renders as an inline photo
    instead of a text paragraph, with an optional photo-credit line.
-   Likewise, a paragraph written as [game:ID] — inserted by the "Partie
-   einfügen" button — renders a full game-replay widget in place; a
+   Likewise, a paragraph written as [game:ID] – inserted by the "Partie
+   einfügen" button – renders a full game-replay widget in place; a
    paragraph written as [games:ID,ID,...] renders several games sharing
-   one board, with a dropdown to switch between them — same idea as the
+   one board, with a dropdown to switch between them – same idea as the
    career page's game picker. */
 var imageLineRe = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/;
 var gameLineRe = /^\[game:([a-zA-Z0-9_-]+)\]$/;
@@ -1255,7 +1255,7 @@ var gamesGroupLineRe = /^\[games:([a-zA-Z0-9_,-]+)\]$/;
 function renderRealPost(post){
   if(typeof embeddedGameWidgets !== 'undefined') embeddedGameWidgets = []; /* body is fully rebuilt below, so drop stale widget refs */
   var lang = document.documentElement.lang === 'de' ? 'de' : 'en';
-  document.title = pickLang(post.title) + ' — IM Jakob Leon Pajeken';
+  document.title = pickLang(post.title) + ' – IM Jakob Leon Pajeken';
   var setText = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || ''; };
   var draftBanner = document.getElementById('draft-banner');
   if(draftBanner) draftBanner.hidden = post.status !== 'draft';
@@ -1280,7 +1280,7 @@ function renderRealPost(post){
   var bodyEl = document.getElementById('post-body');
   if(bodyEl){
     var bodyParas = (post.body && post.body[lang] && post.body[lang].length) ? post.body[lang] : ((post.body && post.body.en) || (Array.isArray(post.body) ? post.body : []));
-    /* **bold** -> <strong>, [text](url) -> <a> — applied to already-escaped
+    /* **bold** -> <strong>, [text](url) -> <a> – applied to already-escaped
        text, so it's safe. Link syntax matters for e.g. affiliate/partner
        links inside a post's body text (opens in a new tab so the reader
        doesn't lose their place in the article). */
@@ -1304,7 +1304,7 @@ function renderRealPost(post){
     var lead = pickLang(post.lead);
     if(lead) html += '<p class="lead">' + renderInline(lead) + '</p>';
     var gameSlotCounter = 0;
-    var gameSlots = []; /* { slotId, game } — instantiated after bodyEl.innerHTML is set */
+    var gameSlots = []; /* { slotId, game } – instantiated after bodyEl.innerHTML is set */
     bodyParas.forEach(function(para){
       if(!para) return;
       var trimmed = para.trim();
@@ -1354,18 +1354,18 @@ function renderRealPost(post){
 (function(){
   var params = new URLSearchParams(location.search);
   var slug = params.get('slug');
-  if(!slug) return; /* no slug in the URL — keep showing the placeholder template */
+  if(!slug) return; /* no slug in the URL – keep showing the placeholder template */
   fetch('data/blog.json', { cache: 'no-store' })
     .then(function(r){ if(!r.ok) throw new Error('no data file'); return r.json(); })
     .then(function(list){
       var post = Array.isArray(list) ? list.filter(function(p){ return p.slug === slug; })[0] : null;
-      if(!post) return; /* no matching post — keep showing the placeholder template */
+      if(!post) return; /* no matching post – keep showing the placeholder template */
       loadedRealPost = true;
       currentRealPost = post;
       renderRealPost(post);
     })
     .catch(function(){
-      /* data/blog.json missing or blocked (e.g. opened as a local file) —
+      /* data/blog.json missing or blocked (e.g. opened as a local file) –
          keep showing the placeholder template */
     });
 })();

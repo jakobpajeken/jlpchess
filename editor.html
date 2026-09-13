@@ -4,7 +4,7 @@
   ==============
   Lokales Werkzeug zum Pflegen von index.html, ganz ohne Code zu
   schreiben. Schreibt direkt in die drei Dateien im data/-Ordner:
-  games.json, blog.json, testimonials.json — genau die Dateien, aus denen
+  games.json, blog.json, testimonials.json – genau die Dateien, aus denen
   sich index.html und blog-post.html ihre Inhalte laden.
 
   Benutzung: diese Datei per Doppelklick öffnen (Chrome oder Edge), oben
@@ -20,15 +20,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Website-Editor — Jakob Leon Pajeken</title>
+<title>Website-Editor – Jakob Leon Pajeken</title>
 <!-- simple blue rook favicon: bold geometric silhouette (crenellated top),
      transparent background (no box), filling almost the whole canvas so
-     it stays legible at tiny tab sizes — navy fill matches --gold, so
+     it stays legible at tiny tab sizes – navy fill matches --gold, so
      update it here too if the site's theme changes again -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='6' width='24' height='4' fill='%231f3a5f'/%3E%3Crect x='4' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='13.5' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='23' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='6' y='10' width='20' height='16' fill='%231f3a5f'/%3E%3Crect x='4' y='26' width='24' height='4' rx='2' fill='%231f3a5f'/%3E%3C/svg%3E">
 <style>
   /* Fonts are self-hosted (fonts/*.woff2) instead of loaded live from
-     Google's servers — see index.html for why. Kept in sync there. */
+     Google's servers – see index.html for why. Kept in sync there. */
   @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
   @font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
   @font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
@@ -36,7 +36,7 @@
   @font-face{font-family:'Spectral';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/Spectral-600-normal.woff2') format('woff2');}
 
   :root{
-    /* "Oxford & Kreide" — kept in sync with index.html's palette;
+    /* "Oxford & Kreide" – kept in sync with index.html's palette;
        --ok/--err stay the same darkened tones as before, since they were
        already tuned for a light background (just a warmer one) */
     --ink:#f1f2f0;
@@ -49,7 +49,7 @@
     --line:rgba(22,32,46,0.13);
     --ok:#4a7548;
     --err:#b04e2e;
-    /* cool marble/slate board — kept in sync with index.html's palette */
+    /* cool marble/slate board – kept in sync with index.html's palette */
     --sq-light:#dde1dc;
     --sq-dark:#5f7487;
     --piece-white:#fbf8f2;
@@ -78,7 +78,7 @@
     font-family:'Inter',sans-serif;transition:background .15s,color .15s;border-radius:2px;
   }
   .btn:hover{background:rgba(31,58,95,0.14);}
-  /* same [hidden]-losing-the-cascade issue as elsewhere — .btn's own
+  /* same [hidden]-losing-the-cascade issue as elsewhere – .btn's own
      display:inline-flex outranks the browser's built-in
      [hidden]{display:none}, which was showing e.g. the "Trennen" button
      before a GitHub token was even connected */
@@ -153,7 +153,7 @@
   .translate-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 8px;}
   .translate-row .status{font-size:0.82rem;color:var(--ivory-dim);}
 
-  /* live PGN preview in the "Partie" sub-form — same visual design as the
+  /* live PGN preview in the "Partie" sub-form – same visual design as the
      Partienachspiel tool on the career page, so you can see right away
      whether a pasted PGN actually loads before saving the post. */
   .game-preview{margin-top:6px;padding:20px;background:var(--surface);border:1px solid var(--line);
@@ -212,7 +212,7 @@
 <div class="wrap">
   <header>
     <h1>Website-Editor</h1>
-    <p>Partien, Blogposts und Stimmen von Schülern pflegen — ohne Code, von jedem Gerät aus. Jede Speicherung hier wird direkt als Commit in deinem Website-Repository gespeichert und ist innerhalb weniger Sekunden live.</p>
+    <p>Partien, Blogposts und Stimmen von Schülern pflegen – ohne Code, von jedem Gerät aus. Jede Speicherung hier wird direkt als Commit in deinem Website-Repository gespeichert und ist innerhalb weniger Sekunden live.</p>
   </header>
 
   <div class="status-bar" id="status-bar">
@@ -220,7 +220,7 @@
       style="background:var(--surface);border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:0.9rem;padding:10px 12px;min-width:280px;">
     <button type="button" class="btn solid" id="gh-connect-btn">🔑 Verbinden</button>
     <button type="button" class="btn" id="gh-disconnect-btn" hidden>Trennen</button>
-    <span id="folder-status" style="color:var(--ivory-dim);">Noch nicht verbunden — Token einfügen, um deine Website zu bearbeiten.</span>
+    <span id="folder-status" style="color:var(--ivory-dim);">Noch nicht verbunden – Token einfügen, um deine Website zu bearbeiten.</span>
   </div>
   <details style="margin:0 0 22px;">
     <summary style="cursor:pointer;color:var(--gold-bright);font-size:0.9rem;">Wie bekomme ich einen Token?</summary>
@@ -228,7 +228,7 @@
       1. Auf GitHub: <strong>Einstellungen → Developer settings → Fine-grained tokens → „Generate new token"</strong><br>
       2. <strong>Repository access</strong>: nur <code>jlpchess</code> auswählen (nicht dein ganzes Konto)<br>
       3. <strong>Permissions → Contents</strong>: auf „Read and write" stellen<br>
-      4. Token erzeugen, kopieren und hier oben einfügen. Er bleibt nur in diesem Browser gespeichert — niemand sonst sieht ihn.
+      4. Token erzeugen, kopieren und hier oben einfügen. Er bleibt nur in diesem Browser gespeichert – niemand sonst sieht ihn.
     </div>
   </details>
 
@@ -338,7 +338,7 @@
    Ersetzt den früheren lokalen Dateizugriff (File System Access
    API), damit dieses Tool von jedem Gerät und Browser aus nutzbar
    ist. Jede Speicherung hier wird ein echter Commit in deinem
-   Repository — der Token bleibt ausschließlich in diesem Browser
+   Repository – der Token bleibt ausschließlich in diesem Browser
    (localStorage), er wird nie irgendwohin sonst übertragen außer
    direkt an api.github.com.
    ============================================================ */
@@ -368,7 +368,7 @@ function ghHeaders(){
 function ghUrl(path){
   return 'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + path.split('/').map(encodeURIComponent).join('/');
 }
-/* UTF-8-sichere Base64-Kodierung (Umlaute etc.) — die GitHub-API
+/* UTF-8-sichere Base64-Kodierung (Umlaute etc.) – die GitHub-API
    verlangt/liefert Dateiinhalte immer als Base64. */
 function utf8ToBase64(str){
   var bytes = new TextEncoder().encode(str);
@@ -460,7 +460,7 @@ async function writeJson(name, data){
   var content = utf8ToBase64(JSON.stringify(data, null, 2) + '\n');
   await ghPutFile('data/' + name, content, 'Update ' + name + ' via online editor');
 }
-/* Splits the raw text of data/games.pgn into individual game blocks — just
+/* Splits the raw text of data/games.pgn into individual game blocks – just
    enough parsing to list and copy whole games, not the full recursive
    variation/NAG tree scripts/sync_games_pgn.py builds server-side with the
    real "chess" library (deliberately not reimplemented here in JS: this is
@@ -479,7 +479,7 @@ function splitPgnDatabase(text){
 }
 /* Fetches data/games.pgn fresh from GitHub every time it's opened, rather
    than relying on the "games"/"blogPosts" arrays already loaded into this
-   session — those only pick up a ChessBase edit after
+   session – those only pick up a ChessBase edit after
    scripts/sync_games_pgn.py has had a sync cycle to run, so reading the
    PGN file directly here means a game saved in ChessBase moments ago is
    already pickable, without waiting on that. Returns null (rather than
@@ -574,7 +574,7 @@ document.getElementById('gh-disconnect-btn').addEventListener('click', function(
 /* ============================================================
    KI-Schreibhilfe (Google Gemini, kostenloses Kontingent)
    ------------------------------------------------------------
-   Entirely optional and independent of the GitHub connection above —
+   Entirely optional and independent of the GitHub connection above –
    this only powers the "✨ KI-Hilfe" buttons next to the blog body
    text fields. The key lives in localStorage on this device only,
    same as the GitHub token, and is sent to nobody but Google's own
@@ -609,7 +609,7 @@ document.getElementById('gemini-clear-btn').addEventListener('click', function()
   showToast('KI-Schlüssel entfernt.');
 });
 (function(){
-  if(getGeminiKey()) document.getElementById('gemini-key-input').placeholder = '•••• bereits gespeichert — neuen Schlüssel einfügen zum Ändern';
+  if(getGeminiKey()) document.getElementById('gemini-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
   updateGeminiStatus();
 })();
 /* Sends `prompt` to Gemini and returns its plain-text reply. Throws with a
@@ -630,7 +630,7 @@ async function askGemini(prompt){
     if(resp.status === 400 || resp.status === 401 || resp.status === 403){
       throw new Error('KI-Schlüssel ungültig oder abgelehnt (Status ' + resp.status + ').');
     }
-    if(resp.status === 429) throw new Error('KI-Kontingent gerade ausgeschöpft — kurz warten und nochmal versuchen.');
+    if(resp.status === 429) throw new Error('KI-Kontingent gerade ausgeschöpft – kurz warten und nochmal versuchen.');
     throw new Error('KI-Anfrage fehlgeschlagen (Status ' + resp.status + ').');
   }
   var data = await resp.json();
@@ -678,7 +678,7 @@ var pieceFallbackGlyph = {
    Same rendering approach as the embedded game-replay widget in
    blog-post.html, so what you see here matches what visitors will see. */
 /* strips comments, ; line-comments, ( ) variations and $NAG codes before
-   handing the move text to chess.js — real PGNs copied from lichess/
+   handing the move text to chess.js – real PGNs copied from lichess/
    chess.com commonly include these, and the bundled chess.js version
    chokes on some of them, which made pasted games silently fail to load. */
 function sanitizePgn(pgn){
@@ -843,7 +843,7 @@ function createGameWidget(container, game){
     container.querySelectorAll('.move-btn').forEach(function(btn){
       var isActive = parseInt(btn.dataset.ply, 10) === moveIndex;
       btn.classList.toggle('active', isActive);
-      /* scrollTop directly on the move-list box, not scrollIntoView — the
+      /* scrollTop directly on the move-list box, not scrollIntoView – the
          latter walks up and scrolls every scrollable ancestor it finds,
          including the page itself */
       if(isActive){
@@ -911,7 +911,7 @@ function createGameWidget(container, game){
   engine = new Chess();
   var ok = engine.load_pgn(sanitizePgn(game.pgn || ''), { sloppy: true });
   if(!ok){
-    errorEl.textContent = 'Diese Partie konnte nicht gelesen werden — bitte den PGN-Text prüfen (muss mit Zugtext wie "1. e4 e5 ..." enden).';
+    errorEl.textContent = 'Diese Partie konnte nicht gelesen werden – bitte den PGN-Text prüfen (muss mit Zugtext wie "1. e4 e5 ..." enden).';
     return null;
   }
   historyVerbose = engine.history({ verbose: true });
@@ -932,7 +932,7 @@ function createGameWidget(container, game){
   titleEl.textContent = previewLang(game.title) || (whiteName + ' vs ' + blackName);
 
   /* the tournament name gets "(Runde N)" appended, right between the
-     tournament name and the date, whenever the PGN has a round number —
+     tournament name and the date, whenever the PGN has a round number –
      this preview always shows German, matching the rest of the editor UI */
   var infoBits = [];
   if(headers.event){
@@ -977,7 +977,7 @@ function previewLang(val){
   return val || '';
 }
 /* today's date in the Europe/Berlin timezone (CET/CEST, DST-aware), formatted
-   as YYYY-MM-DD for a <input type="date"> value — used to prefill a new
+   as YYYY-MM-DD for a <input type="date"> value – used to prefill a new
    blog post's date on first publish, while staying manually editable */
 function todayInBerlin(){
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date());
@@ -1002,7 +1002,7 @@ function uniqueSlug(base, excludeIndex){
 }
 /* ---------- blog post date + read time (shared with index.html / blog-post.html) ----------
    Dates are stored as a plain ISO string ("YYYY-MM-DD", from a native
-   <input type="date">) and formatted per language only at display time —
+   <input type="date">) and formatted per language only at display time –
    that's what makes the date automatically correct in both languages
    instead of needing to be typed out twice. */
 var MONTH_NAMES_FULL = {
@@ -1012,7 +1012,7 @@ var MONTH_NAMES_FULL = {
 function formatBlogDate(iso, lang){
   if(!iso) return '';
   var parts = String(iso).split('-');
-  if(parts.length !== 3) return iso; /* not an ISO date — show whatever was stored */
+  if(parts.length !== 3) return iso; /* not an ISO date – show whatever was stored */
   var y = parseInt(parts[0], 10), m = parseInt(parts[1], 10), d = parseInt(parts[2], 10);
   if(!y || !m || !d) return iso;
   var names = MONTH_NAMES_FULL[lang] || MONTH_NAMES_FULL.en;
@@ -1032,15 +1032,15 @@ function collectCategoryOptions(lang){
   return list;
 }
 /* (read time itself is calculated on blog-post.html / index.html at
-   display time from post.body — the editor never shows it, so it has no
+   display time from post.body – the editor never shows it, so it has no
    need for that calculation) */
 /* ---------- machine translation (English -> German), via Google Translate's
-   public (unofficial, no API key) endpoint — used by the "Ins Deutsche
+   public (unofficial, no API key) endpoint – used by the "Ins Deutsche
    übersetzen" button. Results are always editable afterward; this is a
    starting point, not a final translation.
    (MyMemory's free API was tried first, but its crowdsourced translation
    memory can return confidently-wrong, completely unrelated text for
-   ordinary sentences — not usable as a silent default.) ---- */
+   ordinary sentences – not usable as a silent default.) ---- */
 function splitForTranslation(text, maxLen){
   maxLen = maxLen || 1800; /* Google's endpoint handles full paragraphs fine; this is just a safety cap for pathologically long text */
   if(text.length <= maxLen) return [text];
@@ -1053,7 +1053,7 @@ function splitForTranslation(text, maxLen){
   if(cur) chunks.push(cur);
   return chunks;
 }
-/* DeepL, via a small Cloudflare Worker proxy (see scripts/deepl-worker.js) —
+/* DeepL, via a small Cloudflare Worker proxy (see scripts/deepl-worker.js) –
    noticeably better EN->DE quality than the fallbacks below. Left empty
    until the Worker is deployed; translateChunk() simply skips straight to
    Google/MyMemory while this is blank, so nothing breaks in the meantime. */
@@ -1082,7 +1082,7 @@ async function translateViaGoogle(trimmed, sourceLang, targetLang){
 }
 /* MyMemory's crowdsourced translation memory occasionally returns a
    confidently-wrong, completely unrelated snippet (e.g. movie subtitle
-   text) for an ordinary sentence — so a result whose length is wildly out
+   text) for an ordinary sentence – so a result whose length is wildly out
    of proportion to the source is rejected rather than used silently. */
 async function translateViaMyMemory(trimmed, sourceLang, targetLang){
   var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(trimmed) +
@@ -1132,7 +1132,7 @@ async function translateDeToEn(text){ return translateText(text, 'DE', 'EN'); }
 /* translates only the caption inside a ![caption](path "credit") marker,
    leaving the path/credit and any [game:ID] marker untouched */
 async function translateBodyParagraph(para, sourceLang, targetLang){
-  if(/^\[game:/.test(para)) return para; /* game marker — nothing to translate */
+  if(/^\[game:/.test(para)) return para; /* game marker – nothing to translate */
   var imgMatch = /^!\[([^\]]*)\](\([^)]+\))$/.exec(para);
   if(imgMatch){
     var caption = imgMatch[1];
@@ -1140,9 +1140,9 @@ async function translateBodyParagraph(para, sourceLang, targetLang){
     var translatedCaption = await translateText(caption, sourceLang, targetLang);
     return '![' + translatedCaption + ']' + imgMatch[2];
   }
-  /* inline links (e.g. an affiliate link mid-sentence — [text](url)) and
+  /* inline links (e.g. an affiliate link mid-sentence – [text](url)) and
      [size=N]...[/size] spans both need their own inner text translated
-     but their markup (the URL / the pixel size) left completely alone —
+     but their markup (the URL / the pixel size) left completely alone –
      pull each one out into a placeholder token before translating the
      surrounding prose, so the translator never even sees (and so can't
      mangle) the raw markdown/size syntax itself, then translate each
@@ -1172,7 +1172,7 @@ async function translateBodyParagraph(para, sourceLang, targetLang){
   return translatedText;
 }
 /* wires a single translate button that reads sourceFieldId, translates it,
-   and writes into targetFieldId — used to give every EN/DE field pair in
+   and writes into targetFieldId – used to give every EN/DE field pair in
    the editor a button on each side (translate either direction). */
 function wireTranslateButton(btnId, sourceFieldId, targetFieldId, sourceLang, targetLang){
   var btn = document.getElementById(btnId);
@@ -1229,7 +1229,7 @@ function renderGames(){
   list.querySelectorAll('[data-down]').forEach(function(b){ b.addEventListener('click', function(){ moveGame(parseInt(b.dataset.down, 10), 1); }); });
 }
 /* Moves the entry at idx by direction (-1 = up/earlier, 1 = down/later) and
-   persists the new order — array order is exactly the display order used
+   persists the new order – array order is exactly the display order used
    both by the games dropdown on index.html and the testimonial rotation,
    so this is the only thing that needs to change to reorder them there. */
 async function moveGame(idx, direction){
@@ -1253,18 +1253,18 @@ function openGameForm(idx){
     '<form class="entry-form" id="game-form">' +
     '<h3>' + (editing ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
     '<div class="field"><label>Aus der PGN-Datenbank übernehmen (optional)</label>' +
-    '<span class="hint">Kopiert Titel und PGN einer bereits vorhandenen Partie hierher — danach frei anpassbar. Betrifft nur dieses Formular, die Original-Partie bleibt unverändert.</span>' +
+    '<span class="hint">Kopiert Titel und PGN einer bereits vorhandenen Partie hierher – danach frei anpassbar. Betrifft nur dieses Formular, die Original-Partie bleibt unverändert.</span>' +
     '<select id="gf-copy-from"><option value="">Lädt Partien-Datenbank …</option></select></div>' +
     '<div class="form-row">' +
     '<div class="field"><label>Titel (Englisch)</label>' +
     '<div class="cover-row"><input type="text" id="gf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan" style="flex:1;">' +
     '<button type="button" class="btn small" id="gf-title-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
-    '<div class="field"><label>Titel (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Titel auch auf Deutsch angezeigt werden soll — oder automatisch übersetzen.</span>' +
+    '<div class="field"><label>Titel (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Titel auch auf Deutsch angezeigt werden soll – oder automatisch übersetzen.</span>' +
     '<div class="cover-row"><input type="text" id="gf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Pflichtsieg gegen GM Iniyan" style="flex:1;">' +
     '<button type="button" class="btn small" id="gf-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '</div>' +
     '<div class="field"><label>Kurzbeschreibung (optional)</label><input type="text" id="gf-meta" value="' + escapeHtml(g.meta) + '" placeholder="z. B. Riga Tech op-A · Runde 9"></div>' +
-    '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. — aus deiner Schach-App oder Turnierseite kopieren.</span>' +
+    '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. – aus deiner Schach-App oder Turnierseite kopieren.</span>' +
     '<textarea id="gf-pgn" class="tall mono" placeholder="[Event &quot;...&quot;]&#10;[White &quot;...&quot;]&#10;[Black &quot;...&quot;]&#10;...&#10;1. e4 e5 2. Nf3 ...">' + escapeHtml(g.pgn) + '</textarea></div>' +
     '<div class="form-actions">' +
     '<button type="submit" class="btn solid">Speichern</button>' +
@@ -1272,7 +1272,7 @@ function openGameForm(idx){
     '</div></form>';
   document.getElementById('gf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
   /* lets you start from a game that's already in the PGN database
-     (data/games.pgn) instead of re-pasting PGN text by hand — same
+     (data/games.pgn) instead of re-pasting PGN text by hand – same
      picker as the blog post games form, see openPostGameForm() for the
      full rationale. Reads games.pgn fresh every time this opens, so a
      game saved in ChessBase moments ago is already pickable here. */
@@ -1292,7 +1292,7 @@ function openGameForm(idx){
       }
     }
     var existingTitle = known ? previewLang(known.title) : '';
-    return existingTitle ? (nameLabel + ' — ' + existingTitle) : nameLabel;
+    return existingTitle ? (nameLabel + ' – ' + existingTitle) : nameLabel;
   }
   fetchGamesPgnDatabase().then(function(entries){
     if(!copyFromSelect) return; /* form may have been closed already */
@@ -1305,7 +1305,7 @@ function openGameForm(idx){
       copyFromSelect.innerHTML = '<option value="">Noch keine Partien in der Datenbank</option>';
       return;
     }
-    copyFromSelect.innerHTML = '<option value="">— auswählen —</option>' +
+    copyFromSelect.innerHTML = '<option value="">– auswählen –</option>' +
       entries.map(function(entry, i){ return '<option value="' + i + '">' + escapeHtml(labelForPgnEntryDirect(entry)) + '</option>'; }).join('');
   });
   if(copyFromSelect){
@@ -1320,7 +1320,7 @@ function openGameForm(idx){
       document.getElementById('gf-meta').value = known ? (known.meta || '') : '';
       document.getElementById('gf-pgn').value = entry.pgn;
       copyFromSelect.value = '';
-      showToast('Übernommen — unten anpassen und speichern ✓');
+      showToast('Übernommen – unten anpassen und speichern ✓');
     });
   }
   wireTranslateButton('gf-title-translate', 'gf-title-en', 'gf-title-de', 'EN', 'DE');
@@ -1329,8 +1329,8 @@ function openGameForm(idx){
     e.preventDefault();
     var titleEn = document.getElementById('gf-title-en').value.trim();
     /* start from the existing entry (when editing) rather than a blank
-       object, so "id" and "annotations" — added by scripts/sync_games_pgn.py
-       for the ChessBase round-trip, never shown in this form — survive an
+       object, so "id" and "annotations" – added by scripts/sync_games_pgn.py
+       for the ChessBase round-trip, never shown in this form – survive an
        edit here instead of silently vanishing (which would break the link
        to that game's entry in games.pgn and lose its comments/variations
        until the next sync re-derives them from the possibly-now-stale pgn) */
@@ -1424,7 +1424,7 @@ function openBlogForm(idx){
   var catOptionsEn = collectCategoryOptions('en').map(function(c){ return '<option value="' + escapeHtml(c) + '">'; }).join('');
   var catOptionsDe = collectCategoryOptions('de').map(function(c){ return '<option value="' + escapeHtml(c) + '">'; }).join('');
   /* new posts default to Entwurf, so writing something doesn't put it live
-     right away — has to be explicitly switched to "Veröffentlicht" here or
+     right away – has to be explicitly switched to "Veröffentlicht" here or
      via the list's own toggle button. An existing post with no status at
      all (saved before this field existed) counts as published, matching
      what's already true for it on the live site. */
@@ -1433,7 +1433,7 @@ function openBlogForm(idx){
   slot.innerHTML =
     '<form class="entry-form" id="blog-form">' +
     '<h3>' + (editing ? 'Beitrag bearbeiten' : 'Neuer Beitrag') + '</h3>' +
-    '<div class="field"><label>Status</label><span class="hint">Ein Entwurf ist nicht im öffentlichen Blog gelistet — nur über einen direkten Link erreichbar (mit deutlichem Entwurf-Hinweis).</span>' +
+    '<div class="field"><label>Status</label><span class="hint">Ein Entwurf ist nicht im öffentlichen Blog gelistet – nur über einen direkten Link erreichbar (mit deutlichem Entwurf-Hinweis).</span>' +
     '<select id="bf-status">' +
     '<option value="draft"' + (statusValue === 'draft' ? ' selected' : '') + '>Entwurf</option>' +
     '<option value="published"' + (statusValue === 'published' ? ' selected' : '') + '>Veröffentlicht</option>' +
@@ -1443,7 +1443,7 @@ function openBlogForm(idx){
     '<button type="button" class="btn" id="bf-translate-all-rev">🌐 Gesamten Beitrag ins Englische übersetzen</button>' +
     '<span class="status" id="bf-translate-status"></span>' +
     '</div>' +
-    '<span class="hint">Schreibe zuerst auf Englisch, übersetze dann automatisch — die deutschen Felder bleiben danach frei bearbeitbar. Jedes Feld hat außerdem einen eigenen 🌐-Knopf für beide Richtungen.</span>' +
+    '<span class="hint">Schreibe zuerst auf Englisch, übersetze dann automatisch – die deutschen Felder bleiben danach frei bearbeitbar. Jedes Feld hat außerdem einen eigenen 🌐-Knopf für beide Richtungen.</span>' +
     '<div class="form-row">' +
     '<div class="field"><label>Titel (Englisch)</label><div class="cover-row"><input type="text" id="bf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Three opening mistakes I keep seeing" style="flex:1;"><button type="button" class="btn small" id="bf-title-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
     '<div class="field"><label>Titel (Deutsch)</label><div class="cover-row"><input type="text" id="bf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Drei Eröffnungsfehler, die ich ständig sehe" style="flex:1;"><button type="button" class="btn small" id="bf-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
@@ -1453,8 +1453,8 @@ function openBlogForm(idx){
     '<div class="field"><label>Kategorie (Deutsch)</label><div class="cover-row"><input type="text" id="bf-category-de" list="bf-category-de-options" value="' + escapeHtml(categorySplit.de) + '" placeholder="z. B. Eröffnungen" style="flex:1;"><datalist id="bf-category-de-options">' + catOptionsDe + '</datalist><button type="button" class="btn small" id="bf-category-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '</div>' +
     '<div class="form-row">' +
-    '<div class="field"><label>Datum</label><span class="hint">Bei einem neuen Beitrag automatisch das heutige Datum (MEZ/MESZ) — bei Bedarf änderbar.</span><input type="date" id="bf-date" value="' + escapeHtml(dateValue) + '"></div>' +
-    '<div class="field"><label>Autor</label><span class="hint">Standardmäßig du — bei Bedarf änderbar.</span><input type="text" id="bf-author" value="' + escapeHtml(authorValue) + '" placeholder="z. B. IM Jakob Leon Pajeken"></div>' +
+    '<div class="field"><label>Datum</label><span class="hint">Bei einem neuen Beitrag automatisch das heutige Datum (MEZ/MESZ) – bei Bedarf änderbar.</span><input type="date" id="bf-date" value="' + escapeHtml(dateValue) + '"></div>' +
+    '<div class="field"><label>Autor</label><span class="hint">Standardmäßig du – bei Bedarf änderbar.</span><input type="text" id="bf-author" value="' + escapeHtml(authorValue) + '" placeholder="z. B. IM Jakob Leon Pajeken"></div>' +
     '</div>' +
     '<div class="field"><label>Titelfoto (optional)</label><span class="hint">Erscheint als Vorschaubild auf der Karte im Blog-Tab und oben im Beitrag.</span>' +
     '<div class="cover-row">' +
@@ -1491,7 +1491,7 @@ function openBlogForm(idx){
     '<input type="file" id="bf-body-image-file" accept="image/*" hidden></div>' +
     '<div id="bf-ai-panel" class="ai-panel" hidden></div>' +
     '<textarea id="bf-body-en" class="tall">' + escapeHtml(bodyEnParas.join('\n\n')) + '</textarea></div>' +
-    '<div class="field"><label>Text (Deutsch)</label><span class="hint">Wird Absatz für Absatz automatisch übersetzt (Bilder/Partien bleiben an der gleichen Stelle) — danach frei bearbeitbar. Markierten Text mit <strong>F</strong>/<em>K</em>/<u>U</u> fett, kursiv bzw. unterstrichen machen.</span>' +
+    '<div class="field"><label>Text (Deutsch)</label><span class="hint">Wird Absatz für Absatz automatisch übersetzt (Bilder/Partien bleiben an der gleichen Stelle) – danach frei bearbeitbar. Markierten Text mit <strong>F</strong>/<em>K</em>/<u>U</u> fett, kursiv bzw. unterstrichen machen.</span>' +
     '<div class="inline-image-row"><button type="button" class="btn small" id="bf-bold-btn-de" title="Fett"><strong>F</strong></button>' +
     '<button type="button" class="btn small" id="bf-italic-btn-de" title="Kursiv"><em>K</em></button>' +
     '<button type="button" class="btn small" id="bf-underline-btn-de" title="Unterstrichen"><u>U</u></button>' +
@@ -1563,7 +1563,7 @@ function openBlogForm(idx){
     if(!file) return;
     if(!githubToken){ showToast('Nicht verbunden.', true); return; }
     var caption = window.prompt('Bildunterschrift (optional, kann leer bleiben):', '') || '';
-    var credit = window.prompt('Fotograf / Quelle (optional, kann leer bleiben) — erscheint als kleiner Hinweis unter dem Bild:', '') || '';
+    var credit = window.prompt('Fotograf / Quelle (optional, kann leer bleiben) – erscheint als kleiner Hinweis unter dem Bild:', '') || '';
     insertImageBtn.disabled = true;
     try{
       var path = await saveImageFile(file, caption || document.getElementById('bf-title-en').value || 'bild');
@@ -1572,7 +1572,7 @@ function openBlogForm(idx){
       var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
       var before = bodyTextarea.value.slice(0, start);
       var after = bodyTextarea.value.slice(end);
-      /* a paragraph break needs a BLANK line (two newlines), not just one —
+      /* a paragraph break needs a BLANK line (two newlines), not just one –
          checking for only one newline (as this used to) misfires whenever
          the cursor sits right before a normal line wrap inside an existing
          paragraph, gluing the marker onto the following text with just a
@@ -1592,7 +1592,7 @@ function openBlogForm(idx){
 
   /* ---- bold / italic / underline / size, wired identically for both the
      English and German body textareas (each needs its own set of buttons
-     — text typed or fixed up directly in German shouldn't require
+     – text typed or fixed up directly in German shouldn't require
      switching over to the English field just to format it). Wraps the
      current selection in the matching markers (the same ones renderInline()
      in blog-post.html looks for); with nothing selected, drops in
@@ -1631,7 +1631,7 @@ function openBlogForm(idx){
   wireFormattingButtons('', bodyTextarea);
   wireFormattingButtons('-de', document.getElementById('bf-body-de'));
 
-  /* ---- optional AI writing help (Google Gemini) for the body text —
+  /* ---- optional AI writing help (Google Gemini) for the body text –
      wired identically for English and German, same idea as the
      formatting buttons above. Operates on the current text SELECTION if
      there is one, otherwise the whole field; the reply is shown for
@@ -1672,10 +1672,10 @@ function openBlogForm(idx){
         resultEl.innerHTML = '<p class="hint">KI denkt nach …</p>';
         try{
           var prompt = instruction + '\n\nText:\n' + source +
-            '\n\nGib ausschließlich den überarbeiteten Text zurück — ohne Erklärung, ohne Anführungszeichen, ohne Einleitung davor.';
+            '\n\nGib ausschließlich den überarbeiteten Text zurück – ohne Erklärung, ohne Anführungszeichen, ohne Einleitung davor.';
           var reply = await askGemini(prompt);
           resultEl.innerHTML =
-            '<div class="field"><label>Vorschlag der KI — hier noch anpassbar</label>' +
+            '<div class="field"><label>Vorschlag der KI – hier noch anpassbar</label>' +
             '<textarea id="' + panel.id + '-reply" class="mono tall">' + escapeHtml(reply) + '</textarea></div>' +
             '<div class="form-actions">' +
             '<button type="button" class="btn solid small" id="' + panel.id + '-apply">' + (hasSelection ? '↩ Auswahl ersetzen' : '↩ Text ersetzen') + '</button>' +
@@ -1711,7 +1711,7 @@ function openBlogForm(idx){
   wireAiHelper('', bodyTextarea);
   wireAiHelper('-de', document.getElementById('bf-body-de'));
 
-  /* ---- inline link insertion into the (English) body text — e.g. for
+  /* ---- inline link insertion into the (English) body text – e.g. for
      affiliate/partner links. Inserted inline at the cursor, not as its own
      paragraph like the image button above, since a link normally sits
      inside a sentence rather than being a standalone block. */
@@ -1761,8 +1761,8 @@ function openBlogForm(idx){
         }
         document.getElementById('bf-body-de').value = translated.join('\n\n');
       }
-      statusEl.textContent = 'Übersetzt ✓ — bitte prüfen.';
-      showToast('Übersetzung eingefügt ✓ — bitte prüfen und ggf. anpassen.');
+      statusEl.textContent = 'Übersetzt ✓ – bitte prüfen.';
+      showToast('Übersetzung eingefügt ✓ – bitte prüfen und ggf. anpassen.');
     }catch(err){
       statusEl.textContent = '';
       showToast('Übersetzung fehlgeschlagen: ' + (err && err.message ? err.message : 'Verbindung zum Übersetzungsdienst nicht möglich.'), true);
@@ -1770,7 +1770,7 @@ function openBlogForm(idx){
     btn.disabled = false;
   });
 
-  /* ---- translate the whole post (DE -> EN) with one click — mirror of the
+  /* ---- translate the whole post (DE -> EN) with one click – mirror of the
      button above, for posts that were drafted in German first ---- */
   document.getElementById('bf-translate-all-rev').addEventListener('click', async function(){
     var btn = this;
@@ -1801,8 +1801,8 @@ function openBlogForm(idx){
         }
         document.getElementById('bf-body-en').value = translatedEn.join('\n\n');
       }
-      statusEl.textContent = 'Übersetzt ✓ — bitte prüfen.';
-      showToast('Übersetzung eingefügt ✓ — bitte prüfen und ggf. anpassen.');
+      statusEl.textContent = 'Übersetzt ✓ – bitte prüfen.';
+      showToast('Übersetzung eingefügt ✓ – bitte prüfen und ggf. anpassen.');
     }catch(err){
       statusEl.textContent = '';
       showToast('Übersetzung fehlgeschlagen: ' + (err && err.message ? err.message : 'Verbindung zum Übersetzungsdienst nicht möglich.'), true);
@@ -1816,7 +1816,7 @@ function openBlogForm(idx){
     var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
     var before = bodyTextarea.value.slice(0, start);
     var after = bodyTextarea.value.slice(end);
-    /* needs a full BLANK line (two newlines), not just one — see the
+    /* needs a full BLANK line (two newlines), not just one – see the
        matching comment on the image-insert handler above for why */
     var needsLeadingBreak = before.length && (before.match(/\n*$/) || [''])[0].length < 2;
     var needsTrailingBreak = after.length && (after.match(/^\n*/) || [''])[0].length < 2;
@@ -1872,7 +1872,7 @@ function openBlogForm(idx){
     var editingGame = gIdx != null;
     var g = editingGame ? postGames[gIdx] : { id: makeGameId(), title: '', meta: '', pgn: '' };
     var titleSplit = splitLangValue(g.title);
-    /* a plain <div>, not a <form> — this sits inside the outer #blog-form,
+    /* a plain <div>, not a <form> – this sits inside the outer #blog-form,
        and browsers silently drop a nested <form> tag (forms cannot nest),
        so the "save" action here is a regular button with a click handler
        rather than a submit event. */
@@ -1883,24 +1883,24 @@ function openBlogForm(idx){
        on, not a live link back to the original. Reads games.pgn fresh
        every time this opens (see fetchGamesPgnDatabase()), not the
        games/blogPosts arrays already loaded into this session, so a game
-       saved in ChessBase moments ago — before scripts/sync_games_pgn.py
-       has even had a sync cycle to notice it — is already pickable here. */
+       saved in ChessBase moments ago – before scripts/sync_games_pgn.py
+       has even had a sync cycle to notice it – is already pickable here. */
     gamesFormSlot.innerHTML =
       '<div class="entry-form" id="bf-game-form">' +
       '<h3>' + (editingGame ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
       '<div class="field"><label>Aus der PGN-Datenbank übernehmen (optional)</label>' +
-      '<span class="hint">Kopiert Titel und PGN einer bereits vorhandenen Partie hierher — danach frei anpassbar. Betrifft nur dieses Formular, die Original-Partie bleibt unverändert.</span>' +
+      '<span class="hint">Kopiert Titel und PGN einer bereits vorhandenen Partie hierher – danach frei anpassbar. Betrifft nur dieses Formular, die Original-Partie bleibt unverändert.</span>' +
       '<select id="bfg-copy-from"><option value="">Lädt Partien-Datenbank …</option></select></div>' +
       '<div class="form-row">' +
       '<div class="field"><label>Titel (Englisch)</label>' +
       '<div class="cover-row"><input type="text" id="bfg-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan" style="flex:1;">' +
       '<button type="button" class="btn small" id="bfg-title-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
-      '<div class="field"><label>Titel (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Titel auch auf Deutsch angezeigt werden soll — oder automatisch übersetzen.</span>' +
+      '<div class="field"><label>Titel (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Titel auch auf Deutsch angezeigt werden soll – oder automatisch übersetzen.</span>' +
       '<div class="cover-row"><input type="text" id="bfg-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Pflichtsieg gegen GM Iniyan" style="flex:1;">' +
       '<button type="button" class="btn small" id="bfg-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
       '</div>' +
       '<div class="field"><label>Kurzbeschreibung (optional)</label><input type="text" id="bfg-meta" value="' + escapeHtml(g.meta) + '" placeholder="z. B. Riga Tech op-A · Runde 9"></div>' +
-      '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. — aus deiner Schach-App oder Turnierseite kopieren.</span>' +
+      '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. – aus deiner Schach-App oder Turnierseite kopieren.</span>' +
       '<textarea id="bfg-pgn" class="tall mono" placeholder="[Event &quot;...&quot;]&#10;[White &quot;...&quot;]&#10;[Black &quot;...&quot;]&#10;...&#10;1. e4 e5 2. Nf3 ...">' + escapeHtml(g.pgn) + '</textarea></div>' +
       '<div class="form-actions">' +
       '<button type="button" class="btn" id="bfg-preview-btn">🔍 Vorschau prüfen</button>' +
@@ -1913,7 +1913,7 @@ function openBlogForm(idx){
     document.getElementById('bfg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
     var copyFromSelect = document.getElementById('bfg-copy-from');
     var pgnDatabaseEntries = [];
-    /* labels every entry primarily by the players (White – Black) — a
+    /* labels every entry primarily by the players (White – Black) – a
        title is something you add afterward in the form below, not
        something this list should need to guess at, so a game that has
        none yet is just as easy to find by name as one that does. If this
@@ -1934,7 +1934,7 @@ function openBlogForm(idx){
         }
       }
       var existingTitle = known ? previewLang(known.title) : '';
-      return existingTitle ? (nameLabel + ' — ' + existingTitle) : nameLabel;
+      return existingTitle ? (nameLabel + ' – ' + existingTitle) : nameLabel;
     }
     fetchGamesPgnDatabase().then(function(entries){
       if(!copyFromSelect) return; /* form may have been closed already */
@@ -1947,7 +1947,7 @@ function openBlogForm(idx){
         copyFromSelect.innerHTML = '<option value="">Noch keine Partien in der Datenbank</option>';
         return;
       }
-      copyFromSelect.innerHTML = '<option value="">— auswählen —</option>' +
+      copyFromSelect.innerHTML = '<option value="">– auswählen –</option>' +
         entries.map(function(entry, i){ return '<option value="' + i + '">' + escapeHtml(labelForPgnEntry(entry)) + '</option>'; }).join('');
     });
     if(copyFromSelect){
@@ -1962,7 +1962,7 @@ function openBlogForm(idx){
         document.getElementById('bfg-meta').value = known ? (known.meta || '') : '';
         document.getElementById('bfg-pgn').value = entry.pgn;
         copyFromSelect.value = '';
-        showToast('Übernommen — unten anpassen und speichern ✓');
+        showToast('Übernommen – unten anpassen und speichern ✓');
       });
     }
     wireTranslateButton('bfg-title-translate', 'bfg-title-en', 'bfg-title-de', 'EN', 'DE');
@@ -1979,13 +1979,13 @@ function openBlogForm(idx){
       });
     }
     document.getElementById('bfg-preview-btn').addEventListener('click', runPreview);
-    if(g.pgn) runPreview(); /* editing an existing game — show it right away */
+    if(g.pgn) runPreview(); /* editing an existing game – show it right away */
     document.getElementById('bfg-save').addEventListener('click', function(){
       var titleEn = document.getElementById('bfg-title-en').value.trim();
       /* merge onto the existing game object (when editing) rather than
-         replacing it outright, so "annotations" — added by
+         replacing it outright, so "annotations" – added by
          scripts/sync_games_pgn.py for the ChessBase round-trip, never
-         shown in this form — survives an edit here instead of silently
+         shown in this form – survives an edit here instead of silently
          vanishing until the next sync re-derives it from the pgn */
       var entry = Object.assign({}, editingGame ? g : {}, {
         id: g.id,
@@ -2105,7 +2105,7 @@ async function toggleTestiActive(idx){
     showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
   }
 }
-/* same reasoning as moveGame() above — array order is the rotation order
+/* same reasoning as moveGame() above – array order is the rotation order
    shown on index.html */
 async function moveTesti(idx, direction){
   var target = idx + direction;
@@ -2128,10 +2128,10 @@ function openTestiForm(idx){
     '<form class="entry-form" id="testi-form">' +
     '<h3>' + (editing ? 'Testimonial bearbeiten' : 'Neues Testimonial') + '</h3>' +
     '<label class="checkbox-row"><input type="checkbox" id="tf-active"' + (isActive ? ' checked' : '') + '> Aktiv (in der Rotation auf der Website sichtbar)</label>' +
-    '<div class="field"><label>Zitat (Englisch)</label><span class="hint">Leer lassen, wenn nur die deutsche Version gebraucht wird — oder automatisch übersetzen.</span>' +
+    '<div class="field"><label>Zitat (Englisch)</label><span class="hint">Leer lassen, wenn nur die deutsche Version gebraucht wird – oder automatisch übersetzen.</span>' +
     '<div class="cover-row" style="align-items:flex-start;"><textarea id="tf-quote-en" placeholder="What changed in their game or how they train?" style="flex:1;">' + escapeHtml(quoteSplit.en) + '</textarea>' +
     '<button type="button" class="btn small" id="tf-quote-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
-    '<div class="field"><label>Zitat (Deutsch)</label><span class="hint">Leer lassen, wenn nur die englische Version gebraucht wird — oder automatisch übersetzen.</span>' +
+    '<div class="field"><label>Zitat (Deutsch)</label><span class="hint">Leer lassen, wenn nur die englische Version gebraucht wird – oder automatisch übersetzen.</span>' +
     '<div class="cover-row" style="align-items:flex-start;"><textarea id="tf-quote-de" placeholder="Was hat sich im Spiel oder im Training verändert?" style="flex:1;">' + escapeHtml(quoteSplit.de) + '</textarea>' +
     '<button type="button" class="btn small" id="tf-quote-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '<div class="field"><label>Von (Englisch)</label><div class="cover-row"><input type="text" id="tf-who-en" value="' + escapeHtml(whoSplit.en) + '" placeholder="z. B. Anna, 1650 Elo" style="flex:1;">' +
@@ -2175,8 +2175,8 @@ async function deleteTesti(idx){
 /* ============================================================
    ERFOLGE (Career results: titles/norms, team, national, full list)
    ============================================================ */
-/* newest first: pulls the leading year out of an entry's text (e.g. "2018 —
-   ..." or "2016, 2018 — ..." uses 2016, the first one) and sorts by that,
+/* newest first: pulls the leading year out of an entry's text (e.g. "2018 –
+   ..." or "2016, 2018 – ..." uses 2016, the first one) and sorts by that,
    descending. Ties (same year) keep their existing relative order. */
 function extractResultYear(entry){
   var text = (entry && typeof entry === 'object') ? (entry.de || entry.en || '') : (entry || '');
@@ -2236,11 +2236,11 @@ function openResultForm(cat, idx){
   slot.innerHTML =
     '<form class="entry-form" id="result-form-' + cat + '">' +
     '<h3>' + (editing ? 'Eintrag bearbeiten' : 'Neuer Eintrag') + ' &mdash; ' + meta.label + '</h3>' +
-    '<div class="field"><label>Text (Englisch)</label><span class="hint">Leer lassen, wenn nur die deutsche Version gebraucht wird — oder automatisch übersetzen.</span>' +
-    '<div class="cover-row"><input type="text" id="rf-en" value="' + escapeHtml(split.en) + '" placeholder="z. B. 2026 — Winner, Example Open" style="flex:1;">' +
+    '<div class="field"><label>Text (Englisch)</label><span class="hint">Leer lassen, wenn nur die deutsche Version gebraucht wird – oder automatisch übersetzen.</span>' +
+    '<div class="cover-row"><input type="text" id="rf-en" value="' + escapeHtml(split.en) + '" placeholder="z. B. 2026 – Winner, Example Open" style="flex:1;">' +
     '<button type="button" class="btn small" id="rf-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
-    '<div class="field"><label>Text (Deutsch)</label><span class="hint">Leer lassen, wenn nur die englische Version gebraucht wird — oder automatisch übersetzen.</span>' +
-    '<div class="cover-row"><input type="text" id="rf-de" value="' + escapeHtml(split.de) + '" placeholder="z. B. 2026 — Sieger, Beispiel-Open" style="flex:1;">' +
+    '<div class="field"><label>Text (Deutsch)</label><span class="hint">Leer lassen, wenn nur die englische Version gebraucht wird – oder automatisch übersetzen.</span>' +
+    '<div class="cover-row"><input type="text" id="rf-de" value="' + escapeHtml(split.de) + '" placeholder="z. B. 2026 – Sieger, Beispiel-Open" style="flex:1;">' +
     '<button type="button" class="btn small" id="rf-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '<div class="form-actions">' +
     '<button type="submit" class="btn solid">Speichern</button>' +

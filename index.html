@@ -6,14 +6,14 @@
 <title>IM Jakob Leon Pajeken</title>
 <!-- simple blue rook favicon: bold geometric silhouette (crenellated top),
      transparent background (no box), filling almost the whole canvas so
-     it stays legible at tiny tab sizes — navy fill matches --gold, so
+     it stays legible at tiny tab sizes – navy fill matches --gold, so
      update it here too if the site's theme changes again -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='6' width='24' height='4' fill='%231f3a5f'/%3E%3Crect x='4' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='13.5' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='23' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='6' y='10' width='20' height='16' fill='%231f3a5f'/%3E%3Crect x='4' y='26' width='24' height='4' rx='2' fill='%231f3a5f'/%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" integrity="sha512-xRllwz2gdZciIB+AkEbeq+gVhX8VB8XsfqeFbUh+SzHlN96dEduwtTuVuc2u9EROlmW9+yhRlxjif66ORpsgVA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <style>
   /* Fonts are self-hosted (fonts/*.woff2) instead of loaded live from
      Google's servers, so visitors' IP addresses are never transmitted to
-     Google just for displaying text — avoids the Google-Fonts GDPR risk
+     Google just for displaying text – avoids the Google-Fonts GDPR risk
      (LG München I, Urt. v. 20.01.2022, 3 O 17493/20). Kept in sync with
      blog-post.html and editor.html. */
   @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
@@ -27,7 +27,7 @@
   @font-face{font-family:'Spectral SC';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/SpectralSC-500-normal.woff2') format('woff2');}
 
   :root{
-    /* "Oxford & Kreide" — cool chalk-white background, deep oxford-navy
+    /* "Oxford & Kreide" – cool chalk-white background, deep oxford-navy
        text and accent, instead of the warmer gold/parchment family */
     --ink:#f1f2f0;
     --surface:#ffffff;
@@ -38,8 +38,8 @@
     --gold-bright:#35577f;
     --line:rgba(22,32,46,0.13);
     --max:1080px;
-    /* chessboard — checked for contrast, see note below */
-    /* cool marble/slate board — matches the Oxford & Kreide palette instead
+    /* chessboard – checked for contrast, see note below */
+    /* cool marble/slate board – matches the Oxford & Kreide palette instead
        of the old warm wood tones; piece color/contrast is independent of
        the square color anyway, since pieces are drawn with a 4-directional
        outline in the opposite piece color (see .chess-square piece rules) */
@@ -96,12 +96,12 @@
   .tabbar button.active{color:var(--gold-bright);border-bottom-color:var(--gold);}
   .tabpanel{display:none;}
   .tabpanel.active-panel{display:block;}
-  /* per-tab dropdown, listing the jumpable sections within that tab — opens
+  /* per-tab dropdown, listing the jumpable sections within that tab – opens
      on hover only (no click, no arrow/symbol on the trigger button), and
      stays open via :focus-within too so it's reachable by keyboard.
      position:fixed (not absolute) on purpose: .tabbar scrolls horizontally
      on narrow screens, which per the CSS overflow spec silently forces its
-     overflow-y to "auto" as well — an absolutely-positioned dropdown would
+     overflow-y to "auto" as well – an absolutely-positioned dropdown would
      get clipped to invisible by that, even though it "worked" by every
      other check. Fixed positioning escapes it entirely; JS below sets its
      top/left from the trigger button's position on hover/focus. */
@@ -146,21 +146,21 @@
   section:last-of-type{border-bottom:none;}
   /* About is the tab shown right under the tab bar by default, so the full
      84px top padding reads as a lot of empty space before any text even
-     starts — trimmed just here, other tabs keep the fuller spacing */
+     starts – trimmed just here, other tabs keep the fuller spacing */
   #about{padding-top:40px;}
   .section-head{display:grid;grid-template-columns:0.8fr 1.2fr;gap:40px;margin-bottom:48px;}
   .section-head h2{font-size:clamp(1.6rem,2.8vw,2.15rem);max-width:13ch;}
   .best-games .section-head h2{max-width:none;white-space:nowrap;}
   .section-head p{color:var(--ivory-dim);max-width:54ch;margin:0;}
   /* shared "emphasis" treatment for intro sentences within the Coaching tab
-     only — doubled class beats any surrounding "X p" rule (.section-head p,
+     only – doubled class beats any surrounding "X p" rule (.section-head p,
      .cta-box p, ...) regardless of which container it's used in */
   .coaching-emphasis.coaching-emphasis{
     color:var(--gold);font-family:'Spectral',serif;
   }
   .coaching-tagline.coaching-tagline{font-size:1.3rem;line-height:1.4;}
   /* same navy-blue emphasis as .coaching-emphasis above, just without the
-     serif font swap — used for the Social Media subtitle in the About tab */
+     serif font swap – used for the Social Media subtitle in the About tab */
   .social-emphasis.social-emphasis{color:var(--gold);}
   .section-head.single{grid-template-columns:1fr;}
   @media (max-width:840px){.section-head,.hero-grid{grid-template-columns:1fr;}
@@ -194,7 +194,7 @@
   @media (max-width:840px){.pt-grid{grid-template-columns:1fr;}}
 
   /* coaching offer */
-  /* stacked list, not a side-by-side card grid — matches the boxless,
+  /* stacked list, not a side-by-side card grid – matches the boxless,
      hairline-divided look of .step-row in the "Ablauf" section below,
      rather than the boxed 3-column layout this used to have */
   .offer-grid{display:flex;flex-direction:column;}
@@ -206,12 +206,12 @@
   .offer-card p:last-child{margin-bottom:0;}
   .offer-card strong{color:var(--ivory);font-weight:500;}
 
-  /* standalone "training games & matches" callout — deliberately outside
+  /* standalone "training games & matches" callout – deliberately outside
      the regular offer-grid, with a gold border instead of a plain hairline
      one, so it reads as its own, separately bookable thing rather than a
      fourth item in the "how I coach" set above it. margin-top used to be
      1px, tuned for when offer-grid was a boxed 3-column grid it needed to
-     visually align flush with — now that offer-grid is a plain stacked
+     visually align flush with – now that offer-grid is a plain stacked
      list, that left almost no breathing room above this box at all. */
   .training-game-box{
     margin-top:56px;background:var(--surface-raised);border:1px solid var(--gold);
@@ -244,10 +244,10 @@
   @media (max-width:640px){.full-list{columns:1;}}
 
   /* testimonials */
-  /* single testimonial, full width, auto-rotating — see renderTestiGrid().
+  /* single testimonial, full width, auto-rotating – see renderTestiGrid().
      quotes come from the CSS quotes/open-quote/close-quote mechanism (not
      typed into the data) so they stay consistent and language-correct. */
-  /* the wrap is the pinned-height element now (quote AND "who" together —
+  /* the wrap is the pinned-height element now (quote AND "who" together –
      pinning just the quote wasn't enough, since a longer/shorter "who" name
      could still wrap differently and shift the CTA box below it) and the
      positioning context for the prev/next arrows */
@@ -266,7 +266,7 @@
   :lang(de) .testi-rotator .quote{quotes:'„' '“';}
   .testi-rotator .who{font-size:0.86rem;color:var(--ivory-dim);}
   @media (prefers-reduced-motion: reduce){.testi-rotator{transition:none;}}
-  /* prev/next arrows — subtle, only appear on hover/focus (mouse users);
+  /* prev/next arrows – subtle, only appear on hover/focus (mouse users);
      touch devices swipe instead, see the touchstart/touchend handlers */
   .testi-arrow{
     position:absolute;top:0;bottom:0;display:flex;align-items:center;
@@ -294,7 +294,7 @@
   .blog-link:hover{text-decoration:underline;}
   .blog-loadmore-wrap{display:flex;justify-content:center;margin-top:28px;}
   /* same [hidden]-losing-the-cascade issue as .article-cover in
-     blog-post.html — without this, "Older posts" stayed visible even
+     blog-post.html – without this, "Older posts" stayed visible even
      with nothing left to load, since blogVisibleCount >= ordered.length
      sets .hidden = true but this class's own display:flex outranks it */
   .blog-loadmore-wrap[hidden]{display:none;}
@@ -314,7 +314,7 @@
     background:var(--surface);border:1px solid var(--line);color:var(--ivory);
     font-family:'Inter',sans-serif;font-size:0.9rem;padding:11px 14px;min-width:220px;
   }
-  /* plain text link, not a bordered button — this is a secondary, easy-to-
+  /* plain text link, not a bordered button – this is a secondary, easy-to-
      miss-on-purpose action, not something competing with the game picker
      for attention */
   .game-download-btn{
@@ -374,10 +374,10 @@
   .game-info{font-size:0.88rem;color:var(--ivory-dim);margin-bottom:18px;}
   .move-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;max-height:460px;overflow-y:scroll;padding-right:24px;font-size:0.98rem;text-align:justify;scrollbar-width:auto;scrollbar-color:var(--gold) var(--line);}
   /* a plain overlay scrollbar that only appears on hover/while scrolling is
-     easy to miss entirely on a long game — overflow-y:scroll above (not
+     easy to miss entirely on a long game – overflow-y:scroll above (not
      auto) keeps the track always visible instead of only-when-needed, and
      the WebKit-only pseudo-elements below add small clickable up/down
-     arrow buttons on top of that, like a classic scrollbar — nice for
+     arrow buttons on top of that, like a classic scrollbar – nice for
      stepping through a long comment without a trackpad/wheel. Firefox
      doesn't support these, but still gets the always-visible, themed bar
      via scrollbar-width/-color above. */
@@ -389,8 +389,8 @@
   .move-list::-webkit-scrollbar-button:vertical:start:decrement{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M5 0 10 6 0 6Z' fill='%235b6474'/%3E%3C/svg%3E");}
   .move-list::-webkit-scrollbar-button:vertical:end:increment{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0 10 0 5 6Z' fill='%235b6474'/%3E%3C/svg%3E");}
   /* a PGN comment (e.g. added in ChessBase) is rendered right inside the
-     move list's own flowing text, directly after the move it belongs to —
-     like a printed annotated game score — rather than pulled out into a
+     move list's own flowing text, directly after the move it belongs to –
+     like a printed annotated game score – rather than pulled out into a
      separate panel elsewhere on the page. Deliberately plain: same font
      as the moves themselves, no card/box treatment, so it reads as part
      of the notation, not a separate widget. flex-basis:100% forces it
@@ -401,13 +401,13 @@
   .game-comment-text + .game-comment-variation{margin-top:10px;}
   /* a variation line is genuine PGN move text (SAN, move numbers, nested
      sub-variations in parens), not prose, so it stays in the monospace-ish
-     Inter font rather than the italic serif used for actual comments —
+     Inter font rather than the italic serif used for actual comments –
      easier to read as notation that way */
   .game-comment-variation{font-family:'Inter',sans-serif;font-size:0.86rem;color:var(--ivory-dim);line-height:1.9;}
   .game-comment-variation + .game-comment-variation{margin-top:6px;}
   .game-comment-variation::before{content:'↳ ';color:var(--gold-bright);}
   /* a variation's moves are real .move-btn elements too (clickable, and
-     steppable with the arrow keys once you're on that line) — just sized
+     steppable with the arrow keys once you're on that line) – just sized
      down to match the surrounding variation text instead of the mainline's
      own larger notation */
   .game-comment-variation .move-btn{font-size:0.86rem;padding:1px 3px;}
@@ -423,12 +423,12 @@
      visible at a glance which moves are worth clicking on */
   .move-btn.annotated{box-shadow:0 2px 0 0 var(--gold-bright);}
   /* pops up when advancing (next button / right arrow) lands on a move
-     that had more than one real option — the line you're already on, plus
-     at least one variation branching off right there — so you can pick
+     that had more than one real option – the line you're already on, plus
+     at least one variation branching off right there – so you can pick
      which one to actually play, instead of one just silently winning.
      A grid item of .games-layout in its own right (not nested inside
      .game-meta or .board-wrap), positioned absolutely but placed onto a
-     specific grid cell via grid-column/grid-row — an absolutely
+     specific grid cell via grid-column/grid-row – an absolutely
      positioned grid item uses that cell as its containing block, so
      inset:0 fills exactly that cell without disturbing the other items'
      own layout. On desktop that's the notation column (over .game-meta,
@@ -437,7 +437,7 @@
      repositioned onto the board's cell instead (see the media query
      below). Explicit [hidden] override since the display:flex below
      would otherwise outrank the browser's own [hidden]{display:none}
-     (equal specificity, source order) — same fix as every other [hidden]
+     (equal specificity, source order) – same fix as every other [hidden]
      case on this site. */
   .move-choice-dialog{position:absolute;grid-column:2;grid-row:1;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:10px;z-index:20;pointer-events:none;}
   .move-choice-dialog .move-choice-card{pointer-events:auto;}
@@ -449,7 +449,7 @@
   .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.78rem;cursor:pointer;padding:2px 0;text-decoration:underline;}
   .move-choice-cancel:hover{color:var(--gold-bright);}
   /* on a touch device there's no hover state and no keyboard focus ring to
-     lean on, so the tap targets themselves need to be comfortably big —
+     lean on, so the tap targets themselves need to be comfortably big –
      the compact sizing above is tuned for a mouse, not a fingertip */
   @media (pointer:coarse){
     .move-choice-btn{padding:12px 14px;font-size:0.95rem;}
@@ -459,7 +459,7 @@
     .games-layout{grid-template-columns:1fr;}
     .board-wrap{align-items:flex-start;}
     /* once the layout stacks into one column, .board-wrap becomes row 1
-       and .game-meta row 2 (still both in column 1) — move the dialog
+       and .game-meta row 2 (still both in column 1) – move the dialog
        onto the board's cell instead of the notation's, and shrink it: a
        phone screen has much less room to spare than a desktop window. */
     .move-choice-dialog{grid-column:1;grid-row:1;}
@@ -487,7 +487,7 @@
   .contact-line{font-size:0.85rem;color:var(--gold-bright);text-decoration:underline;text-underline-offset:3px;}
   .contact-line:hover{color:var(--ivory);}
   /* borderless row of brand icons in their own real colors, instead of a
-     bordered/boxed grid — the icons themselves carry the color now, so the
+     bordered/boxed grid – the icons themselves carry the color now, so the
      name label stays neutral (site ivory, gold on hover) rather than
      fighting each brand's own hue */
   .social-grid{display:flex;flex-wrap:wrap;gap:36px;}
@@ -528,7 +528,7 @@
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <h1 class="name" data-i18n="hero.title">Jakob Leon <span class="accent">Pajeken</span> — <em>Chess &amp; <span class="accent">Coaching</span></em><span class="tagline">International Master · Tournament Player · Coach</span></h1>
+      <h1 class="name" data-i18n="hero.title">Jakob Leon <span class="accent">Pajeken</span> – <em>Chess &amp; <span class="accent">Coaching</span></em><span class="tagline">International Master · Tournament Player · Coach</span></h1>
       <div class="hero-cta">
         <a href="#" class="btn solid" data-goto-tab="coaching" data-goto-section="coaching-cta" data-i18n="hero.cta1">Training Request</a>
         <a href="#" class="btn" data-goto-tab="career" data-goto-section="career-results" data-i18n="hero.cta2">Career Highlights</a>
@@ -600,7 +600,7 @@
       <div class="cta-box">
         <div>
           <h2 data-i18n="cta.heading">Get in touch</h2>
-          <p data-i18n="cta.sub">Whether you're interested in chess coaching, have a media, tournament, or event inquiry, or just want to say hello — send a message and I'll get back to you.</p>
+          <p data-i18n="cta.sub">Whether you're interested in chess coaching, have a media, tournament, or event inquiry, or just want to say hello – send a message and I'll get back to you.</p>
         </div>
         <div class="cta-actions">
           <a href="mailto:jakobpajeken@gmail.com" class="btn solid" data-i18n="cta.button">Send an email</a>
@@ -629,7 +629,7 @@
         <!-- No German Wikipedia article exists (only English), so on the
              German version of the site this links to Google Translate's
              machine-translated rendering of the English article instead of
-             the raw English page — updated by setLang() below. -->
+             the raw English page – updated by setLang() below. -->
         <a href="https://en.wikipedia.org/wiki/Jakob_Leon_Pajeken" target="_blank" rel="noopener" class="social-card" id="social-wikipedia-link" data-href-en="https://en.wikipedia.org/wiki/Jakob_Leon_Pajeken" data-href-de="https://en-m-wikipedia-org.translate.goog/wiki/Jakob_Leon_Pajeken?_x_tr_sl=en&amp;_x_tr_tl=de&amp;_x_tr_hl=de&amp;_x_tr_pto=wapp">
           <div class="social-icon"><svg viewBox="0 0 24 24" fill="#000000"><path d="M12.09 13.119c-.936 1.932-2.217 4.548-2.853 5.728-.616 1.074-1.127.931-1.532.029-1.406-3.321-4.293-9.144-5.651-12.409-.251-.601-.441-.987-.619-1.139-.181-.15-.554-.24-1.122-.271C.103 5.033 0 4.982 0 4.898v-.455l.052-.045c.924-.005 5.401 0 5.401 0l.051.045v.434c0 .119-.075.176-.225.176l-.564.031c-.485.029-.727.164-.727.436 0 .135.053.33.166.601 1.082 2.646 4.818 10.521 4.818 10.521l.136.046 2.411-4.81-.482-1.067-1.658-3.264s-.318-.654-.428-.872c-.728-1.443-.712-1.518-1.447-1.617-.207-.023-.313-.05-.313-.149v-.468l.06-.045h4.292l.113.037v.451c0 .105-.076.15-.227.15l-.308.047c-.792.061-.661.381-.136 1.422l1.582 3.252 1.758-3.504c.293-.64.233-.801.111-.947-.07-.084-.305-.22-.812-.24l-.201-.021c-.052 0-.098-.015-.145-.051-.045-.031-.067-.076-.067-.129v-.427l.061-.045c1.247-.008 4.043 0 4.043 0l.059.045v.436c0 .121-.059.178-.193.178-.646.03-.782.095-1.023.439-.12.186-.375.589-.646 1.039l-2.301 4.273-.065.135 2.792 5.712.17.048 4.396-10.438c.154-.422.129-.722-.064-.895-.197-.172-.346-.273-.857-.295l-.42-.016c-.061 0-.105-.014-.152-.045-.043-.029-.072-.075-.072-.119v-.436l.059-.045h4.961l.041.045v.437c0 .119-.074.18-.209.18-.648.03-1.127.18-1.443.421-.314.255-.557.616-.736 1.067 0 0-4.043 9.258-5.426 12.339-.525 1.007-1.053.917-1.503-.031-.571-1.171-1.773-3.786-2.646-5.71l.053-.036z"/></svg></div>
           <div class="social-name">Wikipedia</div>
@@ -658,7 +658,7 @@
   <div class="wrap">
     <div class="section-head scroll-target" id="coaching-approach">
       <h2 data-i18n="coaching.heading">My Coaching Approach</h2>
-      <p class="coaching-emphasis coaching-tagline" data-i18n="coaching.sub">More than just a coach — a partner for chess success.</p>
+      <p class="coaching-emphasis coaching-tagline" data-i18n="coaching.sub">More than just a coach – a partner for chess success.</p>
     </div>
 
     <div class="pt-grid">
@@ -677,7 +677,7 @@
           <li data-i18n="problem.after1">Your games are analysed for root causes, not just move-by-move errors.</li>
           <li data-i18n="problem.after2">A repertoire built for your style, understood rather than memorised.</li>
           <li data-i18n="problem.after3">Clear homework and training methods for the days between sessions.</li>
-          <li data-i18n="problem.after4">You learn how to train yourself — not just what to do in the next lesson.</li>
+          <li data-i18n="problem.after4">You learn how to train yourself – not just what to do in the next lesson.</li>
         </ul>
       </div>
     </div>
@@ -690,22 +690,22 @@
       </div>
       <div class="offer-card">
         <h3 data-i18n="coaching.c3title">Opening repertoire</h3>
-        <p data-i18n="coaching.c3body">Your opening repertoire is chosen specifically for your style and level — not pulled from a generic video course. Carefully selected and taught so that you repeatedly encounter the same plans, patterns, and types of positions — helping you develop a genuine understanding of your variations, all the way into the middlegame and, in many cases, the endgame.</p>
+        <p data-i18n="coaching.c3body">Your opening repertoire is chosen specifically for your style and level – not pulled from a generic video course. Carefully selected and taught so that you repeatedly encounter the same plans, patterns, and types of positions – helping you develop a genuine understanding of your variations, all the way into the middlegame and, in many cases, the endgame.</p>
       </div>
       <div class="offer-card">
         <h3 data-i18n="coaching.c4title">Help You Help Yourself</h3>
         <p data-i18n="coaching.c4body1">One coaching session with me each week on its own is never enough to make lasting progress. That's why I give you clear guidance and concrete tasks to work on between our sessions.</p>
         <p data-i18n="coaching.c4body2">This includes targeted homework, carefully chosen book and tournament recommendations, as well as psychological tips and practical advice for tournament preparation, competition, and handling difficult situations at the board.</p>
-        <p data-i18n="coaching.c4body3">That way, you always know <strong>what to work on, why it matters, and how to make the most of your time outside our sessions</strong>. Because my goal isn't just to make you better during our sessions — it's to teach you how to keep improving on your own.</p>
+        <p data-i18n="coaching.c4body3">That way, you always know <strong>what to work on, why it matters, and how to make the most of your time outside our sessions</strong>. Because my goal isn't just to make you better during our sessions – it's to teach you how to keep improving on your own.</p>
       </div>
     </div>
 
-    <!-- Standalone, not part of the regular-coaching offer grid above — a
+    <!-- Standalone, not part of the regular-coaching offer grid above – a
          separate one-off offering open to anyone, not just ongoing clients,
          so it gets its own visually distinct callout box. -->
     <div class="training-game-box">
       <h3 data-i18n="coaching.tg.title">Training Games &amp; Matches</h3>
-      <p data-i18n="coaching.tg.body1">Want to test yourself against a <span class="fide-rating-live">2482</span>-rated FIDE International Master in a real game setting? Alongside my regular coaching, I also offer individual training games and matches — open to anyone, whether you already work with me or not.</p>
+      <p data-i18n="coaching.tg.body1">Want to test yourself against a <span class="fide-rating-live">2482</span>-rated FIDE International Master in a real game setting? Alongside my regular coaching, I also offer individual training games and matches – open to anyone, whether you already work with me or not.</p>
       <p data-i18n="coaching.tg.body2">Play a single game or a series of games against me, with the opportunity to <strong>practice your openings, test specific variations, and gain practical experience</strong>. After the game, I can also give you a brief insight into my thought process and explain what I was considering at key moments.</p>
     </div>
 
@@ -721,11 +721,11 @@
         </div>
         <div class="step-row">
           <div class="step-num">02</div>
-          <div><h3 data-i18n="process.s2title">Free trial session (60 mins)</h3><p data-i18n="process.s2body">We look at a few of your recent games together, so I can identify real patterns, not just the last mistake you noticed. And we'll discuss the next steps together — including pricing, which depends on your goals and how we work together.</p><a href="#coaching-cta" class="step-cta" data-goto-tab="coaching" data-goto-section="coaching-cta" data-i18n="process.s2cta">Book now →</a></div>
+          <div><h3 data-i18n="process.s2title">Free trial session (60 mins)</h3><p data-i18n="process.s2body">We look at a few of your recent games together, so I can identify real patterns, not just the last mistake you noticed. And we'll discuss the next steps together – including pricing, which depends on your goals and how we work together.</p><a href="#coaching-cta" class="step-cta" data-goto-tab="coaching" data-goto-section="coaching-cta" data-i18n="process.s2cta">Book now →</a></div>
         </div>
         <div class="step-row">
           <div class="step-num">03</div>
-          <div><h3 data-i18n="process.s3title">Tailored plan</h3><p data-i18n="process.s3body">Based on that, I set out where the training will focus first — openings, calculation, endgames, or how you train between sessions.</p></div>
+          <div><h3 data-i18n="process.s3title">Tailored plan</h3><p data-i18n="process.s3body">Based on that, I set out where the training will focus first – openings, calculation, endgames, or how you train between sessions.</p></div>
         </div>
         <div class="step-row">
           <div class="step-num">04</div>
@@ -733,7 +733,7 @@
         </div>
         <div class="step-row">
           <div class="step-num">05</div>
-          <div><h3 data-i18n="process.s5title">Review &amp; adjust</h3><p data-i18n="process.s5body">We revisit the plan regularly and adjust it as your games change — training should follow your actual progress, not a fixed script.</p></div>
+          <div><h3 data-i18n="process.s5title">Review &amp; adjust</h3><p data-i18n="process.s5body">We revisit the plan regularly and adjust it as your games change – training should follow your actual progress, not a fixed script.</p></div>
         </div>
       </div>
     </div>
@@ -746,13 +746,13 @@
       <div class="testi-wrap" id="testi-wrap">
         <button type="button" class="testi-arrow testi-arrow-prev" id="testi-prev" aria-label="Previous testimonial"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <div class="testi-rotator" id="testi-grid">
-          <div class="quote" data-i18n="testi.q1">Add a short quote from a student here — what changed in their game or how they train.</div>
+          <div class="quote" data-i18n="testi.q1">Add a short quote from a student here – what changed in their game or how they train.</div>
           <div class="who" data-i18n="testi.w1">Student name, rating or level</div>
         </div>
         <button type="button" class="testi-arrow testi-arrow-next" id="testi-next" aria-label="Next testimonial"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
       <!-- fallback above; replaced by data/testimonials.json content via JS
-           below once you add real testimonials with editor.html — then it
+           below once you add real testimonials with editor.html – then it
            rotates through all of them automatically, one at a time -->
     </div>
 
@@ -760,7 +760,7 @@
       <div class="cta-box">
         <div>
           <h2 data-i18n="coaching.cta.heading">Ready to train with a clear plan?</h2>
-          <p class="coaching-emphasis" data-i18n="coaching.cta.sub">Send me a message about your chess background and what you're working towards — I'll get back to you with a suggestion for how to start.</p>
+          <p class="coaching-emphasis" data-i18n="coaching.cta.sub">Send me a message about your chess background and what you're working towards – I'll get back to you with a suggestion for how to start.</p>
         </div>
         <div class="cta-actions">
           <a href="mailto:jakobpajeken@gmail.com" class="btn solid" data-i18n="cta.button">Send an email</a>
@@ -792,29 +792,29 @@
       <div class="res-card">
         <h3 data-i18n="results.g1title">Titles &amp; norms</h3>
         <ul id="results-titles-list">
-          <li data-i18n="results.g1l1">2018 — Winner, IM tournament Norderstedt (1st IM norm)</li>
-          <li data-i18n="results.g1l2">2018 — Winner, 3rd New Chess Brains, Hamburg (2nd IM norm)</li>
-          <li data-i18n="results.g1l3">2019 — 3rd IM norm; International Master title fulfilled</li>
-          <li data-i18n="results.g1l4">2024 — 2nd place, Riga Technical University Open A (1st GM norm)</li>
-          <li data-i18n="results.g1l5">2025 — Winner, Smuk Skak GM, Skanderborg (2nd GM norm)</li>
+          <li data-i18n="results.g1l1">2018 – Winner, IM tournament Norderstedt (1st IM norm)</li>
+          <li data-i18n="results.g1l2">2018 – Winner, 3rd New Chess Brains, Hamburg (2nd IM norm)</li>
+          <li data-i18n="results.g1l3">2019 – 3rd IM norm; International Master title fulfilled</li>
+          <li data-i18n="results.g1l4">2024 – 2nd place, Riga Technical University Open A (1st GM norm)</li>
+          <li data-i18n="results.g1l5">2025 – Winner, Smuk Skak GM, Skanderborg (2nd GM norm)</li>
         </ul>
       </div>
       <div class="res-card">
         <h3 data-i18n="results.g2title">National team &amp; Bundesliga</h3>
         <ul id="results-team-list">
-          <li data-i18n="results.g2l1">2016, 2018 — German national team, U16 Chess Olympiad</li>
-          <li data-i18n="results.g2l2">2018 — German national team, U18 Team European Championship</li>
-          <li data-i18n="results.g2l3">2019–2024 — Bundesliga player, SK Doppelbauer Kiel &amp; SG Turm Kiel (30+ games)</li>
-          <li data-i18n="results.g2l4">2023 — Winner, North German Blitz Team Championship, top board for SK Doppelbauer Kiel</li>
+          <li data-i18n="results.g2l1">2016, 2018 – German national team, U16 Chess Olympiad</li>
+          <li data-i18n="results.g2l2">2018 – German national team, U18 Team European Championship</li>
+          <li data-i18n="results.g2l3">2019–2024 – Bundesliga player, SK Doppelbauer Kiel &amp; SG Turm Kiel (30+ games)</li>
+          <li data-i18n="results.g2l4">2023 – Winner, North German Blitz Team Championship, top board for SK Doppelbauer Kiel</li>
         </ul>
       </div>
       <div class="res-card">
         <h3 data-i18n="results.g3title">National championships</h3>
         <ul id="results-national-list">
-          <li data-i18n="results.g3l1">2021 — Bronze, German Rapid Championship</li>
-          <li data-i18n="results.g3l2">2023 — Bronze, German Blitz Championship</li>
-          <li data-i18n="results.g3l3">2022, 2026 — Winner, North German Blitz Championship</li>
-          <li data-i18n="results.g3l4">2024 — Winner, Schleswig-Holstein Rapid Championship</li>
+          <li data-i18n="results.g3l1">2021 – Bronze, German Rapid Championship</li>
+          <li data-i18n="results.g3l2">2023 – Bronze, German Blitz Championship</li>
+          <li data-i18n="results.g3l3">2022, 2026 – Winner, North German Blitz Championship</li>
+          <li data-i18n="results.g3l4">2024 – Winner, Schleswig-Holstein Rapid Championship</li>
         </ul>
       </div>
     </div>
@@ -822,34 +822,34 @@
     <details class="full-results">
       <summary data-i18n="results.showall">View the full tournament record</summary>
       <div class="full-list" id="results-full-list">
-        <p data-i18n="results.f1">2012 — Hamburg U10 Champion</p>
-        <p data-i18n="results.f2">2014 — German Club U12 Champion with Hamburger SK</p>
-        <p data-i18n="results.f3">2015 — 10th place, U12 World Youth Championship, Porto Carras</p>
-        <p data-i18n="results.f4">2019 — Winner, 13th Delme Open, Delmenhorst</p>
-        <p data-i18n="results.f5">2022 — 2nd place, Bamberg Open</p>
-        <p data-i18n="results.f6">2022 — Shared 1st, Böblingen Open</p>
-        <p data-i18n="results.f7">2022, 2025 — Winner, Doppelbauer Kiel Rapid Open</p>
-        <p data-i18n="results.f8">2023 — Winner, VII Turniej Klubu Marynarki Wojennej</p>
-        <p data-i18n="results.f9">2023 — Winner, Eugen Engel Memorial</p>
-        <p data-i18n="results.f10">2023 — Winner, 1st Open International Lower Saxon Bullet Championship</p>
-        <p data-i18n="results.f11">2023 — Winner, Schlacht von Dennewitz</p>
-        <p data-i18n="results.f12">2023, 2024 — Winner, Lurup Rapid Tournament</p>
-        <p data-i18n="results.f13">2023–2024 — Winner, Danish Team Championship with SK Skanderborg</p>
-        <p data-i18n="results.f14">2023 — Winner, adh-Open Rapid, Berlin (German university championship)</p>
-        <p data-i18n="results.f15">2023 — Winner, 1st St. Pauli Rapid Open</p>
-        <p data-i18n="results.f16">2024 — Winner, Schleswig-Holstein Blitz Team Championship with SK Doppelbauer Kiel</p>
-        <p data-i18n="results.f17">2024 — Winner, Anderten Open</p>
-        <p data-i18n="results.f18">2024 — Winner, 3rd Walddörfer Rapid Tournament</p>
-        <p data-i18n="results.f19">2024 — Winner, 1st Blankenese Rapid Open</p>
-        <p data-i18n="results.f20">2024 — 2nd place, FIDE 100 Years Blitz Tournament, Riga</p>
-        <p data-i18n="results.f21">2024 — Winner, 2nd Lemförde Rapid Open</p>
-        <p data-i18n="results.f22">2025 — 2nd place, North German Blitz Championship</p>
-        <p data-i18n="results.f23">2025 — Winner, 4th International Rapid Tournament Elmshorn</p>
-        <p data-i18n="results.f24">2025 — Winner, Burkhard Mentz Memorial</p>
-        <p data-i18n="results.f25">2026 — Winner, 1st Werder Bremen Rapid Open</p>
-        <p data-i18n="results.f26">2026 — Winner, SonFlow Cup / Kolding Town Championship</p>
-        <p data-i18n="results.f27">2026 — Winner, Smuk Skak GM, Skanderborg</p>
-        <p data-i18n="results.f28">2026 — 2nd place, ØBRO &amp; CXU International, Copenhagen</p>
+        <p data-i18n="results.f1">2012 – Hamburg U10 Champion</p>
+        <p data-i18n="results.f2">2014 – German Club U12 Champion with Hamburger SK</p>
+        <p data-i18n="results.f3">2015 – 10th place, U12 World Youth Championship, Porto Carras</p>
+        <p data-i18n="results.f4">2019 – Winner, 13th Delme Open, Delmenhorst</p>
+        <p data-i18n="results.f5">2022 – 2nd place, Bamberg Open</p>
+        <p data-i18n="results.f6">2022 – Shared 1st, Böblingen Open</p>
+        <p data-i18n="results.f7">2022, 2025 – Winner, Doppelbauer Kiel Rapid Open</p>
+        <p data-i18n="results.f8">2023 – Winner, VII Turniej Klubu Marynarki Wojennej</p>
+        <p data-i18n="results.f9">2023 – Winner, Eugen Engel Memorial</p>
+        <p data-i18n="results.f10">2023 – Winner, 1st Open International Lower Saxon Bullet Championship</p>
+        <p data-i18n="results.f11">2023 – Winner, Schlacht von Dennewitz</p>
+        <p data-i18n="results.f12">2023, 2024 – Winner, Lurup Rapid Tournament</p>
+        <p data-i18n="results.f13">2023–2024 – Winner, Danish Team Championship with SK Skanderborg</p>
+        <p data-i18n="results.f14">2023 – Winner, adh-Open Rapid, Berlin (German university championship)</p>
+        <p data-i18n="results.f15">2023 – Winner, 1st St. Pauli Rapid Open</p>
+        <p data-i18n="results.f16">2024 – Winner, Schleswig-Holstein Blitz Team Championship with SK Doppelbauer Kiel</p>
+        <p data-i18n="results.f17">2024 – Winner, Anderten Open</p>
+        <p data-i18n="results.f18">2024 – Winner, 3rd Walddörfer Rapid Tournament</p>
+        <p data-i18n="results.f19">2024 – Winner, 1st Blankenese Rapid Open</p>
+        <p data-i18n="results.f20">2024 – 2nd place, FIDE 100 Years Blitz Tournament, Riga</p>
+        <p data-i18n="results.f21">2024 – Winner, 2nd Lemförde Rapid Open</p>
+        <p data-i18n="results.f22">2025 – 2nd place, North German Blitz Championship</p>
+        <p data-i18n="results.f23">2025 – Winner, 4th International Rapid Tournament Elmshorn</p>
+        <p data-i18n="results.f24">2025 – Winner, Burkhard Mentz Memorial</p>
+        <p data-i18n="results.f25">2026 – Winner, 1st Werder Bremen Rapid Open</p>
+        <p data-i18n="results.f26">2026 – Winner, SonFlow Cup / Kolding Town Championship</p>
+        <p data-i18n="results.f27">2026 – Winner, Smuk Skak GM, Skanderborg</p>
+        <p data-i18n="results.f28">2026 – 2nd place, ØBRO &amp; CXU International, Copenhagen</p>
       </div>
     </details>
 
@@ -917,7 +917,7 @@
         <div class="blog-card-body">
           <div class="blog-date" data-i18n="blog.p1date">Add a date</div>
           <h3 data-i18n="blog.p1title">Add a post title here</h3>
-          <p data-i18n="blog.p1excerpt">A short excerpt of the post goes here — a sentence or two that makes someone want to read on.</p>
+          <p data-i18n="blog.p1excerpt">A short excerpt of the post goes here – a sentence or two that makes someone want to read on.</p>
           <a href="blog-post.html" class="blog-link" data-i18n="blog.readmore">Read more →</a>
         </div>
       </article>
@@ -925,7 +925,7 @@
         <div class="blog-card-body">
           <div class="blog-date" data-i18n="blog.p2date">Add a date</div>
           <h3 data-i18n="blog.p2title">Add a post title here</h3>
-          <p data-i18n="blog.p2excerpt">A short excerpt of the post goes here — a sentence or two that makes someone want to read on.</p>
+          <p data-i18n="blog.p2excerpt">A short excerpt of the post goes here – a sentence or two that makes someone want to read on.</p>
           <a href="blog-post.html" class="blog-link" data-i18n="blog.readmore">Read more →</a>
         </div>
       </article>
@@ -933,7 +933,7 @@
         <div class="blog-card-body">
           <div class="blog-date" data-i18n="blog.p3date">Add a date</div>
           <h3 data-i18n="blog.p3title">Add a post title here</h3>
-          <p data-i18n="blog.p3excerpt">A short excerpt of the post goes here — a sentence or two that makes someone want to read on.</p>
+          <p data-i18n="blog.p3excerpt">A short excerpt of the post goes here – a sentence or two that makes someone want to read on.</p>
           <a href="blog-post.html" class="blog-link" data-i18n="blog.readmore">Read more →</a>
         </div>
       </article>
@@ -944,7 +944,7 @@
     <!-- The three cards above are the fallback shown only when data/blog.json
          can't be loaded (opened as a local file) or is empty. Once you add
          real posts with editor.html, JS below replaces this grid's content
-         with cards generated from data/blog.json — newest first, 3 at a
+         with cards generated from data/blog.json – newest first, 3 at a
          time, with "Older posts" revealing more. -->
   </div>
 </section>
@@ -971,7 +971,7 @@ const i18n = {
   "nav.coaching":{en:"Coaching",de:"Training"},
   "nav.career":{en:"Career",de:"Schachlaufbahn"},
   "nav.blog":{en:"Blog",de:"Blog"},
-  /* short labels for the per-tab dropdown menus — some jump targets reuse
+  /* short labels for the per-tab dropdown menus – some jump targets reuse
      their section's own heading key above (coaching.heading, testi.heading,
      cta.heading) when it's already short enough for a menu item; these are
      the ones that needed a shorter, dedicated label instead */
@@ -980,7 +980,7 @@ const i18n = {
   "navsub.process":{en:"Getting Started",de:"Ablauf"},
   "navsub.trainingRequest":{en:"Training Request",de:"Trainingsanfrage"},
   "navsub.social":{en:"Social Media",de:"Social Media"},
-  "hero.title":{en:'Jakob Leon <span class="accent">Pajeken</span> — <em>Chess &amp; <span class="accent">Coaching</span></em><span class="tagline">International Master · Tournament Player · Coach</span>',de:'Jakob Leon <span class="accent">Pajeken</span> — <em>Schach &amp; <span class="accent">Coaching</span></em><span class="tagline">Internationaler Meister · Turnierspieler · Trainer</span>'},
+  "hero.title":{en:'Jakob Leon <span class="accent">Pajeken</span> – <em>Chess &amp; <span class="accent">Coaching</span></em><span class="tagline">International Master · Tournament Player · Coach</span>',de:'Jakob Leon <span class="accent">Pajeken</span> – <em>Schach &amp; <span class="accent">Coaching</span></em><span class="tagline">Internationaler Meister · Turnierspieler · Trainer</span>'},
   "hero.cta1":{en:"Training Request",de:"Trainingsanfrage"},
   "hero.cta2":{en:"Career Highlights",de:"Karrierehighlights"},
   "hero.stat1":{en:"FIDE rating",de:"FIDE-Elo"},
@@ -999,78 +999,78 @@ const i18n = {
   "problem.beforetitle":{en:"Without a structured plan",de:"Ohne strukturierten Plan"},
   "problem.before1":{en:"You know roughly what you're bad at, but not why it keeps happening.",de:"Du weißt ungefähr, wo deine Schwächen liegen, aber nicht, warum sie sich wiederholen."},
   "problem.before2":{en:"Openings are a patchwork of videos and half-remembered lines.",de:"Eröffnungen sind ein Flickwerk aus Videos und halb erinnerten Varianten."},
-  "problem.before3":{en:"Studying between games feels aimless, so it happens less and less.",de:"Training zwischen den Partien wirkt ziellos — und passiert deshalb immer seltener."},
+  "problem.before3":{en:"Studying between games feels aimless, so it happens less and less.",de:"Training zwischen den Partien wirkt ziellos – und passiert deshalb immer seltener."},
   "problem.before4":{en:"You're left on your own between sessions, without knowing how to actually get better.",de:"Du bist zwischen den Stunden auf dich allein gestellt, ohne zu wissen, wie du wirklich besser wirst."},
   "problem.aftertitle":{en:"With targeted coaching",de:"Mit gezieltem Training"},
   "problem.after1":{en:"Your games are analysed for root causes, not just move-by-move errors.",de:"Deine Partien werden auf Ursachen hin analysiert, nicht nur Zug für Zug auf Fehler."},
-  "problem.after2":{en:"A repertoire built for your style, understood rather than memorised.",de:"Ein Repertoire für deinen Stil — verstanden statt nur auswendig gelernt."},
+  "problem.after2":{en:"A repertoire built for your style, understood rather than memorised.",de:"Ein Repertoire für deinen Stil – verstanden statt nur auswendig gelernt."},
   "problem.after3":{en:"Clear homework and training methods for the days between sessions.",de:"Klare Hausaufgaben und Trainingsmethoden für die Tage zwischen den Stunden."},
-  "problem.after4":{en:"You learn how to train yourself — not just what to do in the next lesson.",de:"Du lernst, dich selbst zu trainieren — nicht nur, was in der nächsten Stunde ansteht."},
+  "problem.after4":{en:"You learn how to train yourself – not just what to do in the next lesson.",de:"Du lernst, dich selbst zu trainieren – nicht nur, was in der nächsten Stunde ansteht."},
   "coaching.heading":{en:"My Coaching Approach",de:"Mein Trainingsansatz"},
-  "coaching.sub":{en:"More than just a coach — a partner for chess success.",de:"Mehr als nur ein Trainer — ein Partner für den schachlichen Erfolg."},
+  "coaching.sub":{en:"More than just a coach – a partner for chess success.",de:"Mehr als nur ein Trainer – ein Partner für den schachlichen Erfolg."},
   "coaching.c1title":{en:"Your Training",de:"Dein Training"},
   "coaching.c1body1":{en:"The foundation of my coaching is 1-on-1 online training. Together, we analyze your games, identify your mistakes, and dig into the underlying causes behind them. We also work through carefully selected exercises and train your thinking process along the way. As an active International Master still working toward the Grandmaster title myself, I know firsthand what separates surface-level fixes from real understanding.",de:"Die Basis meines Coachings ist das 1:1-Einzeltraining online. Gemeinsam analysieren wir deine Partien, ich zeige dir deine Fehler und wir ergründen deren Ursachen. Außerdem lösen wir gemeinsam ausgewählte Aufgaben und arbeiten gezielt an deinem Denkprozess. Als aktiver Internationaler Meister, der selbst noch auf dem Weg zum Großmeistertitel ist, weiß ich aus eigener Erfahrung, was oberflächliche Korrekturen von echtem Verständnis unterscheidet."},
   "coaching.c1body2":{en:"The goal isn't just to spot mistakes or find better moves, but to <strong>understand why your mistakes happen and work specifically on the weaknesses behind them</strong>.",de:"So geht es nicht nur darum, Fehler zu erkennen und bessere Züge zu finden, sondern vor allem darum, <strong>die Ursachen hinter deinen Fehlern zu verstehen und gezielt an deinen Schwächen zu arbeiten</strong>."},
   "coaching.tg.title":{en:"Training Games &amp; Matches",de:"Trainingspartien &amp; Matches"},
-  "coaching.tg.body1":{en:'Want to test yourself against a <span class="fide-rating-live">2482</span>-rated FIDE International Master in a real game setting? Alongside my regular coaching, I also offer individual training games and matches — open to anyone, whether you already work with me or not.',de:'Du möchtest einmal gegen einen Internationalen Meister mit <span class="fide-rating-live">2482</span> FIDE-Elo antreten und dabei unter realistischen Bedingungen spielen? Zusätzlich zum klassischen Einzeltraining biete ich auch einzelne Trainingspartien und Matches an – unabhängig davon, ob du bereits mit mir trainierst.'},
+  "coaching.tg.body1":{en:'Want to test yourself against a <span class="fide-rating-live">2482</span>-rated FIDE International Master in a real game setting? Alongside my regular coaching, I also offer individual training games and matches – open to anyone, whether you already work with me or not.',de:'Du möchtest einmal gegen einen Internationalen Meister mit <span class="fide-rating-live">2482</span> FIDE-Elo antreten und dabei unter realistischen Bedingungen spielen? Zusätzlich zum klassischen Einzeltraining biete ich auch einzelne Trainingspartien und Matches an – unabhängig davon, ob du bereits mit mir trainierst.'},
   "coaching.tg.body2":{en:"Play a single game or a series of games against me, with the opportunity to <strong>practice your openings, test specific variations, and gain practical experience</strong>. After the game, I can also give you a brief insight into my thought process and explain what I was considering at key moments.",de:"Du spielst eine Partie oder gleich mehrere Partien gegen mich und kannst dabei gezielt <strong>deine Eröffnungen üben, Varianten ausprobieren und wertvolle Spielpraxis sammeln</strong>. Anschließend gebe ich dir einen kurzen Einblick in meine Perspektive und erkläre, was ich während der Partie gesehen und bei wichtigen Entscheidungen berücksichtigt habe."},
   "coaching.c3title":{en:"Opening repertoire",de:"Eröffnungsrepertoire"},
-  "coaching.c3body":{en:"Your opening repertoire is chosen specifically for your style and level — not pulled from a generic video course. Carefully selected and taught so that you repeatedly encounter the same plans, patterns, and types of positions — helping you develop a genuine understanding of your variations, all the way into the middlegame and, in many cases, the endgame.",de:"Dein Eröffnungsrepertoire wird gezielt für deinen Stil und dein Niveau ausgewählt — nicht aus irgendeinem Videokurs. So ausgewählt und vermittelt, dass du immer wieder auf dieselben Pläne, Muster und Stellungstypen triffst und dadurch ein echtes Verständnis für deine Varianten entwickelst – bis weit ins Mittel- und Endspiel hinein."},
+  "coaching.c3body":{en:"Your opening repertoire is chosen specifically for your style and level – not pulled from a generic video course. Carefully selected and taught so that you repeatedly encounter the same plans, patterns, and types of positions – helping you develop a genuine understanding of your variations, all the way into the middlegame and, in many cases, the endgame.",de:"Dein Eröffnungsrepertoire wird gezielt für deinen Stil und dein Niveau ausgewählt – nicht aus irgendeinem Videokurs. So ausgewählt und vermittelt, dass du immer wieder auf dieselben Pläne, Muster und Stellungstypen triffst und dadurch ein echtes Verständnis für deine Varianten entwickelst – bis weit ins Mittel- und Endspiel hinein."},
   "coaching.c4title":{en:"Help You Help Yourself",de:"Hilfe zur Selbsthilfe"},
   "coaching.c4body1":{en:"One coaching session with me each week on its own is never enough to make lasting progress. That's why I give you clear guidance and concrete tasks to work on between our sessions.",de:"Eine Session pro Woche mit mir allein reicht nicht aus, um nachhaltige Fortschritte zu machen. Deshalb gebe ich dir klare Anleitungen und konkrete Aufgaben für die Zeit zwischen unseren Sessions."},
   "coaching.c4body2":{en:"This includes targeted homework, carefully chosen book and tournament recommendations, as well as psychological tips and practical advice for tournament preparation, competition, and handling difficult situations at the board.",de:"Dazu gehören gezielte Hausaufgaben, passende Buch- und Turnierempfehlungen sowie psychologische Tipps und praktische Tricks für Turniervorbereitung, Wettkampf und den Umgang mit schwierigen Situationen am Brett."},
-  "coaching.c4body3":{en:"That way, you always know <strong>what to work on, why it matters, and how to make the most of your time outside our sessions</strong>. Because my goal isn't just to make you better during our sessions — it's to teach you how to keep improving on your own.",de:"So weißt du jederzeit, <strong>woran du arbeiten solltest, warum es wichtig ist und wie du deine Zeit außerhalb unserer Sessions optimal nutzt</strong>. Denn mein Ziel ist nicht nur, dich während unserer Sessions besser zu machen – sondern dir zu zeigen, wie du dich auch selbstständig weiterentwickeln kannst."},
+  "coaching.c4body3":{en:"That way, you always know <strong>what to work on, why it matters, and how to make the most of your time outside our sessions</strong>. Because my goal isn't just to make you better during our sessions – it's to teach you how to keep improving on your own.",de:"So weißt du jederzeit, <strong>woran du arbeiten solltest, warum es wichtig ist und wie du deine Zeit außerhalb unserer Sessions optimal nutzt</strong>. Denn mein Ziel ist nicht nur, dich während unserer Sessions besser zu machen – sondern dir zu zeigen, wie du dich auch selbstständig weiterentwickeln kannst."},
   "results.heading":{en:"My chess career",de:"Meine Schachkarriere"},
   "results.sub":{en:"Highlights from my journey in competitive chess.",de:"Highlights aus meiner bisherigen schachlichen Laufbahn."},
   "results.peaklabel":{en:"Peak FIDE rating",de:"Höchste FIDE-Elo"},
   "results.g1title":{en:"Titles & norms",de:"Titel &amp; Normen"},
-  "results.g1l1":{en:"2018 — Winner, IM tournament Norderstedt (1st IM norm)",de:"2018 — Sieger IM-Turnier Norderstedt (1. IM-Norm)"},
-  "results.g1l2":{en:"2018 — Winner, 3rd New Chess Brains, Hamburg (2nd IM norm)",de:"2018 — Sieger 3. New Chess Brains, Hamburg (2. IM-Norm)"},
-  "results.g1l3":{en:"2019 — 3rd IM norm; International Master title fulfilled",de:"2019 — 3. IM-Norm; Voraussetzungen für den IM-Titel erfüllt"},
-  "results.g1l4":{en:"2024 — 2nd place, Riga Technical University Open A (1st GM norm)",de:"2024 — 2. Platz Riga Technical University Open A (1. GM-Norm)"},
-  "results.g1l5":{en:"2025 — Winner, Smuk Skak GM, Skanderborg (2nd GM norm)",de:"2025 — Sieger Smuk Skak GM, Skanderborg (2. GM-Norm)"},
+  "results.g1l1":{en:"2018 – Winner, IM tournament Norderstedt (1st IM norm)",de:"2018 – Sieger IM-Turnier Norderstedt (1. IM-Norm)"},
+  "results.g1l2":{en:"2018 – Winner, 3rd New Chess Brains, Hamburg (2nd IM norm)",de:"2018 – Sieger 3. New Chess Brains, Hamburg (2. IM-Norm)"},
+  "results.g1l3":{en:"2019 – 3rd IM norm; International Master title fulfilled",de:"2019 – 3. IM-Norm; Voraussetzungen für den IM-Titel erfüllt"},
+  "results.g1l4":{en:"2024 – 2nd place, Riga Technical University Open A (1st GM norm)",de:"2024 – 2. Platz Riga Technical University Open A (1. GM-Norm)"},
+  "results.g1l5":{en:"2025 – Winner, Smuk Skak GM, Skanderborg (2nd GM norm)",de:"2025 – Sieger Smuk Skak GM, Skanderborg (2. GM-Norm)"},
   "results.g2title":{en:"National team & Bundesliga",de:"Nationalmannschaft &amp; Bundesliga"},
-  "results.g2l1":{en:"2016, 2018 — German national team, U16 Chess Olympiad",de:"2016, 2018 — Deutsche Nationalmannschaft, U16-Schacholympiade"},
-  "results.g2l2":{en:"2018 — German national team, U18 Team European Championship",de:"2018 — Deutsche Nationalmannschaft, U18-Mannschafts-EM"},
-  "results.g2l3":{en:"2019–2024 — Bundesliga player, SK Doppelbauer Kiel & SG Turm Kiel (30+ games)",de:"2019–2024 — Bundesligaspieler, SK Doppelbauer Kiel &amp; SG Turm Kiel (30+ Einsätze)"},
-  "results.g2l4":{en:"2023 — Winner, North German Blitz Team Championship, top board for SK Doppelbauer Kiel",de:"2023 — Sieger Norddeutsche Blitzmannschaftsmeisterschaft, Spitzenbrett SK Doppelbauer Kiel"},
+  "results.g2l1":{en:"2016, 2018 – German national team, U16 Chess Olympiad",de:"2016, 2018 – Deutsche Nationalmannschaft, U16-Schacholympiade"},
+  "results.g2l2":{en:"2018 – German national team, U18 Team European Championship",de:"2018 – Deutsche Nationalmannschaft, U18-Mannschafts-EM"},
+  "results.g2l3":{en:"2019–2024 – Bundesliga player, SK Doppelbauer Kiel & SG Turm Kiel (30+ games)",de:"2019–2024 – Bundesligaspieler, SK Doppelbauer Kiel &amp; SG Turm Kiel (30+ Einsätze)"},
+  "results.g2l4":{en:"2023 – Winner, North German Blitz Team Championship, top board for SK Doppelbauer Kiel",de:"2023 – Sieger Norddeutsche Blitzmannschaftsmeisterschaft, Spitzenbrett SK Doppelbauer Kiel"},
   "results.g3title":{en:"National championships",de:"Deutsche Meisterschaften"},
-  "results.g3l1":{en:"2021 — Bronze, German Rapid Championship",de:"2021 — Bronze, Deutsche Schnellschachmeisterschaft"},
-  "results.g3l2":{en:"2023 — Bronze, German Blitz Championship",de:"2023 — Bronze, Deutsche Blitzeinzelmeisterschaft"},
-  "results.g3l3":{en:"2022, 2026 — Winner, North German Blitz Championship",de:"2022, 2026 — Sieger Norddeutsche Blitz-Einzelmeisterschaft"},
-  "results.g3l4":{en:"2024 — Winner, Schleswig-Holstein Rapid Championship",de:"2024 — Sieger Schleswig-Holsteinische Landesschnellschachmeisterschaft"},
+  "results.g3l1":{en:"2021 – Bronze, German Rapid Championship",de:"2021 – Bronze, Deutsche Schnellschachmeisterschaft"},
+  "results.g3l2":{en:"2023 – Bronze, German Blitz Championship",de:"2023 – Bronze, Deutsche Blitzeinzelmeisterschaft"},
+  "results.g3l3":{en:"2022, 2026 – Winner, North German Blitz Championship",de:"2022, 2026 – Sieger Norddeutsche Blitz-Einzelmeisterschaft"},
+  "results.g3l4":{en:"2024 – Winner, Schleswig-Holstein Rapid Championship",de:"2024 – Sieger Schleswig-Holsteinische Landesschnellschachmeisterschaft"},
   "results.showall":{en:"View all achievements",de:"Alle Erfolge ansehen"},
-  "results.f1":{en:"2012 — Hamburg U10 Champion",de:"2012 — Hamburger Meister U10"},
-  "results.f2":{en:"2014 — German Club U12 Champion with Hamburger SK",de:"2014 — Deutscher Vereinsmeister U12 mit dem Hamburger SK"},
-  "results.f3":{en:"2015 — 10th place, U12 World Youth Championship, Porto Carras",de:"2015 — 10. Platz Jugend-WM U12, Porto Carras"},
-  "results.f4":{en:"2019 — Winner, 13th Delme Open, Delmenhorst",de:"2019 — Sieger 13. Delme Open, Delmenhorst"},
-  "results.f5":{en:"2022 — 2nd place, Bamberg Open",de:"2022 — 2. Platz Bamberg-Open"},
-  "results.f6":{en:"2022 — Shared 1st, Böblingen Open",de:"2022 — Böblinger Open, geteilter 1. Platz"},
-  "results.f7":{en:"2022, 2025 — Winner, Doppelbauer Kiel Rapid Open",de:"2022, 2025 — Sieger Schnellschach Open Doppelbauer Kiel"},
-  "results.f8":{en:"2023 — Winner, VII Turniej Klubu Marynarki Wojennej",de:"2023 — Sieger VII Turniej Klubu Marynarki Wojennej"},
-  "results.f9":{en:"2023 — Winner, Eugen Engel Memorial",de:"2023 — Sieger Eugen-Engel-Gedenkturnier"},
-  "results.f10":{en:"2023 — Winner, 1st Open International Lower Saxon Bullet Championship",de:"2023 — Sieger 1. Offene Internationale Niedersächsische Bulletmeisterschaft"},
-  "results.f11":{en:"2023 — Winner, Schlacht von Dennewitz",de:"2023 — Sieger Schlacht von Dennewitz"},
-  "results.f12":{en:"2023, 2024 — Winner, Lurup Rapid Tournament",de:"2023, 2024 — Sieger Luruper Schnellschachturnier"},
-  "results.f13":{en:"2023–2024 — Winner, Danish Team Championship with SK Skanderborg",de:"2023–2024 — Sieger Dänische Mannschaftsmeisterschaft mit SK Skanderborg"},
-  "results.f14":{en:"2023 — Winner, adh-Open Rapid, Berlin (German university championship)",de:"2023 — Sieger adh-Open Schnellschach, Berlin"},
-  "results.f15":{en:"2023 — Winner, 1st St. Pauli Rapid Open",de:"2023 — Sieger 1. St.-Pauli-Schnellschachopen"},
-  "results.f16":{en:"2024 — Winner, Schleswig-Holstein Blitz Team Championship with SK Doppelbauer Kiel",de:"2024 — Sieger Landesblitzmannschaftsmeisterschaft Schleswig-Holstein mit SK Doppelbauer Kiel"},
-  "results.f17":{en:"2024 — Winner, Anderten Open",de:"2024 — Sieger Anderter Open"},
-  "results.f18":{en:"2024 — Winner, 3rd Walddörfer Rapid Tournament",de:"2024 — Sieger 3. Walddörfer Schnellschachturnier"},
-  "results.f19":{en:"2024 — Winner, 1st Blankenese Rapid Open",de:"2024 — Sieger 1. Blankeneser Rapid Open"},
-  "results.f20":{en:"2024 — 2nd place, FIDE 100 Years Blitz Tournament, Riga",de:"2024 — 2. Platz FIDE-100-Jahre-Blitzturnier, Riga"},
-  "results.f21":{en:"2024 — Winner, 2nd Lemförde Rapid Open",de:"2024 — Sieger 2. Lemförder Schnellschach-Open"},
-  "results.f22":{en:"2025 — 2nd place, North German Blitz Championship",de:"2025 — 2. Platz Norddeutsche Blitz-Einzelmeisterschaft"},
-  "results.f23":{en:"2025 — Winner, 4th International Rapid Tournament Elmshorn",de:"2025 — Sieger 4. Internationales Schnellschachturnier Elmshorn"},
-  "results.f24":{en:"2025 — Winner, Burkhard Mentz Memorial",de:"2025 — Sieger Burkhard-Mentz-Memorial"},
-  "results.f25":{en:"2026 — Winner, 1st Werder Bremen Rapid Open",de:"2026 — Sieger 1. Werder Bremen Rapid-Open"},
-  "results.f26":{en:"2026 — Winner, SonFlow Cup / Kolding Town Championship",de:"2026 — Sieger SonFlow Cup / Kolding Bymesterskab"},
-  "results.f27":{en:"2026 — Winner, Smuk Skak GM, Skanderborg",de:"2026 — Sieger Smuk Skak GM, Skanderborg"},
-  "results.f28":{en:"2026 — 2nd place, ØBRO & CXU International, Copenhagen",de:"2026 — 2. Platz ØBRO &amp; CXU International, Kopenhagen"},
+  "results.f1":{en:"2012 – Hamburg U10 Champion",de:"2012 – Hamburger Meister U10"},
+  "results.f2":{en:"2014 – German Club U12 Champion with Hamburger SK",de:"2014 – Deutscher Vereinsmeister U12 mit dem Hamburger SK"},
+  "results.f3":{en:"2015 – 10th place, U12 World Youth Championship, Porto Carras",de:"2015 – 10. Platz Jugend-WM U12, Porto Carras"},
+  "results.f4":{en:"2019 – Winner, 13th Delme Open, Delmenhorst",de:"2019 – Sieger 13. Delme Open, Delmenhorst"},
+  "results.f5":{en:"2022 – 2nd place, Bamberg Open",de:"2022 – 2. Platz Bamberg-Open"},
+  "results.f6":{en:"2022 – Shared 1st, Böblingen Open",de:"2022 – Böblinger Open, geteilter 1. Platz"},
+  "results.f7":{en:"2022, 2025 – Winner, Doppelbauer Kiel Rapid Open",de:"2022, 2025 – Sieger Schnellschach Open Doppelbauer Kiel"},
+  "results.f8":{en:"2023 – Winner, VII Turniej Klubu Marynarki Wojennej",de:"2023 – Sieger VII Turniej Klubu Marynarki Wojennej"},
+  "results.f9":{en:"2023 – Winner, Eugen Engel Memorial",de:"2023 – Sieger Eugen-Engel-Gedenkturnier"},
+  "results.f10":{en:"2023 – Winner, 1st Open International Lower Saxon Bullet Championship",de:"2023 – Sieger 1. Offene Internationale Niedersächsische Bulletmeisterschaft"},
+  "results.f11":{en:"2023 – Winner, Schlacht von Dennewitz",de:"2023 – Sieger Schlacht von Dennewitz"},
+  "results.f12":{en:"2023, 2024 – Winner, Lurup Rapid Tournament",de:"2023, 2024 – Sieger Luruper Schnellschachturnier"},
+  "results.f13":{en:"2023–2024 – Winner, Danish Team Championship with SK Skanderborg",de:"2023–2024 – Sieger Dänische Mannschaftsmeisterschaft mit SK Skanderborg"},
+  "results.f14":{en:"2023 – Winner, adh-Open Rapid, Berlin (German university championship)",de:"2023 – Sieger adh-Open Schnellschach, Berlin"},
+  "results.f15":{en:"2023 – Winner, 1st St. Pauli Rapid Open",de:"2023 – Sieger 1. St.-Pauli-Schnellschachopen"},
+  "results.f16":{en:"2024 – Winner, Schleswig-Holstein Blitz Team Championship with SK Doppelbauer Kiel",de:"2024 – Sieger Landesblitzmannschaftsmeisterschaft Schleswig-Holstein mit SK Doppelbauer Kiel"},
+  "results.f17":{en:"2024 – Winner, Anderten Open",de:"2024 – Sieger Anderter Open"},
+  "results.f18":{en:"2024 – Winner, 3rd Walddörfer Rapid Tournament",de:"2024 – Sieger 3. Walddörfer Schnellschachturnier"},
+  "results.f19":{en:"2024 – Winner, 1st Blankenese Rapid Open",de:"2024 – Sieger 1. Blankeneser Rapid Open"},
+  "results.f20":{en:"2024 – 2nd place, FIDE 100 Years Blitz Tournament, Riga",de:"2024 – 2. Platz FIDE-100-Jahre-Blitzturnier, Riga"},
+  "results.f21":{en:"2024 – Winner, 2nd Lemförde Rapid Open",de:"2024 – Sieger 2. Lemförder Schnellschach-Open"},
+  "results.f22":{en:"2025 – 2nd place, North German Blitz Championship",de:"2025 – 2. Platz Norddeutsche Blitz-Einzelmeisterschaft"},
+  "results.f23":{en:"2025 – Winner, 4th International Rapid Tournament Elmshorn",de:"2025 – Sieger 4. Internationales Schnellschachturnier Elmshorn"},
+  "results.f24":{en:"2025 – Winner, Burkhard Mentz Memorial",de:"2025 – Sieger Burkhard-Mentz-Memorial"},
+  "results.f25":{en:"2026 – Winner, 1st Werder Bremen Rapid Open",de:"2026 – Sieger 1. Werder Bremen Rapid-Open"},
+  "results.f26":{en:"2026 – Winner, SonFlow Cup / Kolding Town Championship",de:"2026 – Sieger SonFlow Cup / Kolding Bymesterskab"},
+  "results.f27":{en:"2026 – Winner, Smuk Skak GM, Skanderborg",de:"2026 – Sieger Smuk Skak GM, Skanderborg"},
+  "results.f28":{en:"2026 – 2nd place, ØBRO & CXU International, Copenhagen",de:"2026 – 2. Platz ØBRO &amp; CXU International, Kopenhagen"},
   "testi.heading":{en:"What students say",de:"Stimmen von Schülern"},
   "testi.sub":{en:"The experiences of people who took the next step.",de:"Erfahrungen von Menschen, die den nächsten Schritt gewagt haben."},
-  "testi.q1":{en:"Add a short quote from a student here — what changed in their game or how they train.",de:"Hier ein kurzes Zitat eines Schülers einfügen — was sich in seinem Spiel oder Training verändert hat."},
+  "testi.q1":{en:"Add a short quote from a student here – what changed in their game or how they train.",de:"Hier ein kurzes Zitat eines Schülers einfügen – was sich in seinem Spiel oder Training verändert hat."},
   "testi.w1":{en:"Student name, rating or level",de:"Name des Schülers, Elo oder Niveau"},
   "process.heading":{en:"How we'd start working together",de:"So beginnt die Zusammenarbeit"},
   "process.sub":{en:"A simple process, from first contact to your first block of sessions.",de:"Ein einfacher Ablauf, vom ersten Kontakt bis zum ersten Trainingsblock."},
@@ -1078,24 +1078,24 @@ const i18n = {
   "process.s1body":{en:"<strong>Send me a short introduction of yourself:</strong> your age, your current chess level, your chess goals, and what chess means to you.",de:"<strong>Schreib mir eine Nachricht mit einer kurzen Vorstellung von dir:</strong> deinem Alter, deinem aktuellen Schachlevel, deinen schachlichen Zielen und dem, was Schach für dich bedeutet."},
   "process.s2title":{en:"Free trial session (60 mins)",de:"Kostenloses Erstgespräch (60 min)"},
   "process.s2cta":{en:"Book now →",de:"Jetzt buchen →"},
-  "process.s2body":{en:"We look at a few of your recent games together, so I can identify real patterns, not just the last mistake you noticed. And we'll discuss the next steps together — including pricing, which depends on your goals and how we work together.",de:"Wir schauen uns gemeinsam einige deiner letzten Partien an, damit ich echte Muster erkennen kann — nicht nur den letzten Fehler, der dir aufgefallen ist. Und wir besprechen, wie es weitergehen soll — auch der Preis richtet sich nach deinen Zielen und dem Umfang der Zusammenarbeit und wird hier gemeinsam geklärt."},
+  "process.s2body":{en:"We look at a few of your recent games together, so I can identify real patterns, not just the last mistake you noticed. And we'll discuss the next steps together – including pricing, which depends on your goals and how we work together.",de:"Wir schauen uns gemeinsam einige deiner letzten Partien an, damit ich echte Muster erkennen kann – nicht nur den letzten Fehler, der dir aufgefallen ist. Und wir besprechen, wie es weitergehen soll – auch der Preis richtet sich nach deinen Zielen und dem Umfang der Zusammenarbeit und wird hier gemeinsam geklärt."},
   "process.s3title":{en:"Tailored plan",de:"Individueller Plan"},
-  "process.s3body":{en:"Based on that, I set out where the training will focus first — openings, calculation, endgames, or how you train between sessions.",de:"Darauf aufbauend lege ich fest, worauf sich das Training zuerst konzentriert — Eröffnungen, Berechnung, Endspiele oder dein Training zwischen den Stunden."},
+  "process.s3body":{en:"Based on that, I set out where the training will focus first – openings, calculation, endgames, or how you train between sessions.",de:"Darauf aufbauend lege ich fest, worauf sich das Training zuerst konzentriert – Eröffnungen, Berechnung, Endspiele oder dein Training zwischen den Stunden."},
   "process.s4title":{en:"Regular sessions & homework",de:"Regelmäßige Stunden &amp; Hausaufgaben"},
   "process.s4body":{en:"Weekly (or more frequent) lessons, each followed by specific homework and exercises for the days in between.",de:"Wöchentlicher (oder häufigerer) Unterricht, jeweils gefolgt von konkreten Hausaufgaben und Übungen für die Tage dazwischen."},
   "process.s5title":{en:"Review & adjust",de:"Überprüfen &amp; anpassen"},
-  "process.s5body":{en:"We revisit the plan regularly and adjust it as your games change — training should follow your actual progress, not a fixed script.",de:"Wir überprüfen den Plan regelmäßig und passen ihn an, wenn sich deine Partien verändern — Training sollte deinem tatsächlichen Fortschritt folgen, nicht einem festen Schema."},
+  "process.s5body":{en:"We revisit the plan regularly and adjust it as your games change – training should follow your actual progress, not a fixed script.",de:"Wir überprüfen den Plan regelmäßig und passen ihn an, wenn sich deine Partien verändern – Training sollte deinem tatsächlichen Fortschritt folgen, nicht einem festen Schema."},
   "blog.heading":{en:"Blog",de:"Blog"},
   "blog.sub":{en:"Chess – Tournaments – Personal Insights",de:"Turniere – Schach – persönliche Erfahrungen."},
   "blog.p1date":{en:"Add a date",de:"Datum einfügen"},
   "blog.p1title":{en:"Add a post title here",de:"Hier einen Titel einfügen"},
-  "blog.p1excerpt":{en:"A short excerpt of the post goes here — a sentence or two that makes someone want to read on.",de:"Hier ein kurzer Auszug des Beitrags — ein bis zwei Sätze, die zum Weiterlesen einladen."},
+  "blog.p1excerpt":{en:"A short excerpt of the post goes here – a sentence or two that makes someone want to read on.",de:"Hier ein kurzer Auszug des Beitrags – ein bis zwei Sätze, die zum Weiterlesen einladen."},
   "blog.p2date":{en:"Add a date",de:"Datum einfügen"},
   "blog.p2title":{en:"Add a post title here",de:"Hier einen Titel einfügen"},
-  "blog.p2excerpt":{en:"A short excerpt of the post goes here — a sentence or two that makes someone want to read on.",de:"Hier ein kurzer Auszug des Beitrags — ein bis zwei Sätze, die zum Weiterlesen einladen."},
+  "blog.p2excerpt":{en:"A short excerpt of the post goes here – a sentence or two that makes someone want to read on.",de:"Hier ein kurzer Auszug des Beitrags – ein bis zwei Sätze, die zum Weiterlesen einladen."},
   "blog.p3date":{en:"Add a date",de:"Datum einfügen"},
   "blog.p3title":{en:"Add a post title here",de:"Hier einen Titel einfügen"},
-  "blog.p3excerpt":{en:"A short excerpt of the post goes here — a sentence or two that makes someone want to read on.",de:"Hier ein kurzer Auszug des Beitrags — ein bis zwei Sätze, die zum Weiterlesen einladen."},
+  "blog.p3excerpt":{en:"A short excerpt of the post goes here – a sentence or two that makes someone want to read on.",de:"Hier ein kurzer Auszug des Beitrags – ein bis zwei Sätze, die zum Weiterlesen einladen."},
   "blog.readmore":{en:"Read more →",de:"Weiterlesen →"},
   "blog.loadmore":{en:"Older posts",de:"Ältere Beiträge"},
   "games.heading":{en:"My most memorable games",de:"Meine denkwürdigsten Partien"},
@@ -1104,9 +1104,9 @@ const i18n = {
   "games.downloadAll":{en:"⬇ Download all as PGN",de:"⬇ Alle als PGN herunterladen"},
   "games.choiceCancel":{en:"Cancel",de:"Abbrechen"},
   "coaching.cta.heading":{en:"Ready to train with a clear plan?",de:"Bereit für Training mit klarem Plan?"},
-  "coaching.cta.sub":{en:"Send me a message about your chess background and what you're working towards — I'll get back to you with a suggestion for how to start.",de:"Schreib mir kurz etwas zu deinem schachlichen Hintergrund und deinem Ziel — ich melde mich mit einem Vorschlag für den Einstieg zurück."},
+  "coaching.cta.sub":{en:"Send me a message about your chess background and what you're working towards – I'll get back to you with a suggestion for how to start.",de:"Schreib mir kurz etwas zu deinem schachlichen Hintergrund und deinem Ziel – ich melde mich mit einem Vorschlag für den Einstieg zurück."},
   "cta.heading":{en:"Get in touch",de:"Kontakt aufnehmen"},
-  "cta.sub":{en:"Whether you're interested in chess coaching, have a media, tournament, or event inquiry, or just want to say hello — send a message and I'll get back to you.",de:"Ob Interesse an Schachtraining, eine Presse-, Turnier- oder Veranstaltungsanfrage, oder einfach nur eine Nachricht — schreib mir gerne, ich melde mich zurück."},
+  "cta.sub":{en:"Whether you're interested in chess coaching, have a media, tournament, or event inquiry, or just want to say hello – send a message and I'll get back to you.",de:"Ob Interesse an Schachtraining, eine Presse-, Turnier- oder Veranstaltungsanfrage, oder einfach nur eine Nachricht – schreib mir gerne, ich melde mich zurück."},
   "cta.button":{en:"Send an email",de:"E-Mail schreiben"},
   "cta.orDm":{en:"or message me on WhatsApp (+49 176 63258882) for a fast reply",de:"oder schreib mir auf WhatsApp (+49 176 63258882) für eine schnelle Antwort"},
   "social.heading":{en:"Social Media &amp; Links",de:"Social Media &amp; Links"},
@@ -1117,10 +1117,10 @@ const i18n = {
 };
 
 /* Picks the right language out of a value that may be either a plain
-   string (shown as-is in every language — the old, still-supported format)
+   string (shown as-is in every language – the old, still-supported format)
    or a {en:"...", de:"..."} object (written by editor.html once a real
    translation has been added). Used for testimonial quotes and game
-   titles, which — unlike the rest of the site's text — live in data files
+   titles, which – unlike the rest of the site's text – live in data files
    rather than the i18n object above. */
 function pickLang(val){
   if(val == null) return '';
@@ -1149,7 +1149,7 @@ function setLang(lang){
     btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
   });
   /* Impressum/Datenschutz footer links: carry the current language along
-     via ?lang=, same reason as the blog "Weiterlesen" links below — without
+     via ?lang=, same reason as the blog "Weiterlesen" links below – without
      it, datenschutz.html falls back to whatever language its own
      localStorage remembers (or English), which can silently disagree with
      the language you were just reading the site in. */
@@ -1172,7 +1172,7 @@ function setLang(lang){
   if(typeof refreshGameTitleLanguage === 'function') refreshGameTitleLanguage();
   if(typeof renderAllResults === 'function') renderAllResults();
 }
-/* ?lang=de / ?lang=en in the URL — lets a link open directly in a given
+/* ?lang=de / ?lang=en in the URL – lets a link open directly in a given
    language (e.g. index.html?lang=de#career), without needing separate
    pages per language. Only read on load; the URL is only rewritten to
    include it once the visitor actually switches language, so a plain
@@ -1199,7 +1199,7 @@ document.querySelectorAll('.langtoggle button').forEach(function(btn){
 });
 /* Force the page to sync with the i18n object right from the start, so the
    raw English text baked into the HTML (a plain-text fallback) can never
-   silently drift out of sync with i18n["..."].en — whichever one someone
+   silently drift out of sync with i18n["..."].en – whichever one someone
    edits, this guarantees what's on screen always matches the i18n object.
    Defaults to English unless the URL says otherwise. */
 setLang(getUrlLang() || 'en');
@@ -1277,14 +1277,14 @@ function loadFideRating(){
       applyFideRating();
     })
     .catch(function(){
-      /* rating.json missing or blocked (e.g. opened as a local file) —
+      /* rating.json missing or blocked (e.g. opened as a local file) –
          the hardcoded values already in the page stay as-is */
     });
 }
 loadFideRating();
 
 /* sectionId (optional): jump straight to one of the sections listed in a
-   tab's hover dropdown, instead of just landing at the top of the tab —
+   tab's hover dropdown, instead of just landing at the top of the tab –
    still updates the URL hash, so that more specific link is what a
    copied/shared link reopens (e.g. #coaching-testimonials, not just #coaching) */
 function showTab(tabId, sectionId){
@@ -1297,7 +1297,7 @@ function showTab(tabId, sectionId){
   var scrollTarget = (sectionId && document.getElementById(sectionId)) || document.querySelector('.tabbar-outer');
   scrollTarget.scrollIntoView({behavior:'smooth', block:'start'});
   /* keep the URL's #hash in sync, so whatever's currently open is what a
-     copied/shared link reopens — same idea as ?lang=, just via the hash */
+     copied/shared link reopens – same idea as ?lang=, just via the hash */
   try{ history.replaceState(null, '', location.pathname + location.search + '#' + (sectionId || tabId)); }catch(e){}
 }
 document.querySelectorAll('[data-goto-tab]').forEach(function(el){
@@ -1308,7 +1308,7 @@ document.querySelectorAll('[data-goto-tab]').forEach(function(el){
     showTab(el.getAttribute('data-goto-tab'), el.getAttribute('data-goto-section') || undefined);
   });
 });
-/* closes a touch-opened dropdown AND blurs whatever's focused inside it —
+/* closes a touch-opened dropdown AND blurs whatever's focused inside it –
    on mobile, tapping a button leaves it focused, and :focus-within (there
    for keyboard users) would otherwise keep the dropdown showing even after
    the dropdown-open class above is gone and the page has moved on */
@@ -1316,7 +1316,7 @@ function closeTabDropdown(item){
   item.classList.remove('dropdown-open');
   if(item.contains(document.activeElement)) document.activeElement.blur();
 }
-/* per-tab dropdown links (hover menus in the tab bar) — jump to the tab
+/* per-tab dropdown links (hover menus in the tab bar) – jump to the tab
    AND scroll straight to that section */
 document.querySelectorAll('.tab-dropdown a[data-tab]').forEach(function(a){
   a.addEventListener('click', function(e){
@@ -1326,7 +1326,7 @@ document.querySelectorAll('.tab-dropdown a[data-tab]').forEach(function(a){
   });
 });
 /* tab bar buttons, including the dropdown-carrying ones. A dropdown's own
-   :hover/:focus-within CSS (see above) is all a mouse needs — but a touch
+   :hover/:focus-within CSS (see above) is all a mouse needs – but a touch
    screen has no "hover" at all, so without this its submenu would simply be
    unreachable there. window.matchMedia('(hover: hover)') is re-checked on
    every tap (not cached), so it also copes with hybrid devices (e.g. a
@@ -1371,14 +1371,14 @@ document.addEventListener('click', function(e){
    index.html#coaching-testimonials linking straight to one dropdown section.
    Handled differently on a plain reload: showTab() keeps the URL's #hash in
    sync with whatever tab/section is open (via history.replaceState) so a
-   COPIED link reopens at the same spot — but that means the hash from
+   COPIED link reopens at the same spot – but that means the hash from
    wherever you last clicked is still sitting in the address bar, and
    hitting reload isn't the same as following a link, so it shouldn't keep
    scrolling to that specific spot. Reload instead stays on whichever TAB
    was open (switched with no scroll animation of its own) but always lands
    at the very top of the page. A genuine navigation here (an external
    link, a bookmark, coming back from blog-post.html) still honors the full
-   hash — tab AND section — exactly as before. */
+   hash – tab AND section – exactly as before. */
 (function(){
   var hash = location.hash.replace('#', '');
   if(!hash) return;
@@ -1393,7 +1393,7 @@ document.addEventListener('click', function(e){
       if(reloadPanel) reloadTabId = reloadPanel.id;
     }
     /* same tab/panel switch as the top of showTab(), just without its
-       scrollIntoView — this only ever needs to change which panel is
+       scrollIntoView – this only ever needs to change which panel is
        active, since the scroll position is handled below regardless */
     if(reloadTabId){
       document.querySelectorAll('.tabbar button[data-tab]').forEach(function(btn){
@@ -1419,7 +1419,7 @@ document.addEventListener('click', function(e){
 /* ---------- best games / PGN board viewer ---------- */
 /* This hardcoded list is only the fallback used when data/games.json can't
    be loaded (e.g. the page is opened by double-clicking the file instead of
-   through a web server — browsers block that fetch for local files). Add
+   through a web server – browsers block that fetch for local files). Add
    real games with the editor.html tool, which writes to data/games.json;
    that file is what actually renders once the site is hosted. */
 var sampleGames = [
@@ -1437,7 +1437,7 @@ var sampleGames = [
 var currentGame = null;
 var historyVerbose = [];
 var moveIndex = 0;
-/* the SAN path (from move 1) of whatever line is currently being viewed —
+/* the SAN path (from move 1) of whatever line is currently being viewed –
    the mainline by default, or a variation's own path once you click into
    one. Arrow keys and the prev/next/start/end buttons all step through
    THIS line, not always the mainline, so a variation is just as walkable
@@ -1446,12 +1446,12 @@ var moveIndex = 0;
    board gets replayed to match it.
    activeBranches runs parallel to activeLine: activeBranches[i] is the
    list of alternative lines branching off right after activeLine[i] (i.e.
-   other options for what activeLine[i+1] could have been) — this is what
+   other options for what activeLine[i+1] could have been) – this is what
    powers the move-choice dialog: reaching a move that had a real
    alternative attached asks which one to take, instead of silently
    picking the line you happen to already be on. rootBranches is the same
    idea for the very first move (there's no "activeLine[-1]" to hang it
-   off of) — constant for the whole game, so it's only set on load. */
+   off of) – constant for the whole game, so it's only set on load. */
 var activeLine = [];
 var activeBranches = [];
 var rootBranches = [];
@@ -1501,7 +1501,7 @@ function isJakobBlack(headers){
   return !!(headers && headers.black && /pajeken/i.test(headers.black));
 }
 
-/* Simpler Lichess piece design ("merida" — cleaner, flatter shapes than
+/* Simpler Lichess piece design ("merida" – cleaner, flatter shapes than
    the more ornate default cburnett set; GPLv2+ licensed, safe for this
    commercial site). Embedded as inline data URIs (not loaded from a CDN)
    so the pieces always render the same, with no external network request
@@ -1639,7 +1639,7 @@ function renderMoveList(){
     list.appendChild(whitePair);
     /* a comment/variation breaks the flow onto its own line, so black's
        move (if the break happened right before it) needs its move number
-       repeated as "12..." to stay readable — same convention already used
+       repeated as "12..." to stay readable – same convention already used
        when a variation resumes after its own break (pgnMoveNumberPrefix) */
     var brokeFlow = appendInlineAnnotation(list, gameComments[whitePly], mainlineSans.slice(0, whitePly), mainlineBranches().slice(0, whitePly));
     if(historyVerbose[i + 1]){
@@ -1660,7 +1660,7 @@ function renderMoveList(){
 }
 
 /* activeBranches, but derived fresh from the mainline (historyVerbose +
-   gameComments) rather than whatever line is currently active — used
+   gameComments) rather than whatever line is currently active – used
    whenever something needs "the real game's own" branch structure
    regardless of which variation is currently being viewed, e.g. jumping
    to a mainline move via click, or rendering the mainline's own comments. */
@@ -1675,7 +1675,7 @@ function mainlineBranches(){
    into the move list's own flowing text, immediately after the move it
    belongs to. `branchPath`/`branchBranches`: the SAN path (from move 1),
    and its parallel branch-lists, up to and including the mainline move
-   this annotation is attached to — where any attached variation branches
+   this annotation is attached to – where any attached variation branches
    off from. Returns true if anything was actually appended, so the
    caller knows the flow was interrupted (see renderMoveList above). */
 function appendInlineAnnotation(list, annotation, branchPath, branchBranches){
@@ -1705,13 +1705,13 @@ function appendInlineAnnotation(list, annotation, branchPath, branchBranches){
   return true;
 }
 
-/* Renders one variation line — the actual game moves leading up to it
-   plus its own moves — as real, clickable move buttons (not static text),
+/* Renders one variation line – the actual game moves leading up to it
+   plus its own moves – as real, clickable move buttons (not static text),
    so a side line is just as playable as the mainline: click any move in
    it, or step through it with the arrow keys once you're on it. Every
    button in THIS line shares the same full SAN path (prefixPath + all of
    `line`'s own moves) as its arrow-key line, each stopping at its own
-   position within it — so clicking any one move and then pressing the
+   position within it – so clicking any one move and then pressing the
    arrow keys naturally continues along the rest of that same variation,
    not just back and forth on the one move you clicked. Recurses into any
    sub-variations nested inside it (each with its own, shorter full path,
@@ -1775,7 +1775,7 @@ function makeMoveBtn(san, ply){
 }
 
 /* A button (mainline or variation) is active when its own path exactly
-   matches the currently active line up to the current move index —
+   matches the currently active line up to the current move index –
    ply alone can't tell them apart, since a mainline move and a variation
    move can share the same ply number. */
 function pathIsActive(path){
@@ -1791,20 +1791,20 @@ function highlightMoveList(){
   document.querySelectorAll('.move-btn').forEach(function(btn){
     var isActive = pathIsActive(btn.__path);
     btn.classList.toggle('active', isActive);
-    /* keep the current move in view as you step through — scrolled by
+    /* keep the current move in view as you step through – scrolled by
        hand (setting scrollTop on the move-list box directly) rather than
        via scrollIntoView, which per spec walks up and scrolls EVERY
        scrollable ancestor it can find, including the page itself; setting
        scrollTop touches only this one box, so the page never moves.
        Scrolls the MINIMUM distance needed (like scrollIntoView's
-       block:'nearest') instead of always re-centering the active move —
+       block:'nearest') instead of always re-centering the active move –
        centering caused every click past the halfway point to compute a
        target beyond the max scrollTop, which browsers silently clamp to
        the bottom, so it looked like every click jumped straight to the
        end of the notation. This way, stepping to the next move only
        scrolls (by roughly one line) when that move isn't already
        visible, and does nothing at all when it already is.
-       Uses getBoundingClientRect() rather than offsetTop — offsetTop is
+       Uses getBoundingClientRect() rather than offsetTop – offsetTop is
        relative to the nearest POSITIONED ancestor, which here isn't the
        scrollable move-list box itself, so it returned huge, wrong
        numbers that always clamped straight to the bottom too. */
@@ -1822,7 +1822,7 @@ function highlightMoveList(){
       }
     }
   });
-  /* ply 0 (before any move) has no move button to scroll to above — but it
+  /* ply 0 (before any move) has no move button to scroll to above – but it
      can have its own intro comment sitting right at the very top of the
      list, so stepping back to the start of the game (undoing the first
      move) should jump back up to show it, not leave the view wherever it
@@ -1831,7 +1831,7 @@ function highlightMoveList(){
 }
 
 /* Replays `line` (an array of SAN strings from move 1) up to `idx` moves
-   in and renders that position — line can be the mainline or any
+   in and renders that position – line can be the mainline or any
    variation's own path, since chess.js's .move() takes a plain SAN string
    just as happily as historyVerbose's own move objects did. */
 function goToLineIndex(line, branches, idx){
@@ -1845,7 +1845,7 @@ function goToLineIndex(line, branches, idx){
   highlightMoveList();
 }
 
-/* Advances one move forward along the current line — unless the position
+/* Advances one move forward along the current line – unless the position
    we're actually AT right now had more than one possible next move (the
    line's own next move, plus one or more variations branching off here),
    in which case it asks which one via a small dialog instead of silently
@@ -1875,7 +1875,7 @@ function tryAdvance(){
   });
   /* de-dupe: after entering a variation and then rewinding back to the
      branch point it came from, activeLine is still "attached" to that
-     variation — so its own "continue as-is" option and the variation
+     variation – so its own "continue as-is" option and the variation
      itself describe the exact same move, and would otherwise show up
      here twice. Matched by SAN alone (not the NAG too): the "continue
      as-is" option never carries a NAG of its own (it doesn't have an
@@ -1933,12 +1933,12 @@ function isChoiceDialogOpen(){
 }
 
 /* What the "next" button (and the right-arrow key) actually do: if the
-   choice dialog isn't open, this is just tryAdvance() — either the move
+   choice dialog isn't open, this is just tryAdvance() – either the move
    plays immediately, or a branch opens the dialog for you to choose.
    If the dialog IS already open, this is now "confirm" instead of
    "advance again": it plays whichever option is currently focused
    (defaulting to the first one, the mainline continuation, since
-   showMoveChoiceDialog focuses it as soon as the dialog opens) — so
+   showMoveChoiceDialog focuses it as soon as the dialog opens) – so
    pressing the same key/button a second time plays the highlighted
    choice rather than re-opening the same dialog. This is also what makes
    the on-screen "»" button work as a phone's stand-in for the arrow key:
@@ -1994,14 +1994,14 @@ function parsePgnHeaders(pgnText){
 }
 
 /* Pulls { ply: commentText } out of a PGN string's movetext, independent
-   of chess.js — this version of the library silently discards comments
+   of chess.js – this version of the library silently discards comments
    while parsing (no get_comment()/get_comments() API at all), so text
    annotations added in ChessBase (or anywhere else) need their own,
    separate extraction to ever be shown. Ply is 1-indexed to match
    historyVerbose's own indexing (ply 1 = White's 1st move, 2 = Black's
-   1st, ...). Variations in parentheses are skipped over entirely — their
+   1st, ...). Variations in parentheses are skipped over entirely – their
    moves don't advance the mainline ply count and their comments are
-   dropped — rather than risk misattributing either to the wrong move;
+   dropped – rather than risk misattributing either to the wrong move;
    showing sub-lines is a bigger feature for another time. */
 function extractPgnComments(pgnText){
   var movetext = (pgnText || '').replace(/\[[^\]]*\]\s*/g, '');
@@ -2047,7 +2047,7 @@ function extractPgnComments(pgnText){
 }
 /* Turns a flat { ply: commentText } map (from the fallback extractor above)
    into the same { ply: {san, nag, comment, variations} } shape the real
-   annotations tree below uses, so both can be read the same way — "san"
+   annotations tree below uses, so both can be read the same way – "san"
    and "nag" are left blank since the fallback never had them. */
 function commentsMapToIndex(comments){
   var index = {};
@@ -2057,12 +2057,12 @@ function commentsMapToIndex(comments){
   return index;
 }
 /* data/games.json / data/blog.json entries written by
-   scripts/sync_games_pgn.py carry a pre-parsed "annotations" tree —
-   comments, NAGs (as symbols, e.g. "!", "?!"), and nested variations —
+   scripts/sync_games_pgn.py carry a pre-parsed "annotations" tree –
+   comments, NAGs (as symbols, e.g. "!", "?!"), and nested variations –
    extracted server-side with the real "chess" PGN library, since chess.js
    here can't represent any of that itself (see the fallback extractor
    above, used only for a game that predates that field). This turns the
-   tree's top level (the mainline) into a flat { ply: entry } lookup —
+   tree's top level (the mainline) into a flat { ply: entry } lookup –
    variations stay nested inside their own entry, not flattened, since
    they're not separately selectable moves in the viewer. */
 function buildAnnotationIndex(tree){
@@ -2077,7 +2077,7 @@ function pgnMoveNumberPrefix(ply, isFirstInLine){
   return isFirstInLine ? moveNum + '...' : '';
 }
 /* German chess notation uses German piece initials (Dame, Turm, Läufer,
-   Springer) instead of the English ones SAN is written in — K stays K
+   Springer) instead of the English ones SAN is written in – K stays K
    (König), pawn moves and castling are unaffected either way. Purely a
    display transformation: the underlying SAN chess.js works with never
    changes, this only runs on the text shown to the reader. */
@@ -2117,7 +2117,7 @@ function loadGameObject(g){
   currentWhiteName = whiteName;
   currentBlackName = blackName;
   /* whenever Jakob is playing Black, default to viewing the board from
-     Black's side — the flip button can still override this per game */
+     Black's side – the flip button can still override this per game */
   boardOrientation = isJakobBlack(headers) ? 'black' : 'white';
   renderCoordinates();
   renderPosition(gameEngine.fen());
@@ -2168,7 +2168,7 @@ function refreshGameTitleLanguage(){
   if(infoEl) infoEl.textContent = buildGameInfoText(headers, currentGame.meta);
   /* move notation (German piece letters) and any comments/variations are
      also language-dependent, so the whole move list needs rebuilding here
-     too — not just the title/info text above */
+     too – not just the title/info text above */
   renderMoveList();
 }
 
@@ -2179,7 +2179,7 @@ function loadGamesData(){
       if(Array.isArray(list) && list.length) sampleGames = list;
     })
     .catch(function(){
-      /* data/games.json missing or blocked (e.g. opened as a local file) —
+      /* data/games.json missing or blocked (e.g. opened as a local file) –
          the hardcoded sampleGames above stays as-is */
     });
 }
@@ -2207,7 +2207,7 @@ function initGamesWidget(){
     populateGameSelect();
     loadGameObject(sampleGames[0]);
     /* only worth offering "download all" once there's more than one game
-       to bundle — otherwise it's a redundant duplicate of the single
+       to bundle – otherwise it's a redundant duplicate of the single
        download button right next to it */
     if(downloadAllBtn) downloadAllBtn.hidden = sampleGames.length <= 1;
   });
@@ -2240,7 +2240,7 @@ function initGamesWidget(){
   var btnFlip = document.getElementById('nav-flip');
   /* start/prev/end are unambiguous "go to a specific place" moves, so
      while a choice is pending they're simply ignored rather than acted on
-     underneath the dialog — resolve the dialog (pick an option or Cancel)
+     underneath the dialog – resolve the dialog (pick an option or Cancel)
      first. next is the odd one out: see handleAdvancePress(). */
   if(btnStart) btnStart.addEventListener('click', function(){ if(isChoiceDialogOpen()) return; manualGoToLine(activeLine, activeBranches, 0); });
   if(btnPrev) btnPrev.addEventListener('click', function(){ if(isChoiceDialogOpen()) return; manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1)); });
@@ -2254,12 +2254,12 @@ function initGamesWidget(){
   if(choiceDialog) choiceDialog.addEventListener('click', function(e){ if(e.target === choiceDialog) hideMoveChoiceDialog(); });
 
   /* swipe left/right on the board is the touch equivalent of the arrow
-     keys (there's no keyboard on a phone): swipe right advances — same
+     keys (there's no keyboard on a phone): swipe right advances – same
      as pressing → , including opening the move-choice dialog when the
-     move you're leaving had more than one option — swipe left steps
+     move you're leaving had more than one option – swipe left steps
      back. Same 40px/mostly-horizontal threshold already used for the
      testimonial rotator's swipe, so a scroll gesture doesn't get mistaken
-     for one. Ignored while the dialog itself is open — its own buttons
+     for one. Ignored while the dialog itself is open – its own buttons
      are already tap-friendly, and a swipe there would be ambiguous. */
   var boardWrap = document.querySelector('.board-wrap');
   if(boardWrap){
@@ -2300,7 +2300,7 @@ function renderBlogGrid(){
   if(!grid) return;
   var readMore = document.documentElement.lang === 'de' ? 'Weiterlesen →' : 'Read more →';
   /* drafts (status:"draft", set in editor.html) never show in the public
-     list — only reachable by whoever has the direct blog-post.html link,
+     list – only reachable by whoever has the direct blog-post.html link,
      e.g. to proofread before flipping it to published. Posts saved before
      this field existed have no status at all, which counts as published
      so they don't silently vanish from the live site. */
@@ -2339,7 +2339,7 @@ function loadBlogData(){
       renderBlogGrid();
     })
     .catch(function(){
-      /* data/blog.json missing or blocked (e.g. opened as a local file) —
+      /* data/blog.json missing or blocked (e.g. opened as a local file) –
          the placeholder cards already in the page stay as-is */
     });
 }
@@ -2353,7 +2353,7 @@ if(blogLoadMoreBtn){
 
 /* ---------- testimonials, loaded from data/testimonials.json ---------- */
 var testimonialsData = null;
-/* one testimonial visible at a time, auto-rotating every few seconds —
+/* one testimonial visible at a time, auto-rotating every few seconds –
    testiList holds the current language's resolved {quote, who} pairs,
    testiIndex which one is showing, testiTimer the rotation interval */
 var testiList = null;
@@ -2378,7 +2378,7 @@ function showTesti(idx){
 var testiHeightObserverSet = false;
 /* pins the WHOLE rotator's min-height to whichever testimonial (quote AND
    "who" together) needs the most room, measured via an invisible same-width
-   probe — pinning just the quote wasn't enough, since a longer/shorter
+   probe – pinning just the quote wasn't enough, since a longer/shorter
    "who" name can wrap differently on its own and still shift the CTA box
    below it. Probe replicates both elements so wrapping matches exactly. */
 function measureAndPinTestiHeight(){
@@ -2401,7 +2401,7 @@ function measureAndPinTestiHeight(){
   });
   grid.removeChild(probe);
   grid.style.minHeight = maxH + 'px';
-  /* width (and so wrapping) can change later, e.g. on window resize —
+  /* width (and so wrapping) can change later, e.g. on window resize –
      keep the pin in sync; set up once, not on every render */
   if(!testiHeightObserverSet && window.ResizeObserver){
     testiHeightObserverSet = true;
@@ -2429,7 +2429,7 @@ function startTestiTimer(){
   if(!testiList || testiList.length <= 1) return;
   testiTimer = setInterval(function(){ advanceTesti(1); }, 11000);
 }
-/* arrow clicks / swipes call this — same as the auto-rotation, but also
+/* arrow clicks / swipes call this – same as the auto-rotation, but also
    restarts the countdown so a manual jump doesn't get instantly overridden
    by the timer a moment later */
 function goToTesti(direction){
@@ -2469,7 +2469,7 @@ function renderTestiGrid(){
   if(!grid) return;
   var lang = currentSiteLang();
   /* inactive testimonials (active:false, set in editor.html) stay out of
-     the public rotation without needing to be deleted — entries saved
+     the public rotation without needing to be deleted – entries saved
      before this field existed have no "active" property at all, which
      counts as active so nothing already live silently disappears */
   var activeTestimonials = Array.isArray(testimonialsData) ? testimonialsData.filter(function(t){ return t.active !== false; }) : [];
@@ -2493,7 +2493,7 @@ function loadTestimonialsData(){
       renderTestiGrid();
     })
     .catch(function(){
-      /* data/testimonials.json missing or blocked — fallback cards stay */
+      /* data/testimonials.json missing or blocked – fallback cards stay */
     });
 }
 /* ---------- career results, loaded from data/results.json ---------- */
@@ -2525,7 +2525,7 @@ function loadResultsData(){
       renderAllResults();
     })
     .catch(function(){
-      /* data/results.json missing or blocked — fallback entries in the HTML stay */
+      /* data/results.json missing or blocked – fallback entries in the HTML stay */
     });
 }
 loadBlogData();
@@ -2559,16 +2559,16 @@ document.addEventListener('keydown', function(e){
       e.preventDefault();
     } else if(e.key === 'ArrowRight'){
       if(focusedIdx >= 0) choiceBtns[focusedIdx].click();
-      else if(choiceBtns.length) choiceBtns[0].click(); /* nothing focused yet — play the first/default option */
+      else if(choiceBtns.length) choiceBtns[0].click(); /* nothing focused yet – play the first/default option */
       e.preventDefault();
     } else if(e.key === 'ArrowLeft'){
-      /* left doesn't cycle the options here — it closes the dialog and
+      /* left doesn't cycle the options here – it closes the dialog and
          steps one move back, same as when no choice is pending, since
          "back" is never actually one of the choices on offer */
       manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1));
       e.preventDefault();
     }
-    return; /* a choice is pending — don't also step the board underneath it */
+    return; /* a choice is pending – don't also step the board underneath it */
   }
   if(e.key === 'ArrowLeft'){
     manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1));
