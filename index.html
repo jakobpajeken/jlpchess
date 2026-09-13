@@ -2294,17 +2294,31 @@ function escapeHtml(s){
 var blogPostsData = null;
 var BLOG_PAGE_SIZE = 3;
 var blogVisibleCount = BLOG_PAGE_SIZE;
+/* drafts (status:"draft", set in editor.html) never show in the public
+   list – only reachable by whoever has the direct blog-post.html link,
+   e.g. to proofread before flipping it to published. A "scheduled" post
+   (status:"scheduled") is the same, except it publishes itself the
+   moment its own "date" arrives – checked fresh against the reader's own
+   clock on every page load, so it doesn't matter whether anyone's
+   computer is even on right when that date starts; the very next visit
+   after midnight just already shows it. Posts saved before the status
+   field existed have no status at all, which counts as published so they
+   don't silently vanish from the live site. */
+function isBlogPostPubliclyVisible(p){
+  if(p.status === 'draft') return false;
+  if(p.status === 'scheduled'){
+    if(!p.date) return false;
+    var publishAt = new Date(p.date + 'T00:00:00');
+    return !isNaN(publishAt.getTime()) && publishAt <= new Date();
+  }
+  return true;
+}
 function renderBlogGrid(){
   if(!Array.isArray(blogPostsData) || !blogPostsData.length) return; /* keep the fallback cards in the HTML */
   var grid = document.getElementById('blog-grid');
   if(!grid) return;
   var readMore = document.documentElement.lang === 'de' ? 'Weiterlesen →' : 'Read more →';
-  /* drafts (status:"draft", set in editor.html) never show in the public
-     list – only reachable by whoever has the direct blog-post.html link,
-     e.g. to proofread before flipping it to published. Posts saved before
-     this field existed have no status at all, which counts as published
-     so they don't silently vanish from the live site. */
-  var publicPosts = blogPostsData.filter(function(p){ return p.status !== 'draft'; });
+  var publicPosts = blogPostsData.filter(isBlogPostPubliclyVisible);
   /* newest first: editor.html always appends new posts to the end of the
      array, so the last entry is the most recently added one */
   var ordered = publicPosts.slice().reverse();
