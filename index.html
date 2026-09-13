@@ -1873,16 +1873,25 @@ function tryAdvance(){
     var fullBranches = prefixBranches.concat(varLine.map(function(e){ return e.variations || []; }));
     options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1); } });
   });
-  /* de-dupe: after entering a variation and then rewinding back to the
-     branch point it came from, activeLine is still "attached" to that
-     variation – so its own "continue as-is" option and the variation
-     itself describe the exact same move, and would otherwise show up
-     here twice. Matched by SAN alone (not the NAG too): the "continue
-     as-is" option never carries a NAG of its own (it doesn't have an
-     annotation entry to read one from), so on a real match it'd
-     otherwise slip past a stricter check as merely looking similar
-     ("Sc3" next to "Sc3!") instead of being recognised as the same move.
-     Whichever copy actually carries the NAG wins the label. */
+  /* de-dupe VISUAL entries only: after entering a variation and then
+     rewinding back to the branch point it came from, activeLine is still
+     "attached" to that variation – so its own "continue as-is" option and
+     the variation itself describe the exact same move, and would
+     otherwise show up here twice as identical-looking buttons. Matched by
+     SAN alone (not the NAG too): the "continue as-is" option never
+     carries a NAG of its own (it doesn't have an annotation entry to read
+     one from), so on a real match it'd otherwise slip past a stricter
+     check as merely looking similar ("Sc3" next to "Sc3!") instead of
+     being recognised as the same move. Whichever copy actually carries
+     the NAG wins the label.
+     Important: this only trims duplicate BUTTONS – it must never decide
+     whether the dialog itself pops up. branches.length >= 1 (checked
+     above) already means "a real stored variation exists here", so the
+     dialog has to appear every time this position is reached, not just
+     the first time before a choice was ever made here – otherwise, once
+     you're "attached" to whichever line you last picked, every later
+     visit collapses to that same single deduped option and silently
+     auto-plays it, making the choice vanish after its first use. */
   var seenOptions = {};
   var dedupedOptions = [];
   options.forEach(function(opt){
@@ -1895,12 +1904,7 @@ function tryAdvance(){
       seenOptions[opt.san] = opt;
     }
   });
-  options = dedupedOptions;
-  if(options.length <= 1){
-    if(options.length === 1) options[0].go();
-    return;
-  }
-  showMoveChoiceDialog(options);
+  showMoveChoiceDialog(dedupedOptions);
 }
 
 function showMoveChoiceDialog(options){
