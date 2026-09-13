@@ -589,51 +589,52 @@ document.getElementById('gh-disconnect-btn').addEventListener('click', function(
 })();
 
 /* ============================================================
-   KI-Schreibhilfe (OpenAI / ChatGPT)
+   KI-Schreibhilfe (Google Gemini, kostenloses Kontingent)
    ------------------------------------------------------------
    Entirely optional and independent of the GitHub connection above –
    this only powers the "✨ KI-Hilfe" buttons next to the blog body
    text fields. The key lives in localStorage on this device only,
-   same as the GitHub token, and is sent to nobody but OpenAI's own
+   same as the GitHub token, and is sent to nobody but Google's own
    API when a request is actually made.
-   History: Google Gemini's free gemini-flash-latest tier returned 503
-   "model overloaded" too often -> switched to Groq (free, rarely
-   overloaded, but Jakob found its output quality not good enough) ->
-   switched to OpenAI's own API on his explicit request. Unlike Gemini
-   and Groq, this is NOT free – it needs an OpenAI account with a
-   payment method on file (usage-based, but very cheap for occasional
-   use). gpt-5.4 was picked as OpenAI's own general "recommended
-   workhorse" tier at the time this was written – see
-   https://developers.openai.com/api/docs/models for the current model
-   list if this ever needs to change again.
-   ============================================================ */
-var OPENAI_KEY_STORAGE = 'jlp_openai_api_key';
-function getOpenAiKey(){
-  try{ return localStorage.getItem(OPENAI_KEY_STORAGE) || ''; }catch(e){ return ''; }
+   History: briefly tried Groq (free, reliable, but Jakob found the
+   output quality not good enough) and OpenAI's own paid API (good
+   quality, but he explicitly does not want to pay) – back to Gemini,
+   whose quality he confirmed was fine; only the frequent 503 "model
+   overloaded" responses were the actual problem, which askAI's
+   retry-with-backoff below already mitigates a good deal. See the
+   chat history around this date for a longer-term fix (e.g. an
+   automatic free fallback provider) if 503s are still a problem after
+   this. "gemini-flash-latest" is Google's own self-updating alias for
+   whichever current Flash model is recommended right now, so this
+   doesn't need to be hand-updated every time Google ships a new
+   version (see https://ai.google.dev/gemini-api/docs/models). */
+var GEMINI_KEY_STORAGE = 'jlp_gemini_api_key';
+function getGeminiKey(){
+  try{ return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }catch(e){ return ''; }
 }
-function updateOpenAiStatus(){
-  var status = document.getElementById('openai-status');
-  var clearBtn = document.getElementById('openai-clear-btn');
-  var hasKey = !!getOpenAiKey();
+function updateGeminiStatus(){
+  var status = document.getElementById('gemini-status');
+  var clearBtn = document.getElementById('gemini-clear-btn');
+  var hasKey = !!getGeminiKey();
   if(status) status.textContent = hasKey ? 'KI-Schreibhilfe im Blog-Editor ist aktiv.' : 'Ohne Schlüssel keine KI-Schreibhilfe im Blog-Editor.';
   if(clearBtn) clearBtn.hidden = !hasKey;
 }
-document.getElementById('openai-save-btn').addEventListener('click', function(){
-  var val = document.getElementById('openai-key-input').value.trim();
+document.getElementById('gemini-save-btn').addEventListener('click', function(){
+  var val = document.getElementById('gemini-key-input').value.trim();
   if(!val){ showToast('Bitte einen Schlüssel einfügen.', true); return; }
-  try{ localStorage.setItem(OPENAI_KEY_STORAGE, val); }catch(e){}
-  document.getElementById('openai-key-input').value = '';
-  updateOpenAiStatus();
+  try{ localStorage.setItem(GEMINI_KEY_STORAGE, val); }catch(e){}
+  document.getElementById('gemini-key-input').value = '';
+  updateGeminiStatus();
   showToast('KI-Schlüssel gespeichert ✓');
 });
-document.getElementById('openai-clear-btn').addEventListener('click', function(){
-  try{ localStorage.removeItem(OPENAI_KEY_STORAGE); }catch(e){}
-  updateOpenAiStatus();
+document.getElementById('gemini-clear-btn').addEventListener('click', function(){
+  try{ localStorage.removeItem(GEMINI_KEY_STORAGE); }catch(e){}
+  updateGeminiStatus();
   showToast('KI-Schlüssel entfernt.');
 });
 (function(){
-  if(getOpenAiKey()) document.getElementById('openai-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
-  updateOpenAiStatus();
+  if(getGeminiKey()) document.getElementById('gemini-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
+  updateGeminiStatus();
 })();
 /* Sends `prompt` to OpenAI's chat completions API and returns its
    plain-text reply. Throws with a message safe to show directly in a
