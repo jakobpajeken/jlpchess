@@ -1454,6 +1454,16 @@ var moveIndex = 0;
    off of) – constant for the whole game, so it's only set on load. */
 var activeLine = [];
 var activeBranches = [];
+/* activeDefaultSans runs parallel to activeLine (same indexing:
+   activeDefaultSans[i] is the SAN for the move to be played at index i in
+   the ORIGINAL/non-variation sense), but unlike activeLine it never
+   forgets a branch point's true default once you've chosen a variation
+   there – see tryAdvance's "continue as-is" option for why activeLine
+   itself can't be used for this: it gets overwritten by whichever choice
+   was last made at that exact position, so a later revisit while still
+   "attached" to that choice would otherwise dedupe the default away and
+   only ever offer the one option you already picked. */
+var activeDefaultSans = [];
 var rootBranches = [];
 var gameEngine = null;
 var playInterval = null; /* set while auto-play is running, one move every 1.5s */
@@ -1834,12 +1844,18 @@ function highlightMoveList(){
    in and renders that position – line can be the mainline or any
    variation's own path, since chess.js's .move() takes a plain SAN string
    just as happily as historyVerbose's own move objects did. */
-function goToLineIndex(line, branches, idx){
+function goToLineIndex(line, branches, idx, defaultSans){
   hideMoveChoiceDialog();
   gameEngine.reset();
   for(var i = 0; i < idx; i++){ gameEngine.move(line[i]); }
   activeLine = line;
   activeBranches = branches;
+  /* defaultSans is only passed when actually switching onto a different
+     line (choosing a variation); plain stepping within the line you're
+     already on (prev/next/start/end, arrow keys) omits it, leaving
+     activeDefaultSans exactly as it was – there's no new branch point to
+     record a default for. */
+  if(defaultSans) activeDefaultSans = defaultSans;
   moveIndex = idx;
   renderPosition(gameEngine.fen());
   highlightMoveList();
@@ -2110,6 +2126,7 @@ function loadGameObject(g){
   gameEngine.reset();
   activeLine = historyVerbose.map(function(m){ return m.san; });
   activeBranches = mainlineBranches();
+  activeDefaultSans = activeLine.slice();
   rootBranches = (gameComments[0] && gameComments[0].variations) || [];
   moveIndex = 0;
 
