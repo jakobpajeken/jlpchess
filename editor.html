@@ -252,27 +252,14 @@
 
   <main id="main" hidden>
     <nav class="tabbar" role="tablist">
-      <button type="button" data-panel="games" class="active">Partien</button>
-      <button type="button" data-panel="blog">Blog</button>
+      <button type="button" data-panel="blog" class="active">Blog</button>
+      <button type="button" data-panel="games">Partien</button>
       <button type="button" data-panel="testi">Testimonials</button>
       <button type="button" data-panel="results">Erfolge</button>
     </nav>
 
-    <!-- ===================== PARTIEN ===================== -->
-    <section class="panel active" id="panel-games">
-      <div class="panel-head">
-        <div>
-          <h2>Partien</h2>
-          <p>Erscheinen im Career-Tab unter „My most memorable games". PGN einfach aus deiner Schach-Software oder von einer Turnierseite kopieren.</p>
-        </div>
-        <button type="button" class="btn" id="games-add-btn">+ Neue Partie</button>
-      </div>
-      <div class="item-list" id="games-list"></div>
-      <div id="games-form-slot"></div>
-    </section>
-
     <!-- ===================== BLOG ===================== -->
-    <section class="panel" id="panel-blog">
+    <section class="panel active" id="panel-blog">
       <div class="panel-head">
         <div>
           <h2>Blog</h2>
@@ -282,6 +269,19 @@
       </div>
       <div class="item-list" id="blog-list"></div>
       <div id="blog-form-slot"></div>
+    </section>
+
+    <!-- ===================== PARTIEN ===================== -->
+    <section class="panel" id="panel-games">
+      <div class="panel-head">
+        <div>
+          <h2>Partien</h2>
+          <p>Erscheinen im Career-Tab unter „My most memorable games". PGN einfach aus deiner Schach-Software oder von einer Turnierseite kopieren.</p>
+        </div>
+        <button type="button" class="btn" id="games-add-btn">+ Neue Partie</button>
+      </div>
+      <div class="item-list" id="games-list"></div>
+      <div id="games-form-slot"></div>
     </section>
 
     <!-- ===================== TESTIMONIALS ===================== -->
