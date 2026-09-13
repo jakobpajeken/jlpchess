@@ -908,15 +908,19 @@ function createGameWidget(container, gameOrGames){
     }
     var prefixPath = activeLine.slice(0, moveIndex);
     var prefixBranches = activeBranches.slice(0, moveIndex);
+    var prefixDefaultSans = activeDefaultSans.slice(0, moveIndex);
     var options = [];
     if(hasNext){
-      options.push({ san: activeLine[moveIndex], nag: '', go: function(){ manualGoToLine(activeLine, activeBranches, moveIndex + 1); } });
+      /* true default at this position – see index.html's tryAdvance() for
+         why this can't be activeLine[moveIndex]. */
+      options.push({ san: activeDefaultSans[moveIndex], nag: '', go: function(){ manualGoToLine(activeLine, activeBranches, moveIndex + 1); } });
     }
     branches.forEach(function(varLine){
       if(!varLine || !varLine.length) return;
       var fullPath = prefixPath.concat(varLine.map(function(e){ return e.san; }));
       var fullBranches = prefixBranches.concat(varLine.map(function(e){ return e.variations || []; }));
-      options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1); } });
+      var fullDefaultSans = prefixDefaultSans.concat([activeDefaultSans[moveIndex]]).concat(varLine.slice(1).map(function(e){ return e.san; }));
+      options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1, fullDefaultSans); } });
     });
     /* de-dupe VISUAL entries only – never decides whether the dialog
        itself pops up (branches.length >= 1, checked above, already means
@@ -1120,6 +1124,7 @@ function createGameWidget(container, gameOrGames){
     engine.reset();
     activeLine = historyVerbose.map(function(m){ return m.san; });
     activeBranches = mainlineBranches();
+    activeDefaultSans = activeLine.slice();
     rootBranches = (gameComments[0] && gameComments[0].variations) || [];
     moveIndex = 0;
 
