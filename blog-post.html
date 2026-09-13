@@ -1593,19 +1593,61 @@ function renderRealPost(post){
   var params = new URLSearchParams(location.search);
   var slug = params.get('slug');
   if(!slug) return; /* no slug in the URL – keep showing the placeholder template */
-  fetch('data/blog.json', { cache: 'no-store' })
-    .then(function(r){ if(!r.ok) throw new Error('no data file'); return r.json(); })
-    .then(function(list){
-      var post = Array.isArray(list) ? list.filter(function(p){ return p.slug === slug; })[0] : null;
-      if(!post) return; /* no matching post – keep showing the placeholder template */
-      loadedRealPost = true;
-      currentRealPost = post;
-      renderRealPost(post);
-    })
-    .catch(function(){
-      /* data/blog.json missing or blocked (e.g. opened as a local file) –
-         keep showing the placeholder template */
-    });
+
+  /* editor.html / guest-editor.html stash the just-saved post here before
+     opening this page, so "preview" shows it instantly instead of waiting
+     for GitHub Pages to finish deploying the commit (can take from a few
+     seconds up to several minutes). See PREVIEW_STORAGE_PREFIX below. */
+  var PREVIEW_STORAGE_PREFIX = 'jlpBlogPreview:';
+  var PREVIEW_MAX_AGE_MS = 30 * 60 * 1000; /* ignore a stashed preview older than this */
+  var usedLocalPreview = false;
+  try{
+    var raw = localStorage.getItem(PREVIEW_STORAGE_PREFIX + slug);
+    if(raw){
+      var saved = JSON.parse(raw);
+      if(saved && saved.post && saved.savedAt && (Date.now() - saved.savedAt) <= PREVIEW_MAX_AGE_MS){
+        loadedRealPost = true;
+        currentRealPost = saved.post;
+        renderRealPost(saved.post);
+        usedLocalPreview = true;
+      } else {
+        localStorage.removeItem(PREVIEW_STORAGE_PREFIX + slug);
+      }
+    }
+  }catch(e){ /* localStorage unavailable – fall through to the normal fetch */ }
+
+  function fetchFromServer(attemptsLeft){
+    fetch('data/blog.json', { cache: 'no-store' })
+      .then(function(r){ if(!r.ok) throw new Error('no data file'); return r.json(); })
+      .then(function(list){
+        var post = Array.isArray(list) ? list.filter(function(p){ return p.slug === slug; })[0] : null;
+        if(post){
+          /* the real, deployed version is now available – it replaces the
+             local-only preview (if any) with the authoritative one */
+          loadedRealPost = true;
+          currentRealPost = post;
+          renderRealPost(post);
+          return;
+        }
+        if(!usedLocalPreview && attemptsLeft > 0){
+          /* not found yet – most likely GitHub Pages is still deploying
+             the commit that added it, so keep retrying for a while
+             instead of just giving up */
+          setTimeout(function(){ fetchFromServer(attemptsLeft - 1); }, 4000);
+        }
+        /* else: no matching post and nothing left to try – keep showing
+           whatever's currently rendered (the local preview, or the
+           placeholder template) */
+      })
+      .catch(function(){
+        if(!usedLocalPreview && attemptsLeft > 0){
+          setTimeout(function(){ fetchFromServer(attemptsLeft - 1); }, 4000);
+        }
+        /* else: data/blog.json missing or blocked (e.g. opened as a local
+           file) – keep showing whatever's currently rendered */
+      });
+  }
+  fetchFromServer(10); /* ~40s of retrying while GitHub Pages deploys */
 })();
 </script>
 </body>

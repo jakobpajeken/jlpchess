@@ -249,6 +249,39 @@ function showStatus(msg, kind){
   el.className = 'status-msg' + (kind ? ' ' + kind : '');
 }
 
+/* stashes the just-saved draft in localStorage so blog-post.html can show
+   it instantly, instead of waiting for GitHub Pages to deploy the commit
+   (can take anywhere from a few seconds to a few minutes) */
+function stashLocalPreview(slug, lang){
+  try{
+    function langField(text){
+      var o = { en: '', de: '' };
+      o[lang] = (text || '').toString().trim();
+      return o;
+    }
+    var post = {
+      slug: slug,
+      status: 'draft',
+      date: new Date().toISOString().slice(0, 10),
+      author: document.getElementById('g-name').value.trim() || 'Guest author',
+      image: '', imageCaption: '', imageCredit: '',
+      title: langField(document.getElementById('g-title').value),
+      category: langField(document.getElementById('g-category').value),
+      excerpt: langField(document.getElementById('g-excerpt').value),
+      lead: langField(document.getElementById('g-lead').value),
+      quote: langField(document.getElementById('g-quote').value),
+      body: (function(){
+        var b = { en: [], de: [] };
+        var text = document.getElementById('g-body').value.trim();
+        b[lang] = text ? text.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+        return b;
+      })(),
+      games: []
+    };
+    localStorage.setItem('jlpBlogPreview:' + slug, JSON.stringify({ post: post, savedAt: Date.now() }));
+  }catch(e){ /* localStorage unavailable (e.g. private browsing) – preview just falls back to waiting for deployment */ }
+}
+
 async function saveDraft(){
   if(!GUEST_WORKER_URL){
     showStatus('This page isn’t fully set up yet (missing Worker URL). Please let Jakob know.', 'err');
@@ -292,6 +325,7 @@ async function saveDraft(){
     return null;
   }
   savedSlug = data.slug;
+  stashLocalPreview(data.slug, data.lang);
   return data;
 }
 
