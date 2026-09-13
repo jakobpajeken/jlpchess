@@ -237,7 +237,7 @@ export default {
           content: utf8ToBase64(JSON.stringify(normalizeDashes(posts), null, 2) + '\n'),
           branch: REPO_BRANCH,
           sha: file.sha,
-          committer: { name: 'Gastbeitrag (jlpchess)', email: 'jakobpajeken@gmail.com' }
+          committer: { name: 'Guest submission (jlpchess)', email: 'jakobpajeken@gmail.com' }
         })
       });
       if(!putResp.ok){
