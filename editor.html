@@ -2577,7 +2577,15 @@ function openBlogForm(idx){
        instead of updating this one */
     if(!editing){ editing = true; idx = blogPosts.length - 1; p = entry; }
     await writeJson('blog.json', blogPosts);
-    return entry.slug;
+    return entry;
+  }
+  /* stashes the just-saved post in localStorage so blog-post.html can show
+     it instantly, instead of waiting for GitHub Pages to deploy the commit
+     (can take anywhere from a few seconds to a few minutes) */
+  function stashLocalPreview(entry){
+    try{
+      localStorage.setItem('jlpBlogPreview:' + entry.slug, JSON.stringify({ post: entry, savedAt: Date.now() }));
+    }catch(e){ /* localStorage unavailable – preview just falls back to waiting for deployment */ }
   }
   document.getElementById('blog-form').addEventListener('submit', async function(e){
     e.preventDefault();
@@ -2597,7 +2605,9 @@ function openBlogForm(idx){
     var btn = this;
     btn.disabled = true;
     try{
-      var slug = await saveBlogPost();
+      var savedEntry = await saveBlogPost();
+      stashLocalPreview(savedEntry);
+      var slug = savedEntry.slug;
       renderBlog(); /* keep the list in sync in the background, but leave this form open */
       var lang = document.getElementById('bf-title-de').value.trim() ? 'de' : 'en';
       window.open('blog-post.html?slug=' + encodeURIComponent(slug) + '&lang=' + lang, '_blank');
