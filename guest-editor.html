@@ -488,7 +488,9 @@ function stashLocalPreview(slug, lang){
       status: 'draft',
       date: new Date().toISOString().slice(0, 10),
       author: document.getElementById('g-name').value.trim() || 'Guest author',
-      image: '', imageCaption: '', imageCredit: '',
+      image: lastCoverImagePath || '',
+      imageCaption: langField(document.getElementById('g-cover-caption').value),
+      imageCredit: document.getElementById('g-cover-credit').value.trim(),
       title: langField(document.getElementById('g-title').value),
       category: langField(document.getElementById('g-category').value),
       excerpt: langField(document.getElementById('g-excerpt').value),
@@ -500,7 +502,7 @@ function stashLocalPreview(slug, lang){
         b[lang] = text ? text.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
         return b;
       })(),
-      games: []
+      games: postGames.map(function(g){ return { id: g.id, title: g.title, meta: g.meta, pgn: g.pgn }; })
     };
     localStorage.setItem('jlpBlogPreview:' + slug, JSON.stringify({ post: post, savedAt: Date.now() }));
   }catch(e){ /* localStorage unavailable (e.g. private browsing) – preview just falls back to waiting for deployment */ }
