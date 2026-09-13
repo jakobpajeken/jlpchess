@@ -3128,5 +3128,27 @@
       "de": "\"Gutes Training bedeutet nicht, Wissen zu überhäufen, sondern dem Denken die richtigen Fragen zu geben.\""
     },
     "games": []
+  },
+  {
+    "title": {
+      "en": "Secret Weapon Against Jobava London",
+      "de": "Geheimwaffe gegen Jobava London"
+    },
+    "slug": "secret-weapon-against-jobava-london",
+    "status": "draft",
+    "category": "",
+    "date": "2026-09-13",
+    "author": "IM Jakob Leon Pajeken",
+    "image": "",
+    "imageCaption": "",
+    "imageCredit": "",
+    "excerpt": "",
+    "lead": "",
+    "body": {
+      "en": [],
+      "de": []
+    },
+    "quote": "",
+    "games": []
   }
 ]
