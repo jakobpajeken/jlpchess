@@ -3034,7 +3034,20 @@
       "de": "Viele Schachspieler investieren unzählige Stunden in ihr Training, doch die Ergebnisse auf dem Brett bleiben oft dieselben. Frustrierend, oder? Der Grund liegt meist nicht am Mangel an Talent, sondern daran, worauf die Zeit verwendet wird. Die meisten Spieler verwechseln bloße Beschäftigung mit dem Spiel mit echtem, gezieltem Training."
     },
     "body": {
-      "en": [],
+      "en": [
+        "[color=blue]**__Here are the three most important truths about chess training that will take your game to the next level:\n__**[/color]",
+        "**\n1. Openings don't make you better (they're like soccer shoes)**",
+        "Opening books and courses sell exceptionally well. Everyone wants to know the secret weapon that puts their opponent at a disadvantage as early as move 12. But the reality is different: Openings don't really make you a better chess player.",
+        "They’re like soccer cleats. Of course, you need sturdy shoes to step onto the field and avoid slipping. But even the most expensive cleats won’t turn an amateur player into Lionel Messi. Opening theory merely gets you into a playable position. What happens after that–making plans, coordinating pieces, assessing positions–determines whether you win or lose. Anyone who spends 80% of their time on openings is investing in the wrong end of the game.",
+        "**\n2. Only active training is real training**",
+        "Many players sit down with a chess coach, lean back, and spend an hour watching variations being demonstrated–literally being showered with knowledge. Afterward, they feel smarter. The problem with this is that it’s an illusion of knowledge.",
+        "No one improves just by listening and nodding. Chess is like weight training: if your fitness trainer is the one lifting the weights, your muscles won’t grow. Real chess training has to be hard work. It requires setting up the board yourself, analyzing positions without the help of a chess engine, solving problems on your own, and making decisions under pressure. If your brain isn’t working overtime during training, it usually wasn’t training at all–just entertainment.",
+        "**\n3. Variant calculation is the be-all and end-all**",
+        "If there is such a thing as a superpower in chess, it is the ability to calculate variations precisely and deeply. Tactics and calculation are not limited to specific moments–they form the foundation of every phase of a game:\n* In the opening, calculation protects you from your opponent’s traps.\n* In the middlegame, it enables tactical strikes and strategic breakthroughs.\n* In the endgame, a single calculation often determines whether you win or draw.",
+        "If you refine your ability to evaluate options, you'll benefit in every aspect of the game. You'll spot threats sooner, find better resources, and play with much more confidence. Think of this ability as the main engine of your game: if the engine is strong, the whole car goes faster.",
+        "**\n Conclusion**",
+        "Stop wasting your time on endless introductory videos and passive listening. Instead, focus on active work, challenge your brain with tricky problems, and practice calculating variations. If you maintain this focus, you’ll soon see the results on the DWZ and Elo rating lists."
+      ],
       "de": [
         "[color=blue]**__Hier sind die drei wichtigsten Wahrheiten über Schachtraining, die dein Spiel auf das nächste Level heben werden:\n__**[/color]",
         "**\n1. Eröffnungen machen dich nicht besser (Sie sind wie Fußballschuhe)**",
