@@ -28,6 +28,14 @@
  *    by the slug the Worker itself generated and returned to them, never
  *    guessed), and only while it's still a draft – never an already
  *    published post, and never anything Jakob has since published.
+ *  - Anti-spam: if the guest link (or GUEST_ACCESS_KEY) leaks, someone
+ *    could otherwise flood blog.json with junk drafts. Two independent
+ *    defenses: (1) MAX_PENDING_GUEST_DRAFTS below caps how many unreviewed
+ *    guest drafts can pile up at once — once the cap is hit, new
+ *    submissions are rejected until Jakob clears some out. (2) Rotating
+ *    GUEST_ACCESS_KEY in the Worker's secrets is an instant kill switch –
+ *    it invalidates every link built with the old key immediately, no
+ *    redeploy of this file needed.
  *
  * Setup (see chat for the full walkthrough):
  *   1. Create a SECOND Worker in the Cloudflare dashboard (separate from
@@ -53,6 +61,15 @@ var REPO_OWNER = 'jakobpajeken';
 var REPO_NAME = 'jlpchess';
 var REPO_BRANCH = 'main';
 var BLOG_JSON_PATH = 'data/blog.json';
+
+/* Anti-spam ceiling: if someone gets hold of the guest link (or the access
+   key leaks), this caps the damage to "at most this many junk drafts",
+   never "unlimited". Once this many guest drafts are sitting unreviewed,
+   the Worker refuses NEW submissions (existing guests can still update
+   their own already-submitted draft) until Jakob publishes or deletes
+   some via editor.html. No extra Cloudflare setup needed – it just counts
+   what's already in blog.json on every request. */
+var MAX_PENDING_GUEST_DRAFTS = 8;
 
 var ALLOWED_ORIGINS = [
   'https://jakobpajeken.github.io',
@@ -197,6 +214,10 @@ export default {
       /* updating the guest's own earlier submission, still a draft */
       entry = posts[idx];
     } else {
+      var pendingCount = posts.filter(function(p){ return p.status === 'draft' && p.submittedBy; }).length;
+      if(pendingCount >= MAX_PENDING_GUEST_DRAFTS){
+        return jsonResponse({ error: 'There are already several submissions waiting for review. Please try again later, or contact Jakob directly.' }, 429, origin);
+      }
       var existingSlugs = posts.map(function(p){ return p.slug; });
       entry = {
         slug: uniqueSlug(title, existingSlugs),
