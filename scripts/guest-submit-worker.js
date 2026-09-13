@@ -36,6 +36,15 @@
  *    GUEST_ACCESS_KEY in the Worker's secrets is an instant kill switch –
  *    it invalidates every link built with the old key immediately, no
  *    redeploy of this file needed.
+ *  - Games, links and images: guest-editor.html offers the same "Partien
+ *    hinzufügen" / insert-link / insert-image tools as Jakob's own
+ *    editor.html. Games are plain JSON embedded on the post entry itself
+ *    (entry.games), no extra GitHub write involved. Images are the one
+ *    place this Worker writes somewhere OTHER than blog.json – a cover
+ *    photo or an inline image gets uploaded to images/blog/ via the same
+ *    GITHUB_TOKEN, size- and type-checked first (see MAX_IMAGE_BYTES /
+ *    ALLOWED_IMAGE_TYPES below) so this can't be used to dump arbitrary or
+ *    oversized files into the repo.
  *
  * Setup (see chat for the full walkthrough):
  *   1. Create a SECOND Worker in the Cloudflare dashboard (separate from
