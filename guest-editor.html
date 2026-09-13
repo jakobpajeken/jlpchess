@@ -294,6 +294,185 @@ function showStatus(msg, kind){
   el.className = 'status-msg' + (kind ? ' ' + kind : '');
 }
 
+function escapeHtmlLocal(s){
+  return (s || '').toString().replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+
+/* same block-level insertion the real editor.html uses for images and
+   game markers – a blank line (two newlines) on each side, so the marker
+   always lands on its own paragraph rather than gluing onto whatever text
+   sits next to the cursor */
+function insertMarkerIntoBody(marker){
+  var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
+  var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
+  var before = bodyTextarea.value.slice(0, start);
+  var after = bodyTextarea.value.slice(end);
+  var needsLeadingBreak = before.length && (before.match(/\n*$/) || [''])[0].length < 2;
+  var needsTrailingBreak = after.length && (after.match(/^\n*/) || [''])[0].length < 2;
+  var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
+  bodyTextarea.value = before + insertText + after;
+  var caretPos = (before + insertText).length;
+  bodyTextarea.focus();
+  bodyTextarea.setSelectionRange(caretPos, caretPos);
+}
+
+/* ---- link insertion (plain, inline – no forced blank line, same as
+   editor.html's own "Link einfügen" button) ---- */
+document.getElementById('g-insert-link-btn').addEventListener('click', function(){
+  var url = window.prompt('Target URL (starting with https://):', 'https://');
+  if(!url || !url.trim()) return;
+  url = url.trim();
+  if(!/^https?:\/\//i.test(url)){ showStatus('The URL must start with http:// or https://.', 'err'); return; }
+  var text = window.prompt('Link text:', '') || url;
+  var marker = '[' + text.replace(/[[\]]/g, '') + '](' + url + ')';
+  var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
+  var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
+  bodyTextarea.value = bodyTextarea.value.slice(0, start) + marker + bodyTextarea.value.slice(end);
+  var caretPos = start + marker.length;
+  bodyTextarea.focus();
+  bodyTextarea.setSelectionRange(caretPos, caretPos);
+  showStatus('Link inserted ✓', 'ok');
+});
+
+/* ---- images: read as a data URL client-side, keep queued in memory,
+   only actually uploaded (by the Worker, via GitHub) on the next save.
+   Until then the body text carries a "pending:<id>" placeholder, which
+   gets swapped for the real images/blog/... path once the Worker returns
+   it (see saveDraft() below). ---- */
+var MAX_IMAGE_BYTES_CLIENT = 4 * 1024 * 1024;
+function fileToDataUrl(file){
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onload = function(){ resolve(reader.result); };
+    reader.onerror = function(){ reject(reader.error); };
+    reader.readAsDataURL(file);
+  });
+}
+
+var pendingCoverFile = null;
+var lastCoverImagePath = '';
+var coverPreviewEl = document.getElementById('g-cover-preview');
+document.getElementById('g-cover-file').addEventListener('change', function(e){
+  var file = e.target.files && e.target.files[0];
+  if(!file) return;
+  if(file.size > MAX_IMAGE_BYTES_CLIENT){
+    showStatus('Cover photo is too large (max 4 MB).', 'err');
+    e.target.value = '';
+    return;
+  }
+  pendingCoverFile = file;
+  coverPreviewEl.innerHTML = '<img src="' + URL.createObjectURL(file) + '" alt="">';
+});
+
+var pendingInlineImages = [];
+var insertImageBtn = document.getElementById('g-insert-image-btn');
+var bodyImageFileInput = document.getElementById('g-body-image-file');
+insertImageBtn.addEventListener('click', function(){ bodyImageFileInput.click(); });
+bodyImageFileInput.addEventListener('change', async function(e){
+  var file = e.target.files && e.target.files[0];
+  bodyImageFileInput.value = '';
+  if(!file) return;
+  if(file.size > MAX_IMAGE_BYTES_CLIENT){ showStatus('Image is too large (max 4 MB).', 'err'); return; }
+  var caption = window.prompt('Image caption (optional, can stay empty):', '') || '';
+  var credit = window.prompt('Photographer / source (optional, can stay empty) – shown as a small note under the image:', '') || '';
+  var dataUrl;
+  try{ dataUrl = await fileToDataUrl(file); }
+  catch(err){ showStatus('Could not read the image file.', 'err'); return; }
+  var id = 'img' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  pendingInlineImages.push({ id: id, dataUrl: dataUrl, filename: file.name });
+  var marker = '![' + caption.replace(/[[\]]/g, '') + '](pending:' + id + (credit.trim() ? ' "' + credit.replace(/"/g, '') + '"' : '') + ')';
+  insertMarkerIntoBody(marker);
+  showStatus('Image added – it will be uploaded when you save.', 'ok');
+});
+
+/* ---- games embedded in this post, mirroring editor.html's own
+   "Partien in diesem Beitrag" tool ---- */
+function makeGameId(){
+  return 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+var postGames = [];
+var gamesListEl = document.getElementById('g-games-list');
+var gamesFormSlot = document.getElementById('g-games-form-slot');
+
+function renderPostGames(){
+  if(!postGames.length){ gamesListEl.innerHTML = '<div class="empty-note">No games added yet.</div>'; return; }
+  gamesListEl.innerHTML = '';
+  postGames.forEach(function(g, gIdx){
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML =
+      '<div class="item-info"><input type="checkbox" class="pg-select" data-idx="' + gIdx + '" title="Select for a shared board" style="margin-top:4px;">' +
+      '<div><div class="item-title">' + escapeHtmlLocal(g.title || '(untitled)') + '</div>' +
+      '<div class="item-sub">' + escapeHtmlLocal(g.meta || '') + '</div></div></div>' +
+      '<div class="item-actions">' +
+      '<button type="button" class="btn small" data-insert="' + gIdx + '">Insert into text</button>' +
+      '<button type="button" class="btn small" data-edit="' + gIdx + '">Edit</button>' +
+      '<button type="button" class="btn small danger" data-del="' + gIdx + '">Delete</button>' +
+      '</div>';
+    gamesListEl.appendChild(row);
+  });
+  gamesListEl.querySelectorAll('[data-insert]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var g = postGames[parseInt(b.dataset.insert, 10)];
+      insertMarkerIntoBody('[game:' + g.id + ']');
+      showStatus('Game inserted into text ✓', 'ok');
+    });
+  });
+  gamesListEl.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openGameForm(parseInt(b.dataset.edit, 10)); }); });
+  gamesListEl.querySelectorAll('[data-del]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var gIdx = parseInt(b.dataset.del, 10);
+      if(!confirm('Remove this game from the post?')) return;
+      postGames.splice(gIdx, 1);
+      renderPostGames();
+      showStatus('Game removed. Please also delete any [game:…] marker for it from the text above.', 'ok');
+    });
+  });
+}
+
+function openGameForm(gIdx){
+  var editing = gIdx != null;
+  var g = editing ? postGames[gIdx] : { id: makeGameId(), title: '', meta: '', pgn: '' };
+  gamesFormSlot.innerHTML =
+    '<div class="entry-form">' +
+    '<h3>' + (editing ? 'Edit game' : 'Add game') + '</h3>' +
+    '<div class="field"><label>Title</label><input type="text" id="gg-title" value="' + escapeHtmlLocal(g.title) + '" placeholder="e.g. My first tournament win"></div>' +
+    '<div class="field"><label>Short description (optional)</label><input type="text" id="gg-meta" value="' + escapeHtmlLocal(g.meta) + '" placeholder="e.g. Club Championship · Round 3"></div>' +
+    '<div class="field"><label>PGN</label><span class="hint">Full game text incl. [White &quot;…&quot;] [Black &quot;…&quot;] etc. – copy it from your chess app or tournament site.</span>' +
+    '<textarea id="gg-pgn" class="tall mono" placeholder="[Event &quot;…&quot;]&#10;[White &quot;…&quot;]&#10;[Black &quot;…&quot;]&#10;…&#10;1. e4 e5 2. Nf3 …">' + escapeHtmlLocal(g.pgn) + '</textarea></div>' +
+    '<div class="form-actions">' +
+    '<button type="button" class="btn solid" id="gg-save">' + (editing ? 'Save changes' : 'Add to post') + '</button>' +
+    '<button type="button" class="btn" id="gg-cancel">Cancel</button>' +
+    '</div></div>';
+  document.getElementById('gg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
+  document.getElementById('gg-save').addEventListener('click', function(){
+    var pgn = document.getElementById('gg-pgn').value.trim();
+    if(!pgn){ showStatus('Please paste a PGN.', 'err'); return; }
+    var entry = {
+      id: g.id,
+      title: document.getElementById('gg-title').value.trim() || 'Untitled game',
+      meta: document.getElementById('gg-meta').value.trim(),
+      pgn: pgn
+    };
+    if(editing) postGames[gIdx] = entry; else postGames.push(entry);
+    gamesFormSlot.innerHTML = '';
+    renderPostGames();
+    showStatus('Game added ✓ (saved together with the post)', 'ok');
+  });
+}
+document.getElementById('g-games-add-btn').addEventListener('click', function(){ openGameForm(null); });
+document.getElementById('g-games-insert-group-btn').addEventListener('click', function(){
+  var checked = Array.prototype.slice.call(gamesListEl.querySelectorAll('.pg-select:checked'));
+  var selected = checked.map(function(cb){ return postGames[parseInt(cb.dataset.idx, 10)]; }).filter(Boolean);
+  if(selected.length < 2){ showStatus('Please tick at least two games first.', 'err'); return; }
+  insertMarkerIntoBody('[games:' + selected.map(function(g){ return g.id; }).join(',') + ']');
+  gamesListEl.querySelectorAll('.pg-select:checked').forEach(function(cb){ cb.checked = false; });
+  showStatus(selected.length + ' games inserted as one board ✓', 'ok');
+});
+renderPostGames();
+
 /* stashes the just-saved draft in localStorage so blog-post.html can show
    it instantly, instead of waiting for GitHub Pages to deploy the commit
    (can take anywhere from a few seconds to a few minutes) */
