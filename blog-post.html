@@ -129,7 +129,7 @@
      own value. So the override has to target strong/a themselves. */
   .article-body .color-blue,
   .article-body .color-blue strong,
-  .article-body .color-blue a{color:#1e3a8a!important;}
+  .article-body .color-blue a{color:#26385f!important;}
   .article-body blockquote{
     margin:36px 0;padding:4px 0 4px 24px;border-left:2px solid var(--gold);
     font-family:'Spectral',serif;font-style:italic;font-size:1.15rem;
@@ -1349,9 +1349,11 @@ function renderRealPost(post){
          otherwise need their own nested parsing — order between size and
          color doesn't matter, since either can freely nest inside the
          other. [color=blue] is the one fixed shade editor.html's button
-         offers — a proper navy blue (#1e3a8a), distinct enough from the
-         site's own muted accent navy (--gold-bright, #35577f) to read
-         clearly as "blue" at running-text size. Not a free color picker. */
+         offers — a matte, dark navy blue (#26385f), distinct enough from
+         the site's own muted accent navy (--gold-bright, #35577f) to
+         read clearly as "blue" at running-text size, without being as
+         bright/saturated as an earlier #1e3a8a version. Not a free
+         color picker. */
       return escapeHtml(text)
         .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
         .replace(/\*([^*]+)\*/g, '<em>$1</em>')
