@@ -1447,7 +1447,7 @@ function makeGameId(){
 }
 function openBlogForm(idx){
   var editing = idx != null;
-  var p = editing ? blogPosts[idx] : { title:'', slug:'', category:'', date:'', author:'', image:'', imageCredit:'', excerpt:'', lead:'', body:{en:[],de:[]}, quote:'', games:[] };
+  var p = editing ? blogPosts[idx] : { title:'', slug:'', category:'', date:'', author:'', image:'', imageCaption:'', imageCredit:'', excerpt:'', lead:'', body:{en:[],de:[]}, quote:'', games:[] };
   /* new post -> today in Europe/Berlin (CET/CEST) as the publish date, still
      freely editable; editing an existing post -> keep whatever date it has */
   var dateValue = editing ? (p.date || '') : todayInBerlin();
