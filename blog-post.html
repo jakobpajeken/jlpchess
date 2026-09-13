@@ -880,12 +880,15 @@ function createGameWidget(container, gameOrGames){
   }
   /* Replays `line` (an array of SAN strings from move 1) up to `idx` moves
      in – line can be the mainline or any variation's own path. */
-  function goToLineIndex(line, branches, idx){
+  function goToLineIndex(line, branches, idx, defaultSans){
     hideMoveChoiceDialog();
     engine.reset();
     for(var i = 0; i < idx; i++){ engine.move(line[i]); }
     activeLine = line;
     activeBranches = branches;
+    /* only passed when actually switching onto a different line – see
+       index.html's goToLineIndex for the full rationale (mirrored here). */
+    if(defaultSans) activeDefaultSans = defaultSans;
     moveIndex = idx;
     renderPosition(engine.fen());
     highlightMoveList();
@@ -994,9 +997,9 @@ function createGameWidget(container, gameOrGames){
   }
   /* manual navigation always stops any running auto-play first, so it
      never fights with a move the user just clicked */
-  function manualGoToLine(line, branches, idx){
+  function manualGoToLine(line, branches, idx, defaultSans){
     stopPlay();
-    goToLineIndex(line, branches, idx);
+    goToLineIndex(line, branches, idx, defaultSans);
   }
   function formatPgnDate(d){
     var parts = d.split('.');
