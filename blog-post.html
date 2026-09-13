@@ -823,7 +823,7 @@ function createGameWidget(container, gameOrGames){
       /* a comment/variation breaks the flow onto its own line, so black's
          move (if the break happened right before it) needs its move
          number repeated as "12..." to stay readable */
-      var brokeFlow = appendInlineAnnotation(gameComments[whitePly], mainlineSans.slice(0, whitePly), mainlineBranches().slice(0, whitePly), mainlineSans.slice(0, whitePly + 1));
+      var brokeFlow = appendInlineAnnotation(gameComments[whitePly], mainlineSans.slice(0, whitePly), mainlineBranches().slice(0, whitePly), mainlineSans.slice(0, whitePly + 1), mlEntries.slice(0, whitePly));
       if(historyVerbose[i + 1]){
         var blackPair = document.createElement('span');
         blackPair.className = 'move-pair';
@@ -835,7 +835,7 @@ function createGameWidget(container, gameOrGames){
         }
         blackPair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, blackPly));
         listEl.appendChild(blackPair);
-        appendInlineAnnotation(gameComments[blackPly], mainlineSans.slice(0, blackPly), mainlineBranches().slice(0, blackPly), mainlineSans.slice(0, blackPly + 1));
+        appendInlineAnnotation(gameComments[blackPly], mainlineSans.slice(0, blackPly), mainlineBranches().slice(0, blackPly), mainlineSans.slice(0, blackPly + 1), mlEntries.slice(0, blackPly));
       }
     }
     highlightMoveList();
@@ -847,7 +847,7 @@ function createGameWidget(container, gameOrGames){
      mainline move this annotation is attached to. Returns true if
      anything was actually appended, so the caller knows the flow was
      interrupted (see renderMoveList). */
-  function appendInlineAnnotation(annotation, branchPath, branchBranches, branchDefaultSansPlusOne){
+  function appendInlineAnnotation(annotation, branchPath, branchBranches, branchDefaultSansPlusOne, branchEntries){
     if(!annotation) return false;
     var text = pickLang(annotation.comment);
     var hasVariations = annotation.variations && annotation.variations.length;
@@ -865,7 +865,7 @@ function createGameWidget(container, gameOrGames){
         var v = document.createElement('span');
         v.className = 'game-comment-variation';
         v.appendChild(document.createTextNode('('));
-        renderVariationLine(v, line, branchPath, branchBranches, branchDefaultSansPlusOne);
+        renderVariationLine(v, line, branchPath, branchBranches, branchDefaultSansPlusOne, branchEntries);
         v.appendChild(document.createTextNode(')'));
         box.appendChild(v);
       });
