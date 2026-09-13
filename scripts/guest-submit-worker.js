@@ -202,7 +202,7 @@ export default {
         slug: uniqueSlug(title, existingSlugs),
         status: 'draft',
         date: todayInBerlin(),
-        author: (body.guestName || '').toString().trim() || 'Gastbeitrag',
+        author: (body.guestName || '').toString().trim() || 'Guest author',
         image: '', imageCaption: '', imageCredit: '',
         games: []
       };
@@ -243,7 +243,7 @@ export default {
       if(!putResp.ok){
         var errMsg = 'HTTP ' + putResp.status;
         try{ var errJson = await putResp.json(); if(errJson.message) errMsg = errJson.message; }catch(e){}
-        return jsonResponse({ error: 'Speichern fehlgeschlagen: ' + errMsg }, 502, origin);
+        return jsonResponse({ error: 'Saving failed: ' + errMsg }, 502, origin);
       }
     }catch(e){
       return jsonResponse({ error: 'Worker error: ' + e.message }, 500, origin);
