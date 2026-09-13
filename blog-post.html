@@ -793,10 +793,13 @@ function createGameWidget(container, gameOrGames){
      static text), so a side line is just as playable as the mainline –
      see index.html's renderVariationLine for the full rationale (mirrored
      here per-widget-instance). */
-  function renderVariationLine(container, line, prefixPath, prefixBranches){
+  function renderVariationLine(container, line, prefixPath, prefixBranches, prefixDefaultSansPlusOne){
     if(!line || !line.length) return;
     var fullPath = prefixPath.concat(line.map(function(e){ return e.san; }));
     var fullBranches = prefixBranches.concat(line.map(function(e){ return e.variations || []; }));
+    /* see index.html's renderVariationLine for the full rationale
+       (mirrored here per-widget-instance). */
+    var fullDefaultSans = prefixDefaultSansPlusOne.concat(line.slice(1).map(function(e){ return e.san; }));
     var cursor = prefixPath.length;
     line.forEach(function(entry, idx){
       cursor++;
@@ -811,7 +814,7 @@ function createGameWidget(container, gameOrGames){
       if(pickLang(entry.comment) || (entry.variations && entry.variations.length)){
         btn.classList.add('annotated');
       }
-      btn.addEventListener('click', function(){ manualGoToLine(fullPath, fullBranches, stepIdx); });
+      btn.addEventListener('click', function(){ manualGoToLine(fullPath, fullBranches, stepIdx, fullDefaultSans); });
       container.appendChild(btn);
       container.appendChild(document.createTextNode(' '));
       var comment = pickLang(entry.comment);
@@ -823,7 +826,7 @@ function createGameWidget(container, gameOrGames){
       }
       (entry.variations || []).forEach(function(sub){
         container.appendChild(document.createTextNode('('));
-        renderVariationLine(container, sub, fullPath.slice(0, stepIdx), fullBranches.slice(0, stepIdx));
+        renderVariationLine(container, sub, fullPath.slice(0, stepIdx), fullBranches.slice(0, stepIdx), fullDefaultSans.slice(0, stepIdx + 1));
         container.appendChild(document.createTextNode(') '));
       });
     });
