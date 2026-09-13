@@ -1157,13 +1157,14 @@ async function translateBodyParagraph(para, sourceLang, targetLang){
     var translatedCaption = await translateText(caption, sourceLang, targetLang);
     return '![' + translatedCaption + ']' + imgMatch[2];
   }
-  /* inline links (e.g. an affiliate link mid-sentence – [text](url)) and
-     [size=N]...[/size] spans both need their own inner text translated
-     but their markup (the URL / the pixel size) left completely alone –
-     pull each one out into a placeholder token before translating the
-     surrounding prose, so the translator never even sees (and so can't
-     mangle) the raw markdown/size syntax itself, then translate each
-     span's own text separately and stitch the markup back around it. */
+  /* inline links (e.g. an affiliate link mid-sentence – [text](url)),
+     [size=N]...[/size] spans, and [color=blue]...[/color] spans all need
+     their own inner text translated but their markup (the URL / the
+     pixel size / the fixed blue) left completely alone – pull each one
+     out into a placeholder token before translating the surrounding
+     prose, so the translator never even sees (and so can't mangle) the
+     raw markdown/size/color syntax itself, then translate each span's
+     own text separately and stitch the markup back around it. */
   var placeholders = [];
   var withPlaceholders = para
     .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(match, text, url){
@@ -1175,15 +1176,20 @@ async function translateBodyParagraph(para, sourceLang, targetLang){
       var token = '⟦P' + placeholders.length + '⟧';
       placeholders.push({ type: 'size', px: px, text: inner });
       return token;
+    })
+    .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, function(match, inner){
+      var token = '⟦P' + placeholders.length + '⟧';
+      placeholders.push({ type: 'color', text: inner });
+      return token;
     });
   if(!placeholders.length) return await translateText(para, sourceLang, targetLang);
   var translatedText = await translateText(withPlaceholders, sourceLang, targetLang);
   for(var i = 0; i < placeholders.length; i++){
     var p = placeholders[i];
     var translatedInner = await translateText(p.text, sourceLang, targetLang);
-    var replacement = p.type === 'link'
-      ? '[' + translatedInner + '](' + p.url + ')'
-      : '[size=' + p.px + ']' + translatedInner + '[/size]';
+    var replacement = p.type === 'link' ? '[' + translatedInner + '](' + p.url + ')'
+      : p.type === 'size' ? '[size=' + p.px + ']' + translatedInner + '[/size]'
+      : '[color=blue]' + translatedInner + '[/color]';
     translatedText = translatedText.split('⟦P' + i + '⟧').join(replacement);
   }
   return translatedText;
