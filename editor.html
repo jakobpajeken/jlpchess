@@ -1180,6 +1180,58 @@ function openGameForm(idx){
     '<button type="button" class="btn" id="gf-cancel">Abbrechen</button>' +
     '</div></form>';
   document.getElementById('gf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+  /* lets you start from a game that's already in the PGN database
+     (data/games.pgn) instead of re-pasting PGN text by hand — same
+     picker as the blog post games form, see openPostGameForm() for the
+     full rationale. Reads games.pgn fresh every time this opens, so a
+     game saved in ChessBase moments ago is already pickable here. */
+  var copyFromSelect = document.getElementById('gf-copy-from');
+  var pgnDatabaseEntries = [];
+  function labelForPgnEntryDirect(entry){
+    var h = entry.headers;
+    var nameLabel = (h.white && h.black) ? (h.white + ' – ' + h.black) : (h.event || '(unbenannte Partie)');
+    var known = null;
+    if(entry.websiteId){
+      known = games.find(function(gg){ return gg.id === entry.websiteId; });
+      if(!known){
+        blogPosts.some(function(p){
+          known = (p.games || []).find(function(gg){ return gg.id === entry.websiteId; });
+          return !!known;
+        });
+      }
+    }
+    var existingTitle = known ? previewLang(known.title) : '';
+    return existingTitle ? (nameLabel + ' — ' + existingTitle) : nameLabel;
+  }
+  fetchGamesPgnDatabase().then(function(entries){
+    if(!copyFromSelect) return; /* form may have been closed already */
+    if(entries === null){
+      copyFromSelect.innerHTML = '<option value="">Datenbank konnte nicht geladen werden</option>';
+      return;
+    }
+    pgnDatabaseEntries = entries;
+    if(!entries.length){
+      copyFromSelect.innerHTML = '<option value="">Noch keine Partien in der Datenbank</option>';
+      return;
+    }
+    copyFromSelect.innerHTML = '<option value="">— auswählen —</option>' +
+      entries.map(function(entry, i){ return '<option value="' + i + '">' + escapeHtml(labelForPgnEntryDirect(entry)) + '</option>'; }).join('');
+  });
+  if(copyFromSelect){
+    copyFromSelect.addEventListener('change', function(){
+      if(copyFromSelect.value === '') return;
+      var entry = pgnDatabaseEntries[parseInt(copyFromSelect.value, 10)];
+      if(!entry) return;
+      var known = entry.websiteId && games.find(function(gg){ return gg.id === entry.websiteId; });
+      var srcTitle = splitLangValue(known ? known.title : (entry.headers.white && entry.headers.black ? entry.headers.white + ' vs ' + entry.headers.black : entry.headers.event || ''));
+      document.getElementById('gf-title-en').value = srcTitle.en;
+      document.getElementById('gf-title-de').value = srcTitle.de;
+      document.getElementById('gf-meta').value = known ? (known.meta || '') : '';
+      document.getElementById('gf-pgn').value = entry.pgn;
+      copyFromSelect.value = '';
+      showToast('Übernommen — unten anpassen und speichern ✓');
+    });
+  }
   wireTranslateButton('gf-title-translate', 'gf-title-en', 'gf-title-de', 'EN', 'DE');
   wireTranslateButton('gf-title-translate-rev', 'gf-title-de', 'gf-title-en', 'DE', 'EN');
   document.getElementById('game-form').addEventListener('submit', async function(e){
