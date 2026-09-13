@@ -456,8 +456,24 @@ async function readResultsJson(){
     return empty;
   }
 }
+/* The site's house style uses en dashes (–), never em dashes (—) — easy to
+   type the wrong one by habit, autocorrect, or a pasted/translated/AI-
+   generated source. Rather than relying on every text field to get this
+   right on its own, every save goes through here, which walks the whole
+   object and quietly fixes any em dash it finds in a string, anywhere in
+   the structure (titles, PGN comments, everything). */
+function normalizeDashes(value){
+  if(typeof value === 'string') return value.replace(/—/g, '–');
+  if(Array.isArray(value)) return value.map(normalizeDashes);
+  if(value && typeof value === 'object'){
+    var out = {};
+    Object.keys(value).forEach(function(k){ out[k] = normalizeDashes(value[k]); });
+    return out;
+  }
+  return value;
+}
 async function writeJson(name, data){
-  var content = utf8ToBase64(JSON.stringify(data, null, 2) + '\n');
+  var content = utf8ToBase64(JSON.stringify(normalizeDashes(data), null, 2) + '\n');
   await ghPutFile('data/' + name, content, 'Update ' + name + ' via online editor');
 }
 /* Splits the raw text of data/games.pgn into individual game blocks – just
