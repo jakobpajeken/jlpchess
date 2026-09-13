@@ -636,35 +636,35 @@ document.getElementById('gemini-clear-btn').addEventListener('click', function()
   if(getGeminiKey()) document.getElementById('gemini-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
   updateGeminiStatus();
 })();
-/* Sends `prompt` to OpenAI's chat completions API and returns its
-   plain-text reply. Throws with a message safe to show directly in a
-   toast if the key is missing, the request fails, or the model declined
-   to answer.
+/* Sends `prompt` to Gemini and returns its plain-text reply. Throws with a
+   message safe to show directly in a toast if the key is missing, the
+   request fails, or Gemini declined to answer (e.g. safety filters).
 
-   A 503/5xx here would mean OpenAI's own servers are overloaded – rare in
-   practice, but this keeps the same automatic-retry safety net used
-   before (a few attempts with a short growing pause) rather than
-   assuming it can never happen. `onRetry(attempt, maxAttempts)`, if
-   given, is called before each retry so the caller can show "trying
-   again …" instead of leaving the user staring at a stuck spinner with
-   no explanation. */
+   Status 503 ("model overloaded") is a common, purely transient response
+   from Google's own Gemini servers being under heavy load – it has
+   nothing to do with this site, the prompt, or the API key. Retries a
+   few times with a growing pause (1s, 2s, 4s, 8s, 16s – 5 retries, ~30s
+   total) before finally giving up; bumped up from the original 3 retries
+   since those alone weren't enough to ride out a busy period. `onRetry
+   (attempt, maxAttempts)`, if given, is called before each retry so the
+   caller can show "trying again …" instead of a stuck spinner. */
 async function askAI(prompt, onRetry){
-  var key = getOpenAiKey();
+  var key = getGeminiKey();
   if(!key) throw new Error('Kein KI-Schlüssel hinterlegt (oben eintragen).');
-  var maxAttempts = 4; /* 1 initial try + up to 3 retries */
+  var maxAttempts = 6; /* 1 initial try + up to 5 retries */
   for(var attempt = 1; attempt <= maxAttempts; attempt++){
     var resp, networkErr = null;
     try{
-      resp = await fetch('https://api.openai.com/v1/chat/completions', {
+      resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({ model: 'gpt-5.4', messages: [{ role: 'user', content: prompt }] })
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       });
     }catch(e){ networkErr = e; }
     if(networkErr){
       if(attempt < maxAttempts){
         if(onRetry) onRetry(attempt, maxAttempts);
-        await new Promise(function(r){ setTimeout(r, attempt * 1000); });
+        await new Promise(function(r){ setTimeout(r, Math.pow(2, attempt - 1) * 1000); });
         continue;
       }
       throw new Error('KI-Anfrage fehlgeschlagen (keine Verbindung).');
@@ -673,34 +673,22 @@ async function askAI(prompt, onRetry){
       if(resp.status === 400 || resp.status === 401 || resp.status === 403){
         throw new Error('KI-Schlüssel ungültig oder abgelehnt (Status ' + resp.status + ').');
       }
-      if(resp.status === 429){
-        /* OpenAI uses 429 for two very different situations: a plain
-           rate limit (too many requests too quickly – waiting helps) and
-           "insufficient_quota" (no payment method on file, or a spending
-           cap reached – waiting does NOT help, the account needs fixing
-           first). Worth telling those apart since the fix is different. */
-        var errCode = '';
-        try{ var errBody = await resp.json(); errCode = (errBody && errBody.error && errBody.error.code) || ''; }catch(e){}
-        if(errCode === 'insufficient_quota'){
-          throw new Error('OpenAI-Konto ohne ausreichendes Guthaben/Zahlungsmethode. Bitte auf platform.openai.com unter „Billing" eine Zahlungsmethode hinterlegen.');
-        }
-        throw new Error('KI-Kontingent gerade ausgeschöpft – kurz warten und nochmal versuchen.');
-      }
+      if(resp.status === 429) throw new Error('KI-Kontingent gerade ausgeschöpft – kurz warten und nochmal versuchen.');
       if(resp.status === 503 || resp.status >= 500){
         if(attempt < maxAttempts){
           if(onRetry) onRetry(attempt, maxAttempts);
-          await new Promise(function(r){ setTimeout(r, attempt * 1000); });
+          await new Promise(function(r){ setTimeout(r, Math.pow(2, attempt - 1) * 1000); });
           continue;
         }
-        throw new Error('KI-Dienst bei OpenAI gerade überlastet (Status ' + resp.status + '). Bitte in ein, zwei Minuten nochmal versuchen.');
+        throw new Error('KI-Dienst bei Google gerade überlastet (Status ' + resp.status + ') – das liegt an Googles Gemini-Servern, nicht an dieser Website. Bitte in ein paar Minuten nochmal versuchen.');
       }
       throw new Error('KI-Anfrage fehlgeschlagen (Status ' + resp.status + ').');
     }
     var data = await resp.json();
-    var choice = data && data.choices && data.choices[0];
-    var text = choice && choice.message && choice.message.content;
+    var candidate = data && data.candidates && data.candidates[0];
+    var text = candidate && candidate.content && candidate.content.parts && candidate.content.parts.map(function(p){ return p.text || ''; }).join('');
     if(!text){
-      var reason = choice && choice.finish_reason;
+      var reason = candidate && candidate.finishReason;
       throw new Error(reason ? ('KI hat keine Antwort geliefert (' + reason + ').') : 'KI hat keine Antwort geliefert.');
     }
     return text.trim();
