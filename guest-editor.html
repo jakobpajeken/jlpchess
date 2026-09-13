@@ -77,81 +77,81 @@
 
 <div class="wrap">
   <header>
-    <h1>Blogbeitrag schreiben</h1>
-    <p>Schreib hier deinen Beitrag für den Blog von IM Jakob Leon Pajeken. Du kannst dir jederzeit eine Vorschau ansehen, so wie der Artikel später aussehen würde.</p>
+    <h1>Write a blog post</h1>
+    <p>Write your post for IM Jakob Leon Pajeken's blog here. You can preview it at any time, exactly as the article would look once published.</p>
   </header>
 
-  <div id="gate">Prüfe Zugang …</div>
+  <div id="gate">Checking access …</div>
 
   <div id="app" hidden>
     <div class="notice">
-      <strong>Wie es weitergeht:</strong> Dein Text wird gespeichert, ist aber <strong>nicht öffentlich sichtbar</strong>. Jakob sieht deinen Entwurf in seinem eigenen Editor, kann ihn anpassen und entscheidet, ob und wann er veröffentlicht wird.
+      <strong>What happens next:</strong> Your text is saved, but <strong>not publicly visible</strong>. Jakob sees your draft in his own editor, can adjust it, and decides whether and when it gets published.
     </div>
 
     <div class="form-row">
       <div class="field">
-        <label>Dein Name</label>
-        <input type="text" id="g-name" placeholder="Wird als Autor:in angezeigt (kann Jakob ändern)">
+        <label>Your name</label>
+        <input type="text" id="g-name" placeholder="Shown as the author (Jakob can change this)">
       </div>
       <div class="field">
-        <label>Kontakt (optional)</label>
-        <input type="text" id="g-contact" placeholder="E-Mail, für Rückfragen – nicht öffentlich sichtbar">
+        <label>Contact (optional)</label>
+        <input type="text" id="g-contact" placeholder="Email, for follow-up questions – not publicly visible">
       </div>
     </div>
 
     <div class="field">
-      <label>Sprache dieses Entwurfs</label>
-      <span class="hint">Die andere Sprache lässt Jakob später übersetzen/ergänzen – du musst nicht beides schreiben.</span>
+      <label>Language of this draft</label>
+      <span class="hint">Jakob can translate/add the other language later – you don't need to write both.</span>
       <select id="g-lang">
-        <option value="de" selected>Deutsch</option>
-        <option value="en">Englisch</option>
+        <option value="en" selected>English</option>
+        <option value="de">German</option>
       </select>
     </div>
 
     <div class="field">
-      <label>Titel</label>
-      <input type="text" id="g-title" placeholder="z. B. Wie ich meine erste Turnierpartie gewonnen habe">
+      <label>Title</label>
+      <input type="text" id="g-title" placeholder="e.g. How I won my first tournament game">
     </div>
 
     <div class="field">
-      <label>Kategorie</label>
-      <input type="text" id="g-category" list="g-category-options" placeholder="z. B. Turnierbericht">
+      <label>Category</label>
+      <input type="text" id="g-category" list="g-category-options" placeholder="e.g. Tournament report">
       <datalist id="g-category-options"></datalist>
     </div>
 
     <div class="field">
-      <label>Kurztext</label>
-      <span class="hint">Ein bis zwei Sätze – erscheint als Teaser auf der Blog-Übersicht.</span>
+      <label>Excerpt</label>
+      <span class="hint">One or two sentences – shown as the teaser on the blog overview.</span>
       <textarea id="g-excerpt"></textarea>
     </div>
 
     <div class="field">
-      <label>Einleitung</label>
-      <span class="hint">Wird am Artikelanfang etwas größer dargestellt.</span>
+      <label>Lead</label>
+      <span class="hint">Shown a little larger at the start of the article.</span>
       <textarea id="g-lead"></textarea>
     </div>
 
     <div class="field">
-      <label>Haupttext</label>
-      <span class="hint">Ein Absatz pro Zeilenblock (mit einer Leerzeile getrennt).</span>
+      <label>Body</label>
+      <span class="hint">One paragraph per block of text (separated by a blank line).</span>
       <div class="toolbar">
-        <button type="button" id="g-bold-btn"><b>F</b></button>
-        <button type="button" id="g-italic-btn"><i>K</i></button>
+        <button type="button" id="g-bold-btn"><b>B</b></button>
+        <button type="button" id="g-italic-btn"><i>I</i></button>
         <button type="button" id="g-underline-btn"><u>U</u></button>
       </div>
-      <textarea id="g-body" class="tall" placeholder="Erster Absatz.
+      <textarea id="g-body" class="tall" placeholder="First paragraph.
 
-Zweiter Absatz."></textarea>
+Second paragraph."></textarea>
     </div>
 
     <div class="field">
-      <label>Zitat (optional)</label>
-      <span class="hint">Wird als hervorgehobenes Zitat im Artikel angezeigt.</span>
+      <label>Quote (optional)</label>
+      <span class="hint">Shown as a highlighted quote within the article.</span>
       <textarea id="g-quote"></textarea>
     </div>
 
     <div class="form-actions">
-      <button type="button" class="btn solid" id="g-preview-btn">👁 Speichern &amp; Vorschau ansehen</button>
+      <button type="button" class="btn solid" id="g-preview-btn">👁 Save &amp; preview</button>
       <span class="status-msg" id="g-status"></span>
     </div>
   </div>
@@ -168,7 +168,7 @@ var accessKey = new URLSearchParams(location.search).get('key') || '';
 var gate = document.getElementById('gate');
 var app = document.getElementById('app');
 if(!accessKey){
-  gate.textContent = 'Dieser Link ist unvollständig – bitte den vollständigen Link verwenden, den du bekommen hast.';
+  gate.textContent = 'This link is incomplete – please use the full link you were given.';
 } else {
   gate.hidden = true;
   app.hidden = false;
@@ -234,9 +234,9 @@ function wrapSelectionIn(textarea, openMarker, closeMarker, placeholder){
   textarea.setSelectionRange(selStart, selStart + toInsert.length);
 }
 var bodyTextarea = document.getElementById('g-body');
-document.getElementById('g-bold-btn').addEventListener('click', function(){ wrapSelectionIn(bodyTextarea, '**', null, 'fett'); });
-document.getElementById('g-italic-btn').addEventListener('click', function(){ wrapSelectionIn(bodyTextarea, '*', null, 'kursiv'); });
-document.getElementById('g-underline-btn').addEventListener('click', function(){ wrapSelectionIn(bodyTextarea, '__', null, 'unterstrichen'); });
+document.getElementById('g-bold-btn').addEventListener('click', function(){ wrapSelectionIn(bodyTextarea, '**', null, 'bold'); });
+document.getElementById('g-italic-btn').addEventListener('click', function(){ wrapSelectionIn(bodyTextarea, '*', null, 'italic'); });
+document.getElementById('g-underline-btn').addEventListener('click', function(){ wrapSelectionIn(bodyTextarea, '__', null, 'underlined'); });
 
 /* keeps track of the draft's own slug once the Worker has created it, so
    a second "preview" click updates the SAME entry instead of creating a
