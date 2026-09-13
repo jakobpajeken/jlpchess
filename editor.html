@@ -672,7 +672,19 @@ async function askAI(prompt, onRetry){
       if(resp.status === 400 || resp.status === 401 || resp.status === 403){
         throw new Error('KI-Schlüssel ungültig oder abgelehnt (Status ' + resp.status + ').');
       }
-      if(resp.status === 429) throw new Error('KI-Kontingent gerade ausgeschöpft – kurz warten und nochmal versuchen.');
+      if(resp.status === 429){
+        /* OpenAI uses 429 for two very different situations: a plain
+           rate limit (too many requests too quickly – waiting helps) and
+           "insufficient_quota" (no payment method on file, or a spending
+           cap reached – waiting does NOT help, the account needs fixing
+           first). Worth telling those apart since the fix is different. */
+        var errCode = '';
+        try{ var errBody = await resp.json(); errCode = (errBody && errBody.error && errBody.error.code) || ''; }catch(e){}
+        if(errCode === 'insufficient_quota'){
+          throw new Error('OpenAI-Konto ohne ausreichendes Guthaben/Zahlungsmethode. Bitte auf platform.openai.com unter „Billing" eine Zahlungsmethode hinterlegen.');
+        }
+        throw new Error('KI-Kontingent gerade ausgeschöpft – kurz warten und nochmal versuchen.');
+      }
       if(resp.status === 503 || resp.status >= 500){
         if(attempt < maxAttempts){
           if(onRetry) onRetry(attempt, maxAttempts);
@@ -1816,7 +1828,7 @@ function openBlogForm(idx){
   wireFormattingButtons('', bodyTextarea);
   wireFormattingButtons('-de', document.getElementById('bf-body-de'));
 
-  /* ---- optional AI writing help (Groq) for the body text –
+  /* ---- optional AI writing help (OpenAI) for the body text –
      wired identically for English and German, same idea as the
      formatting buttons above. Operates on the current text SELECTION if
      there is one, otherwise the whole field; the reply is shown for
@@ -1886,7 +1898,7 @@ function openBlogForm(idx){
       });
     }
     btn.addEventListener('click', function(){
-      if(!getGroqKey()){
+      if(!getOpenAiKey()){
         showToast('Bitte oben zuerst einen kostenlosen KI-Schlüssel eintragen.', true);
         return;
       }
@@ -1969,7 +1981,7 @@ function openBlogForm(idx){
       });
     }
     btn.addEventListener('click', function(){
-      if(!getGroqKey()){
+      if(!getOpenAiKey()){
         showToast('Bitte oben zuerst einen kostenlosen KI-Schlüssel eintragen.', true);
         return;
       }
