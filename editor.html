@@ -1846,7 +1846,7 @@ function openBlogForm(idx){
   document.getElementById('bf-translate-all-rev').addEventListener('click', async function(){
     var btn = this;
     var statusEl = document.getElementById('bf-translate-status');
-    var enIds = ['bf-title-en', 'bf-category-en', 'bf-excerpt-en', 'bf-lead-en', 'bf-body-en', 'bf-quote-en'];
+    var enIds = ['bf-title-en', 'bf-category-en', 'bf-cover-caption-en', 'bf-excerpt-en', 'bf-lead-en', 'bf-body-en', 'bf-quote-en'];
     var hasExistingEn = enIds.some(function(id){ var el = document.getElementById(id); return el && el.value.trim(); });
     if(hasExistingEn && !confirm('Bestehende englische Texte werden überschrieben. Fortfahren?')) return;
     btn.disabled = true;
@@ -1854,6 +1854,7 @@ function openBlogForm(idx){
     try{
       var titleDe = document.getElementById('bf-title-de').value.trim();
       var categoryDe = document.getElementById('bf-category-de').value.trim();
+      var coverCaptionDe = document.getElementById('bf-cover-caption-de').value.trim();
       var excerptDe = document.getElementById('bf-excerpt-de').value.trim();
       var leadDe = document.getElementById('bf-lead-de').value.trim();
       var quoteDe = document.getElementById('bf-quote-de').value.trim();
@@ -1861,6 +1862,7 @@ function openBlogForm(idx){
       var bodyParasDe = bodyDeText ? bodyDeText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
       if(titleDe) document.getElementById('bf-title-en').value = await translateDeToEn(titleDe);
       if(categoryDe) document.getElementById('bf-category-en').value = await translateDeToEn(categoryDe);
+      if(coverCaptionDe) document.getElementById('bf-cover-caption-en').value = await translateDeToEn(coverCaptionDe);
       if(excerptDe) document.getElementById('bf-excerpt-en').value = await translateDeToEn(excerptDe);
       if(leadDe) document.getElementById('bf-lead-en').value = await translateDeToEn(leadDe);
       if(quoteDe) document.getElementById('bf-quote-en').value = await translateDeToEn(quoteDe);
