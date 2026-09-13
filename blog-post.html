@@ -1258,7 +1258,19 @@ function renderRealPost(post){
   document.title = pickLang(post.title) + ' – IM Jakob Leon Pajeken';
   var setText = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || ''; };
   var draftBanner = document.getElementById('draft-banner');
-  if(draftBanner) draftBanner.hidden = post.status !== 'draft';
+  if(draftBanner){
+    var isDe = document.documentElement.lang === 'de';
+    if(post.status === 'draft'){
+      draftBanner.textContent = isDe ? '⚠ Entwurf – noch nicht veröffentlicht. Nur über diesen direkten Link sichtbar.' : '⚠ Draft – not published yet. Only visible via this direct link.';
+      draftBanner.hidden = false;
+    } else if(post.status === 'scheduled' && !isScheduledPostDue(post)){
+      var whenText = formatBlogDate(post.date, lang);
+      draftBanner.textContent = isDe ? ('⚠ Geplant für ' + whenText + ' – noch nicht veröffentlicht. Nur über diesen direkten Link sichtbar.') : ('⚠ Scheduled for ' + whenText + ' – not published yet. Only visible via this direct link.');
+      draftBanner.hidden = false;
+    } else {
+      draftBanner.hidden = true;
+    }
+  }
   setText('post-category', pickLang(post.category));
   setText('post-title', pickLang(post.title));
   setText('post-author', post.author || 'IM Jakob Leon Pajeken');
