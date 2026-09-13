@@ -3427,5 +3427,57 @@
       "contact": "",
       "submittedAt": "2026-09-13T21:24:17.584Z"
     }
+  },
+  {
+    "slug": "e2e-test-bild-und-partie",
+    "status": "draft",
+    "date": "2026-09-14",
+    "author": "Claude (Verbindungstest)",
+    "image": "images/blog/e2e-test-bild-und-partie-cover-mu0d75hc-5rhe.png",
+    "imageCaption": {
+      "en": "Test-Titelbild",
+      "de": ""
+    },
+    "imageCredit": "Claude",
+    "games": [
+      {
+        "id": "gmu0d72idb3tv",
+        "title": "E2E Testpartie",
+        "meta": "Automatischer Test",
+        "pgn": "[Event \"E2E\"]\n[White \"A\"]\n[Black \"B\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0"
+      }
+    ],
+    "title": {
+      "en": "E2E Test – Bild und Partie",
+      "de": ""
+    },
+    "category": {
+      "en": "Test",
+      "de": ""
+    },
+    "excerpt": {
+      "en": "Automatischer End-to-End-Test von Bild-Upload und Partie-Einbettung.",
+      "de": ""
+    },
+    "lead": {
+      "en": "",
+      "de": ""
+    },
+    "quote": {
+      "en": "",
+      "de": ""
+    },
+    "body": {
+      "en": [
+        "Erster Absatz zum Testen.",
+        "[game:gmu0d72idb3tv]"
+      ],
+      "de": []
+    },
+    "submittedBy": {
+      "name": "Claude (Verbindungstest)",
+      "contact": "",
+      "submittedAt": "2026-09-13T22:07:29.834Z"
+    }
   }
 ]
