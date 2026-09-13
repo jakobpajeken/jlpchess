@@ -1587,6 +1587,8 @@ function openBlogForm(idx){
   wireTranslateButton('bf-title-translate-rev', 'bf-title-de', 'bf-title-en', 'DE', 'EN');
   wireTranslateButton('bf-category-translate', 'bf-category-en', 'bf-category-de', 'EN', 'DE');
   wireTranslateButton('bf-category-translate-rev', 'bf-category-de', 'bf-category-en', 'DE', 'EN');
+  wireTranslateButton('bf-cover-caption-translate', 'bf-cover-caption-en', 'bf-cover-caption-de', 'EN', 'DE');
+  wireTranslateButton('bf-cover-caption-translate-rev', 'bf-cover-caption-de', 'bf-cover-caption-en', 'DE', 'EN');
   wireTranslateButton('bf-excerpt-translate', 'bf-excerpt-en', 'bf-excerpt-de', 'EN', 'DE');
   wireTranslateButton('bf-excerpt-translate-rev', 'bf-excerpt-de', 'bf-excerpt-en', 'DE', 'EN');
   wireTranslateButton('bf-lead-translate', 'bf-lead-en', 'bf-lead-de', 'EN', 'DE');
@@ -2162,6 +2164,7 @@ function openBlogForm(idx){
       date: document.getElementById('bf-date').value,
       author: document.getElementById('bf-author').value.trim() || DEFAULT_BLOG_AUTHOR,
       image: imagePath,
+      imageCaption: joinLangValue(document.getElementById('bf-cover-caption-en').value, document.getElementById('bf-cover-caption-de').value),
       imageCredit: document.getElementById('bf-cover-credit').value.trim(),
       excerpt: joinLangValue(document.getElementById('bf-excerpt-en').value, document.getElementById('bf-excerpt-de').value),
       lead: joinLangValue(document.getElementById('bf-lead-en').value, document.getElementById('bf-lead-de').value),
