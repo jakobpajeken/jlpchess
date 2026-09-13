@@ -800,14 +800,15 @@ function createGameWidget(container, gameOrGames){
     btn.dataset.ply = ply;
     btn.addEventListener('click', function(){
       var mainlineSans = historyVerbose.map(function(m){ return m.san; });
-      manualGoToLine(mainlineSans, mainlineBranches(), ply, mainlineSans);
+      manualGoToLine(mainlineSans, mainlineBranches(), ply, mainlineSans, mainlineEntries());
     });
     return btn;
   }
   function renderMoveList(){
     listEl.innerHTML = '';
     var mainlineSans = historyVerbose.map(function(m){ return m.san; });
-    appendInlineAnnotation(gameComments[0], [], [], mainlineSans.slice(0, 1)); /* comment before move 1, if any */
+    var mlEntries = mainlineEntries();
+    appendInlineAnnotation(gameComments[0], [], [], mainlineSans.slice(0, 1), []); /* comment before move 1, if any */
     for(var i = 0; i < historyVerbose.length; i += 2){
       var moveNum = (i / 2) + 1;
       var whitePly = i + 1, blackPly = i + 2;
