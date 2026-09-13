@@ -1161,6 +1161,9 @@ function openGameForm(idx){
   slot.innerHTML =
     '<form class="entry-form" id="game-form">' +
     '<h3>' + (editing ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
+    '<div class="field"><label>Aus der PGN-Datenbank übernehmen (optional)</label>' +
+    '<span class="hint">Kopiert Titel und PGN einer bereits vorhandenen Partie hierher — danach frei anpassbar. Betrifft nur dieses Formular, die Original-Partie bleibt unverändert.</span>' +
+    '<select id="gf-copy-from"><option value="">Lädt Partien-Datenbank …</option></select></div>' +
     '<div class="form-row">' +
     '<div class="field"><label>Titel (Englisch)</label>' +
     '<div class="cover-row"><input type="text" id="gf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan" style="flex:1;">' +
