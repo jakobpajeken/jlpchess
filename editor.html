@@ -1798,18 +1798,52 @@ function openBlogForm(idx){
      current selection in the matching markers (the same ones renderInline()
      in blog-post.html looks for); with nothing selected, drops in
      placeholder markers around the cursor instead, ready to type into. */
+  /* Wraps the selection in openMarker/closeMarker – but toggles it off
+     instead if it's already wrapped, so clicking e.g. Bold a second time
+     on text that's already bold removes the markers rather than nesting
+     a second pair around it. Two ways "already wrapped" can look:
+     (a) the selection itself includes the markers as its own start/end
+         (the user selected "**fett**", markers and all), or
+     (b) the markers sit immediately outside the selection in the
+         surrounding text (the user selected just "fett" inside
+         "**fett**").
+     Only unwraps the CLOSEST pair, not every marker in the text, so
+     nesting other formatting around/inside it is unaffected. */
   function wrapSelectionIn(textarea, openMarker, closeMarker, placeholder){
     if(closeMarker == null) closeMarker = openMarker;
     var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
     var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
     var value = textarea.value;
-    var selected = value.slice(start, end) || placeholder;
+    var selected = value.slice(start, end);
     var before = value.slice(0, start);
     var after = value.slice(end);
-    textarea.value = before + openMarker + selected + closeMarker + after;
+
+    if(selected.length >= openMarker.length + closeMarker.length &&
+       selected.slice(0, openMarker.length) === openMarker &&
+       selected.slice(selected.length - closeMarker.length) === closeMarker){
+      var innerA = selected.slice(openMarker.length, selected.length - closeMarker.length);
+      textarea.value = before + innerA + after;
+      textarea.focus();
+      textarea.setSelectionRange(start, start + innerA.length);
+      return;
+    }
+
+    if(before.slice(before.length - openMarker.length) === openMarker &&
+       after.slice(0, closeMarker.length) === closeMarker){
+      var newBefore = before.slice(0, before.length - openMarker.length);
+      var newAfter = after.slice(closeMarker.length);
+      var innerB = selected || placeholder;
+      textarea.value = newBefore + innerB + newAfter;
+      textarea.focus();
+      textarea.setSelectionRange(newBefore.length, newBefore.length + innerB.length);
+      return;
+    }
+
+    var toInsert = selected || placeholder;
+    textarea.value = before + openMarker + toInsert + closeMarker + after;
     var selStart = before.length + openMarker.length;
     textarea.focus();
-    textarea.setSelectionRange(selStart, selStart + selected.length);
+    textarea.setSelectionRange(selStart, selStart + toInsert.length);
   }
   function wireFormattingButtons(idSuffix, textarea){
     var boldBtn = document.getElementById('bf-bold-btn' + idSuffix);
