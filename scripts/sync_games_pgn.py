@@ -314,6 +314,11 @@ def serialize_line(node, board, cache):
             "nag": "".join(nag_symbol(n) for n in sorted(cur.nags) if nag_symbol(n)),
             "comment": translate_comment(cur.comment, (cur.ply(), san), cache),
         }
+        arrows, highlights = extract_arrows_and_highlights(cur.comment)
+        if arrows:
+            entry["arrows"] = arrows
+        if highlights:
+            entry["highlights"] = highlights
         children = cur.variations
         if len(children) > 1:
             entry["variations"] = [serialize_line(child, next_board, cache) for child in children[1:]]
