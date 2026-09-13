@@ -1756,7 +1756,7 @@ function appendInlineAnnotation(list, annotation, branchPath, branchBranches, br
    this variation's own entries (ply/san/nag/comment/variations).
    `prefixPath`: the SAN path (from move 1) leading up to this line's
    first move. */
-function renderVariationLine(container, line, prefixPath, prefixBranches, prefixDefaultSansPlusOne){
+function renderVariationLine(container, line, prefixPath, prefixBranches, prefixDefaultSansPlusOne, prefixEntries){
   if(!line || !line.length) return;
   var fullPath = prefixPath.concat(line.map(function(e){ return e.san; }));
   var fullBranches = prefixBranches.concat(line.map(function(e){ return e.variations || []; }));
@@ -1767,6 +1767,10 @@ function renderVariationLine(container, line, prefixPath, prefixBranches, prefix
      fullDefaultSans). Shifted by one for line's own moves beyond the
      first, for the same reason as tryAdvance. */
   var fullDefaultSans = prefixDefaultSansPlusOne.concat(line.slice(1).map(function(e){ return e.san; }));
+  /* fullEntries needs no such shifting – line's own entries already ARE
+     the real entry objects (comment/arrows/highlights and all), so they
+     just extend prefixEntries directly, same as fullBranches. */
+  var fullEntries = prefixEntries.concat(line);
   var cursor = prefixPath.length;
   line.forEach(function(entry, idx){
     cursor++;
@@ -1781,7 +1785,7 @@ function renderVariationLine(container, line, prefixPath, prefixBranches, prefix
     if(pickLang(entry.comment) || (entry.variations && entry.variations.length)){
       btn.classList.add('annotated');
     }
-    btn.addEventListener('click', function(){ manualGoToLine(fullPath, fullBranches, stepIdx, fullDefaultSans); });
+    btn.addEventListener('click', function(){ manualGoToLine(fullPath, fullBranches, stepIdx, fullDefaultSans, fullEntries); });
     container.appendChild(btn);
     container.appendChild(document.createTextNode(' '));
     var comment = pickLang(entry.comment);
@@ -1793,7 +1797,7 @@ function renderVariationLine(container, line, prefixPath, prefixBranches, prefix
     }
     (entry.variations || []).forEach(function(sub){
       container.appendChild(document.createTextNode('('));
-      renderVariationLine(container, sub, fullPath.slice(0, stepIdx), fullBranches.slice(0, stepIdx), fullDefaultSans.slice(0, stepIdx + 1));
+      renderVariationLine(container, sub, fullPath.slice(0, stepIdx), fullBranches.slice(0, stepIdx), fullDefaultSans.slice(0, stepIdx + 1), fullEntries.slice(0, stepIdx));
       container.appendChild(document.createTextNode(') '));
     });
   });
