@@ -589,54 +589,57 @@ document.getElementById('gh-disconnect-btn').addEventListener('click', function(
 })();
 
 /* ============================================================
-   KI-Schreibhilfe (Mistral AI, kostenloses "Experiment"-Kontingent)
+   KI-Schreibhilfe (Google Gemini, kostenloses Kontingent)
    ------------------------------------------------------------
    Entirely optional and independent of the GitHub connection above –
    this only powers the "✨ KI-Hilfe" buttons next to the blog body
    text fields. The key lives in localStorage on this device only,
-   same as the GitHub token, and is sent to nobody but Mistral's own
+   same as the GitHub token, and is sent to nobody but Google's own
    API when a request is actually made.
-   History: Google Gemini's free tier 503'd ("model overloaded") too
-   often -> Groq (free, reliable, but Jakob found the output quality
-   not good enough) -> OpenAI's own paid API (good quality, but he
-   explicitly does not want to pay) -> Mistral AI, a free European
-   provider being tried specifically for its strong German output and
-   because it hasn't been tested here yet. Uses mistral-large-latest
-   (their flagship, included in the free tier) via the same
-   OpenAI-compatible chat completions shape as the Groq/OpenAI
-   attempts, over Mistral's own endpoint. Free tier is capped at a low
-   requests-per-minute limit (a couple of RPM) rather than prone to
-   outright overload, so a 429 here is more likely than a 503 – see
-   askAI below for how the two are told apart. See
-   https://docs.mistral.ai/api for the current model list if this
-   ever needs to change again. */
-var MISTRAL_KEY_STORAGE = 'jlp_mistral_api_key';
-function getMistralKey(){
-  try{ return localStorage.getItem(MISTRAL_KEY_STORAGE) || ''; }catch(e){ return ''; }
+   History: Groq (free, reliable, but Jakob found the output quality
+   not good enough) and OpenAI's own paid API (good quality, but he
+   explicitly does not want to pay) and Mistral AI (free, untested
+   quality/reliability here) were all tried and set aside – Jakob
+   confirmed Gemini's OWN output quality was fine all along, the only
+   real problem was frequent 503 "model overloaded" errors. Fixed at
+   the root (not just papered over with retries) by switching from the
+   generateContent endpoint to Gemini's newer Interactions API: Google
+   itself documents generateContent as legacy since June 2026, with
+   Interactions API as the actively maintained, recommended interface
+   going forward – using the current interface instead of the
+   deprecated one is the most direct way to avoid whatever reduced
+   capacity/priority the legacy path gets. See askAI below for the
+   endpoint/request/response details, and
+   https://ai.google.dev/gemini-api/docs/interactions-overview /
+   https://ai.google.dev/gemini-api/docs/migrate-to-interactions for
+   Google's own docs on it. */
+var GEMINI_KEY_STORAGE = 'jlp_gemini_api_key';
+function getGeminiKey(){
+  try{ return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }catch(e){ return ''; }
 }
-function updateMistralStatus(){
-  var status = document.getElementById('mistral-status');
-  var clearBtn = document.getElementById('mistral-clear-btn');
-  var hasKey = !!getMistralKey();
+function updateGeminiStatus(){
+  var status = document.getElementById('gemini-status');
+  var clearBtn = document.getElementById('gemini-clear-btn');
+  var hasKey = !!getGeminiKey();
   if(status) status.textContent = hasKey ? 'KI-Schreibhilfe im Blog-Editor ist aktiv.' : 'Ohne Schlüssel keine KI-Schreibhilfe im Blog-Editor.';
   if(clearBtn) clearBtn.hidden = !hasKey;
 }
-document.getElementById('mistral-save-btn').addEventListener('click', function(){
-  var val = document.getElementById('mistral-key-input').value.trim();
+document.getElementById('gemini-save-btn').addEventListener('click', function(){
+  var val = document.getElementById('gemini-key-input').value.trim();
   if(!val){ showToast('Bitte einen Schlüssel einfügen.', true); return; }
-  try{ localStorage.setItem(MISTRAL_KEY_STORAGE, val); }catch(e){}
-  document.getElementById('mistral-key-input').value = '';
-  updateMistralStatus();
+  try{ localStorage.setItem(GEMINI_KEY_STORAGE, val); }catch(e){}
+  document.getElementById('gemini-key-input').value = '';
+  updateGeminiStatus();
   showToast('KI-Schlüssel gespeichert ✓');
 });
-document.getElementById('mistral-clear-btn').addEventListener('click', function(){
-  try{ localStorage.removeItem(MISTRAL_KEY_STORAGE); }catch(e){}
-  updateMistralStatus();
+document.getElementById('gemini-clear-btn').addEventListener('click', function(){
+  try{ localStorage.removeItem(GEMINI_KEY_STORAGE); }catch(e){}
+  updateGeminiStatus();
   showToast('KI-Schlüssel entfernt.');
 });
 (function(){
-  if(getMistralKey()) document.getElementById('mistral-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
-  updateMistralStatus();
+  if(getGeminiKey()) document.getElementById('gemini-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
+  updateGeminiStatus();
 })();
 /* Sends `prompt` to Mistral (mistral-large-latest, OpenAI-compatible chat
    completions shape) and returns its plain-text reply. Throws with a
