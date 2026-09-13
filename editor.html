@@ -1862,6 +1862,85 @@ function openBlogForm(idx){
   wireAiHelper('', bodyTextarea);
   wireAiHelper('-de', document.getElementById('bf-body-de'));
 
+  /* ---- "Gesamten Beitrag von der KI erstellen lassen" – unlike
+     wireAiHelper above (which only rewrites text already sitting in one
+     textarea), this understands the whole post form: it fills title,
+     category, cover caption, excerpt, lead, body and quote, in both
+     languages, from one free-text instruction. Titelfoto, Datum, Autor
+     and Status are deliberately left alone – not text content for an AI
+     to write. */
+  (function wireAiFillPost(){
+    var btn = document.getElementById('bf-ai-fill-btn');
+    var panel = document.getElementById('bf-ai-fill-panel');
+    var statusEl = document.getElementById('bf-ai-fill-status');
+    if(!btn || !panel) return;
+    var isOpen = false;
+    function closePanel(){ panel.hidden = true; panel.innerHTML = ''; isOpen = false; }
+    function renderPanel(){
+      panel.innerHTML =
+        '<div class="field"><label>Worum soll der Beitrag gehen?</label>' +
+        '<textarea id="bf-ai-fill-instr" class="mono tall" rows="4" placeholder="z. B. Ein Beitrag darüber, warum Anfänger zu früh mit Eröffnungstheorie beginnen, statt Taktik und Endspiele zu üben. Ton: ermutigend, konkret, mit einem Beispiel aus dem eigenen Training."></textarea></div>' +
+        '<div class="form-actions">' +
+        '<button type="button" class="btn solid small" id="bf-ai-fill-send">Generieren</button>' +
+        '<button type="button" class="btn small" id="bf-ai-fill-close">Schließen</button>' +
+        '</div>' +
+        '<div id="bf-ai-fill-result"></div>';
+      document.getElementById('bf-ai-fill-close').addEventListener('click', closePanel);
+      document.getElementById('bf-ai-fill-send').addEventListener('click', async function(){
+        var instruction = document.getElementById('bf-ai-fill-instr').value.trim();
+        if(!instruction){ showToast('Bitte kurz beschreiben, worum es gehen soll.', true); return; }
+        var checkIds = ['bf-title-en', 'bf-title-de', 'bf-excerpt-en', 'bf-excerpt-de', 'bf-lead-en', 'bf-lead-de', 'bf-body-en', 'bf-body-de', 'bf-quote-en', 'bf-quote-de'];
+        var hasExisting = checkIds.some(function(id){ var el = document.getElementById(id); return el && el.value.trim(); });
+        if(hasExisting && !confirm('Bestehender Titel, Kurztext, Einleitung, Haupttext und Zitat werden überschrieben. Fortfahren?')) return;
+        var sendBtn = document.getElementById('bf-ai-fill-send');
+        var resultEl = document.getElementById('bf-ai-fill-result');
+        sendBtn.disabled = true;
+        statusEl.textContent = 'KI schreibt den Beitrag …';
+        resultEl.innerHTML = '';
+        try{
+          var prompt = buildBlogFillPrompt(instruction, collectCategoryOptions('en'), collectCategoryOptions('de'));
+          var reply = await askGemini(prompt);
+          var post = parseAiBlogPost(reply);
+          document.getElementById('bf-title-en').value = post.title.en;
+          document.getElementById('bf-title-de').value = post.title.de;
+          if(post.category.en) document.getElementById('bf-category-en').value = post.category.en;
+          if(post.category.de) document.getElementById('bf-category-de').value = post.category.de;
+          document.getElementById('bf-excerpt-en').value = post.excerpt.en;
+          document.getElementById('bf-excerpt-de').value = post.excerpt.de;
+          document.getElementById('bf-lead-en').value = post.lead.en;
+          document.getElementById('bf-lead-de').value = post.lead.de;
+          document.getElementById('bf-body-en').value = post.body.en.join('\n\n');
+          document.getElementById('bf-body-de').value = post.body.de.join('\n\n');
+          document.getElementById('bf-quote-en').value = post.quote.en;
+          document.getElementById('bf-quote-de').value = post.quote.de;
+          /* cover caption: only fill fields that are still empty – a cover
+             photo (and any caption the user already wrote for it) is
+             chosen independently of the AI, so don't clobber it */
+          var capEnEl = document.getElementById('bf-cover-caption-en');
+          var capDeEl = document.getElementById('bf-cover-caption-de');
+          if(capEnEl && !capEnEl.value.trim() && post.imageCaption.en) capEnEl.value = post.imageCaption.en;
+          if(capDeEl && !capDeEl.value.trim() && post.imageCaption.de) capDeEl.value = post.imageCaption.de;
+          statusEl.textContent = 'Beitrag erstellt ✓ – bitte prüfen, anpassen und Titelfoto ergänzen.';
+          showToast('Beitrag von der KI erstellt ✓ – bitte prüfen.');
+          closePanel();
+        }catch(err){
+          statusEl.textContent = '';
+          resultEl.innerHTML = '<p class="hint" style="color:#b04e2e;">' + escapeHtml(err && err.message ? err.message : 'Unbekannter Fehler.') + '</p>';
+        }
+        sendBtn.disabled = false;
+      });
+    }
+    btn.addEventListener('click', function(){
+      if(!getGeminiKey()){
+        showToast('Bitte oben zuerst einen kostenlosen KI-Schlüssel eintragen.', true);
+        return;
+      }
+      isOpen = !isOpen;
+      panel.hidden = !isOpen;
+      if(isOpen) renderPanel();
+    });
+  })();
+
   /* ---- inline link insertion into the (English) body text – e.g. for
      affiliate/partner links. Inserted inline at the cursor, not as its own
      paragraph like the image button above, since a link normally sits
