@@ -340,11 +340,23 @@
     height:min(440px,90vw);width:16px;font-size:0.72rem;color:var(--ivory-dim);text-align:center;}
   .ranks-col span{flex:1;display:flex;align-items:center;justify-content:center;}
   .board-and-files{display:flex;flex-direction:column;gap:4px;}
+  /* wraps just the board (not the files row below it) so the arrows
+     overlay's absolute positioning lines up exactly with the 8x8 grid,
+     regardless of the board's own responsive min(440px,90vw) sizing */
+  .board-stack{position:relative;width:min(440px,90vw);}
   .chess-board{
-    width:min(440px,90vw);aspect-ratio:1;display:grid;
+    width:100%;aspect-ratio:1;display:grid;
     grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);
     border:1px solid var(--line);
   }
+  /* arrows/highlights parsed from ChessBase's [%cal]/[%csl] PGN comment
+     commands (see sync_games_pgn.py's extract_arrows_and_highlights) –
+     viewBox 0 0 8 8 makes each square exactly one SVG unit, so
+     renderBoardAnnotations() can place everything directly in square
+     coordinates without any pixel math. pointer-events:none so it never
+     blocks clicking the board underneath (not that the board itself is
+     clickable today, but no reason to accidentally start blocking it). */
+  .board-arrows-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
   .files-row{display:flex;width:min(440px,90vw);}
   .files-row span{flex:1;text-align:center;font-size:0.72rem;color:var(--ivory-dim);}
   .chess-square{display:flex;align-items:center;justify-content:center;user-select:none;}
