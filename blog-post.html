@@ -1202,12 +1202,18 @@ function createGameWidget(container, gameOrGames){
       } else if(e.key === 'ArrowDown'){
         if(choiceBtns.length) choiceBtns[(focusedIdx + 1 + choiceBtns.length) % choiceBtns.length].focus();
         e.preventDefault();
-      } else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft'){
+      } else if(e.key === 'ArrowUp'){
         if(choiceBtns.length) choiceBtns[(focusedIdx - 1 + choiceBtns.length) % choiceBtns.length].focus();
         e.preventDefault();
       } else if(e.key === 'ArrowRight'){
         if(focusedIdx >= 0) choiceBtns[focusedIdx].click();
         else if(choiceBtns.length) choiceBtns[0].click(); /* nothing focused yet — play the first/default option */
+        e.preventDefault();
+      } else if(e.key === 'ArrowLeft'){
+        /* left doesn't cycle the options — it closes the dialog and steps
+           one move back, same as when no choice is pending — see
+           index.html's keydown handler for the full rationale. */
+        manualGoToLine(activeLine, activeBranches, Math.max(0, moveIndex - 1));
         e.preventDefault();
       }
       return; /* a choice is pending — don't also step the board underneath it */
