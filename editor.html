@@ -1804,7 +1804,7 @@ function openBlogForm(idx){
   document.getElementById('bf-translate-all').addEventListener('click', async function(){
     var btn = this;
     var statusEl = document.getElementById('bf-translate-status');
-    var deIds = ['bf-title-de', 'bf-category-de', 'bf-excerpt-de', 'bf-lead-de', 'bf-body-de', 'bf-quote-de'];
+    var deIds = ['bf-title-de', 'bf-category-de', 'bf-cover-caption-de', 'bf-excerpt-de', 'bf-lead-de', 'bf-body-de', 'bf-quote-de'];
     var hasExistingDe = deIds.some(function(id){ var el = document.getElementById(id); return el && el.value.trim(); });
     if(hasExistingDe && !confirm('Bestehende deutsche Texte werden überschrieben. Fortfahren?')) return;
     btn.disabled = true;
@@ -1812,6 +1812,7 @@ function openBlogForm(idx){
     try{
       var titleEn = document.getElementById('bf-title-en').value.trim();
       var categoryEn = document.getElementById('bf-category-en').value.trim();
+      var coverCaptionEn = document.getElementById('bf-cover-caption-en').value.trim();
       var excerptEn = document.getElementById('bf-excerpt-en').value.trim();
       var leadEn = document.getElementById('bf-lead-en').value.trim();
       var quoteEn = document.getElementById('bf-quote-en').value.trim();
@@ -1819,6 +1820,7 @@ function openBlogForm(idx){
       var bodyParas = bodyEnText ? bodyEnText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
       if(titleEn) document.getElementById('bf-title-de').value = await translateEnToDe(titleEn);
       if(categoryEn) document.getElementById('bf-category-de').value = await translateEnToDe(categoryEn);
+      if(coverCaptionEn) document.getElementById('bf-cover-caption-de').value = await translateEnToDe(coverCaptionEn);
       if(excerptEn) document.getElementById('bf-excerpt-de').value = await translateEnToDe(excerptEn);
       if(leadEn) document.getElementById('bf-lead-de').value = await translateEnToDe(leadEn);
       if(quoteEn) document.getElementById('bf-quote-de').value = await translateEnToDe(quoteEn);
