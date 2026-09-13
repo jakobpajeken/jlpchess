@@ -188,9 +188,25 @@ def load_json(path):
         return json.load(f)
 
 
+def normalize_dashes(value):
+    """The site's house style uses en dashes (–), never em dashes (—) --
+    easy for a comment typed in ChessBase, or a translation, to use the
+    wrong one. Only games.json/blog.json (what the site actually renders)
+    gets this treatment here, not games.pgn itself -- that file stays
+    exactly as ChessBase wrote it, since it's Jakob's own working copy,
+    not something this script should silently rewrite behind his back."""
+    if isinstance(value, str):
+        return value.replace("—", "–")
+    if isinstance(value, list):
+        return [normalize_dashes(v) for v in value]
+    if isinstance(value, dict):
+        return {k: normalize_dashes(v) for k, v in value.items()}
+    return value
+
+
 def save_json(path, data):
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(normalize_dashes(data), f, ensure_ascii=False, indent=2)
         f.write("\n")
 
 
