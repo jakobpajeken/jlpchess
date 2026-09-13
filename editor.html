@@ -694,12 +694,12 @@ async function askAI(prompt, onRetry){
 }
 
 /* Builds the prompt for "Gesamten Beitrag von der KI erstellen lassen" –
-   unlike askGemini's other caller (the small per-textarea "KI-Hilfe" that
-   only rewrites text already on the page), this asks Gemini to understand
-   the FULL shape of a blog post in this editor and write every text field
-   itself, in both languages, from a short instruction. existingCatsEn/De
-   are passed in so Gemini reuses an existing category instead of
-   inventing near-duplicates every time. */
+   unlike askAI's other caller (the small per-textarea "KI-Hilfe" that
+   only rewrites text already on the page), this asks the model to
+   understand the FULL shape of a blog post in this editor and write
+   every text field itself, in both languages, from a short instruction.
+   existingCatsEn/De are passed in so it reuses an existing category
+   instead of inventing near-duplicates every time. */
 function buildBlogFillPrompt(instruction, existingCatsEn, existingCatsDe){
   return [
     'You are helping IM Jakob Leon Pajeken, a professional chess coach, write a post for the blog on his coaching website. Write in his voice: knowledgeable, concrete and encouraging, speaking directly to chess students and their parents - never generic filler.',
@@ -731,7 +731,7 @@ function buildBlogFillPrompt(instruction, existingCatsEn, existingCatsDe){
     'Return ONLY the JSON object - no markdown code fence, no explanation before or after it.'
   ].join('\n');
 }
-/* Parses Gemini's reply into the shape the blog form needs, tolerating the
+/* Parses the AI's reply into the shape the blog form needs, tolerating the
    most common ways a model still wraps "JSON-only" output (a ```json
    fence, or stray prose around the object) despite being told not to.
    Throws a message safe to show directly in a toast/panel. */
@@ -1815,7 +1815,7 @@ function openBlogForm(idx){
   wireFormattingButtons('', bodyTextarea);
   wireFormattingButtons('-de', document.getElementById('bf-body-de'));
 
-  /* ---- optional AI writing help (Google Gemini) for the body text –
+  /* ---- optional AI writing help (Groq) for the body text –
      wired identically for English and German, same idea as the
      formatting buttons above. Operates on the current text SELECTION if
      there is one, otherwise the whole field; the reply is shown for
