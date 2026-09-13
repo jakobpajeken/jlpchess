@@ -634,31 +634,29 @@ document.getElementById('groq-clear-btn').addEventListener('click', function(){
   if(getGroqKey()) document.getElementById('groq-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
   updateGroqStatus();
 })();
-/* Sends `prompt` to Gemini and returns its plain-text reply. Throws with a
+/* Sends `prompt` to Groq (openai/gpt-oss-120b, OpenAI-compatible chat
+   completions API) and returns its plain-text reply. Throws with a
    message safe to show directly in a toast if the key is missing, the
-   request fails, or Gemini declined to answer (e.g. safety filters).
+   request fails, or the model declined to answer.
 
-   Status 503 ("model overloaded") is a very common, purely transient
-   response from Google's own Gemini servers being under heavy load right
-   now – it happens especially often on the free gemini-flash-latest tier
-   and has nothing to do with this site, the prompt, or the API key. So
-   instead of failing on the first 503 (or any other 5xx), this retries a
-   few times with a short growing pause – the standard mitigation Google
-   itself recommends – before finally giving up. `onRetry(attempt,
+   A 503/5xx here would mean Groq's own servers are overloaded – rare in
+   practice on their free tier, but this keeps the same automatic-retry
+   safety net used before (a few attempts with a short growing pause)
+   rather than assuming it can never happen. `onRetry(attempt,
    maxAttempts)`, if given, is called before each retry so the caller can
    show "trying again …" instead of leaving the user staring at a stuck
-   spinner for several seconds with no explanation. */
-async function askGemini(prompt, onRetry){
-  var key = getGeminiKey();
+   spinner with no explanation. */
+async function askAI(prompt, onRetry){
+  var key = getGroqKey();
   if(!key) throw new Error('Kein KI-Schlüssel hinterlegt (oben eintragen).');
   var maxAttempts = 4; /* 1 initial try + up to 3 retries */
   for(var attempt = 1; attempt <= maxAttempts; attempt++){
     var resp, networkErr = null;
     try{
-      resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
+      resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+        body: JSON.stringify({ model: 'openai/gpt-oss-120b', messages: [{ role: 'user', content: prompt }] })
       });
     }catch(e){ networkErr = e; }
     if(networkErr){
@@ -680,15 +678,15 @@ async function askGemini(prompt, onRetry){
           await new Promise(function(r){ setTimeout(r, attempt * 1000); });
           continue;
         }
-        throw new Error('KI-Dienst bei Google gerade überlastet (Status ' + resp.status + ') – das liegt an Googles Gemini-Servern, nicht an dieser Website. Bitte in ein, zwei Minuten nochmal versuchen.');
+        throw new Error('KI-Dienst bei Groq gerade überlastet (Status ' + resp.status + '). Bitte in ein, zwei Minuten nochmal versuchen.');
       }
       throw new Error('KI-Anfrage fehlgeschlagen (Status ' + resp.status + ').');
     }
     var data = await resp.json();
-    var candidate = data && data.candidates && data.candidates[0];
-    var text = candidate && candidate.content && candidate.content.parts && candidate.content.parts.map(function(p){ return p.text || ''; }).join('');
+    var choice = data && data.choices && data.choices[0];
+    var text = choice && choice.message && choice.message.content;
     if(!text){
-      var reason = candidate && candidate.finishReason;
+      var reason = choice && choice.finish_reason;
       throw new Error(reason ? ('KI hat keine Antwort geliefert (' + reason + ').') : 'KI hat keine Antwort geliefert.');
     }
     return text.trim();
