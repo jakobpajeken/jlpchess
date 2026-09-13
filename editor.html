@@ -631,33 +631,63 @@ document.getElementById('gemini-clear-btn').addEventListener('click', function()
 })();
 /* Sends `prompt` to Gemini and returns its plain-text reply. Throws with a
    message safe to show directly in a toast if the key is missing, the
-   request fails, or Gemini declined to answer (e.g. safety filters). */
-async function askGemini(prompt){
+   request fails, or Gemini declined to answer (e.g. safety filters).
+
+   Status 503 ("model overloaded") is a very common, purely transient
+   response from Google's own Gemini servers being under heavy load right
+   now – it happens especially often on the free gemini-flash-latest tier
+   and has nothing to do with this site, the prompt, or the API key. So
+   instead of failing on the first 503 (or any other 5xx), this retries a
+   few times with a short growing pause – the standard mitigation Google
+   itself recommends – before finally giving up. `onRetry(attempt,
+   maxAttempts)`, if given, is called before each retry so the caller can
+   show "trying again …" instead of leaving the user staring at a stuck
+   spinner for several seconds with no explanation. */
+async function askGemini(prompt, onRetry){
   var key = getGeminiKey();
   if(!key) throw new Error('Kein KI-Schlüssel hinterlegt (oben eintragen).');
-  var resp;
-  try{
-    resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
-  }catch(e){ throw new Error('KI-Anfrage fehlgeschlagen (keine Verbindung).'); }
-  if(!resp.ok){
-    if(resp.status === 400 || resp.status === 401 || resp.status === 403){
-      throw new Error('KI-Schlüssel ungültig oder abgelehnt (Status ' + resp.status + ').');
+  var maxAttempts = 4; /* 1 initial try + up to 3 retries */
+  for(var attempt = 1; attempt <= maxAttempts; attempt++){
+    var resp, networkErr = null;
+    try{
+      resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+    }catch(e){ networkErr = e; }
+    if(networkErr){
+      if(attempt < maxAttempts){
+        if(onRetry) onRetry(attempt, maxAttempts);
+        await new Promise(function(r){ setTimeout(r, attempt * 1000); });
+        continue;
+      }
+      throw new Error('KI-Anfrage fehlgeschlagen (keine Verbindung).');
     }
-    if(resp.status === 429) throw new Error('KI-Kontingent gerade ausgeschöpft – kurz warten und nochmal versuchen.');
-    throw new Error('KI-Anfrage fehlgeschlagen (Status ' + resp.status + ').');
+    if(!resp.ok){
+      if(resp.status === 400 || resp.status === 401 || resp.status === 403){
+        throw new Error('KI-Schlüssel ungültig oder abgelehnt (Status ' + resp.status + ').');
+      }
+      if(resp.status === 429) throw new Error('KI-Kontingent gerade ausgeschöpft – kurz warten und nochmal versuchen.');
+      if(resp.status === 503 || resp.status >= 500){
+        if(attempt < maxAttempts){
+          if(onRetry) onRetry(attempt, maxAttempts);
+          await new Promise(function(r){ setTimeout(r, attempt * 1000); });
+          continue;
+        }
+        throw new Error('KI-Dienst bei Google gerade überlastet (Status ' + resp.status + ') – das liegt an Googles Gemini-Servern, nicht an dieser Website. Bitte in ein, zwei Minuten nochmal versuchen.');
+      }
+      throw new Error('KI-Anfrage fehlgeschlagen (Status ' + resp.status + ').');
+    }
+    var data = await resp.json();
+    var candidate = data && data.candidates && data.candidates[0];
+    var text = candidate && candidate.content && candidate.content.parts && candidate.content.parts.map(function(p){ return p.text || ''; }).join('');
+    if(!text){
+      var reason = candidate && candidate.finishReason;
+      throw new Error(reason ? ('KI hat keine Antwort geliefert (' + reason + ').') : 'KI hat keine Antwort geliefert.');
+    }
+    return text.trim();
   }
-  var data = await resp.json();
-  var candidate = data && data.candidates && data.candidates[0];
-  var text = candidate && candidate.content && candidate.content.parts && candidate.content.parts.map(function(p){ return p.text || ''; }).join('');
-  if(!text){
-    var reason = candidate && candidate.finishReason;
-    throw new Error(reason ? ('KI hat keine Antwort geliefert (' + reason + ').') : 'KI hat keine Antwort geliefert.');
-  }
-  return text.trim();
 }
 
 /* Builds the prompt for "Gesamten Beitrag von der KI erstellen lassen" –
