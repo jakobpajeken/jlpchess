@@ -554,7 +554,6 @@ function createGameWidget(container, gameOrGames){
     '</div>' +
     '<div class="move-choice-dialog" data-role="choice-dialog" hidden>' +
       '<div class="move-choice-card">' +
-        '<div class="move-choice-title" data-role="choice-title">Which move?</div>' +
         '<div class="move-choice-list" data-role="choice-list"></div>' +
         '<button type="button" class="move-choice-cancel" data-role="choice-cancel">Cancel</button>' +
       '</div>' +
@@ -886,6 +885,17 @@ function createGameWidget(container, gameOrGames){
       var fullPath = prefixPath.concat(varLine.map(function(e){ return e.san; }));
       var fullBranches = prefixBranches.concat(varLine.map(function(e){ return e.variations || []; }));
       options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1); } });
+    });
+    /* de-dupe: after entering a variation and rewinding back to its own
+       branch point, activeLine's own "continue as-is" option and the
+       variation describe the same move — see index.html's tryAdvance()
+       for the full rationale. */
+    var seenOptions = {};
+    options = options.filter(function(opt){
+      var key = opt.san + '|' + (opt.nag || '');
+      if(seenOptions[key]) return false;
+      seenOptions[key] = true;
+      return true;
     });
     if(options.length <= 1){
       if(options.length === 1) options[0].go();
