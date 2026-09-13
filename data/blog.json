@@ -3071,5 +3071,62 @@
     },
     "quote": "",
     "games": []
+  },
+  {
+    "title": {
+      "en": "Three Questions Every Good Chess Coach Must Answer",
+      "de": "Drei Fragen, die ein guter Schachtrainer sofort beantworten können muss"
+    },
+    "slug": "three-questions-every-good-chess-coach-must-answer",
+    "status": "draft",
+    "category": {
+      "en": "Training",
+      "de": "Training"
+    },
+    "date": "2026-09-13",
+    "author": "IM Jakob Leon Pajeken",
+    "image": "",
+    "imageCaption": {
+      "en": "Jakob Leon Pajeken guiding a student through a critical position.",
+      "de": "Jakob Leon Pajeken, der einem Schüler eine kritische Stellung erklärt."
+    },
+    "imageCredit": "",
+    "excerpt": {
+      "en": "A clear coaching concept, solid references, and an instant diagnosis of the pupil’s current need separate great trainers from the rest.",
+      "de": "Ein klares Trainingskonzept, überzeugende Referenzen und die sofortige Diagnose des aktuellen Bedarfs des Schülers trennen Top‑Trainer von den anderen."
+    },
+    "lead": {
+      "en": "When you look for a chess coach you quickly realise that titles and ratings tell only part of the story. The real test is whether the trainer can answer three simple questions without hesitation.",
+      "de": "Wer nach einem Schachtrainer sucht, merkt schnell, dass Titel und Wertungszahlen nur einen Teil der Geschichte erzählen. Der wahre Test ist, ob der Trainer drei einfache Fragen sofort beantworten kann."
+    },
+    "body": {
+      "en": [
+        "Identifying a good chess trainer is surprisingly hard. Coaches come from all backgrounds – some were strong tournament players, others have spent decades teaching children, and still others excel at turning complex ideas into simple explanations.",
+        "Playing strength matters, but it is not everything. A strong player does not automatically know why a beginner blunders or how to eliminate that mistake for good.",
+        "For me the decisive filter consists of three questions that any competent trainer should be able to answer instantly and clearly.",
+        "**1. What is your training concept?** A coach must be able to explain why he focuses on certain topics and leaves others aside for the moment. The concept can be as simple as “help the student understand his own games, spot recurring errors, and turn those insights into better results,” or it can centre on tactical vision, calculation, and a solid positional foundation. The key is to show how the different training elements connect to a larger goal.",
+        "A concept must stay flexible. If a student is struggling with a specific problem, the trainer should be ready to deviate from the preset schedule – “today we skip endgames because your time management needs work.” The plan guides, it does not blind the coach to the pupil’s needs.",
+        "**2. What are your references?** Besides an Elo rating, a trainer should point to concrete experience: years of work with beginners, success with youth teams, long‑term development of club players, or preparation of tournament competitors. The most convincing evidence is a track record of students who have become more autonomous, can analyse their own games, and enjoy chess again.",
+        "**3. What does this student need right now?** “Now” is the decisive word. Two players with the same rating can have completely different weaknesses – one loses on simple tactics, another lacks a clear plan in quiet positions. The coach must diagnose the root cause of each error, not just the symptom, and decide whether the remedy is more tactics, strategic models, endgame technique, or simply a few extra seconds of thinking time.",
+        "A quality trainer looks at the person, not only at the game. He asks, “Why did you choose this move?” and “Why does this problem keep reappearing?” – questions that uncover habits, time pressure, confidence issues, or misunderstanding of strategic goals.",
+        "When a coach can answer these three questions confidently, you have a reliable quality check. The ultimate goal is to guide the student toward a point where he no longer needs the coach for every decision, but can ask himself the right questions at the board."
+      ],
+      "de": [
+        "Einen guten Schachtrainer zu erkennen ist überraschend schwierig. Trainer kommen aus den unterschiedlichsten Bereichen – manche waren erfolgreiche Turnierspieler, andere haben jahrzehntelange Erfahrung mit Kindern, wieder andere verstehen es hervorragend, komplizierte Ideen einfach zu erklären.",
+        "Die eigene Spielstärke ist dabei ein Faktor, aber nicht alles. Ein starker Spieler weiß nicht automatisch, warum ein Anfänger einen bestimmten Fehler macht und vor allem nicht, wie man diesen Fehler nachhaltig beseitigt.",
+        "Für mich gibt es deshalb drei Fragen, die ein kompetenter Trainer sofort und klar beantworten können muss.",
+        "**1. Was ist dein Konzept?** Ein Trainer muss erklären können, warum er bestimmte Themen trainiert und andere bewusst zunächst außen vor lässt. Das Konzept kann so simpel sein wie „dem Schüler helfen, seine Partien zu verstehen, wiederkehrende Fehler zu erkennen und daraus bessere Ergebnisse zu ziehen“, oder stärker auf taktisches Sehen, Berechnung und ein solides positionelles Fundament ausgerichtet sein. Wichtig ist, dass die einzelnen Bausteine zu einem übergeordneten Ziel verknüpft werden.",
+        "Ein Konzept darf kein starres Korsett sein. Wenn ein Schüler ein akutes Problem hat, muss der Trainer flexibel reagieren können – etwa „wir überspringen das Endspiel, weil deine Zeitkontrolle gerade das Hauptproblem ist.“ Der Plan gibt Orientierung, ohne den Blick auf den Schüler zu verstellen.",
+        "**2. Was sind deine Referenzen?** Neben der Elo‑Zahl sollte ein Trainer konkrete Erfahrungen nennen: jahrelange Arbeit mit Anfängern, Erfolge in Jugendmannschaften, langfristige Begleitung von Vereins‑ bzw. Turnierspielern. Der überzeugendste Beweis ist eine Entwicklung, bei der Schüler selbstständiger werden, ihre Partien analysieren und die Freude am Schach zurückgewinnen.",
+        "**3. Was braucht dieser Schüler jetzt am dringendsten?** Das Wort „jetzt“ ist entscheidend. Zwei Spieler mit gleicher DWZ können völlig unterschiedliche Schwächen haben – der eine verliert durch taktische Einsteller, der andere fehlt ein klarer Plan in ruhigen Stellungen. Der Trainer muss die Ursache des Fehlers diagnostizieren, nicht nur das Symptom, und entscheiden, ob das Gegenmittel mehr Taktik, strategische Modelle, Endspieltechnik oder einfach ein paar zusätzliche Sekunden zum Nachdenken sind.",
+        "Ein guter Trainer sieht den Menschen, nicht nur die Partie. Er fragt: „Warum hast du diesen Zug gewählt?“ und „Warum taucht dieses Problem immer wieder auf?“ – Fragen, die Gewohnheiten, Zeitdruck, Selbstvertrauen oder ein fehlendes strategisches Verständnis aufdecken.",
+        "Wenn ein Coach diese drei Fragen überzeugend beantworten kann, liegt ein zuverlässiger Qualitäts‑Check vor. Das Endziel ist, den Schüler zu einem Punkt zu führen, an dem er nicht mehr jeden Schritt vom Trainer erklärt bekommt, sondern selbst am Brett die richtigen Fragen stellt."
+      ]
+    },
+    "quote": {
+      "en": "\"Good training isn’t about dumping knowledge; it’s about teaching the mind to ask the right questions.\"",
+      "de": "\"Gutes Training bedeutet nicht, Wissen zu überhäufen, sondern dem Denken die richtigen Fragen zu geben.\""
+    },
+    "games": []
   }
 ]
