@@ -110,6 +110,8 @@
      rule outranks both by adding the attribute to the selector */
   .article-cover[hidden]{display:none;}
   .photo-credit{font-size:0.72rem;color:var(--ivory-dim);opacity:0.75;margin-top:8px;text-align:right;}
+  .cover-caption{margin-top:10px;font-size:0.86rem;color:var(--ivory-dim);text-align:center;font-style:italic;}
+  .cover-caption[hidden]{display:none;}
   .article-body{margin-top:44px;}
   .article-body p{margin:0 0 22px;color:var(--ivory-dim);max-width:64ch;}
   .article-body a{color:var(--gold-bright);text-decoration:underline;text-underline-offset:2px;}
@@ -326,6 +328,7 @@
     </div>
 
     <img id="post-cover" class="article-cover" alt="" hidden>
+    <div class="cover-caption" id="post-cover-caption" hidden></div>
     <div class="photo-credit" id="post-cover-credit" hidden></div>
 
     <div class="article-body" id="post-body">
