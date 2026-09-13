@@ -759,6 +759,69 @@ function createGameWidget(container, gameOrGames){
       arrowsEl.appendChild(poly);
     });
   }
+  /* Click-to-move – see index.html's click-to-move block for the full
+     rationale (mirrored here per-widget-instance, reading/writing this
+     widget's own engine/orientation/activeLine etc. instead of the
+     page-global ones). */
+  var selectedSquare = null;
+  function domSquareToAlgebraic(row, col, flipped){
+    var rank = flipped ? row + 1 : 8 - row;
+    var fileIdx = flipped ? 7 - col : col;
+    return String.fromCharCode(97 + fileIdx) + rank;
+  }
+  function clearSquareSelection(){
+    selectedSquare = null;
+    Array.prototype.forEach.call(boardEl.children, function(sq){
+      sq.classList.remove('selected', 'legal-move', 'legal-capture');
+    });
+  }
+  function showLegalMovesFrom(square){
+    var flipped = orientation === 'black';
+    engine.moves({ square: square, verbose: true }).forEach(function(m){
+      var rc = squareRowCol(m.to);
+      var row = flipped ? 7 - rc.row : rc.row;
+      var col = flipped ? 7 - rc.col : rc.col;
+      var sq = boardEl.children[row * 8 + col];
+      if(sq) sq.classList.add(m.captured ? 'legal-capture' : 'legal-move');
+    });
+  }
+  function onBoardSquareClick(sqEl){
+    if(!engine || isChoiceDialogOpen()) return;
+    var flipped = orientation === 'black';
+    var square = domSquareToAlgebraic(parseInt(sqEl.dataset.row, 10), parseInt(sqEl.dataset.col, 10), flipped);
+    if(selectedSquare){
+      if(selectedSquare === square){ clearSquareSelection(); return; }
+      var candidates = engine.moves({ square: selectedSquare, verbose: true }).filter(function(m){ return m.to === square; });
+      if(candidates.length){
+        var chosen = candidates.length > 1 ? (candidates.filter(function(m){ return m.promotion === 'q'; })[0] || candidates[0]) : candidates[0];
+        clearSquareSelection();
+        makeManualMove(chosen);
+        return;
+      }
+      clearSquareSelection();
+      var otherPiece = engine.get(square);
+      if(otherPiece && otherPiece.color === engine.turn()){
+        selectedSquare = square;
+        sqEl.classList.add('selected');
+        showLegalMovesFrom(square);
+      }
+      return;
+    }
+    var piece = engine.get(square);
+    if(piece && piece.color === engine.turn()){
+      selectedSquare = square;
+      sqEl.classList.add('selected');
+      showLegalMovesFrom(square);
+    }
+  }
+  function makeManualMove(moveObj){
+    stopPlay();
+    var newLine = activeLine.slice(0, moveIndex).concat([moveObj.san]);
+    var newBranches = activeBranches.slice(0, moveIndex).concat([[]]);
+    var newDefaultSans = activeDefaultSans.slice(0, moveIndex).concat([moveObj.san]);
+    var newEntries = activeEntries.slice(0, moveIndex).concat([{ ply: moveIndex + 1, san: moveObj.san, nag: '', comment: { de: '', en: '' }, variations: [] }]);
+    manualGoToLine(newLine, newBranches, moveIndex + 1, newDefaultSans, newEntries);
+  }
   function applyPlayerLabels(){
     if(!topEl || !bottomEl) return;
     var flipped = orientation === 'black';
@@ -984,6 +1047,7 @@ function createGameWidget(container, gameOrGames){
     renderPosition(engine.fen());
     highlightMoveList();
     renderBoardAnnotations();
+    clearSquareSelection();
   }
   /* Advances one move forward along the current line, unless the move
      we're actually at right now had more than one real option – the
