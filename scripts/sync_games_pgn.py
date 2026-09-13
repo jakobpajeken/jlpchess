@@ -240,19 +240,23 @@ def build_comment_cache(tree):
 def translate_comment(raw_comment, cache_key, cache):
     """Comments are assumed to be written in German — ChessBase is Jakob's
     own working tool, and German is the natural language for his own
-    analysis notes. The original German is kept byte-for-byte as typed (in
-    "de"); "en" is filled in by machine translation. Reuses a cached
-    translation instead of re-calling the API when this exact German text
-    was already seen at this exact move last time, so an unattended sync
-    running every ~10s doesn't re-translate every comment in the database
-    on every single cycle — only ones that actually changed."""
-    text = strip_pgn_commands(raw_comment)
+    analysis notes. The original German is kept as typed (in "de"); "en"
+    is filled in by machine translation. The one deliberate exception to
+    "as typed": em dashes (—) become en dashes (–), the site's house
+    style, so a dash typed the "wrong" way in ChessBase — or introduced
+    by machine translation, which favours em dashes — doesn't propagate
+    to the site. Reuses a cached translation instead of re-calling the
+    API when this exact German text was already seen at this exact move
+    last time, so an unattended sync running every ~10s doesn't
+    re-translate every comment in the database on every single cycle —
+    only ones that actually changed."""
+    text = normalize_dashes(strip_pgn_commands(raw_comment))
     if not text:
         return {"de": "", "en": ""}
     cached = cache.get(cache_key)
     if cached and (cached.get("de") or "").strip() == text:
         return cached
-    return {"de": text, "en": translate_text(text, "DE", "EN")}
+    return {"de": text, "en": normalize_dashes(translate_text(text, "DE", "EN"))}
 
 
 def serialize_line(node, board, cache):
