@@ -354,14 +354,26 @@
      viewBox 0 0 8 8 makes each square exactly one SVG unit, so
      renderBoardAnnotations() can place everything directly in square
      coordinates without any pixel math. pointer-events:none so it never
-     blocks clicking the board underneath (not that the board itself is
-     clickable today, but no reason to accidentally start blocking it). */
+     blocks clicking the board underneath – the squares themselves are
+     click-to-move targets, see buildBoardSquares/onBoardSquareClick. */
   .board-arrows-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
   .files-row{display:flex;width:min(440px,90vw);}
   .files-row span{flex:1;text-align:center;font-size:0.72rem;color:var(--ivory-dim);}
-  .chess-square{display:flex;align-items:center;justify-content:center;user-select:none;}
+  .chess-square{position:relative;display:flex;align-items:center;justify-content:center;user-select:none;cursor:pointer;}
   .chess-square.light{background:var(--sq-light);}
   .chess-square.dark{background:var(--sq-dark);}
+  .chess-square.selected{box-shadow:inset 0 0 0 3px var(--gold-bright);}
+  /* a small dot for a quiet move, a ring for a capture – standard chess-UI
+     convention, so a click-to-move destination reads at a glance without
+     needing a legend */
+  .chess-square.legal-move::after{
+    content:'';position:absolute;width:28%;height:28%;border-radius:50%;
+    background:rgba(22,32,46,0.32);pointer-events:none;
+  }
+  .chess-square.legal-capture::after{
+    content:'';position:absolute;inset:8%;border-radius:50%;
+    border:3px solid rgba(22,32,46,0.4);pointer-events:none;
+  }
   .piece-img{width:94%;height:94%;display:block;pointer-events:none;}
   .piece-fallback{
     font-size:clamp(20px,4.4vw,30px);line-height:1;user-select:none;
