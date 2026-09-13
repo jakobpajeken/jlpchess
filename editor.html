@@ -1320,37 +1320,53 @@ async function translateBodyParagraph(para, sourceLang, targetLang){
      on guessing the "always this order" case that turned out to be
      wrong for how headings are actually written on this site. */
   var placeholders = [];
+  /* Order within each callback matters: recurse into the inner text
+     FIRST (so any nested span gets pushed – and so claims its index –
+     before this one does), and only THEN read placeholders.length for
+     THIS placeholder's own index and push it. Reading the index before
+     recursing (as an earlier version of this did) grabs a slot number
+     that a nested push then reuses for itself, so two different spans
+     end up sharing one token and the outer markup's own token is never
+     actually in the text anywhere – exactly how the leftover literal
+     "[color=blue]" text and unresolved ⟦P0⟧ token got saved into a
+     draft the last time this ran. */
   function extract(text){
     return text
       .replace(/\*\*([^*]+)\*\*/g, function(match, inner){
-        var token = '⟦P' + placeholders.length + '⟧';
-        placeholders.push({ type: 'bold', text: extract(inner) });
-        return token;
+        var extractedInner = extract(inner);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'bold', text: extractedInner });
+        return '⟦P' + idx + '⟧';
       })
       .replace(/\*([^*]+)\*/g, function(match, inner){
-        var token = '⟦P' + placeholders.length + '⟧';
-        placeholders.push({ type: 'italic', text: extract(inner) });
-        return token;
+        var extractedInner = extract(inner);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'italic', text: extractedInner });
+        return '⟦P' + idx + '⟧';
       })
       .replace(/__([^_]+)__/g, function(match, inner){
-        var token = '⟦P' + placeholders.length + '⟧';
-        placeholders.push({ type: 'underline', text: extract(inner) });
-        return token;
+        var extractedInner = extract(inner);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'underline', text: extractedInner });
+        return '⟦P' + idx + '⟧';
       })
       .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(match, text, url){
-        var token = '⟦P' + placeholders.length + '⟧';
-        placeholders.push({ type: 'link', text: extract(text), url: url });
-        return token;
+        var extractedText = extract(text);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'link', text: extractedText, url: url });
+        return '⟦P' + idx + '⟧';
       })
       .replace(/\[size=(\d+)\]([\s\S]*?)\[\/size\]/g, function(match, px, inner){
-        var token = '⟦P' + placeholders.length + '⟧';
-        placeholders.push({ type: 'size', px: px, text: extract(inner) });
-        return token;
+        var extractedInner = extract(inner);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'size', px: px, text: extractedInner });
+        return '⟦P' + idx + '⟧';
       })
       .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, function(match, inner){
-        var token = '⟦P' + placeholders.length + '⟧';
-        placeholders.push({ type: 'color', text: extract(inner) });
-        return token;
+        var extractedInner = extract(inner);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'color', text: extractedInner });
+        return '⟦P' + idx + '⟧';
       });
   }
   var withPlaceholders = extract(para);
