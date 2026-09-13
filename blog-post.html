@@ -639,6 +639,11 @@ function createGameWidget(container, gameOrGames){
         var sq = document.createElement('div');
         var isLight = (r + c) % 2 === 0;
         sq.className = 'chess-square ' + (isLight ? 'light' : 'dark');
+        sq.dataset.row = r;
+        sq.dataset.col = c;
+        /* click-to-move – see index.html's buildBoardSquares for the full
+           rationale (mirrored here per-widget-instance). */
+        sq.addEventListener('click', function(){ onBoardSquareClick(this); });
         boardEl.appendChild(sq);
       }
     }
