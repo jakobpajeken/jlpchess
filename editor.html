@@ -1829,10 +1829,11 @@ function openBlogForm(idx){
         wrapSelectionIn(textarea, '[size=' + px + ']', '[/size]', 'größerer Text');
       });
     }
-    /* the one fixed shade this button offers is a proper navy blue
-       (#1e3a8a) — distinct from the site's own muted accent navy
-       (--gold-bright, #35577f), which is too dark/desaturated to register
-       as "blue" in running prose — not a free color picker */
+    /* the one fixed shade this button offers is a matte, dark navy blue
+       (#26385f) — distinct enough from the site's own muted accent navy
+       (--gold-bright, #35577f) to read as "blue" in running prose, while
+       staying darker/less saturated than an earlier, brighter #1e3a8a
+       version — not a free color picker */
     if(colorBtn) colorBtn.addEventListener('click', function(){ wrapSelectionIn(textarea, '[color=blue]', '[/color]', 'blauer Text'); });
   }
   wireFormattingButtons('', bodyTextarea);
