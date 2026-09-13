@@ -1376,22 +1376,42 @@ async function deleteGame(idx){
 /* ============================================================
    BLOG
    ============================================================ */
+/* A "scheduled" post is a draft with a future publish date attached — it
+   stays hidden on the public site exactly like a plain draft until that
+   date arrives, then shows up on its own, with nothing else needing to
+   happen (no server, no cron job: the site itself checks the date fresh
+   on every page load, so this works whether or not this computer is even
+   on at the moment it "publishes" itself). Reuses the post's own "date"
+   field rather than a separate one, since that's the date it's shown
+   under once live anyway — they were always meant to be the same day. */
+function isScheduledPost(p){
+  return p.status === 'scheduled';
+}
+function isScheduledPostDue(p){
+  if(!isScheduledPost(p) || !p.date) return false;
+  var publishAt = new Date(p.date + 'T00:00:00');
+  return !isNaN(publishAt.getTime()) && publishAt <= new Date();
+}
 function renderBlog(){
   var list = document.getElementById('blog-list');
   if(!blogPosts.length){ list.innerHTML = '<div class="empty-note">Noch keine Beiträge. Die Website zeigt bis dahin ihre Platzhalter-Karten.</div>'; return; }
   list.innerHTML = '';
   blogPosts.forEach(function(p, idx){
     var isDraft = p.status === 'draft';
+    var scheduled = isScheduledPost(p);
+    var due = scheduled && isScheduledPostDue(p);
+    var badge = isDraft ? '<span class="status-badge">Entwurf</span>'
+      : (scheduled ? '<span class="status-badge' + (due ? '' : ' scheduled') + '">' + (due ? 'Geplant — wird gleich sichtbar' : ('Geplant für ' + escapeHtml(formatBlogDate(p.date, 'de')))) + '</span>' : '');
     var row = document.createElement('div');
     row.className = 'item-row';
     row.innerHTML =
       '<div class="item-main">' +
       (p.image ? '<img class="item-thumb" src="' + escapeHtml(p.image) + '" alt="">' : '') +
-      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + (isDraft ? ' <span class="status-badge">Entwurf</span>' : '') + '</div>' +
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + (badge ? ' ' + badge : '') + '</div>' +
       '<div class="item-sub">' + escapeHtml(formatBlogDate(p.date, 'de')) + (p.date && p.excerpt ? ' · ' : '') + escapeHtml(previewLang(p.excerpt) || '') + '</div></div>' +
       '</div>' +
       '<div class="item-actions">' +
-      '<button type="button" class="btn small" data-toggle-status="' + idx + '">' + (isDraft ? 'Veröffentlichen' : 'Zu Entwurf') + '</button>' +
+      '<button type="button" class="btn small" data-toggle-status="' + idx + '">' + (isDraft || scheduled ? 'Jetzt veröffentlichen' : 'Zu Entwurf') + '</button>' +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
       '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
       '</div>';
@@ -1403,14 +1423,15 @@ function renderBlog(){
 }
 async function toggleBlogStatus(idx){
   var post = blogPosts[idx];
-  var wasDraft = post.status === 'draft';
-  post.status = wasDraft ? 'published' : 'draft';
+  var oldStatus = post.status;
+  var wasLive = oldStatus !== 'draft' && oldStatus !== 'scheduled';
+  post.status = wasLive ? 'draft' : 'published'; /* draft or scheduled -> publish immediately, overriding any date */
   try{
     await writeJson('blog.json', blogPosts);
     renderBlog();
-    showToast(wasDraft ? 'Veröffentlicht ✓' : 'Als Entwurf markiert.');
+    showToast(wasLive ? 'Als Entwurf markiert.' : 'Veröffentlicht ✓');
   }catch(err){
-    post.status = wasDraft ? 'draft' : 'published'; /* revert the in-memory flip if the write failed */
+    post.status = oldStatus; /* revert the in-memory flip if the write failed */
     showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
   }
 }
