@@ -1214,6 +1214,7 @@ function createGameWidget(container, gameOrGames){
     activeLine = historyVerbose.map(function(m){ return m.san; });
     activeBranches = mainlineBranches();
     activeDefaultSans = activeLine.slice();
+    activeEntries = mainlineEntries();
     rootBranches = (gameComments[0] && gameComments[0].variations) || [];
     moveIndex = 0;
 
@@ -1229,6 +1230,7 @@ function createGameWidget(container, gameOrGames){
     renderPosition(engine.fen());
     applyPlayerLabels();
     renderMoveList();
+    renderBoardAnnotations();
 
     var fallbackTitle = whiteName + ' vs ' + blackName;
     titleEl.textContent = pickLang(game.title) || fallbackTitle;
