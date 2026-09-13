@@ -903,10 +903,9 @@ function createGameWidget(container, gameOrGames){
       var fullBranches = prefixBranches.concat(varLine.map(function(e){ return e.variations || []; }));
       options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1); } });
     });
-    /* de-dupe: after entering a variation and rewinding back to its own
-       branch point, activeLine's own "continue as-is" option and the
-       variation describe the same move – matched by SAN alone, since
-       "continue as-is" never carries a NAG of its own – see index.html's
+    /* de-dupe VISUAL entries only – never decides whether the dialog
+       itself pops up (branches.length >= 1, checked above, already means
+       a real stored variation exists here) – see index.html's
        tryAdvance() for the full rationale. */
     var seenOptions = {};
     var dedupedOptions = [];
@@ -920,12 +919,7 @@ function createGameWidget(container, gameOrGames){
         seenOptions[opt.san] = opt;
       }
     });
-    options = dedupedOptions;
-    if(options.length <= 1){
-      if(options.length === 1) options[0].go();
-      return;
-    }
-    showMoveChoiceDialog(options);
+    showMoveChoiceDialog(dedupedOptions);
   }
   function showMoveChoiceDialog(options){
     if(!choiceDialog || !choiceListEl) return;
