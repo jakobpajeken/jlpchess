@@ -1631,6 +1631,86 @@ function openBlogForm(idx){
   wireFormattingButtons('', bodyTextarea);
   wireFormattingButtons('-de', document.getElementById('bf-body-de'));
 
+  /* ---- optional AI writing help (Google Gemini) for the body text —
+     wired identically for English and German, same idea as the
+     formatting buttons above. Operates on the current text SELECTION if
+     there is one, otherwise the whole field; the reply is shown for
+     review in its own editable box before anything gets overwritten, so
+     a bad suggestion never destroys what was there without a chance to
+     back out first. */
+  function wireAiHelper(idSuffix, textarea){
+    var btn = document.getElementById('bf-ai-btn' + idSuffix);
+    var panel = document.getElementById('bf-ai-panel' + idSuffix);
+    if(!btn || !panel) return;
+    var isOpen = false;
+    function closePanel(){
+      panel.hidden = true;
+      panel.innerHTML = '';
+      isOpen = false;
+    }
+    function renderPanel(){
+      panel.innerHTML =
+        '<div class="field"><label>Anweisung an die KI</label>' +
+        '<textarea id="' + panel.id + '-instr" class="mono" rows="2">Verbessere diesen Text: behalte Bedeutung und Ton bei, aber verbessere Grammatik, Wortwahl und Lesefluss.</textarea></div>' +
+        '<div class="form-actions">' +
+        '<button type="button" class="btn solid small" id="' + panel.id + '-send">An KI senden</button>' +
+        '<button type="button" class="btn small" id="' + panel.id + '-close">Schließen</button>' +
+        '</div>' +
+        '<div id="' + panel.id + '-result"></div>';
+      document.getElementById(panel.id + '-close').addEventListener('click', closePanel);
+      document.getElementById(panel.id + '-send').addEventListener('click', async function(){
+        var instruction = document.getElementById(panel.id + '-instr').value.trim();
+        if(!instruction){ showToast('Bitte eine Anweisung eingeben.', true); return; }
+        var start = textarea.selectionStart == null ? 0 : textarea.selectionStart;
+        var end = textarea.selectionEnd == null ? 0 : textarea.selectionEnd;
+        var hasSelection = end > start;
+        var source = hasSelection ? textarea.value.slice(start, end) : textarea.value;
+        if(!source.trim()){ showToast('Kein Text vorhanden, den die KI bearbeiten könnte.', true); return; }
+        var sendBtn = document.getElementById(panel.id + '-send');
+        var resultEl = document.getElementById(panel.id + '-result');
+        sendBtn.disabled = true;
+        resultEl.innerHTML = '<p class="hint">KI denkt nach …</p>';
+        try{
+          var prompt = instruction + '\n\nText:\n' + source +
+            '\n\nGib ausschließlich den überarbeiteten Text zurück — ohne Erklärung, ohne Anführungszeichen, ohne Einleitung davor.';
+          var reply = await askGemini(prompt);
+          resultEl.innerHTML =
+            '<div class="field"><label>Vorschlag der KI — hier noch anpassbar</label>' +
+            '<textarea id="' + panel.id + '-reply" class="mono tall">' + escapeHtml(reply) + '</textarea></div>' +
+            '<div class="form-actions">' +
+            '<button type="button" class="btn solid small" id="' + panel.id + '-apply">' + (hasSelection ? '↩ Auswahl ersetzen' : '↩ Text ersetzen') + '</button>' +
+            '</div>';
+          document.getElementById(panel.id + '-apply').addEventListener('click', function(){
+            var finalText = document.getElementById(panel.id + '-reply').value;
+            if(hasSelection){
+              textarea.value = textarea.value.slice(0, start) + finalText + textarea.value.slice(end);
+              textarea.focus();
+              textarea.setSelectionRange(start, start + finalText.length);
+            } else {
+              textarea.value = finalText;
+            }
+            closePanel();
+            showToast('Übernommen ✓');
+          });
+        }catch(err){
+          resultEl.innerHTML = '<p class="hint" style="color:#b04e2e;">' + escapeHtml(err && err.message ? err.message : 'Unbekannter Fehler.') + '</p>';
+        }
+        sendBtn.disabled = false;
+      });
+    }
+    btn.addEventListener('click', function(){
+      if(!getGeminiKey()){
+        showToast('Bitte oben zuerst einen kostenlosen KI-Schlüssel eintragen.', true);
+        return;
+      }
+      isOpen = !isOpen;
+      panel.hidden = !isOpen;
+      if(isOpen) renderPanel();
+    });
+  }
+  wireAiHelper('', bodyTextarea);
+  wireAiHelper('-de', document.getElementById('bf-body-de'));
+
   /* ---- inline link insertion into the (English) body text — e.g. for
      affiliate/partner links. Inserted inline at the cursor, not as its own
      paragraph like the image button above, since a link normally sits
