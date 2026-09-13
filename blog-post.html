@@ -136,9 +136,11 @@
     color:var(--ivory);line-height:1.5;max-width:60ch;
   }
   .article-figure{margin:32px 0;}
-  .article-figure img{width:100%;display:block;}
+  /* about half the old full-width size – inline photos were dominating
+     the page next to the narrow (64ch) reading column */
+  .article-figure img{width:50%;display:block;margin:0 auto;}
   .article-figure figcaption{
-    margin-top:10px;font-size:0.82rem;color:var(--ivory-dim);
+    margin:10px auto 0;max-width:50%;font-size:0.82rem;color:var(--ivory-dim);
     text-align:center;font-style:italic;
   }
   .article-figure figcaption.credit{margin-top:4px;font-size:0.72rem;opacity:0.75;font-style:normal;}
@@ -1298,10 +1300,16 @@ function renderRealPost(post){
   var bodyParasForReadtime = (post.body && post.body[lang] && post.body[lang].length) ? post.body[lang] : ((post.body && post.body.en) || (Array.isArray(post.body) ? post.body : []));
   setText('post-readtime', calcReadTime(bodyParasForReadtime, lang));
   var coverEl = document.getElementById('post-cover');
+  var coverCaptionEl = document.getElementById('post-cover-caption');
   var coverCreditEl = document.getElementById('post-cover-credit');
   if(coverEl){
     if(post.image){ coverEl.src = post.image; coverEl.alt = pickLang(post.title) || ''; coverEl.hidden = false; }
     else { coverEl.hidden = true; }
+  }
+  if(coverCaptionEl){
+    var coverCaption = pickLang(post.imageCaption);
+    if(post.image && coverCaption){ coverCaptionEl.textContent = coverCaption; coverCaptionEl.hidden = false; }
+    else { coverCaptionEl.hidden = true; }
   }
   if(coverCreditEl){
     if(post.image && post.imageCredit){
