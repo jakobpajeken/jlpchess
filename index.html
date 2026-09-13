@@ -1834,7 +1834,7 @@ function makeMoveBtn(san, ply){
   btn.dataset.ply = ply;
   btn.addEventListener('click', function(){
     var mainlineSans = historyVerbose.map(function(m){ return m.san; });
-    manualGoToLine(mainlineSans, mainlineBranches(), ply, mainlineSans);
+    manualGoToLine(mainlineSans, mainlineBranches(), ply, mainlineSans, mainlineEntries());
   });
   return btn;
 }
