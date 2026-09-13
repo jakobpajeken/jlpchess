@@ -1479,6 +1479,17 @@ var activeBranches = [];
    "attached" to that choice would otherwise dedupe the default away and
    only ever offer the one option you already picked. */
 var activeDefaultSans = [];
+/* activeEntries also runs parallel to activeLine, but unlike
+   activeDefaultSans it DOES follow whichever line you're currently on
+   (reassigned wholesale exactly like activeLine/activeBranches, never
+   preserved) – activeEntries[i] is the full annotation entry object
+   (ply/san/nag/comment/arrows/highlights/variations) for activeLine[i],
+   so the board can look up "what arrows belong to the position I'm
+   looking at right now" regardless of whether that's the mainline or a
+   variation. gameComments (mainline only, ply-indexed) already serves
+   this role for the mainline; this exists because gameComments has no
+   equivalent once you've stepped into a variation's own moves. */
+var activeEntries = [];
 var rootBranches = [];
 var gameEngine = null;
 var playInterval = null; /* set while auto-play is running, one move every 1.5s */
@@ -2165,6 +2176,9 @@ function loadGameObject(g){
   activeLine = historyVerbose.map(function(m){ return m.san; });
   activeBranches = mainlineBranches();
   activeDefaultSans = activeLine.slice();
+  activeEntries = historyVerbose.map(function(m, i){
+    return gameComments[i + 1] || { ply: i + 1, san: m.san, nag: '', comment: { de: '', en: '' }, variations: [] };
+  });
   rootBranches = (gameComments[0] && gameComments[0].variations) || [];
   moveIndex = 0;
 
