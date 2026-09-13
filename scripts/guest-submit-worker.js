@@ -400,6 +400,6 @@ export default {
       return jsonResponse({ error: 'Worker error: ' + e.message }, 500, origin);
     }
 
-    return jsonResponse({ ok: true, slug: entry.slug, lang: lang }, 200, origin);
+    return jsonResponse({ ok: true, slug: entry.slug, lang: lang, coverImagePath: coverImagePath, imageMap: imageMap }, 200, origin);
   }
 };
