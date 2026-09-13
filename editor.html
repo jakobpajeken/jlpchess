@@ -1829,11 +1829,12 @@ function openBlogForm(idx){
         wrapSelectionIn(textarea, '[size=' + px + ']', '[/size]', 'größerer Text');
       });
     }
-    /* the one fixed shade this button offers is a matte, dark navy blue
-       (#26385f) — distinct enough from the site's own muted accent navy
-       (--gold-bright, #35577f) to read as "blue" in running prose, while
-       staying darker/less saturated than an earlier, brighter #1e3a8a
-       version — not a free color picker */
+    /* this button's own on-screen color (#1e3a8a, the brighter shade) is
+       just a toolbar icon and stays as-is for legibility in the small
+       UI – it does NOT have to match what actually gets applied. The
+       real rendered text color is #26385f (a more matte, darker navy),
+       set only in blog-post.html's .color-blue rule – not a free color
+       picker */
     if(colorBtn) colorBtn.addEventListener('click', function(){ wrapSelectionIn(textarea, '[color=blue]', '[/color]', 'blauer Text'); });
   }
   wireFormattingButtons('', bodyTextarea);
