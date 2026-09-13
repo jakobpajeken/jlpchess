@@ -1780,7 +1780,10 @@ function makeMoveBtn(san, ply){
     btn.classList.add('annotated');
   }
   btn.dataset.ply = ply;
-  btn.addEventListener('click', function(){ manualGoToLine(historyVerbose.map(function(m){ return m.san; }), mainlineBranches(), ply); });
+  btn.addEventListener('click', function(){
+    var mainlineSans = historyVerbose.map(function(m){ return m.san; });
+    manualGoToLine(mainlineSans, mainlineBranches(), ply, mainlineSans);
+  });
   return btn;
 }
 
@@ -1879,15 +1882,28 @@ function tryAdvance(){
   }
   var prefixPath = activeLine.slice(0, moveIndex);
   var prefixBranches = activeBranches.slice(0, moveIndex);
+  var prefixDefaultSans = activeDefaultSans.slice(0, moveIndex);
   var options = [];
   if(hasNext){
-    options.push({ san: activeLine[moveIndex], nag: '', go: function(){ manualGoToLine(activeLine, activeBranches, moveIndex + 1); } });
+    /* the true default (non-variation) move at this exact position, read
+       from the array that never forgets it – see activeDefaultSans'
+       declaration for why this can't just be activeLine[moveIndex]. */
+    options.push({ san: activeDefaultSans[moveIndex], nag: '', go: function(){ manualGoToLine(activeLine, activeBranches, moveIndex + 1); } });
   }
   branches.forEach(function(varLine){
     if(!varLine || !varLine.length) return;
     var fullPath = prefixPath.concat(varLine.map(function(e){ return e.san; }));
     var fullBranches = prefixBranches.concat(varLine.map(function(e){ return e.variations || []; }));
-    options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1); } });
+    /* fullDefaultSans keeps prefixDefaultSans' values (0..moveIndex-1)
+       untouched, PRESERVES the current default exactly at moveIndex
+       (activeDefaultSans[moveIndex] – "Be2", say – forever recoverable at
+       this position even after choosing a different move here), then
+       continues with this variation's OWN moves as the default for
+       whatever comes after it (varLine[1], varLine[2], … – shifted by one
+       since varLine[0] itself is the move landing on moveIndex, already
+       covered by the preserved element). */
+    var fullDefaultSans = prefixDefaultSans.concat([activeDefaultSans[moveIndex]]).concat(varLine.slice(1).map(function(e){ return e.san; }));
+    options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1, fullDefaultSans); } });
   });
   /* de-dupe VISUAL entries only: after entering a variation and then
      rewinding back to the branch point it came from, activeLine is still
