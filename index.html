@@ -1635,7 +1635,7 @@ function renderMoveList(){
   if(!list) return;
   list.innerHTML = '';
   var mainlineSans = historyVerbose.map(function(m){ return m.san; });
-  appendInlineAnnotation(list, gameComments[0], [], []); /* comment before move 1, if any */
+  appendInlineAnnotation(list, gameComments[0], [], [], mainlineSans.slice(0, 1)); /* comment before move 1, if any */
   for(var i = 0; i < historyVerbose.length; i += 2){
     var moveNum = (i / 2) + 1;
     var whitePly = i + 1, blackPly = i + 2;
@@ -1651,7 +1651,7 @@ function renderMoveList(){
        move (if the break happened right before it) needs its move number
        repeated as "12..." to stay readable – same convention already used
        when a variation resumes after its own break (pgnMoveNumberPrefix) */
-    var brokeFlow = appendInlineAnnotation(list, gameComments[whitePly], mainlineSans.slice(0, whitePly), mainlineBranches().slice(0, whitePly));
+    var brokeFlow = appendInlineAnnotation(list, gameComments[whitePly], mainlineSans.slice(0, whitePly), mainlineBranches().slice(0, whitePly), mainlineSans.slice(0, whitePly + 1));
     if(historyVerbose[i + 1]){
       var blackPair = document.createElement('span');
       blackPair.className = 'move-pair';
@@ -1663,7 +1663,7 @@ function renderMoveList(){
       }
       blackPair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, blackPly));
       list.appendChild(blackPair);
-      appendInlineAnnotation(list, gameComments[blackPly], mainlineSans.slice(0, blackPly), mainlineBranches().slice(0, blackPly));
+      appendInlineAnnotation(list, gameComments[blackPly], mainlineSans.slice(0, blackPly), mainlineBranches().slice(0, blackPly), mainlineSans.slice(0, blackPly + 1));
     }
   }
   highlightMoveList();
@@ -1730,10 +1730,17 @@ function appendInlineAnnotation(list, annotation, branchPath, branchBranches, br
    this variation's own entries (ply/san/nag/comment/variations).
    `prefixPath`: the SAN path (from move 1) leading up to this line's
    first move. */
-function renderVariationLine(container, line, prefixPath, prefixBranches){
+function renderVariationLine(container, line, prefixPath, prefixBranches, prefixDefaultSansPlusOne){
   if(!line || !line.length) return;
   var fullPath = prefixPath.concat(line.map(function(e){ return e.san; }));
   var fullBranches = prefixBranches.concat(line.map(function(e){ return e.variations || []; }));
+  /* prefixDefaultSansPlusOne already covers indices 0..prefixPath.length
+     (one more than prefixPath itself – the extra element is this line's
+     own branch-point default, e.g. "Be2", which needs to stay recoverable
+     at that exact position forever, same reasoning as tryAdvance's own
+     fullDefaultSans). Shifted by one for line's own moves beyond the
+     first, for the same reason as tryAdvance. */
+  var fullDefaultSans = prefixDefaultSansPlusOne.concat(line.slice(1).map(function(e){ return e.san; }));
   var cursor = prefixPath.length;
   line.forEach(function(entry, idx){
     cursor++;
@@ -1748,7 +1755,7 @@ function renderVariationLine(container, line, prefixPath, prefixBranches){
     if(pickLang(entry.comment) || (entry.variations && entry.variations.length)){
       btn.classList.add('annotated');
     }
-    btn.addEventListener('click', function(){ manualGoToLine(fullPath, fullBranches, stepIdx); });
+    btn.addEventListener('click', function(){ manualGoToLine(fullPath, fullBranches, stepIdx, fullDefaultSans); });
     container.appendChild(btn);
     container.appendChild(document.createTextNode(' '));
     var comment = pickLang(entry.comment);
@@ -1760,7 +1767,7 @@ function renderVariationLine(container, line, prefixPath, prefixBranches){
     }
     (entry.variations || []).forEach(function(sub){
       container.appendChild(document.createTextNode('('));
-      renderVariationLine(container, sub, fullPath.slice(0, stepIdx), fullBranches.slice(0, stepIdx));
+      renderVariationLine(container, sub, fullPath.slice(0, stepIdx), fullBranches.slice(0, stepIdx), fullDefaultSans.slice(0, stepIdx + 1));
       container.appendChild(document.createTextNode(') '));
     });
   });
