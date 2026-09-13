@@ -3444,7 +3444,63 @@
         "id": "gmu0d72idb3tv",
         "title": "E2E Testpartie",
         "meta": "Automatischer Test",
-        "pgn": "[Event \"E2E\"]\n[White \"A\"]\n[Black \"B\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0"
+        "pgn": "[Event \"E2E\"]\n[Site \"?\"]\n[Date \"????.??.??\"]\n[Round \"?\"]\n[White \"A\"]\n[Black \"B\"]\n[Result \"1-0\"]\n[WebsiteId \"gmu0d72idb3tv\"]\n[WebsiteSource \"blog.json:e2e-test-bild-und-partie\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0",
+        "annotations": [
+          {
+            "ply": 1,
+            "san": "e4",
+            "nag": "",
+            "comment": {
+              "de": "",
+              "en": ""
+            }
+          },
+          {
+            "ply": 2,
+            "san": "e5",
+            "nag": "",
+            "comment": {
+              "de": "",
+              "en": ""
+            }
+          },
+          {
+            "ply": 3,
+            "san": "Nf3",
+            "nag": "",
+            "comment": {
+              "de": "",
+              "en": ""
+            }
+          },
+          {
+            "ply": 4,
+            "san": "Nc6",
+            "nag": "",
+            "comment": {
+              "de": "",
+              "en": ""
+            }
+          },
+          {
+            "ply": 5,
+            "san": "Bb5",
+            "nag": "",
+            "comment": {
+              "de": "",
+              "en": ""
+            }
+          },
+          {
+            "ply": 6,
+            "san": "a6",
+            "nag": "",
+            "comment": {
+              "de": "",
+              "en": ""
+            }
+          }
+        ]
       }
     ],
     "title": {
