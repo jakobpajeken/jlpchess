@@ -611,6 +611,10 @@ function createGameWidget(container, gameOrGames){
      tryAdvance() for how these power the move-choice dialog. */
   var activeLine = [];
   var activeBranches = [];
+  /* runs parallel to activeLine but never forgets a branch point's true
+     default once a variation has been chosen there – see index.html's
+     activeDefaultSans for the full rationale (mirrored here). */
+  var activeDefaultSans = [];
   var rootBranches = [];
   var orientation = 'white'; /* 'white' = normal view, 'black' = flipped */
   var whiteName = 'White', blackName = 'Black';
@@ -711,7 +715,10 @@ function createGameWidget(container, gameOrGames){
       btn.classList.add('annotated');
     }
     btn.dataset.ply = ply;
-    btn.addEventListener('click', function(){ manualGoToLine(historyVerbose.map(function(m){ return m.san; }), mainlineBranches(), ply); });
+    btn.addEventListener('click', function(){
+      var mainlineSans = historyVerbose.map(function(m){ return m.san; });
+      manualGoToLine(mainlineSans, mainlineBranches(), ply, mainlineSans);
+    });
     return btn;
   }
   function renderMoveList(){
