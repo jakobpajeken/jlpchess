@@ -149,7 +149,7 @@ export default {
     catch(e){ return jsonResponse({ error: 'Invalid JSON body' }, 400, origin); }
 
     if(body.accessKey !== env.GUEST_ACCESS_KEY){
-      return jsonResponse({ error: 'Falscher oder fehlender Zugangsschlüssel.' }, 403, origin);
+      return jsonResponse({ error: 'Wrong or missing access key.' }, 403, origin);
     }
 
     var lang = body.lang === 'en' ? 'en' : 'de';
@@ -158,7 +158,7 @@ export default {
       ? body.body.map(function(p){ return (p || '').toString().trim(); }).filter(Boolean)
       : [];
     if(!title || !bodyParas.length){
-      return jsonResponse({ error: 'Titel und Haupttext dürfen nicht leer sein.' }, 400, origin);
+      return jsonResponse({ error: 'Title and body text cannot be empty.' }, 400, origin);
     }
 
     var file;
@@ -167,12 +167,12 @@ export default {
       if(!getResp.ok) throw new Error('HTTP ' + getResp.status);
       file = await getResp.json();
     }catch(e){
-      return jsonResponse({ error: 'Konnte blog.json nicht lesen: ' + e.message }, 502, origin);
+      return jsonResponse({ error: 'Could not read blog.json: ' + e.message }, 502, origin);
     }
 
     var posts;
     try{ posts = JSON.parse(base64ToUtf8(file.content) || '[]'); }
-    catch(e){ return jsonResponse({ error: 'blog.json ist kein gültiges JSON.' }, 502, origin); }
+    catch(e){ return jsonResponse({ error: 'blog.json is not valid JSON.' }, 502, origin); }
     if(!Array.isArray(posts)) posts = [];
 
     function langField(existing, text){
