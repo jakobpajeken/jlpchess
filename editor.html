@@ -1488,7 +1488,11 @@ function openBlogForm(idx){
     '<button type="button" class="btn" id="bf-translate-all-rev">🌐 Gesamten Beitrag ins Englische übersetzen</button>' +
     '<span class="status" id="bf-translate-status"></span>' +
     '</div>' +
-    '<span class="hint">Schreibe zuerst auf Englisch, übersetze dann automatisch – die deutschen Felder bleiben danach frei bearbeitbar. Jedes Feld hat außerdem einen eigenen 🌐-Knopf für beide Richtungen.</span>' +
+    '<div class="translate-row">' +
+    '<button type="button" class="btn" id="bf-translate-body">📝 Nur Haupttext ins Deutsche übersetzen</button>' +
+    '<button type="button" class="btn" id="bf-translate-body-rev">📝 Nur Haupttext ins Englische übersetzen</button>' +
+    '</div>' +
+    '<span class="hint">Schreibe zuerst auf Englisch, übersetze dann automatisch – die deutschen Felder bleiben danach frei bearbeitbar. Jedes Feld hat außerdem einen eigenen 🌐-Knopf für beide Richtungen. "Nur Haupttext" lässt Titel, Kategorie, Kurztext, Einleitung und Zitat unangetastet.</span>' +
     '<div class="form-row">' +
     '<div class="field"><label>Titel (Englisch)</label><div class="cover-row"><input type="text" id="bf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Three opening mistakes I keep seeing" style="flex:1;"><button type="button" class="btn small" id="bf-title-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
     '<div class="field"><label>Titel (Deutsch)</label><div class="cover-row"><input type="text" id="bf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Drei Eröffnungsfehler, die ich ständig sehe" style="flex:1;"><button type="button" class="btn small" id="bf-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
