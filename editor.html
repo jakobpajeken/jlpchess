@@ -1454,6 +1454,7 @@ function openBlogForm(idx){
   var authorValue = p.author || DEFAULT_BLOG_AUTHOR;
   var titleSplit = splitLangValue(p.title);
   var categorySplit = splitLangValue(p.category);
+  var imageCaptionSplit = splitLangValue(p.imageCaption);
   var excerptSplit = splitLangValue(p.excerpt);
   var leadSplit = splitLangValue(p.lead);
   var quoteSplit = splitLangValue(p.quote);
@@ -1513,6 +1514,14 @@ function openBlogForm(idx){
     '<button type="button" class="btn small" id="bf-cover-remove"' + (p.image ? '' : ' hidden') + '>Titelfoto entfernen</button>' +
     '<input type="text" id="bf-cover-credit" value="' + escapeHtml(p.imageCredit || '') + '" placeholder="Fotograf / Quelle (optional), z. B. Claus Qvist Jessen">' +
     '</div></div></div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Bildunterschrift Titelfoto (Englisch)</label>' +
+    '<div class="cover-row"><input type="text" id="bf-cover-caption-en" value="' + escapeHtml(imageCaptionSplit.en) + '" placeholder="Optional – describes the photo, shown under it" style="flex:1;">' +
+    '<button type="button" class="btn small" id="bf-cover-caption-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Bildunterschrift Titelfoto (Deutsch)</label>' +
+    '<div class="cover-row"><input type="text" id="bf-cover-caption-de" value="' + escapeHtml(imageCaptionSplit.de) + '" placeholder="Optional – beschreibt das Foto, erscheint darunter" style="flex:1;">' +
+    '<button type="button" class="btn small" id="bf-cover-caption-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '</div>' +
     '<div class="form-row">' +
     '<div class="field"><label>Vorschautext (Englisch)</label>' +
     '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-excerpt-en" placeholder="One or two sentences that pull the reader in." style="flex:1;">' + escapeHtml(excerptSplit.en) + '</textarea>' +
