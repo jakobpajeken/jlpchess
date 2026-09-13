@@ -1878,6 +1878,18 @@ function tryAdvance(){
     var fullBranches = prefixBranches.concat(varLine.map(function(e){ return e.variations || []; }));
     options.push({ san: varLine[0].san, nag: varLine[0].nag || '', go: function(){ manualGoToLine(fullPath, fullBranches, prefixPath.length + 1); } });
   });
+  /* de-dupe: after entering a variation and then rewinding back to the
+     branch point it came from, activeLine is still "attached" to that
+     variation — so its own "continue as-is" option and the variation
+     itself describe the exact same move, and would otherwise show up
+     here twice with an identical label. Collapse those into one. */
+  var seenOptions = {};
+  options = options.filter(function(opt){
+    var key = opt.san + '|' + (opt.nag || '');
+    if(seenOptions[key]) return false;
+    seenOptions[key] = true;
+    return true;
+  });
   if(options.length <= 1){
     if(options.length === 1) options[0].go();
     return;
