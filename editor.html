@@ -1680,10 +1680,12 @@ function openBlogForm(idx){
         wrapSelectionIn(textarea, '[size=' + px + ']', '[/size]', 'größerer Text');
       });
     }
-    /* the one fixed shade this button offers is the site's own accent
-       blue (--gold-bright, #35577f, e.g. the "Pajeken" accent in the
-       header) — not a free color picker, so text picks up exactly the
-       site's existing look instead of some off-brand shade */
+    /* the one fixed shade this button offers is a clear, legible blue
+       (#2563eb) tuned specifically for body text — the site's own accent
+       navy (--gold-bright, #35577f) reads fine for headings/links but is
+       too dark and desaturated to register as "blue" in running prose,
+       so this uses a brighter, more saturated shade in the same cool-blue
+       family instead of a free color picker */
     if(colorBtn) colorBtn.addEventListener('click', function(){ wrapSelectionIn(textarea, '[color=blue]', '[/color]', 'blauer Text'); });
   }
   wireFormattingButtons('', bodyTextarea);
