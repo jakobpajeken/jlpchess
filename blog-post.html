@@ -1315,15 +1315,17 @@ function renderRealPost(post){
          otherwise need their own nested parsing — order between size and
          color doesn't matter, since either can freely nest inside the
          other. [color=blue] is the one fixed shade editor.html's button
-         offers (the site's own accent blue, --gold-bright), not a free
-         color picker. */
+         offers — a brighter, more saturated blue (#2563eb) than the
+         site's own accent navy (--gold-bright, #35577f), which is too
+         dark/desaturated to read as "blue" at running-text size. Not a
+         free color picker. */
       return escapeHtml(text)
         .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
         .replace(/\*([^*]+)\*/g, '<em>$1</em>')
         .replace(/__([^_]+)__/g, '<u>$1</u>')
         .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
         .replace(/\[size=(\d+)\]([\s\S]*?)\[\/size\]/g, '<span style="font-size:$1px">$2</span>')
-        .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, '<span style="color:#35577f">$1</span>');
+        .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, '<span style="color:#2563eb">$1</span>');
     };
     var html = '';
     var lead = pickLang(post.lead);
