@@ -1635,6 +1635,78 @@ function renderCoordinates(){
   if(ranksEl) ranksEl.innerHTML = ranks.map(function(r){ return '<span>' + r + '</span>'; }).join('');
   if(filesEl) filesEl.innerHTML = files.map(function(f){ return '<span>' + f + '</span>'; }).join('');
 }
+/* Draws arrows/square-highlights parsed from a move's [%cal]/[%csl] PGN
+   comment commands (see sync_games_pgn.py's extract_arrows_and_highlights)
+   as an SVG overlay on the board – ChessBase-style annotation arrows,
+   e.g. drawn while explaining a plan or a tactic. Reads whichever
+   position is CURRENTLY shown: moveIndex 0 (before any move) uses the
+   game's own intro annotation (gameComments[0]); any later position
+   uses activeEntries[moveIndex - 1], which – unlike gameComments,
+   mainline-only – correctly follows onto a variation's own moves too
+   once you've navigated into one (see activeEntries' declaration). */
+var ARROW_COLORS = { G: '#2e8b3d', R: '#c62828', Y: '#e8a70a', B: '#1f6fb2' };
+function squareRowCol(square){
+  return { row: 8 - parseInt(square[1], 10), col: square.charCodeAt(0) - 97 };
+}
+function renderBoardAnnotations(){
+  var svg = document.getElementById('board-arrows');
+  if(!svg) return;
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  var entry = moveIndex === 0 ? gameComments[0] : activeEntries[moveIndex - 1];
+  var arrows = (entry && entry.arrows) || [];
+  var highlights = (entry && entry.highlights) || [];
+  if(!arrows.length && !highlights.length) return;
+  var flipped = boardOrientation === 'black';
+  var svgns = 'http://www.w3.org/2000/svg';
+  function center(square){
+    var rc = squareRowCol(square);
+    var row = flipped ? 7 - rc.row : rc.row;
+    var col = flipped ? 7 - rc.col : rc.col;
+    return { x: col + 0.5, y: row + 0.5 };
+  }
+  highlights.forEach(function(h){
+    var rc = squareRowCol(h.square);
+    var row = flipped ? 7 - rc.row : rc.row;
+    var col = flipped ? 7 - rc.col : rc.col;
+    var rect = document.createElementNS(svgns, 'rect');
+    rect.setAttribute('x', col); rect.setAttribute('y', row);
+    rect.setAttribute('width', 1); rect.setAttribute('height', 1);
+    rect.setAttribute('fill', ARROW_COLORS[h.color] || '#888');
+    rect.setAttribute('opacity', '0.45');
+    svg.appendChild(rect);
+  });
+  arrows.forEach(function(a){
+    var from = center(a.from), to = center(a.to);
+    var dx = to.x - from.x, dy = to.y - from.y;
+    var len = Math.sqrt(dx * dx + dy * dy);
+    if(len < 0.01) return;
+    var ux = dx / len, uy = dy / len;
+    var color = ARROW_COLORS[a.color] || '#888';
+    /* the line stops short of the target square's center so the
+       arrowhead doesn't bury itself under a piece standing there */
+    var shorten = 0.3;
+    var tipX = to.x - ux * shorten, tipY = to.y - uy * shorten;
+    var line = document.createElementNS(svgns, 'line');
+    line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+    line.setAttribute('x2', tipX); line.setAttribute('y2', tipY);
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', '0.12');
+    line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('opacity', '0.85');
+    svg.appendChild(line);
+    var headLen = 0.28, headWidth = 0.2;
+    var backX = tipX - ux * headLen, backY = tipY - uy * headLen;
+    var perpX = -uy, perpY = ux;
+    var poly = document.createElementNS(svgns, 'polygon');
+    poly.setAttribute('points',
+      tipX + ',' + tipY + ' ' +
+      (backX + perpX * headWidth) + ',' + (backY + perpY * headWidth) + ' ' +
+      (backX - perpX * headWidth) + ',' + (backY - perpY * headWidth));
+    poly.setAttribute('fill', color);
+    poly.setAttribute('opacity', '0.85');
+    svg.appendChild(poly);
+  });
+}
 function applyPlayerLabels(){
   var topEl = document.getElementById('player-top');
   var bottomEl = document.getElementById('player-bottom');
@@ -1654,6 +1726,7 @@ function setOrientation(orientation){
   renderCoordinates();
   if(gameEngine) renderPosition(gameEngine.fen());
   applyPlayerLabels();
+  renderBoardAnnotations();
 }
 
 function renderMoveList(){
