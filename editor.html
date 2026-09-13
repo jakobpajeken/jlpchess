@@ -2031,37 +2031,52 @@ function openBlogForm(idx){
   });
   renderPostGames();
 
-  document.getElementById('blog-form').addEventListener('submit', async function(e){
-    e.preventDefault();
+  /* Shared by the normal "Speichern" submit and the "Vorschau ansehen"
+     button below — both need to persist the exact same entry, the only
+     difference is what happens afterward (close the form vs. keep it
+     open and jump to blog-post.html). Returns the saved entry's slug;
+     throws with a message that's safe to show directly in a toast. */
+  async function saveBlogPost(){
     var titleEn = document.getElementById('bf-title-en').value.trim();
-    if(!titleEn){ showToast('Bitte einen englischen Titel eingeben.', true); return; }
+    if(!titleEn) throw new Error('Bitte einen englischen Titel eingeben.');
     var bodyEnText = document.getElementById('bf-body-en').value.trim();
     var bodyDeText = document.getElementById('bf-body-de').value.trim();
     var bodyEnList = bodyEnText ? bodyEnText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
     var bodyDeList = bodyDeText ? bodyDeText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+    var imagePath = p.image || '';
+    if(coverRemoved) imagePath = '';
+    else if(pendingCoverFile) imagePath = await saveImageFile(pendingCoverFile, titleEn);
+    var entry = {
+      title: joinLangValue(titleEn, document.getElementById('bf-title-de').value),
+      slug: editing ? (p.slug || uniqueSlug(titleEn, idx)) : uniqueSlug(titleEn, null),
+      status: document.getElementById('bf-status').value,
+      category: joinLangValue(document.getElementById('bf-category-en').value, document.getElementById('bf-category-de').value),
+      date: document.getElementById('bf-date').value,
+      author: document.getElementById('bf-author').value.trim() || DEFAULT_BLOG_AUTHOR,
+      image: imagePath,
+      imageCredit: document.getElementById('bf-cover-credit').value.trim(),
+      excerpt: joinLangValue(document.getElementById('bf-excerpt-en').value, document.getElementById('bf-excerpt-de').value),
+      lead: joinLangValue(document.getElementById('bf-lead-en').value, document.getElementById('bf-lead-de').value),
+      body: { en: bodyEnList, de: bodyDeList },
+      quote: joinLangValue(document.getElementById('bf-quote-en').value, document.getElementById('bf-quote-de').value),
+      games: postGames
+    };
+    if(editing) blogPosts[idx] = entry; else blogPosts.push(entry);
+    /* a fresh post's own "editing"/"idx"/"p" stay stale after this first
+       save (they were captured when the form opened) — later saves in
+       the same still-open form (e.g. clicking "Vorschau ansehen" a
+       second time) would otherwise push a second, duplicate entry
+       instead of updating this one */
+    if(!editing){ editing = true; idx = blogPosts.length - 1; p = entry; }
+    await writeJson('blog.json', blogPosts);
+    return entry.slug;
+  }
+  document.getElementById('blog-form').addEventListener('submit', async function(e){
+    e.preventDefault();
     var submitBtn = e.target.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     try{
-      var imagePath = p.image || '';
-      if(coverRemoved) imagePath = '';
-      else if(pendingCoverFile) imagePath = await saveImageFile(pendingCoverFile, titleEn);
-      var entry = {
-        title: joinLangValue(titleEn, document.getElementById('bf-title-de').value),
-        slug: editing ? (p.slug || uniqueSlug(titleEn, idx)) : uniqueSlug(titleEn, null),
-        status: document.getElementById('bf-status').value,
-        category: joinLangValue(document.getElementById('bf-category-en').value, document.getElementById('bf-category-de').value),
-        date: document.getElementById('bf-date').value,
-        author: document.getElementById('bf-author').value.trim() || DEFAULT_BLOG_AUTHOR,
-        image: imagePath,
-        imageCredit: document.getElementById('bf-cover-credit').value.trim(),
-        excerpt: joinLangValue(document.getElementById('bf-excerpt-en').value, document.getElementById('bf-excerpt-de').value),
-        lead: joinLangValue(document.getElementById('bf-lead-en').value, document.getElementById('bf-lead-de').value),
-        body: { en: bodyEnList, de: bodyDeList },
-        quote: joinLangValue(document.getElementById('bf-quote-en').value, document.getElementById('bf-quote-de').value),
-        games: postGames
-      };
-      if(editing) blogPosts[idx] = entry; else blogPosts.push(entry);
-      await writeJson('blog.json', blogPosts);
+      await saveBlogPost();
       slot.innerHTML = '';
       renderBlog();
       showToast('Beitrag gespeichert ✓');
@@ -2069,6 +2084,20 @@ function openBlogForm(idx){
       showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
       submitBtn.disabled = false;
     }
+  });
+  document.getElementById('bf-preview-btn').addEventListener('click', async function(){
+    var btn = this;
+    btn.disabled = true;
+    try{
+      var slug = await saveBlogPost();
+      renderBlog(); /* keep the list in sync in the background, but leave this form open */
+      var lang = document.getElementById('bf-title-de').value.trim() ? 'de' : 'en';
+      window.open('blog-post.html?slug=' + encodeURIComponent(slug) + '&lang=' + lang, '_blank');
+      showToast('Gespeichert — Vorschau öffnet sich in einem neuen Tab ✓');
+    }catch(err){
+      showToast('Vorschau fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+    }
+    btn.disabled = false;
   });
 }
 document.getElementById('blog-add-btn').addEventListener('click', function(){ openBlogForm(null); });
