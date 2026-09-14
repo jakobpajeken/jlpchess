@@ -2540,6 +2540,7 @@ function loadGameObject(g){
   activeEntries = mainlineEntries();
   rootBranches = (gameComments[0] && gameComments[0].variations) || [];
   moveIndex = 0;
+  lastManualMove = null;
 
   var headers = parsePgnHeaders(g.pgn);
   var whiteName = headers.white || 'White';
