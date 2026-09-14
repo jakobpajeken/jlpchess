@@ -1732,18 +1732,18 @@ function renderBoardAnnotations(){
     if(len < 0.01) return;
     var ux = dx / len, uy = dy / len;
     var color = ARROW_COLORS[a.color] || '#888';
-    /* the tail always starts exactly at the source square's centre
-       (from.x/from.y, untouched below), but the tip stops a bit short of
-       the target square's centre instead of running all the way into it */
-    var TIP_SHORTEN = 0.15;
-    var tipX = to.x - ux * TIP_SHORTEN, tipY = to.y - uy * TIP_SHORTEN;
+    /* tip lands exactly on the target square's centre again – tail
+       (from.x/from.y) always starts exactly on the source square's centre */
+    var tipX = to.x, tipY = to.y;
     var perpX = -uy, perpY = ux;
     /* open, rounded-stroke style (like Feather's arrow icons) instead of a
        filled triangle: one continuous line for the whole shaft, plus a
        separate open chevron "peeled off" the last stretch of it – both
        stroked (never filled) with round caps/joins so every corner is
-       soft, not sharp */
-    var STROKE_W = 0.0867, CHEV_LEN = 0.20, CHEV_SPREAD = 0.09;
+       soft, not sharp. The chevron gets its own, thinner stroke width
+       (20% less than the shaft's) so the tip narrows purely from within
+       its own outline rather than the whole arrow just getting thinner. */
+    var STROKE_W = 0.0867, STROKE_W_HEAD = 0.0694, CHEV_LEN = 0.20, CHEV_SPREAD = 0.09;
     var line = document.createElementNS(svgns, 'line');
     line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
     line.setAttribute('x2', tipX); line.setAttribute('y2', tipY);
@@ -1759,7 +1759,7 @@ function renderBoardAnnotations(){
     chevron.setAttribute('d', 'M' + c1x + ',' + c1y + ' L' + tipX + ',' + tipY + ' L' + c2x + ',' + c2y);
     chevron.setAttribute('fill', 'none');
     chevron.setAttribute('stroke', color);
-    chevron.setAttribute('stroke-width', STROKE_W);
+    chevron.setAttribute('stroke-width', STROKE_W_HEAD);
     chevron.setAttribute('stroke-linecap', 'round');
     chevron.setAttribute('stroke-linejoin', 'round');
     chevron.setAttribute('opacity', '1');
