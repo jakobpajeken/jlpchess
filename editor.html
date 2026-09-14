@@ -900,12 +900,20 @@ function createGameWidget(container, game){
   var bottomNameEl = container.querySelector('[data-role="bottom-name"]');
   var ranksEl = container.querySelector('[data-role="ranks"]');
   var filesEl = container.querySelector('[data-role="files"]');
+  var arrowsEl = container.querySelector('[data-role="arrows"]');
 
   var engine = null, historyVerbose = [], moveIndex = 0;
   var orientation = 'white';
   var whiteName = 'White', blackName = 'Black';
   var playInterval = null; /* set while auto-play is running, one move every 1.5s */
   var PLAY_MOVE_MS = 1500;
+  /* entryData[ply] = { arrows, highlights } parsed from that move's own
+     [%cal]/[%csl] PGN comment – see parsePgnAnnotations() below. Unlike
+     index.html/blog-post.html this preview reads straight from whatever
+     PGN was just pasted into the form, before scripts/sync_games_pgn.py
+     has ever run on it, so it does its own lightweight extraction here
+     instead of reading pre-parsed JSON. */
+  var entryData = [];
 
   function buildBoardSquares(){
     boardEl.innerHTML = '';
@@ -914,6 +922,8 @@ function createGameWidget(container, game){
         var sq = document.createElement('div');
         var isLight = (r + c) % 2 === 0;
         sq.className = 'chess-square ' + (isLight ? 'light' : 'dark');
+        sq.dataset.row = r; sq.dataset.col = c;
+        sq.addEventListener('click', function(){ onBoardSquareClick(this); });
         boardEl.appendChild(sq);
       }
     }
