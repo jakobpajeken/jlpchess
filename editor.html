@@ -975,30 +975,30 @@ function createGameWidget(container, game){
          index.html's renderBoardAnnotations() for why this isn't
          shortened along the incoming direction any more */
       var tipX = to.x, tipY = to.y;
-      /* a sharp, narrow point: the base (short side) is exactly half the
-         length of the two equal sides running from it up to the tip –
-         headWidth = headLen/sqrt(15) is what makes that ratio exact */
-      var headLen = 0.429, headWidth = 0.11077;
-      var backX = tipX - ux * headLen, backY = tipY - uy * headLen;
       var perpX = -uy, perpY = ux;
-      /* the shaft stops where the triangle starts, not at the tip itself
-         – see index.html's renderBoardAnnotations() for why */
+      /* open, rounded-stroke style (like Feather's arrow icons) instead of
+         a filled triangle – see index.html's renderBoardAnnotations() */
+      var STROKE_W = 0.12, CHEV_LEN = 0.36, CHEV_SPREAD = 0.26;
       var line = document.createElementNS(svgns, 'line');
       line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
-      line.setAttribute('x2', backX); line.setAttribute('y2', backY);
+      line.setAttribute('x2', tipX); line.setAttribute('y2', tipY);
       line.setAttribute('stroke', color);
-      line.setAttribute('stroke-width', '0.099');
+      line.setAttribute('stroke-width', STROKE_W);
       line.setAttribute('stroke-linecap', 'round');
       line.setAttribute('opacity', '1');
       arrowsEl.appendChild(line);
-      var poly = document.createElementNS(svgns, 'polygon');
-      poly.setAttribute('points',
-        tipX + ',' + tipY + ' ' +
-        (backX + perpX * headWidth) + ',' + (backY + perpY * headWidth) + ' ' +
-        (backX - perpX * headWidth) + ',' + (backY - perpY * headWidth));
-      poly.setAttribute('fill', color);
-      poly.setAttribute('opacity', '1');
-      arrowsEl.appendChild(poly);
+      var backX = tipX - ux * CHEV_LEN, backY = tipY - uy * CHEV_LEN;
+      var c1x = backX + perpX * CHEV_SPREAD, c1y = backY + perpY * CHEV_SPREAD;
+      var c2x = backX - perpX * CHEV_SPREAD, c2y = backY - perpY * CHEV_SPREAD;
+      var chevron = document.createElementNS(svgns, 'path');
+      chevron.setAttribute('d', 'M' + c1x + ',' + c1y + ' L' + tipX + ',' + tipY + ' L' + c2x + ',' + c2y);
+      chevron.setAttribute('fill', 'none');
+      chevron.setAttribute('stroke', color);
+      chevron.setAttribute('stroke-width', STROKE_W);
+      chevron.setAttribute('stroke-linecap', 'round');
+      chevron.setAttribute('stroke-linejoin', 'round');
+      chevron.setAttribute('opacity', '1');
+      arrowsEl.appendChild(chevron);
     });
   }
   /* Reads [%cal .../%csl ...] straight out of the raw PGN's own move
