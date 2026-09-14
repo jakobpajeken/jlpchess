@@ -1691,10 +1691,14 @@ function renderBoardAnnotations(){
     var row = flipped ? 7 - rc.row : rc.row;
     var col = flipped ? 7 - rc.col : rc.col;
     var rect = document.createElementNS(svgns, 'rect');
-    rect.setAttribute('x', col); rect.setAttribute('y', row);
-    rect.setAttribute('width', 1); rect.setAttribute('height', 1);
-    rect.setAttribute('fill', ARROW_COLORS[h.color] || '#888');
-    rect.setAttribute('opacity', '0.45');
+    /* outline, not a solid wash – inset slightly so the border sits
+       cleanly inside the square instead of touching neighbouring ones */
+    rect.setAttribute('x', col + 0.04); rect.setAttribute('y', row + 0.04);
+    rect.setAttribute('width', 0.92); rect.setAttribute('height', 0.92);
+    rect.setAttribute('fill', 'none');
+    rect.setAttribute('stroke', ARROW_COLORS[h.color] || '#888');
+    rect.setAttribute('stroke-width', '0.08');
+    rect.setAttribute('opacity', '0.9');
     svg.appendChild(rect);
   });
   arrows.forEach(function(a){
@@ -1716,7 +1720,9 @@ function renderBoardAnnotations(){
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('opacity', '0.85');
     svg.appendChild(line);
-    var headLen = 0.28, headWidth = 0.2;
+    /* longer and narrower than a plain equilateral triangle – reads as a
+       natural, pointed arrowhead rather than a blunt/stubby wedge */
+    var headLen = 0.34, headWidth = 0.12;
     var backX = tipX - ux * headLen, backY = tipY - uy * headLen;
     var perpX = -uy, perpY = ux;
     var poly = document.createElementNS(svgns, 'polygon');
