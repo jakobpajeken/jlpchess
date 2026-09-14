@@ -1806,11 +1806,37 @@ function onBoardSquareClick(sqEl){
 }
 function makeManualMove(moveObj){
   stopPlay();
+  var manualEntry = { ply: moveIndex + 1, san: moveObj.san, nag: '', comment: { de: '', en: '' }, variations: [] };
+  /* Registers the move as a real, persistent branch at the current
+     position – not just a one-off line swapped in for display – by
+     pushing it onto the SAME gameComments-backed .variations array
+     tryAdvance()/mainlineBranches() read from (mainlineEntries()'s own
+     materialization above is what guarantees that array is a stable,
+     shared reference and not a fresh throwaway). That's what makes the
+     move show up inline in the notation panel right away, and reappear
+     as a pickable option in the move-choice dialog if you rewind past it
+     later in the same session – exactly like any originally-annotated
+     variation, just added by hand instead of already being in the PGN.
+     activeDefaultSans is deliberately left untouched: the true original
+     default at this ply (if any) stays forever recoverable, same as
+     always – the manual move is a new alternative alongside it, not a
+     replacement. */
+  if(moveIndex === 0){
+    if(!gameComments[0]) gameComments[0] = { comment: { de: '', en: '' }, variations: [] };
+    if(!gameComments[0].variations) gameComments[0].variations = [];
+    gameComments[0].variations.push([manualEntry]);
+    rootBranches = gameComments[0].variations;
+  } else {
+    var parentEntry = activeEntries[moveIndex - 1];
+    if(parentEntry){
+      if(!parentEntry.variations) parentEntry.variations = [];
+      parentEntry.variations.push([manualEntry]);
+    }
+  }
   var newLine = activeLine.slice(0, moveIndex).concat([moveObj.san]);
   var newBranches = activeBranches.slice(0, moveIndex).concat([[]]);
-  var newDefaultSans = activeDefaultSans.slice(0, moveIndex).concat([moveObj.san]);
-  var newEntries = activeEntries.slice(0, moveIndex).concat([{ ply: moveIndex + 1, san: moveObj.san, nag: '', comment: { de: '', en: '' }, variations: [] }]);
-  manualGoToLine(newLine, newBranches, moveIndex + 1, newDefaultSans, newEntries);
+  var newEntries = activeEntries.slice(0, moveIndex).concat([manualEntry]);
+  manualGoToLine(newLine, newBranches, moveIndex + 1, activeDefaultSans, newEntries);
 }
 function applyPlayerLabels(){
   var topEl = document.getElementById('player-top');
