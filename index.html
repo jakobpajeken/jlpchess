@@ -128,9 +128,6 @@
   /* hero */
   .hero{padding:60px 0 48px;border-bottom:1px solid var(--line);}
   .hero-grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:48px;align-items:center;}
-  .hero-name-row{display:flex;align-items:center;gap:26px;}
-  .hero-logo{width:108px;height:108px;flex-shrink:0;}
-  @media (max-width:600px){.hero-name-row{gap:16px;}.hero-logo{width:64px;height:64px;}}
   h1.name{font-size:clamp(2.3rem,4.6vw,3.5rem);line-height:1.12;max-width:20ch;}
   h1.name .accent{color:var(--gold-bright);}
   h1.name .tagline{
@@ -568,10 +565,7 @@
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <div class="hero-name-row">
-        <img src="images/logo-hero.png" alt="" class="hero-logo">
-        <h1 class="name" data-i18n="hero.title">Jakob Leon <span class="accent">Pajeken</span> – <em>Chess &amp; <span class="accent">Coaching</span></em><span class="tagline">International Master · Tournament Player · Coach</span></h1>
-      </div>
+      <h1 class="name" data-i18n="hero.title">Jakob Leon <span class="accent">Pajeken</span> – <em>Chess &amp; <span class="accent">Coaching</span></em><span class="tagline">International Master · Tournament Player · Coach</span></h1>
       <div class="hero-cta">
         <a href="#" class="btn solid" data-goto-tab="coaching" data-goto-section="coaching-cta" data-i18n="hero.cta1">Training Request</a>
         <a href="#" class="btn" data-goto-tab="career" data-goto-section="career-results" data-i18n="hero.cta2">Career Highlights</a>
