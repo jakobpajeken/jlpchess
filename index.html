@@ -1732,11 +1732,11 @@ function renderBoardAnnotations(){
     if(len < 0.01) return;
     var ux = dx / len, uy = dy / len;
     var color = ARROW_COLORS[a.color] || '#888';
-    /* tip always lands exactly on the target square's centre – NOT
-       shortened along the incoming direction any more, since that made
-       two arrows pointing at the same square from different directions
-       stop at two different points near it instead of the same one */
-    var tipX = to.x, tipY = to.y;
+    /* the tail always starts exactly at the source square's centre
+       (from.x/from.y, untouched below), but the tip stops a bit short of
+       the target square's centre instead of running all the way into it */
+    var TIP_SHORTEN = 0.25;
+    var tipX = to.x - ux * TIP_SHORTEN, tipY = to.y - uy * TIP_SHORTEN;
     var perpX = -uy, perpY = ux;
     /* open, rounded-stroke style (like Feather's arrow icons) instead of a
        filled triangle: one continuous line for the whole shaft, plus a
