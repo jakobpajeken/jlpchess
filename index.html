@@ -1753,6 +1753,10 @@ function renderBoardAnnotations(){
    back out of a hand-played move returns to the real game exactly like
    stepping out of any other variation does. */
 var selectedSquare = null;
+/* tracks the tail of the manual-move variation currently being built, so
+   consecutive manual moves extend ONE bracketed line instead of nesting
+   a fresh pair of parentheses around each one – see makeManualMove(). */
+var lastManualMove = null;
 function domSquareToAlgebraic(row, col, flipped){
   var rank = flipped ? row + 1 : 8 - row;
   var fileIdx = flipped ? 7 - col : col;
