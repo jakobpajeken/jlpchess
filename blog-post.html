@@ -831,11 +831,26 @@ function createGameWidget(container, gameOrGames){
   }
   function makeManualMove(moveObj){
     stopPlay();
+    var manualEntry = { ply: moveIndex + 1, san: moveObj.san, nag: '', comment: { de: '', en: '' }, variations: [] };
+    /* registers the move as a real, persistent branch – see index.html's
+       own makeManualMove() for the full rationale (mirrored here).
+       activeDefaultSans is deliberately left untouched. */
+    if(moveIndex === 0){
+      if(!gameComments[0]) gameComments[0] = { comment: { de: '', en: '' }, variations: [] };
+      if(!gameComments[0].variations) gameComments[0].variations = [];
+      gameComments[0].variations.push([manualEntry]);
+      rootBranches = gameComments[0].variations;
+    } else {
+      var parentEntry = activeEntries[moveIndex - 1];
+      if(parentEntry){
+        if(!parentEntry.variations) parentEntry.variations = [];
+        parentEntry.variations.push([manualEntry]);
+      }
+    }
     var newLine = activeLine.slice(0, moveIndex).concat([moveObj.san]);
     var newBranches = activeBranches.slice(0, moveIndex).concat([[]]);
-    var newDefaultSans = activeDefaultSans.slice(0, moveIndex).concat([moveObj.san]);
-    var newEntries = activeEntries.slice(0, moveIndex).concat([{ ply: moveIndex + 1, san: moveObj.san, nag: '', comment: { de: '', en: '' }, variations: [] }]);
-    manualGoToLine(newLine, newBranches, moveIndex + 1, newDefaultSans, newEntries);
+    var newEntries = activeEntries.slice(0, moveIndex).concat([manualEntry]);
+    manualGoToLine(newLine, newBranches, moveIndex + 1, activeDefaultSans, newEntries);
   }
   function applyPlayerLabels(){
     if(!topEl || !bottomEl) return;
