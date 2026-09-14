@@ -928,6 +928,197 @@ function createGameWidget(container, game){
       }
     }
   }
+  var ARROW_COLORS = { G: '#2e8b3d', R: '#c62828', Y: '#e8a70a', B: '#1f6fb2' };
+  function squareRowCol(square){
+    return { row: 8 - parseInt(square[1], 10), col: square.charCodeAt(0) - 97 };
+  }
+  function renderBoardAnnotations(){
+    if(!arrowsEl) return;
+    while(arrowsEl.firstChild) arrowsEl.removeChild(arrowsEl.firstChild);
+    var entry = entryData[moveIndex];
+    var arrows = (entry && entry.arrows) || [];
+    var highlights = (entry && entry.highlights) || [];
+    if(!arrows.length && !highlights.length) return;
+    var flipped = orientation === 'black';
+    var svgns = 'http://www.w3.org/2000/svg';
+    function center(square){
+      var rc = squareRowCol(square);
+      var row = flipped ? 7 - rc.row : rc.row;
+      var col = flipped ? 7 - rc.col : rc.col;
+      return { x: col + 0.5, y: row + 0.5 };
+    }
+    highlights.forEach(function(h){
+      var rc = squareRowCol(h.square);
+      var row = flipped ? 7 - rc.row : rc.row;
+      var col = flipped ? 7 - rc.col : rc.col;
+      var rect = document.createElementNS(svgns, 'rect');
+      rect.setAttribute('x', col + 0.04); rect.setAttribute('y', row + 0.04);
+      rect.setAttribute('width', 0.92); rect.setAttribute('height', 0.92);
+      rect.setAttribute('fill', 'none');
+      rect.setAttribute('stroke', ARROW_COLORS[h.color] || '#888');
+      rect.setAttribute('stroke-width', '0.08');
+      rect.setAttribute('opacity', '0.9');
+      arrowsEl.appendChild(rect);
+    });
+    arrows.forEach(function(a){
+      var from = center(a.from), to = center(a.to);
+      var dx = to.x - from.x, dy = to.y - from.y;
+      var len = Math.sqrt(dx * dx + dy * dy);
+      if(len < 0.01) return;
+      var ux = dx / len, uy = dy / len;
+      var color = ARROW_COLORS[a.color] || '#888';
+      var shorten = 0.3;
+      var tipX = to.x - ux * shorten, tipY = to.y - uy * shorten;
+      var line = document.createElementNS(svgns, 'line');
+      line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+      line.setAttribute('x2', tipX); line.setAttribute('y2', tipY);
+      line.setAttribute('stroke', color);
+      line.setAttribute('stroke-width', '0.12');
+      line.setAttribute('stroke-linecap', 'round');
+      line.setAttribute('opacity', '0.85');
+      arrowsEl.appendChild(line);
+      var headLen = 0.34, headWidth = 0.12;
+      var backX = tipX - ux * headLen, backY = tipY - uy * headLen;
+      var perpX = -uy, perpY = ux;
+      var poly = document.createElementNS(svgns, 'polygon');
+      poly.setAttribute('points',
+        tipX + ',' + tipY + ' ' +
+        (backX + perpX * headWidth) + ',' + (backY + perpY * headWidth) + ' ' +
+        (backX - perpX * headWidth) + ',' + (backY - perpY * headWidth));
+      poly.setAttribute('fill', color);
+      poly.setAttribute('opacity', '0.85');
+      arrowsEl.appendChild(poly);
+    });
+  }
+  /* Reads [%cal .../%csl ...] straight out of the raw PGN's own move
+     comments – the same commands scripts/sync_games_pgn.py extracts
+     server-side, just walked by hand here since this preview runs on
+     PGN text that hasn't been through that script yet. Ignores
+     parenthesised sub-variations (this preview is mainline-only); a
+     comment attached before move 1 lands on entryData[0]. */
+  function extractArrowsAndHighlights(comment){
+    var arrows = [], highlights = [], m;
+    var calRe = /\[%cal ([^\]]*)\]/g;
+    while((m = calRe.exec(comment || '')) !== null){
+      m[1].split(',').forEach(function(item){
+        var mm = /^([A-Za-z])([a-h][1-8])([a-h][1-8])$/.exec(item.trim());
+        if(mm) arrows.push({ color: mm[1].toUpperCase(), from: mm[2], to: mm[3] });
+      });
+    }
+    var cslRe = /\[%csl ([^\]]*)\]/g;
+    while((m = cslRe.exec(comment || '')) !== null){
+      m[1].split(',').forEach(function(item){
+        var mm = /^([A-Za-z])([a-h][1-8])$/.exec(item.trim());
+        if(mm) highlights.push({ color: mm[1].toUpperCase(), square: mm[2] });
+      });
+    }
+    return { arrows: arrows, highlights: highlights };
+  }
+  function parsePgnAnnotations(pgnText){
+    var movetext = (pgnText || '').replace(/\[[^\]]*\]/g, '');
+    /* strip parenthesised variations, depth-aware so nested ones don't
+       leak their closing parens into the mainline text */
+    var stripped = '', depth = 0;
+    for(var i = 0; i < movetext.length; i++){
+      var ch = movetext[i];
+      if(ch === '('){ depth++; continue; }
+      if(ch === ')'){ if(depth > 0) depth--; continue; }
+      if(depth === 0) stripped += ch;
+    }
+    var comments = [];
+    var ply = 0, n = stripped.length, pos = 0;
+    while(pos < n){
+      var c = stripped[pos];
+      if(/\s/.test(c)){ pos++; continue; }
+      if(c === '{'){
+        var end = stripped.indexOf('}', pos);
+        if(end === -1) break;
+        var text = stripped.slice(pos + 1, end);
+        comments[ply] = (comments[ply] ? comments[ply] + ' ' : '') + text;
+        pos = end + 1;
+        continue;
+      }
+      if(c === '$'){
+        pos++; while(pos < n && /\d/.test(stripped[pos])) pos++;
+        continue;
+      }
+      var j = pos;
+      while(j < n && !/\s/.test(stripped[j]) && stripped[j] !== '{' && stripped[j] !== '(') j++;
+      var token = stripped.slice(pos, j);
+      pos = j;
+      if(!token || /^\d+\.+$/.test(token) || /^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)) continue;
+      ply++;
+    }
+    return comments.map(function(c){ return extractArrowsAndHighlights(c); });
+  }
+  /* Click-to-move – lets you play out your own moves from wherever the
+     preview is currently showing. This widget has no stored-variation
+     system (it's mainline-only, always re-parsed fresh from the pasted
+     PGN), so a manual move simply truncates the mainline at moveIndex
+     and appends the new one, same as recording a real game. */
+  var selectedSquare = null;
+  function domSquareToAlgebraic(row, col, flipped){
+    var rank = flipped ? row + 1 : 8 - row;
+    var fileIdx = flipped ? 7 - col : col;
+    return String.fromCharCode(97 + fileIdx) + rank;
+  }
+  function clearSquareSelection(){
+    selectedSquare = null;
+    Array.prototype.forEach.call(boardEl.children, function(sq){
+      sq.classList.remove('selected', 'legal-move', 'legal-capture');
+    });
+  }
+  function showLegalMovesFrom(square){
+    var flipped = orientation === 'black';
+    engine.moves({ square: square, verbose: true }).forEach(function(m){
+      var rc = squareRowCol(m.to);
+      var row = flipped ? 7 - rc.row : rc.row;
+      var col = flipped ? 7 - rc.col : rc.col;
+      var sq = boardEl.children[row * 8 + col];
+      if(sq) sq.classList.add(m.captured ? 'legal-capture' : 'legal-move');
+    });
+  }
+  function onBoardSquareClick(sqEl){
+    if(!engine) return;
+    var flipped = orientation === 'black';
+    var square = domSquareToAlgebraic(parseInt(sqEl.dataset.row, 10), parseInt(sqEl.dataset.col, 10), flipped);
+    if(selectedSquare){
+      if(selectedSquare === square){ clearSquareSelection(); return; }
+      var candidates = engine.moves({ square: selectedSquare, verbose: true }).filter(function(m){ return m.to === square; });
+      if(candidates.length){
+        var chosen = candidates.length > 1 ? (candidates.filter(function(m){ return m.promotion === 'q'; })[0] || candidates[0]) : candidates[0];
+        clearSquareSelection();
+        makeManualMove(chosen);
+        return;
+      }
+      clearSquareSelection();
+      var otherPiece = engine.get(square);
+      if(otherPiece && otherPiece.color === engine.turn()){
+        selectedSquare = square;
+        sqEl.classList.add('selected');
+        showLegalMovesFrom(square);
+      }
+      return;
+    }
+    var piece = engine.get(square);
+    if(piece && piece.color === engine.turn()){
+      selectedSquare = square;
+      sqEl.classList.add('selected');
+      showLegalMovesFrom(square);
+    }
+  }
+  function makeManualMove(moveObj){
+    stopPlay();
+    var mv = engine.move(moveObj);
+    if(!mv) return;
+    historyVerbose = historyVerbose.slice(0, moveIndex).concat([mv]);
+    entryData = entryData.slice(0, moveIndex + 1); /* no annotation exists for a hand-played move */
+    moveIndex++;
+    renderMoveList();
+    renderPosition(engine.fen());
+    renderBoardAnnotations();
+    clearSquareSelection();
+  }
   function makePieceEl(pieceKey, isWhite){
     var img = document.createElement('img');
     img.className = 'piece-img';
@@ -1034,6 +1225,8 @@ function createGameWidget(container, game){
     moveIndex = ply;
     renderPosition(engine.fen());
     highlightMoveList();
+    renderBoardAnnotations();
+    clearSquareSelection();
   }
   function stopPlay(){
     if(playInterval){ clearInterval(playInterval); playInterval = null; }
