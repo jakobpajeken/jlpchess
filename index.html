@@ -2290,14 +2290,41 @@ function tryAdvance(){
   var prefixPath = activeLine.slice(0, moveIndex);
   var prefixBranches = activeBranches.slice(0, moveIndex);
   var prefixDefaultSans = activeDefaultSans.slice(0, moveIndex);
+  var prefixEntries = activeEntries.slice(0, moveIndex);
   var options = [];
   if(hasNext){
     /* the true default (non-variation) move at this exact position, read
        from the array that never forgets it – see activeDefaultSans'
-       declaration for why this can't just be activeLine[moveIndex]. */
-    options.push({ san: activeDefaultSans[moveIndex], nag: '', go: function(){ manualGoToLine(activeLine, activeBranches, moveIndex + 1); } });
+       declaration for why this can't just be activeLine[moveIndex]. BUT
+       activeLine/activeBranches/activeEntries themselves are NOT safe to
+       read directly here for anything beyond just the label: once you
+       choose a variation at this exact branch point and later step back
+       to it, those three stay "attached" to the variation you chose (only
+       moveIndex moved), so activeLine[moveIndex] onward is the variation's
+       own tail, not the default's – naively reusing it would silently
+       replay the variation instead of the labelled default move. Fixed by
+       caching the true default's tail (line/branches/defaultSans/entries
+       from moveIndex onward) on `branches` itself the first time this
+       branch point is seen with genuinely-default data still in place –
+       `branches` is the very same array every time you return here
+       (slicing activeBranches copies the outer array, never its elements),
+       so the cached tail survives any number of choose-then-rewind trips
+       and "continue as-is" keeps meaning what it says. */
+    if(!branches.__defaultTail){
+      branches.__defaultTail = {
+        line: activeLine.slice(moveIndex),
+        branches: activeBranches.slice(moveIndex),
+        defaultSans: activeDefaultSans.slice(moveIndex),
+        entries: activeEntries.slice(moveIndex)
+      };
+    }
+    var tail = branches.__defaultTail;
+    var defaultLine = prefixPath.concat(tail.line);
+    var defaultBranchesFull = prefixBranches.concat(tail.branches);
+    var defaultSansFull = prefixDefaultSans.concat(tail.defaultSans);
+    var defaultEntriesFull = prefixEntries.concat(tail.entries);
+    options.push({ san: activeDefaultSans[moveIndex], nag: '', go: function(){ manualGoToLine(defaultLine, defaultBranchesFull, moveIndex + 1, defaultSansFull, defaultEntriesFull); } });
   }
-  var prefixEntries = activeEntries.slice(0, moveIndex);
   branches.forEach(function(varLine){
     if(!varLine || !varLine.length) return;
     var fullPath = prefixPath.concat(varLine.map(function(e){ return e.san; }));
