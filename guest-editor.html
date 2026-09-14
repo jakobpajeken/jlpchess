@@ -447,14 +447,20 @@ function applyLanguage(lang){
      an in-progress "add game" form rather than trying to preserve
      half-typed values across a language switch (rare edge case, and
      nothing already typed is lost from the games list itself) */
-  if(typeof renderPostGames === 'function') renderPostGames();
+  if(typeof postGames !== 'undefined' && typeof renderPostGames === 'function') renderPostGames();
   if(typeof gamesFormSlot !== 'undefined' && gamesFormSlot) gamesFormSlot.innerHTML = '';
 }
 
 var accessKey = new URLSearchParams(location.search).get('key') || '';
 var gate = document.getElementById('gate');
 var app = document.getElementById('app');
-applyLanguage('en');
+/* NOT calling applyLanguage('en') here on purpose: the static HTML
+   already IS the English defaults (title, labels, button text, <html
+   lang="en">), so there's nothing to apply yet – and doing so here would
+   run before postGames/gamesListEl further down the script even exist,
+   which used to throw and silently break every button on the page.
+   applyLanguage() only needs to run once something actually changes,
+   i.e. from the g-lang "change" listener below. */
 if(!accessKey){
   gate.textContent = t('gateIncomplete');
 } else {
