@@ -915,6 +915,71 @@ document.getElementById('g-preview-btn').addEventListener('click', async functio
   showStatus(t('statusSavedPreview'), 'ok');
   window.open('blog-post.html?slug=' + encodeURIComponent(data.slug) + '&lang=' + encodeURIComponent(data.lang), '_blank');
 });
+
+/* ---- resume an earlier draft from this same browser, if one exists ----
+   Closing the tab used to lose all connection to a draft in progress –
+   the next visit had no way to know it existed, so saving again always
+   created a brand-new post instead of continuing the old one. Fixed by
+   remembering the slug locally (see saveDraft() above) and, on load,
+   checking whether it still exists as one of this guest's own pending
+   drafts – if so, offering to reload it into the form. Placed at the very
+   end of the script (not up by the gate check) since it needs postGames /
+   bodyTextarea / coverPreviewEl / renderPostGames etc., all defined
+   further down – this only ever RUNS after every one of those is ready. */
+if(accessKey){
+  (async function checkForResumableDraft(){
+    var storageKey = 'jlpGuestDraftSlug:' + accessKey;
+    var slug;
+    try{ slug = localStorage.getItem(storageKey); }catch(e){ slug = null; }
+    if(!slug) return;
+    var posts;
+    try{ posts = await fetch('data/blog.json', { cache: 'no-store' }).then(function(r){ return r.json(); }); }
+    catch(e){ return; }
+    var entry = (posts || []).find(function(p){ return p.slug === slug && p.status === 'draft' && p.submittedBy; });
+    if(!entry){
+      /* published, deleted, or otherwise gone – nothing left to resume,
+         and no point asking again on the next visit either */
+      try{ localStorage.removeItem(storageKey); }catch(e){}
+      return;
+    }
+    var draftLang = (entry.title && entry.title.en) ? 'en' : 'de';
+    var banner = document.getElementById('resume-banner');
+    document.getElementById('resume-banner-text').textContent =
+      t('resumeFoundText', { title: (entry.title && entry.title[draftLang]) || '' });
+    banner.hidden = false;
+
+    document.getElementById('resume-discard-btn').addEventListener('click', function(){
+      try{ localStorage.removeItem(storageKey); }catch(e){}
+      banner.hidden = true;
+    });
+    document.getElementById('resume-continue-btn').addEventListener('click', function(){
+      document.getElementById('g-lang').value = draftLang;
+      applyLanguage(draftLang);
+      document.getElementById('g-name').value = (entry.submittedBy && entry.submittedBy.name) || '';
+      document.getElementById('g-contact').value = (entry.submittedBy && entry.submittedBy.contact) || '';
+      document.getElementById('g-title').value = (entry.title && entry.title[draftLang]) || '';
+      document.getElementById('g-category').value = (entry.category && entry.category[draftLang]) || '';
+      document.getElementById('g-excerpt').value = (entry.excerpt && entry.excerpt[draftLang]) || '';
+      document.getElementById('g-lead').value = (entry.lead && entry.lead[draftLang]) || '';
+      document.getElementById('g-quote').value = (entry.quote && entry.quote[draftLang]) || '';
+      bodyTextarea.value = ((entry.body && entry.body[draftLang]) || []).join('\n\n');
+      document.getElementById('g-cover-caption').value = (entry.imageCaption && entry.imageCaption[draftLang]) || '';
+      document.getElementById('g-cover-credit').value = entry.imageCredit || '';
+      if(entry.image){
+        lastCoverImagePath = entry.image;
+        coverPreviewEl.innerHTML = '<img src="' + entry.image + '" alt="">';
+      }
+      postGames = (entry.games || []).slice();
+      renderPostGames();
+      /* the crucial part: the next Save/Preview click updates THIS entry
+         instead of creating a duplicate one, exactly as if the guest had
+         never closed the tab */
+      savedSlug = entry.slug;
+      banner.hidden = true;
+      showStatus(t('resumeLoaded'), 'ok');
+    });
+  })();
+}
 </script>
 </body>
 </html>
