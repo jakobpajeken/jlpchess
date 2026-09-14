@@ -1837,6 +1837,11 @@ function makeManualMove(moveObj){
   var newBranches = activeBranches.slice(0, moveIndex).concat([[]]);
   var newEntries = activeEntries.slice(0, moveIndex).concat([manualEntry]);
   manualGoToLine(newLine, newBranches, moveIndex + 1, activeDefaultSans, newEntries);
+  /* the notation panel isn't normally re-rendered on navigation (it
+     always shows the same fixed mainline, unaffected by which line is
+     currently active) – but it just gained a new inline variation, so it
+     needs a fresh render to actually show it. */
+  renderMoveList();
 }
 function applyPlayerLabels(){
   var topEl = document.getElementById('player-top');
