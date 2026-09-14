@@ -1,5 +1,9 @@
 name = "woka"
 main = "guest-submit-worker.js"
-compatibility_date = "2026-09-14"
+compatibility_date = "2026-09-13"
 workers_dev = true
+preview_urls = false
 account_id = "989b8f06596e3aec5ff7aca745fd515b"
+
+[observability]
+enabled = true
