@@ -78,8 +78,9 @@
     backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
   }
   nav.wrap{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;}
-  .brand{font-family:'Spectral',serif;font-size:1.1rem;text-decoration:none;}
+  .brand{font-family:'Spectral',serif;font-size:1.1rem;text-decoration:none;display:flex;align-items:center;gap:10px;}
   .brand em{font-style:normal;color:var(--gold-bright);}
+  .brand-logo{height:36px;width:auto;display:block;}
   .langtoggle{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden;}
   .langtoggle button{
     background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;
@@ -317,7 +318,7 @@
 
 <header>
   <nav class="wrap">
-    <a href="index.html" class="brand">IM Jakob Leon <em>Pajeken</em></a>
+    <a href="index.html" class="brand"><img src="images/logo-header.png" alt="" class="brand-logo"><span>IM Jakob Leon <em>Pajeken</em></span></a>
     <div class="langtoggle">
       <button type="button" data-lang="en" class="active">EN</button>
       <button type="button" data-lang="de">DE</button>
