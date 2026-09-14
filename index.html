@@ -128,6 +128,9 @@
   /* hero */
   .hero{padding:60px 0 48px;border-bottom:1px solid var(--line);}
   .hero-grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:48px;align-items:center;}
+  .hero-name-row{display:flex;align-items:center;gap:26px;}
+  .hero-logo{width:108px;height:108px;flex-shrink:0;}
+  @media (max-width:600px){.hero-name-row{gap:16px;}.hero-logo{width:64px;height:64px;}}
   h1.name{font-size:clamp(2.3rem,4.6vw,3.5rem);line-height:1.12;max-width:20ch;}
   h1.name .accent{color:var(--gold-bright);}
   h1.name .tagline{
