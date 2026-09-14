@@ -81,6 +81,13 @@
   .brand{font-family:'Spectral',serif;font-size:1.1rem;text-decoration:none;display:flex;align-items:center;gap:10px;}
   .brand em{font-style:normal;color:var(--gold-bright);}
   .brand-logo{height:36px;width:auto;display:block;}
+  /* same fixed whole-page watermark as index.html, kept in sync */
+  .site-watermark{
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:min(58vw,620px);height:auto;opacity:0.05;z-index:-1;
+    pointer-events:none;
+  }
+  .footer-logo-mark{height:20px;width:auto;display:block;}
   .langtoggle{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden;}
   .langtoggle button{
     background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;
@@ -316,6 +323,8 @@
 </head>
 <body>
 
+<img src="images/logo-square-master.png" alt="" class="site-watermark">
+
 <header>
   <nav class="wrap">
     <a href="index.html" class="brand"><img src="images/logo-header.png" alt="" class="brand-logo"><span>IM Jakob Leon <em>Pajeken</em></span></a>
@@ -369,6 +378,7 @@
 
 <footer>
   <div class="wrap">
+    <img src="images/logo-header.png" alt="" class="footer-logo-mark">
     <span>&copy; 2026 Jakob Leon Pajeken</span>
     <span data-i18n="post.footernote">Tournament results and ratings as reported by the player</span>
     <a href="impressum.html" class="footer-legal-link">Impressum</a>
