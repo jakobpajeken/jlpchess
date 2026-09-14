@@ -782,6 +782,9 @@ function createGameWidget(container, gameOrGames){
      widget's own engine/orientation/activeLine etc. instead of the
      page-global ones). */
   var selectedSquare = null;
+  /* tracks the tail of the manual-move variation currently being built –
+     see index.html's own lastManualMove for the full rationale. */
+  var lastManualMove = null;
   function domSquareToAlgebraic(row, col, flipped){
     var rank = flipped ? row + 1 : 8 - row;
     var fileIdx = flipped ? 7 - col : col;
@@ -1411,6 +1414,7 @@ function createGameWidget(container, gameOrGames){
     activeEntries = mainlineEntries();
     rootBranches = (gameComments[0] && gameComments[0].variations) || [];
     moveIndex = 0;
+    lastManualMove = null;
 
     var headers = parsePgnHeaders(game.pgn || '');
     whiteName = headers.white || 'White';
