@@ -765,19 +765,21 @@ function createGameWidget(container, gameOrGames){
       if(len < 0.01) return;
       var ux = dx / len, uy = dy / len;
       var color = ARROW_COLORS[a.color] || '#888';
-      var shorten = 0.3;
-      var tipX = to.x - ux * shorten, tipY = to.y - uy * shorten;
+      /* tip always lands exactly on the target square's centre – see
+         index.html's renderBoardAnnotations() for why this isn't
+         shortened along the incoming direction any more */
+      var tipX = to.x, tipY = to.y;
       var line = document.createElementNS(svgns, 'line');
       line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
       line.setAttribute('x2', tipX); line.setAttribute('y2', tipY);
       line.setAttribute('stroke', color);
-      line.setAttribute('stroke-width', '0.12');
+      line.setAttribute('stroke-width', '0.06');
       line.setAttribute('stroke-linecap', 'round');
       line.setAttribute('opacity', '0.85');
       arrowsEl.appendChild(line);
-      /* longer and narrower than a plain equilateral triangle – reads as a
-         natural, pointed arrowhead rather than a blunt/stubby wedge */
-      var headLen = 0.46, headWidth = 0.11;
+      /* roughly equilateral (~60° tip angle) instead of a long narrow
+         dagger – headWidth close to headLen keeps the two base angles equal */
+      var headLen = 0.28, headWidth = 0.16;
       var backX = tipX - ux * headLen, backY = tipY - uy * headLen;
       var perpX = -uy, perpY = ux;
       var poly = document.createElementNS(svgns, 'polygon');
