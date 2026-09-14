@@ -118,6 +118,19 @@
   <div id="gate" data-i18n="gateChecking">Checking access …</div>
 
   <div id="app" hidden>
+    <!-- shown only when a slug saved earlier in THIS browser (localStorage,
+         see DRAFT_KEY below) still exists as one of this guest's own
+         drafts in blog.json – lets them pick back up after closing the
+         tab instead of starting over, or accidentally forking a second
+         copy of the same post -->
+    <div class="notice" id="resume-banner" hidden>
+      <span id="resume-banner-text"></span>
+      <div class="form-actions" style="margin-top:10px;">
+        <button type="button" class="btn solid" id="resume-continue-btn" data-i18n="resumeContinueBtn">Continue this draft</button>
+        <button type="button" class="btn" id="resume-discard-btn" data-i18n="resumeDiscardBtn">Start a new one instead</button>
+      </div>
+    </div>
+
     <div class="notice" data-i18n-html="noticeHtml">
       <strong>What happens next:</strong> Your text is saved, but <strong>not publicly visible</strong>. Jakob sees your draft in his own editor, can adjust it, and decides whether and when it gets published.
     </div>
