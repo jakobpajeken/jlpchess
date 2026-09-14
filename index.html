@@ -1741,14 +1741,14 @@ function renderBoardAnnotations(){
     line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
     line.setAttribute('x2', tipX); line.setAttribute('y2', tipY);
     line.setAttribute('stroke', color);
-    line.setAttribute('stroke-width', '0.09');
+    line.setAttribute('stroke-width', '0.099');
     line.setAttribute('stroke-linecap', 'round');
-    line.setAttribute('opacity', '0.85');
+    line.setAttribute('opacity', '1');
     svg.appendChild(line);
     /* a sharp, narrow point: the base (short side) is exactly half the
        length of the two equal sides running from it up to the tip –
        headWidth = headLen/sqrt(15) is what makes that ratio exact */
-    var headLen = 0.30, headWidth = 0.0775;
+    var headLen = 0.33, headWidth = 0.08525;
     var backX = tipX - ux * headLen, backY = tipY - uy * headLen;
     var perpX = -uy, perpY = ux;
     var poly = document.createElementNS(svgns, 'polygon');
