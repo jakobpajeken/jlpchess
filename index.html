@@ -8,7 +8,9 @@
      transparent background (no box), filling almost the whole canvas so
      it stays legible at tiny tab sizes – navy fill matches --gold, so
      update it here too if the site's theme changes again -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='6' width='24' height='4' fill='%231f3a5f'/%3E%3Crect x='4' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='13.5' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='23' y='0' width='5' height='6' fill='%231f3a5f'/%3E%3Crect x='6' y='10' width='20' height='16' fill='%231f3a5f'/%3E%3Crect x='4' y='26' width='24' height='4' rx='2' fill='%231f3a5f'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="images/favicon-180.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" integrity="sha512-xRllwz2gdZciIB+AkEbeq+gVhX8VB8XsfqeFbUh+SzHlN96dEduwtTuVuc2u9EROlmW9+yhRlxjif66ORpsgVA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <style>
   /* Fonts are self-hosted (fonts/*.woff2) instead of loaded live from
@@ -64,8 +66,9 @@
     backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
   }
   nav.wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;}
-  .brand{font-family:'Spectral',serif;font-size:1.1rem;}
+  .brand{font-family:'Spectral',serif;font-size:1.1rem;display:flex;align-items:center;gap:10px;}
   .brand em{font-style:normal;color:var(--gold-bright);}
+  .brand-logo{height:36px;width:auto;display:block;}
   button:focus-visible,summary:focus-visible{outline:1px solid var(--gold-bright);outline-offset:3px;}
   .langtoggle{
     display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden;
