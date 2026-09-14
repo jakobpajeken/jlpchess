@@ -1209,9 +1209,27 @@ function createGameWidget(container, gameOrGames){
     var prefixEntries = activeEntries.slice(0, moveIndex);
     var options = [];
     if(hasNext){
-      /* true default at this position – see index.html's tryAdvance() for
-         why this can't be activeLine[moveIndex]. */
-      options.push({ san: activeDefaultSans[moveIndex], nag: '', go: function(){ manualGoToLine(activeLine, activeBranches, moveIndex + 1); } });
+      /* true default at this position – but activeLine/activeBranches/
+         activeEntries aren't safe to reuse directly beyond the label once
+         a variation was chosen here before and you've since stepped back
+         to this branch point (they stay "attached" to that variation) –
+         cached on `branches` itself, a stable reference across any number
+         of choose-then-rewind trips – see index.html's tryAdvance() for
+         the full rationale. */
+      if(!branches.__defaultTail){
+        branches.__defaultTail = {
+          line: activeLine.slice(moveIndex),
+          branches: activeBranches.slice(moveIndex),
+          defaultSans: activeDefaultSans.slice(moveIndex),
+          entries: activeEntries.slice(moveIndex)
+        };
+      }
+      var tail = branches.__defaultTail;
+      var defaultLine = prefixPath.concat(tail.line);
+      var defaultBranchesFull = prefixBranches.concat(tail.branches);
+      var defaultSansFull = prefixDefaultSans.concat(tail.defaultSans);
+      var defaultEntriesFull = prefixEntries.concat(tail.entries);
+      options.push({ san: activeDefaultSans[moveIndex], nag: '', go: function(){ manualGoToLine(defaultLine, defaultBranchesFull, moveIndex + 1, defaultSansFull, defaultEntriesFull); } });
     }
     branches.forEach(function(varLine){
       if(!varLine || !varLine.length) return;
