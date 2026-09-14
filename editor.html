@@ -1114,6 +1114,79 @@ function createGameWidget(container, game){
       showLegalMovesFrom(square);
     }
   }
+  /* Drag-to-move, layered on top of click-to-move – see index.html's own
+     onSquarePointerDown for the full rationale (mirrored here
+     per-widget-instance). */
+  var pieceDrag = null;
+  function squareFromPoint(clientX, clientY){
+    var el = document.elementFromPoint(clientX, clientY);
+    while(el && el !== boardEl && !el.classList.contains('chess-square')) el = el.parentElement;
+    return (el && el.classList.contains('chess-square')) ? el : null;
+  }
+  function onSquarePointerDown(e){
+    if(e.button != null && e.button !== 0) return;
+    var sqEl = e.currentTarget;
+    onBoardSquareClick(sqEl);
+    var flipped = orientation === 'black';
+    var square = domSquareToAlgebraic(parseInt(sqEl.dataset.row, 10), parseInt(sqEl.dataset.col, 10), flipped);
+    if(selectedSquare === square) beginPieceDrag(e, sqEl, square);
+  }
+  function beginPieceDrag(e, sqEl, square){
+    var pieceEl = sqEl.querySelector('.piece-img, .piece-fallback');
+    if(!pieceEl) return;
+    pieceDrag = { square: square, fromEl: sqEl, pieceEl: pieceEl, startX: e.clientX, startY: e.clientY, moved: false, ghost: null };
+    try{ sqEl.setPointerCapture(e.pointerId); }catch(err){}
+    sqEl.addEventListener('pointermove', onPieceDragMove);
+    sqEl.addEventListener('pointerup', onPieceDragEnd);
+    sqEl.addEventListener('pointercancel', onPieceDragEnd);
+  }
+  function onPieceDragMove(e){
+    if(!pieceDrag) return;
+    var dx = e.clientX - pieceDrag.startX, dy = e.clientY - pieceDrag.startY;
+    if(!pieceDrag.moved && Math.sqrt(dx * dx + dy * dy) < 4) return;
+    if(!pieceDrag.moved){
+      pieceDrag.moved = true;
+      var rect = pieceDrag.pieceEl.getBoundingClientRect();
+      pieceDrag.offsetX = rect.width / 2;
+      pieceDrag.offsetY = rect.height / 2;
+      var ghost = pieceDrag.pieceEl.cloneNode(true);
+      ghost.className += ' piece-drag-ghost';
+      ghost.style.width = rect.width + 'px';
+      ghost.style.height = rect.height + 'px';
+      document.body.appendChild(ghost);
+      pieceDrag.ghost = ghost;
+      pieceDrag.pieceEl.style.opacity = '0';
+    }
+    pieceDrag.ghost.style.left = (e.clientX - pieceDrag.offsetX) + 'px';
+    pieceDrag.ghost.style.top = (e.clientY - pieceDrag.offsetY) + 'px';
+    Array.prototype.forEach.call(boardEl.children, function(sq){ sq.classList.remove('drag-over'); });
+    var overEl = squareFromPoint(e.clientX, e.clientY);
+    if(overEl) overEl.classList.add('drag-over');
+  }
+  function onPieceDragEnd(e){
+    if(!pieceDrag) return;
+    var drag = pieceDrag;
+    pieceDrag = null;
+    drag.fromEl.removeEventListener('pointermove', onPieceDragMove);
+    drag.fromEl.removeEventListener('pointerup', onPieceDragEnd);
+    drag.fromEl.removeEventListener('pointercancel', onPieceDragEnd);
+    try{ drag.fromEl.releasePointerCapture(e.pointerId); }catch(err){}
+    Array.prototype.forEach.call(boardEl.children, function(sq){ sq.classList.remove('drag-over'); });
+    if(drag.ghost) drag.ghost.remove();
+    drag.pieceEl.style.opacity = '';
+    if(!drag.moved) return;
+    var targetEl = squareFromPoint(e.clientX, e.clientY);
+    if(!targetEl) return;
+    var flipped = orientation === 'black';
+    var targetSquare = domSquareToAlgebraic(parseInt(targetEl.dataset.row, 10), parseInt(targetEl.dataset.col, 10), flipped);
+    if(targetSquare === drag.square) return;
+    var candidates = engine.moves({ square: drag.square, verbose: true }).filter(function(m){ return m.to === targetSquare; });
+    if(candidates.length){
+      var chosen = candidates.length > 1 ? (candidates.filter(function(m){ return m.promotion === 'q'; })[0] || candidates[0]) : candidates[0];
+      clearSquareSelection();
+      makeManualMove(chosen);
+    }
+  }
   function makeManualMove(moveObj){
     stopPlay();
     var mv = engine.move(moveObj);
