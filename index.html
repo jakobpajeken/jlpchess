@@ -1896,7 +1896,16 @@ function mainlineBranches(){
    below always shows the real mainline, independent of that). */
 function mainlineEntries(){
   return historyVerbose.map(function(m, i){
-    return gameComments[i + 1] || { ply: i + 1, san: m.san, nag: '', comment: { de: '', en: '' }, variations: [] };
+    /* materializes (writes back) a real entry the first time a ply with
+       no annotation is touched, instead of just handing out a fresh
+       disposable placeholder every call – so this object stays the SAME
+       one on every later call, and a manual move can safely attach
+       itself to it (see makeManualMove) and have that stick around for
+       the rest of the session, not vanish the next time this runs. */
+    if(!gameComments[i + 1]){
+      gameComments[i + 1] = { ply: i + 1, san: m.san, nag: '', comment: { de: '', en: '' }, variations: [] };
+    }
+    return gameComments[i + 1];
   });
 }
 
