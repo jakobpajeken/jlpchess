@@ -1804,6 +1804,91 @@ function onBoardSquareClick(sqEl){
     showLegalMovesFrom(square);
   }
 }
+/* Drag-to-move, layered on top of click-to-move rather than replacing
+   it: onBoardSquareClick still runs first on every pointerdown (so a
+   plain tap keeps working exactly as before, including the two-tap
+   select-then-destination sequence); a drag is only ever started when
+   that click just freshly selected THIS square's own piece, which is
+   exactly the "picked up a piece" moment. Uses Pointer Events (not HTML5
+   dragstart) so the same code handles mouse and touch alike, and pointer
+   capture keeps move/up events targeted at the origin square regardless
+   of where the finger/cursor wanders. */
+var pieceDrag = null;
+function squareFromPoint(clientX, clientY){
+  var board = document.getElementById('chess-board');
+  if(!board) return null;
+  var el = document.elementFromPoint(clientX, clientY);
+  while(el && el !== board && !el.classList.contains('chess-square')) el = el.parentElement;
+  return (el && el.classList.contains('chess-square')) ? el : null;
+}
+function onSquarePointerDown(e){
+  if(e.button != null && e.button !== 0) return; /* left mouse button only; touch has no e.button */
+  var sqEl = e.currentTarget;
+  onBoardSquareClick(sqEl);
+  var flipped = boardOrientation === 'black';
+  var square = domSquareToAlgebraic(parseInt(sqEl.dataset.row, 10), parseInt(sqEl.dataset.col, 10), flipped);
+  if(selectedSquare === square) beginPieceDrag(e, sqEl, square);
+}
+function beginPieceDrag(e, sqEl, square){
+  var pieceEl = sqEl.querySelector('.piece-img, .piece-fallback');
+  if(!pieceEl) return;
+  pieceDrag = { square: square, fromEl: sqEl, pieceEl: pieceEl, startX: e.clientX, startY: e.clientY, moved: false, ghost: null };
+  try{ sqEl.setPointerCapture(e.pointerId); }catch(err){}
+  sqEl.addEventListener('pointermove', onPieceDragMove);
+  sqEl.addEventListener('pointerup', onPieceDragEnd);
+  sqEl.addEventListener('pointercancel', onPieceDragEnd);
+}
+function onPieceDragMove(e){
+  if(!pieceDrag) return;
+  var dx = e.clientX - pieceDrag.startX, dy = e.clientY - pieceDrag.startY;
+  if(!pieceDrag.moved && Math.sqrt(dx * dx + dy * dy) < 4) return;
+  if(!pieceDrag.moved){
+    pieceDrag.moved = true;
+    var rect = pieceDrag.pieceEl.getBoundingClientRect();
+    pieceDrag.offsetX = rect.width / 2;
+    pieceDrag.offsetY = rect.height / 2;
+    var ghost = pieceDrag.pieceEl.cloneNode(true);
+    ghost.className += ' piece-drag-ghost';
+    ghost.style.width = rect.width + 'px';
+    ghost.style.height = rect.height + 'px';
+    document.body.appendChild(ghost);
+    pieceDrag.ghost = ghost;
+    pieceDrag.pieceEl.style.opacity = '0';
+  }
+  pieceDrag.ghost.style.left = (e.clientX - pieceDrag.offsetX) + 'px';
+  pieceDrag.ghost.style.top = (e.clientY - pieceDrag.offsetY) + 'px';
+  var board = document.getElementById('chess-board');
+  if(board) Array.prototype.forEach.call(board.children, function(sq){ sq.classList.remove('drag-over'); });
+  var overEl = squareFromPoint(e.clientX, e.clientY);
+  if(overEl) overEl.classList.add('drag-over');
+}
+function onPieceDragEnd(e){
+  if(!pieceDrag) return;
+  var drag = pieceDrag;
+  pieceDrag = null;
+  drag.fromEl.removeEventListener('pointermove', onPieceDragMove);
+  drag.fromEl.removeEventListener('pointerup', onPieceDragEnd);
+  drag.fromEl.removeEventListener('pointercancel', onPieceDragEnd);
+  try{ drag.fromEl.releasePointerCapture(e.pointerId); }catch(err){}
+  var board = document.getElementById('chess-board');
+  if(board) Array.prototype.forEach.call(board.children, function(sq){ sq.classList.remove('drag-over'); });
+  if(drag.ghost) drag.ghost.remove();
+  drag.pieceEl.style.opacity = '';
+  if(!drag.moved) return; /* plain tap – selection already handled on pointerdown */
+  var targetEl = squareFromPoint(e.clientX, e.clientY);
+  if(!targetEl) return; /* dropped off the board – snaps back, stays selected */
+  var flipped = boardOrientation === 'black';
+  var targetSquare = domSquareToAlgebraic(parseInt(targetEl.dataset.row, 10), parseInt(targetEl.dataset.col, 10), flipped);
+  if(targetSquare === drag.square) return; /* dropped back on itself */
+  var candidates = gameEngine.moves({ square: drag.square, verbose: true }).filter(function(m){ return m.to === targetSquare; });
+  if(candidates.length){
+    var chosen = candidates.length > 1 ? (candidates.filter(function(m){ return m.promotion === 'q'; })[0] || candidates[0]) : candidates[0];
+    clearSquareSelection();
+    makeManualMove(chosen);
+  }
+  /* else: illegal target – piece already snapped back above (opacity
+     restored), and stays selected so a follow-up tap can still finish it */
+}
 function makeManualMove(moveObj){
   stopPlay();
   var manualEntry = { ply: moveIndex + 1, san: moveObj.san, nag: '', comment: { de: '', en: '' }, variations: [] };
