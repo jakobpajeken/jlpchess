@@ -3412,25 +3412,18 @@
     }
   },
   {
+    "title": {
+      "en": "You can do it!",
+      "de": "Du schaffst das!"
+    },
     "slug": "du-schaffst-das",
     "status": "draft",
+    "category": "",
     "date": "2026-09-14",
     "author": "Banana",
     "image": "",
-    "imageCaption": {
-      "en": "",
-      "de": ""
-    },
+    "imageCaption": "",
     "imageCredit": "",
-    "games": [],
-    "title": {
-      "en": "",
-      "de": "Du schaffst das!"
-    },
-    "category": {
-      "en": "",
-      "de": ""
-    },
     "excerpt": {
       "en": "",
       "de": "Jeder sollte an seine Ziele und Träume glauben und sie auch verfolgen."
@@ -3439,20 +3432,13 @@
       "en": "",
       "de": "Glaub an Dich."
     },
-    "quote": {
-      "en": "",
-      "de": ""
-    },
     "body": {
       "en": [],
       "de": [
         "Zieh durch. Überleg dir was du möchtest und dir wünschst. Und dann zieh durch, mach für einen Plan, such dir Unterstützung und Hilfe.\n..."
       ]
     },
-    "submittedBy": {
-      "name": "Banana",
-      "contact": "",
-      "submittedAt": "2026-09-14T06:28:18.047Z"
-    }
+    "quote": "",
+    "games": []
   }
 ]
