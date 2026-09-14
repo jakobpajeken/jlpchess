@@ -867,7 +867,14 @@ function createGameWidget(container, gameOrGames){
      here). */
   function mainlineEntries(){
     return historyVerbose.map(function(m, i){
-      return gameComments[i + 1] || { ply: i + 1, san: m.san, nag: '', comment: { de: '', en: '' }, variations: [] };
+      /* materializes (writes back) a real entry the first time a ply with
+         no annotation is touched, instead of just handing out a fresh
+         disposable placeholder every call – see index.html's own
+         mainlineEntries() for the full rationale (mirrored here). */
+      if(!gameComments[i + 1]){
+        gameComments[i + 1] = { ply: i + 1, san: m.san, nag: '', comment: { de: '', en: '' }, variations: [] };
+      }
+      return gameComments[i + 1];
     });
   }
   function makeMoveBtn(san, ply){
