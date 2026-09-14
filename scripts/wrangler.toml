@@ -2,3 +2,4 @@ name = "woka"
 main = "guest-submit-worker.js"
 compatibility_date = "2026-09-14"
 workers_dev = true
+account_id = "989b8f06596e3aec5ff7aca745fd515b"
