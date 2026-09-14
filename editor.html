@@ -1285,6 +1285,7 @@ function createGameWidget(container, game){
     return null;
   }
   historyVerbose = engine.history({ verbose: true });
+  entryData = parsePgnAnnotations(game.pgn || '');
   engine.reset();
   moveIndex = 0;
 
@@ -1298,6 +1299,7 @@ function createGameWidget(container, game){
   renderPosition(engine.fen());
   applyPlayerLabels();
   renderMoveList();
+  renderBoardAnnotations();
 
   titleEl.textContent = previewLang(game.title) || (whiteName + ' vs ' + blackName);
 
