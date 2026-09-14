@@ -28,7 +28,6 @@ var DEEPL_URL = 'https://api-free.deepl.com/v2/translate';
 var ALLOWED_ORIGINS = [
   'https://jp-chess.com',
   'https://www.jp-chess.com',
-  'https://jakobpajeken.github.io', /* kept during the domain switch-over; remove once jp-chess.com is fully live */
   'http://localhost:8722'
 ];
 
