@@ -923,7 +923,7 @@ function createGameWidget(container, game){
         var isLight = (r + c) % 2 === 0;
         sq.className = 'chess-square ' + (isLight ? 'light' : 'dark');
         sq.dataset.row = r; sq.dataset.col = c;
-        sq.addEventListener('click', function(){ onBoardSquareClick(this); });
+        sq.addEventListener('pointerdown', onSquarePointerDown);
         boardEl.appendChild(sq);
       }
     }
