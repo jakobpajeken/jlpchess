@@ -1737,20 +1737,24 @@ function renderBoardAnnotations(){
        two arrows pointing at the same square from different directions
        stop at two different points near it instead of the same one */
     var tipX = to.x, tipY = to.y;
-    var line = document.createElementNS(svgns, 'line');
-    line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
-    line.setAttribute('x2', tipX); line.setAttribute('y2', tipY);
-    line.setAttribute('stroke', color);
-    line.setAttribute('stroke-width', '0.099');
-    line.setAttribute('stroke-linecap', 'round');
-    line.setAttribute('opacity', '1');
-    svg.appendChild(line);
     /* a sharp, narrow point: the base (short side) is exactly half the
        length of the two equal sides running from it up to the tip –
        headWidth = headLen/sqrt(15) is what makes that ratio exact */
     var headLen = 0.33, headWidth = 0.08525;
     var backX = tipX - ux * headLen, backY = tipY - uy * headLen;
     var perpX = -uy, perpY = ux;
+    /* the shaft stops where the triangle starts (backX/backY), not at the
+       tip itself – it used to run all the way to the tip and, being
+       almost as wide as the narrow triangle near its point, painted right
+       over most of it, so the head barely read as a triangle at all */
+    var line = document.createElementNS(svgns, 'line');
+    line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+    line.setAttribute('x2', backX); line.setAttribute('y2', backY);
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', '0.099');
+    line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('opacity', '1');
+    svg.appendChild(line);
     var poly = document.createElementNS(svgns, 'polygon');
     poly.setAttribute('points',
       tipX + ',' + tipY + ' ' +
