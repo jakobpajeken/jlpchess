@@ -529,10 +529,12 @@
   .footer-info>*:not(:last-child)::after{content:'·';margin:0 10px;color:var(--ivory-dim);}
   .footer-legal-link{color:var(--ivory-dim);text-decoration:none;}
   .footer-legal-link:hover{color:var(--gold-bright);text-decoration:underline;}
-  .footer-donate{display:flex;align-items:center;gap:8px;opacity:0.55;}
+  .footer-donate{display:flex;align-items:center;gap:8px;opacity:0.55;text-decoration:none;color:inherit;transition:opacity .15s;}
+  .footer-donate:hover{opacity:0.9;}
   .footer-donate-icon{width:17px;height:17px;flex-shrink:0;}
   .footer-donate-icon svg{width:100%;height:100%;display:block;}
   .footer-donate strong{color:var(--ivory-dim);font-weight:600;}
+  .footer-donate:hover strong{color:var(--gold-bright);}
 
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none !important;}}
 </style>
@@ -985,10 +987,10 @@
       <a href="impressum.html" class="footer-legal-link">Impressum</a>
       <a href="datenschutz.html" class="footer-legal-link" data-i18n="footer.privacy">Privacy Policy</a>
     </div>
-    <div class="footer-donate placeholder">
+    <a href="https://www.paypal.me/jpchess64" target="_blank" rel="noopener" class="footer-donate">
       <span class="footer-donate-icon"><svg viewBox="0 0 24 24"><path d="M8.6 4.6h5.1c2.5 0 4.2 1.7 3.8 4.2-.4 2.6-2.5 4.2-5.1 4.2H10l-.8 4.9H6.5L8.6 4.6Z" fill="#009cde"/><path d="M7.1 6.5h5.1c2.5 0 4.2 1.7 3.8 4.2-.4 2.6-2.5 4.2-5.1 4.2H8.5l-.8 4.9H5L7.1 6.5Z" fill="#003087"/></svg></span>
       <span data-i18n="footer.donate">Enjoy my work? You can support my chess projects via PayPal. <strong>Support me →</strong></span>
-    </div>
+    </a>
   </div>
 </footer>
 
