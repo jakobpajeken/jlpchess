@@ -1732,12 +1732,11 @@ function renderBoardAnnotations(){
     if(len < 0.01) return;
     var ux = dx / len, uy = dy / len;
     var color = ARROW_COLORS[a.color] || '#888';
-    /* the line stops short of the target square's center so the
-       arrowhead doesn't bury itself under a piece standing there – kept
-       small now so the head sits close to the tip instead of eating up
-       a big stretch of the shaft */
-    var shorten = 0.16;
-    var tipX = to.x - ux * shorten, tipY = to.y - uy * shorten;
+    /* tip always lands exactly on the target square's centre – NOT
+       shortened along the incoming direction any more, since that made
+       two arrows pointing at the same square from different directions
+       stop at two different points near it instead of the same one */
+    var tipX = to.x, tipY = to.y;
     var line = document.createElementNS(svgns, 'line');
     line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
     line.setAttribute('x2', tipX); line.setAttribute('y2', tipY);
