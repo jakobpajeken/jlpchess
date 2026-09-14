@@ -1912,19 +1912,33 @@ function makeManualMove(moveObj){
      activeDefaultSans is deliberately left untouched: the true original
      default at this ply (if any) stays forever recoverable, same as
      always – the manual move is a new alternative alongside it, not a
-     replacement. */
-  if(moveIndex === 0){
+     replacement.
+     lastManualMove tracks whether THIS move directly continues the one
+     played right before it (same parent entry as that move's own
+     "landing spot") – if so, it's appended onto that SAME variation
+     array instead of opening a brand new one, so "(Nh3 Nc6 Bc4)" stays
+     one bracketed line in the notation instead of nesting a fresh pair
+     of parentheses around every single move ("(Nh3 (Nc6 (Bc4)))").
+     Playing from anywhere else (rewound to a different spot, or off the
+     true mainline/an original PGN variation) naturally falls through to
+     opening a new variation, since parentEntry won't match. */
+  var parentEntry = moveIndex === 0 ? null : activeEntries[moveIndex - 1];
+  if(lastManualMove && lastManualMove.entry === parentEntry){
+    lastManualMove.variationArray.push(manualEntry);
+  } else if(moveIndex === 0){
     if(!gameComments[0]) gameComments[0] = { comment: { de: '', en: '' }, variations: [] };
     if(!gameComments[0].variations) gameComments[0].variations = [];
-    gameComments[0].variations.push([manualEntry]);
+    var rootVarArray = [manualEntry];
+    gameComments[0].variations.push(rootVarArray);
     rootBranches = gameComments[0].variations;
-  } else {
-    var parentEntry = activeEntries[moveIndex - 1];
-    if(parentEntry){
-      if(!parentEntry.variations) parentEntry.variations = [];
-      parentEntry.variations.push([manualEntry]);
-    }
+    lastManualMove = { entry: manualEntry, variationArray: rootVarArray };
+  } else if(parentEntry){
+    if(!parentEntry.variations) parentEntry.variations = [];
+    var varArray = [manualEntry];
+    parentEntry.variations.push(varArray);
+    lastManualMove = { entry: manualEntry, variationArray: varArray };
   }
+  if(lastManualMove) lastManualMove.entry = manualEntry;
   var newLine = activeLine.slice(0, moveIndex).concat([moveObj.san]);
   var newBranches = activeBranches.slice(0, moveIndex).concat([[]]);
   var newEntries = activeEntries.slice(0, moveIndex).concat([manualEntry]);
