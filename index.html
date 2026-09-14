@@ -361,7 +361,7 @@
   .board-arrows-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
   .files-row{display:flex;width:min(440px,90vw);}
   .files-row span{flex:1;text-align:center;font-size:0.72rem;color:var(--ivory-dim);}
-  .chess-square{position:relative;display:flex;align-items:center;justify-content:center;user-select:none;cursor:pointer;}
+  .chess-square{position:relative;display:flex;align-items:center;justify-content:center;user-select:none;cursor:pointer;touch-action:none;}
   .chess-square.light{background:var(--sq-light);}
   .chess-square.dark{background:var(--sq-dark);}
   .chess-square.selected{box-shadow:inset 0 0 0 3px var(--gold-bright);}
@@ -376,6 +376,13 @@
     content:'';position:absolute;inset:8%;border-radius:50%;
     border:3px solid rgba(22,32,46,0.4);pointer-events:none;
   }
+  /* hover/drop target while a piece is being dragged over it – see
+     onPieceDragMove/onPieceDragEnd */
+  .chess-square.drag-over{box-shadow:inset 0 0 0 3px var(--gold-bright);background:rgba(53,87,127,0.18);}
+  /* the piece being dragged: a loose clone that follows the pointer,
+     appended to <body> (not the board) so it's never clipped by the
+     board's own overflow/stacking and always draws on top of it */
+  .piece-drag-ghost{position:fixed;top:0;left:0;pointer-events:none;z-index:1000;touch-action:none;}
   .piece-img{width:94%;height:94%;display:block;pointer-events:none;}
   .piece-fallback{
     font-size:clamp(20px,4.4vw,30px);line-height:1;user-select:none;
