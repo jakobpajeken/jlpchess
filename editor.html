@@ -979,13 +979,14 @@ function createGameWidget(container, game){
       line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
       line.setAttribute('x2', tipX); line.setAttribute('y2', tipY);
       line.setAttribute('stroke', color);
-      line.setAttribute('stroke-width', '0.06');
+      line.setAttribute('stroke-width', '0.09');
       line.setAttribute('stroke-linecap', 'round');
       line.setAttribute('opacity', '0.85');
       arrowsEl.appendChild(line);
-      /* roughly equilateral (~60° tip angle) instead of a long narrow
-         dagger – headWidth close to headLen keeps the two base angles equal */
-      var headLen = 0.28, headWidth = 0.16;
+      /* a sharp, narrow point: the base (short side) is exactly half the
+         length of the two equal sides running from it up to the tip –
+         headWidth = headLen/sqrt(15) is what makes that ratio exact */
+      var headLen = 0.30, headWidth = 0.0775;
       var backX = tipX - ux * headLen, backY = tipY - uy * headLen;
       var perpX = -uy, perpY = ux;
       var poly = document.createElementNS(svgns, 'polygon');
