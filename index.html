@@ -69,6 +69,18 @@
   .brand{font-family:'Spectral',serif;font-size:1.1rem;display:flex;align-items:center;gap:10px;}
   .brand em{font-style:normal;color:var(--gold-bright);}
   .brand-logo{height:36px;width:auto;display:block;}
+  /* one fixed watermark behind the whole page, not part of any tab panel,
+     so it stays put across every tab (and the same rule/markup is mirrored
+     in blog-post.html) – z-index:-1 keeps it under ordinary static content
+     while still painting over body's own background (see stacking-context
+     note: negative z-index paints after the root bg but before in-flow,
+     non-positioned content, which is exactly what "behind the text, above
+     the page background" needs) */
+  .site-watermark{
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:min(58vw,620px);height:auto;opacity:0.05;z-index:-1;
+    pointer-events:none;
+  }
   button:focus-visible,summary:focus-visible{outline:1px solid var(--gold-bright);outline-offset:3px;}
   .langtoggle{
     display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden;
@@ -551,6 +563,8 @@
 </style>
 </head>
 <body>
+
+<img src="images/logo-square-master.png" alt="" class="site-watermark">
 
 <header>
   <nav class="wrap">
