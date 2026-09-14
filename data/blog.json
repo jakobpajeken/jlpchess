@@ -3368,50 +3368,6 @@
     "games": []
   },
   {
-    "slug": "pisss",
-    "status": "draft",
-    "date": "2026-09-14",
-    "author": "Guest author",
-    "image": "",
-    "imageCaption": {
-      "en": "",
-      "de": ""
-    },
-    "imageCredit": "",
-    "games": [],
-    "title": {
-      "en": "Pisss",
-      "de": ""
-    },
-    "category": {
-      "en": "",
-      "de": ""
-    },
-    "excerpt": {
-      "en": "",
-      "de": ""
-    },
-    "lead": {
-      "en": "",
-      "de": ""
-    },
-    "quote": {
-      "en": "",
-      "de": ""
-    },
-    "body": {
-      "en": [
-        "Benendnd"
-      ],
-      "de": []
-    },
-    "submittedBy": {
-      "name": "",
-      "contact": "",
-      "submittedAt": "2026-09-13T22:10:48.779Z"
-    }
-  },
-  {
     "title": {
       "en": "You can do it!",
       "de": "Du schaffst das!"
