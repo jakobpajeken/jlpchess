@@ -93,7 +93,9 @@ var ALLOWED_IMAGE_TYPES = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/we
 var MAX_GAMES_PER_POST = 8;
 
 var ALLOWED_ORIGINS = [
-  'https://jakobpajeken.github.io',
+  'https://jp-chess.com',
+  'https://www.jp-chess.com',
+  'https://jakobpajeken.github.io', /* kept during the domain switch-over; remove once jp-chess.com is fully live */
   'http://localhost:8722'
 ];
 

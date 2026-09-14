@@ -26,7 +26,9 @@ var DEEPL_URL = 'https://api-free.deepl.com/v2/translate';
    the Worker's URL from spending your DeepL quota. Add your custom
    domain here too, once you have one (e.g. "https://jakobpajeken.com"). */
 var ALLOWED_ORIGINS = [
-  'https://jakobpajeken.github.io',
+  'https://jp-chess.com',
+  'https://www.jp-chess.com',
+  'https://jakobpajeken.github.io', /* kept during the domain switch-over; remove once jp-chess.com is fully live */
   'http://localhost:8722'
 ];
 
