@@ -878,6 +878,11 @@ async function saveDraft(){
     return null;
   }
   savedSlug = data.slug;
+  /* remembered per-browser (not per-page-load) so closing the tab and
+     coming back later – even a different day – can still find and offer
+     to resume THIS exact draft instead of only ever starting a new one;
+     see the resume-on-load check near the end of this script */
+  try{ localStorage.setItem('jlpGuestDraftSlug:' + accessKey, data.slug); }catch(e){}
   pendingCoverFile = null;
   if(data.coverImagePath) lastCoverImagePath = data.coverImagePath;
   if(data.imageMap){
