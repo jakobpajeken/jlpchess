@@ -765,10 +765,11 @@ function createGameWidget(container, gameOrGames){
       if(len < 0.01) return;
       var ux = dx / len, uy = dy / len;
       var color = ARROW_COLORS[a.color] || '#888';
-      /* tip always lands exactly on the target square's centre – see
-         index.html's renderBoardAnnotations() for why this isn't
-         shortened along the incoming direction any more */
-      var tipX = to.x, tipY = to.y;
+      /* the tail always starts exactly at the source square's centre; the
+         tip stops a bit short of the target's – see index.html's
+         renderBoardAnnotations() */
+      var TIP_SHORTEN = 0.25;
+      var tipX = to.x - ux * TIP_SHORTEN, tipY = to.y - uy * TIP_SHORTEN;
       var perpX = -uy, perpY = ux;
       /* open, rounded-stroke style (like Feather's arrow icons) instead of
          a filled triangle – see index.html's renderBoardAnnotations() */
