@@ -1015,7 +1015,14 @@ function createGameWidget(container, game){
     return { arrows: arrows, highlights: highlights };
   }
   function parsePgnAnnotations(pgnText){
-    var movetext = (pgnText || '').replace(/\[[^\]]*\]/g, '');
+    /* only drop the leading "[Tag "value"]" header LINES, not every
+       [...]-bracketed thing in the file – a naive whole-text bracket
+       strip here would also eat [%cal]/[%csl] since those sit inside a
+       {...} comment further down in the movetext, not up in the headers */
+    var lines = (pgnText || '').split('\n');
+    var idx = 0;
+    while(idx < lines.length && /^\s*\[\w+\s+"[^"]*"\]\s*$/.test(lines[idx])) idx++;
+    var movetext = lines.slice(idx).join('\n');
     /* strip parenthesised variations, depth-aware so nested ones don't
        leak their closing parens into the mainline text */
     var stripped = '', depth = 0;
