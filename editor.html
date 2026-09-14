@@ -1181,6 +1181,7 @@ function createGameWidget(container, game){
     renderCoordinates();
     if(engine) renderPosition(engine.fen());
     applyPlayerLabels();
+    renderBoardAnnotations();
   }
   function makeMoveBtn(san, ply){
     var btn = document.createElement('button');
