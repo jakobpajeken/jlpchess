@@ -909,21 +909,28 @@ function createGameWidget(container, gameOrGames){
   function makeManualMove(moveObj){
     stopPlay();
     var manualEntry = { ply: moveIndex + 1, san: moveObj.san, nag: '', comment: { de: '', en: '' }, variations: [] };
-    /* registers the move as a real, persistent branch – see index.html's
-       own makeManualMove() for the full rationale (mirrored here).
+    /* registers the move as a real, persistent branch, and keeps a run of
+       consecutive manual moves in ONE bracketed line instead of nesting a
+       fresh pair of parens around each one – see index.html's own
+       makeManualMove() for the full rationale (mirrored here).
        activeDefaultSans is deliberately left untouched. */
-    if(moveIndex === 0){
+    var parentEntry = moveIndex === 0 ? null : activeEntries[moveIndex - 1];
+    if(lastManualMove && lastManualMove.entry === parentEntry){
+      lastManualMove.variationArray.push(manualEntry);
+    } else if(moveIndex === 0){
       if(!gameComments[0]) gameComments[0] = { comment: { de: '', en: '' }, variations: [] };
       if(!gameComments[0].variations) gameComments[0].variations = [];
-      gameComments[0].variations.push([manualEntry]);
+      var rootVarArray = [manualEntry];
+      gameComments[0].variations.push(rootVarArray);
       rootBranches = gameComments[0].variations;
-    } else {
-      var parentEntry = activeEntries[moveIndex - 1];
-      if(parentEntry){
-        if(!parentEntry.variations) parentEntry.variations = [];
-        parentEntry.variations.push([manualEntry]);
-      }
+      lastManualMove = { entry: manualEntry, variationArray: rootVarArray };
+    } else if(parentEntry){
+      if(!parentEntry.variations) parentEntry.variations = [];
+      var varArray = [manualEntry];
+      parentEntry.variations.push(varArray);
+      lastManualMove = { entry: manualEntry, variationArray: varArray };
     }
+    if(lastManualMove) lastManualMove.entry = manualEntry;
     var newLine = activeLine.slice(0, moveIndex).concat([moveObj.san]);
     var newBranches = activeBranches.slice(0, moveIndex).concat([[]]);
     var newEntries = activeEntries.slice(0, moveIndex).concat([manualEntry]);
