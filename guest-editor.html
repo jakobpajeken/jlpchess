@@ -142,6 +142,13 @@
       <strong>What happens next:</strong> Your text is saved, but <strong>not publicly visible</strong>. Jakob sees your draft in his own editor, can adjust it, and decides whether and when it gets published. You can come back and continue this draft later, but only <strong>on this same device and browser</strong> – it isn't saved to any account.
     </div>
 
+    <!-- shown only when loaded via ?slug=... (a post Jakob shared for
+         collaborative editing) – saving here never touches his own text,
+         see loadSharedDraft() -->
+    <div class="notice" id="shared-alt-notice" hidden data-i18n-html="sharedAltNoticeHtml">
+      <strong>This is a shared draft.</strong> Your changes are saved as a separate <strong>alternative version</strong> – Jakob's own text is never overwritten. He'll see your version alongside his and can adopt it whenever he likes.
+    </div>
+
     <div class="form-row">
       <div class="field">
         <label data-i18n="nameLabel">Your name</label>
