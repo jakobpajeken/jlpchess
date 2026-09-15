@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Starting Soon – Countdown</title>
+<!--
+  OBS Browser Source, not a public site page. Add as: Sources -> + ->
+  Browser -> Local file -> pick this file. Width 1920, Height 1080.
+  Custom duration: add ?minutes=5 to the URL (e.g. ?minutes=10). The
+  countdown starts the moment this page loads/reloads, so to restart it
+  right before going live just hit "Refresh cache of current page" on
+  the Browser Source in OBS.
+-->
+<style>
+  @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/Inter-400-normal.woff2') format('woff2');}
+  @font-face{font-family:'Spectral';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/Spectral-600-normal.woff2') format('woff2');}
+  @font-face{font-family:'Spectral';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/Spectral-700-normal.woff2') format('woff2');}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;width:1920px;height:1080px;overflow:hidden;background:#121a26;}
+  body{
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Inter',sans-serif;
+  }
+  .stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+  .vignette{
+    position:absolute;inset:0;
+    background:radial-gradient(circle at 50% 44%, #121a26 0%, #121a26 38%, #0c1220 100%);
+  }
+  .content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
+  .logo-wrap{position:relative;width:340px;height:340px;display:flex;align-items:center;justify-content:center;}
+  .logo-wrap::before{
+    content:'';position:absolute;inset:-46%;
+    background:radial-gradient(circle, rgba(241,242,240,0.60) 0%, rgba(241,242,240,0.20) 42%, rgba(241,242,240,0) 72%);
+    filter:blur(4px);
+  }
+  .logo-wrap img{position:relative;width:100%;height:100%;object-fit:contain;}
+  .rule{width:120px;height:3px;background:#5a6980;margin:38px 0 34px;}
+  h1{
+    margin:0;font-family:'Spectral',serif;font-weight:600;font-size:80px;
+    color:#f1f2f0;text-align:center;letter-spacing:0.01em;text-wrap:balance;
+  }
+  #countdown-label{
+    margin:26px 0 6px;font-size:26px;color:#9aa3b2;letter-spacing:0.04em;
+    text-transform:uppercase;
+  }
+  #countdown-number{
+    font-family:'Spectral',serif;font-weight:700;font-size:150px;line-height:1;
+    color:#f1f2f0;letter-spacing:0.02em;font-variant-numeric:tabular-nums;
+  }
+  .footer{
+    position:absolute;left:0;right:0;bottom:74px;z-index:2;
+    text-align:center;font-size:22px;color:#9aa3b2;letter-spacing:0.02em;
+  }
+  .footer span{margin:0 22px;}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="vignette"></div>
+  <div class="content">
+    <div class="logo-wrap"><img src="images/logo-square-master.png" alt=""></div>
+    <div class="rule"></div>
+    <h1>Starting Soon</h1>
+    <div id="countdown-label">Live in</div>
+    <div id="countdown-number">05:00</div>
+  </div>
+  <div class="footer">
+    <span>twitch.tv/jpchess64</span><span>youtube.com/@jpchess64</span><span>jp-chess.com</span>
+  </div>
+</div>
+<script>
+(function(){
+  var params = new URLSearchParams(location.search);
+  var minutes = parseFloat(params.get('minutes'));
+  if(!isFinite(minutes) || minutes <= 0) minutes = 5;
+  var doneLabel = params.get('doneLabel') || 'Live now';
+  var doneText = params.get('doneText') || '00:00';
+  var target = Date.now() + minutes * 60000;
+  var numEl = document.getElementById('countdown-number');
+  var labelEl = document.getElementById('countdown-label');
+  var timer;
+  function render(){
+    var remainingMs = target - Date.now();
+    if(remainingMs <= 0){
+      numEl.textContent = doneText;
+      labelEl.textContent = doneLabel;
+      clearInterval(timer);
+      return;
+    }
+    var totalSec = Math.ceil(remainingMs / 1000);
+    var mm = Math.floor(totalSec / 60);
+    var ss = totalSec % 60;
+    numEl.textContent = (mm < 10 ? '0' : '') + mm + ':' + (ss < 10 ? '0' : '') + ss;
+  }
+  render();
+  timer = setInterval(render, 250);
+})();
+</script>
+</body>
+</html>
