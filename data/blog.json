@@ -3023,6 +3023,7 @@
     },
     "slug": "the-3-most-important-secrets-of-chess-training",
     "status": "draft",
+    "finished": false,
     "category": {
       "en": [
         "Training",
@@ -3049,36 +3050,35 @@
     "body": {
       "en": [
         "[color=blue]**__Here are the three most important truths about chess training that will take your game to the next level:\n__**[/color]",
-        "**\n1. Openings don't make you better (they're like football shoes)**",
+        "[size=24][color=blue]\n**\n1. Openings don't make you better (they're like football shoes)**[/color][/size]",
         "Opening books and courses sell exceptionally well. Everyone wants to know the secret weapon that puts their opponent at a disadvantage as early as move 12. But the reality is different: Openings don't really make you a better chess player.",
         "They’re like football cleats. Of course, you need sturdy shoes to step onto the field and avoid slipping. But even the most expensive cleats won’t turn an amateur player into Lionel Messi. Opening theory merely gets you into a playable position. What happens after that–making plans, coordinating pieces, assessing positions–determines whether you win or lose. Anyone who spends 80% of their time on openings is investing in the wrong end of the game.",
-        "**\n2. Only active training is real training**",
+        "**[color=blue][size=24]\n2. Only active training is real training[/size][/color]**",
         "Many players sit down with a chess coach, lean back, and spend an hour watching variations being demonstrated–literally being showered with knowledge. Afterward, they feel smarter. The problem with this is that it’s an illusion of knowledge.",
         "No one improves just by listening and nodding. Chess is like weight training: if your fitness trainer is the one lifting the weights, your muscles won’t grow. Real chess training has to be hard work. It requires setting up the board yourself, analyzing positions without the help of a chess engine, solving problems on your own, and making decisions under pressure. If your brain isn’t working overtime during training, it usually wasn’t training at all–just entertainment.",
-        "**\n3. Variant calculation is the be-all and end-all**",
+        "[color=blue][size=24]**\n3. Calculation is everything**\n[/size][/color]",
         "If there is such a thing as a superpower in chess, it is the ability to calculate variations precisely and deeply. Tactics and calculation are not limited to specific moments–they form the foundation of every phase of a game:\n* In the opening, calculation protects you from your opponent’s traps.\n* In the middlegame, it enables tactical strikes and strategic breakthroughs.\n* In the endgame, a single calculation often determines whether you win or draw.",
         "If you refine your ability to evaluate options, you'll benefit in every aspect of the game. You'll spot threats sooner, find better resources, and play with much more confidence. Think of this ability as the main engine of your game: if the engine is strong, the whole car goes faster.",
-        "**\n Conclusion**",
+        "[size=20]**\n Conclusion**[/size]",
         "Stop wasting your time on endless introductory videos and passive listening. Instead, focus on active work, challenge your brain with tricky problems, and practice calculating variations. If you maintain this focus, you’ll soon see the results on the DWZ and Elo rating lists."
       ],
       "de": [
         "[color=blue]**__Hier sind die drei wichtigsten Wahrheiten über Schachtraining, die dein Spiel auf das nächste Level heben werden:\n__**[/color]",
-        "**\n1. Eröffnungen machen dich nicht besser (Sie sind wie Fußballschuhe)**",
+        "[color=blue][size=24]**\n1. Eröffnungen machen dich nicht besser (Sie sind wie Fußballschuhe)**\n[/size][/color]",
         "Eröffnungsbücher und -kurse verkaufen sich hervorragend. Jeder will die geheime Waffe kennen, mit der der Gegner in Zug 12 bereits schlechter steht. Doch die Realität sieht anders aus: Eröffnungen machen dich als Schachspieler nicht wirklich besser.",
         "Sie verhalten sich wie Fußballschuhe. Natürlich brauchst du feste Schuhe, um auf den Platz zu gehen und nicht auszurutschen. Aber die teuersten Stollenschuhe machen aus einem Hobbyspieler noch lange keinen Lionel Messi. Eröffnungstheorie bringt dich lediglich in eine spielbare Stellung. Was danach passiert – Pläne schmieden, Figuren koordinieren, Stellungen einschätzen –, entscheidet über Sieg oder Niederlage. Wer 80 % seiner Zeit in Eröffnungen steckt, investiert in das falsche Ende des Spiels.",
-        "**\n2. Nur aktives Training ist echtes Training**",
+        "[size=24][color=blue]\n**\n2. Nur aktives Training ist echtes Training**[/color][/size]",
         "Viele Spieler setzen sich zu einem Schachtrainer, lehnen sich zurück und lassen sich eine Stunde lang Varianten zeigen, ja regelrecht mit Wissen berieseln. Hinterher fühlt man sich klüger. Das Problem daran: Es ist eine Illusion des Wissens.",
         "Vom bloßen Zuhören und Nicken verbessert sich niemand. Schach ist wie Kraftsport: Wenn dein Fitnesstrainer die Hanteln stemmt, wachsen deine Muskeln nicht. Echtes Schachtraining muss anstrengend sein. Es erfordert, das Brett selbst aufzubauen, Stellungen ohne Engine-Hilfe zu analysieren, Aufgaben eigenständig zu lösen und Entscheidungen unter Druck zu treffen. Wenn dein Gehirn beim Training nicht raucht, war es meist kein Training, sondern bloße Unterhaltung.",
-        "**\n3. Variantenberechnung ist das A und O**",
+        "[size=24][color=blue]**\n3. Variantenberechnung ist das A und O**\n[/color][/size]",
         "Wenn es eine Superkraft im Schach gibt, dann ist es die Fähigkeit, Varianten präzise und tief zu berechnen. Taktik und Berechnung sind nicht auf bestimmte Momente beschränkt – sie bilden das Fundament in jeder Phase einer Partie:\n* In der Eröffnung schützt dich die Berechnung vor gegnerischen Fallen.\n* Im Mittelspiel ermöglicht sie taktische Schläge und strategische Durchbrüche.\n* Im Endspiel entscheidet oft ein einzelner Rechenschritt über Gewinn oder Remis.",
         "Wer seine Variantenberechnung schärft, profitiert davon in jedem Bereich des Spiels. Du erkennst Gefahren früher, findest stärkere Ressourcen und spielst mit wesentlich mehr Selbstvertrauen. Betrachte die Berechnung als den Hauptmotor deines Spiels: Ist der Motor stark, läuft das gesamte Auto schneller.",
-        "**\n Fazit**",
+        "[size=20]**\n Fazit**[/size]",
         "Höre auf, deine Zeit mit endlosen Eröffnungsvideos und passivem zuhören verschwenden. Setze stattdessen auf aktives Arbeiten, fordere dein Gehirn mit kniffligen Aufgaben heraus und trainiere deine Variantenberechnung. Wer diesen Fokus beibehält, wird die Ergebnisse schon bald auf der DWZ- und Elo-Tafel sehen."
       ]
     },
     "quote": "",
-    "games": [],
-    "finished": false
+    "games": []
   },
   {
     "title": {
