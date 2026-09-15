@@ -3206,6 +3206,11 @@ function openBlogForm(idx){
       localStorage.setItem('jlpBlogPreview:' + entry.slug, JSON.stringify({ post: entry, savedAt: Date.now() }));
     }catch(e){ /* localStorage unavailable – preview just falls back to waiting for deployment */ }
   }
+  if(editing && p.guestVersion){
+    document.getElementById('bf-alt-view-btn').addEventListener('click', function(){ viewGuestVersion(idx); });
+    document.getElementById('bf-alt-adopt-btn').addEventListener('click', function(){ adoptGuestVersion(idx); });
+    document.getElementById('bf-alt-discard-btn').addEventListener('click', function(){ discardGuestVersion(idx); });
+  }
   document.getElementById('blog-form').addEventListener('submit', async function(e){
     e.preventDefault();
     var submitBtn = e.target.querySelector('button[type="submit"]');
