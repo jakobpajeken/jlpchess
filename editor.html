@@ -1486,6 +1486,29 @@ function previewLang(val){
   if(val && typeof val === 'object') return val.de || val.en || '';
   return val || '';
 }
+/* Category can hold several values (unlike every other {en,de} field on a
+   post, which is always a single string) – and, for any post saved before
+   this feature existed, still be a single plain string per language. This
+   normalizes either shape into a plain array so the rest of the code only
+   ever has to deal with one. */
+function categoryArray(val){
+  if(Array.isArray(val)) return val.map(function(v){ return (v || '').toString().trim(); }).filter(Boolean);
+  if(typeof val === 'string' && val.trim()) return [val.trim()];
+  return [];
+}
+function splitCategoryValue(val){
+  if(val && typeof val === 'object' && !Array.isArray(val)){
+    return { en: categoryArray(val.en), de: categoryArray(val.de) };
+  }
+  return { en: categoryArray(val), de: [] };
+}
+/* the reverse of splitCategoryValue: two comma-separated input strings ->
+   the {en,de} value actually written to blog.json (each side an array –
+   a single category is simply a one-item array, so it still reads fine
+   everywhere a plain string used to). */
+function joinCategoryValue(enText, deText){
+  return { en: categoryArray((enText || '').split(',')), de: categoryArray((deText || '').split(',')) };
+}
 /* today's date in the Europe/Berlin timezone (CET/CEST, DST-aware), formatted
    as YYYY-MM-DD for a <input type="date"> value – used to prefill a new
    blog post's date on first publish, while staying manually editable */
