@@ -3376,7 +3376,10 @@
     "image": "",
     "imageCaption": "",
     "imageCredit": "",
-    "excerpt": "",
+    "excerpt": {
+      "en": "What really makes for a good opening repertoire? It's about much more than just the right variation - and often involves things quite different from what one might initially think.",
+      "de": "Was macht ein gutes Eröffnungsrepertoire wirklich aus? Es geht um weit mehr als die richtige Variante – und oft um ganz andere Dinge, als man zunächst denkt."
+    },
     "lead": {
       "en": "A good opening repertoire is much more than just a collection of variations memorized by heart. Anyone who studies openings soon finds themselves asking: What actually makes a repertoire truly good?",
       "de": "Ein gutes Eröffnungsrepertoire ist weit mehr als eine Sammlung von Varianten, die man auswendig gelernt hat. Wer sich mit Eröffnungen beschäftigt, steht schnell vor der Frage: Was macht ein Repertoire eigentlich wirklich gut?"
@@ -3583,8 +3586,7 @@
       "en": "When the theory ends, your knowledge shouldn't end there. Ideally, that's exactly where the area begins in which you are most knowledgeable.",
       "de": "Wenn die Theorie endet, sollte nicht das eigene Wissen enden. Im Idealfall beginnt genau dort der Bereich, in dem man sich selbst am besten auskennt."
     },
-    "games": [],
-    "finished": true
+    "games": []
   },
   {
     "title": {
