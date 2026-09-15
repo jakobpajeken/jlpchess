@@ -3071,7 +3071,8 @@
       ]
     },
     "quote": "",
-    "games": []
+    "games": [],
+    "finished": false
   },
   {
     "title": {
@@ -3473,6 +3474,7 @@
       "de": []
     },
     "quote": "",
-    "games": []
+    "games": [],
+    "finished": true
   }
 ]
