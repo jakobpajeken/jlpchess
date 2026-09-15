@@ -370,6 +370,11 @@ var UI_STRINGS = {
     resumeContinueBtn: 'Diesen Entwurf weiter bearbeiten',
     resumeDiscardBtn: 'Stattdessen neu anfangen',
     resumeLoaded: 'Entwurf geladen – mach genau da weiter, wo du aufgehört hast.',
+    sharedLoading: 'Dieser geteilte Entwurf wird geöffnet …',
+    sharedLoadFailed: 'Dieser Entwurf konnte nicht geöffnet werden. Bitte den Link prüfen oder Jakob um einen neuen bitten.',
+    sharedLockedText: 'Dieser Artikel wird gerade von {name} bearbeitet – bitte in ein paar Minuten erneut versuchen.',
+    sharedLockedUnknown: 'jemand anderem',
+    sharedLoaded: 'Entwurf geladen – du bearbeitest ihn jetzt gemeinsam mit Jakob.',
     h1: 'Blogbeitrag schreiben',
     intro: 'Schreibe hier deinen Beitrag für den Blog von IM Jakob Leon Pajeken. Du kannst ihn jederzeit als Vorschau ansehen, genau so, wie der Artikel später veröffentlicht aussehen würde.',
     noticeHtml: '<strong>Was als Nächstes passiert:</strong> Dein Text wird gespeichert, ist aber <strong>nicht öffentlich sichtbar</strong>. Jakob sieht deinen Entwurf in seinem eigenen Editor, kann ihn anpassen und entscheidet, ob und wann er veröffentlicht wird. Du kannst später hier weiterschreiben, aber nur <strong>auf diesem selben Gerät und Browser</strong> – der Entwurf ist an kein Konto gebunden.',
@@ -487,6 +492,25 @@ function applyLanguage(lang){
 }
 
 var accessKey = new URLSearchParams(location.search).get('key') || '';
+/* present only on a guest-editor.html?slug=... link, i.e. one of Jakob's
+   own drafts he shared out for collaborative editing (see editor.html's
+   "Für Gast-Editor freigeben" toggle) – NOT set for a guest's own normal
+   fresh-draft submission flow */
+var slugParam = new URLSearchParams(location.search).get('slug') || '';
+/* stable per browser (not per draft, not per link) so the Worker can tell
+   "still me" apart from "someone else" when checking/refreshing the
+   editLock on a shared draft – see handleLoad()/the idx branch in
+   guest-submit-worker.js */
+var editorSessionId = (function(){
+  var storageKey = 'jlpGuestEditorSessionId';
+  try{
+    var existing = localStorage.getItem(storageKey);
+    if(existing) return existing;
+  }catch(e){}
+  var fresh = 'es' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  try{ localStorage.setItem(storageKey, fresh); }catch(e){}
+  return fresh;
+})();
 var gate = document.getElementById('gate');
 var app = document.getElementById('app');
 /* NOT calling applyLanguage('en') here on purpose: the static HTML
