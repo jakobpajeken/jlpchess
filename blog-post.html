@@ -507,6 +507,17 @@ function pickLang(val){
   }
   return val || '';
 }
+/* Category is the one field that can hold SEVERAL values per language
+   (every other {en,de} field on a post is always a single string) – and,
+   for any post saved before that was possible, still just a single plain
+   string. This handles both shapes and joins multiple categories into one
+   readable label ("Openings, Training") for the eyebrow above the title. */
+function pickCategoryText(val){
+  var lang = document.documentElement.lang === 'de' ? 'de' : 'en';
+  var raw = (val && typeof val === 'object' && !Array.isArray(val)) ? (val[lang] || val.en || val.de) : val;
+  if(Array.isArray(raw)) return raw.map(function(v){ return (v || '').toString().trim(); }).filter(Boolean).join(', ');
+  return (raw || '').toString();
+}
 /* dates are stored as a plain ISO string ("YYYY-MM-DD") and formatted per
    language only at display time, so a post never needs its date typed out
    twice; read time is calculated from the body text rather than stored,
@@ -1633,7 +1644,7 @@ function renderRealPost(post){
       draftBanner.hidden = true;
     }
   }
-  setText('post-category', pickLang(post.category));
+  setText('post-category', pickCategoryText(post.category));
   setText('post-title', pickLang(post.title));
   setText('post-author', post.author || 'IM Jakob Leon Pajeken');
   setText('post-date', formatBlogDate(post.date, lang));
