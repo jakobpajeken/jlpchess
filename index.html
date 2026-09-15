@@ -3171,6 +3171,32 @@ function loadResultsData(){
       /* data/results.json missing or blocked – fallback entries in the HTML stay */
     });
 }
+/* a category link on an article page (blog-post.html) points here as
+   index.html?category=<name>&lang=<lang>#blog – read once on load, same
+   idea as ?lang= elsewhere on this page. Forces the Blog tab open
+   regardless of any #hash, since a category link's whole point is
+   landing straight on the filtered list. */
+(function(){
+  try{
+    var cat = new URLSearchParams(location.search).get('category');
+    if(cat){
+      blogCategoryFilter = cat;
+      showTab('blog');
+    }
+  }catch(e){}
+})();
+var blogCategoryClearBtn = document.getElementById('blog-category-clear');
+if(blogCategoryClearBtn){
+  blogCategoryClearBtn.addEventListener('click', function(){
+    blogCategoryFilter = null;
+    try{
+      var url = new URL(location.href);
+      url.searchParams.delete('category');
+      history.replaceState(null, '', url.pathname + url.search + url.hash);
+    }catch(e){}
+    renderBlogGrid();
+  });
+}
 loadBlogData();
 loadTestimonialsData();
 loadResultsData();
