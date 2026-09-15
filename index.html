@@ -1430,7 +1430,6 @@ function applyFreeAnalysisSettings(s){
   setText('free-analysis-cta', s.ctaText);
   setText('free-analysis-dismiss', s.dismissText);
   if(s.twitchHandle){
-    setText('free-analysis-twitch-handle', s.twitchHandle);
     var link = document.getElementById('free-analysis-twitch-link');
     if(link) link.href = 'https://www.twitch.tv/' + s.twitchHandle;
   }
