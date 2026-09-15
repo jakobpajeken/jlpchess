@@ -529,7 +529,59 @@ if(!accessKey){
      by someone else – see #shared-status above */
   if(!slugParam) app.hidden = false;
 }
-document.getElementById('g-lang').addEventListener('change', function(){ applyLanguage(this.value); });
+/* ---- bilingual content buffer ----
+   The visible form only ever shows ONE language's fields at a time (kept
+   from the original single-language layout – simpler than a side-by-side
+   dual form), but BOTH languages now live in memory here and both get
+   sent on every save; g-lang just picks which one is currently in the
+   text boxes, exactly like flipping a page. Games, the cover photo and
+   its credit stay shared/single, same as editor.html's own model. */
+function emptyLangDraft(){
+  return { title: '', category: '', excerpt: '', lead: '', quote: '', coverCaption: '', body: '' };
+}
+var bilingualDraft = { en: emptyLangDraft(), de: emptyLangDraft() };
+var currentContentLang = 'en';
+function captureCurrentLangFields(lang){
+  bilingualDraft[lang] = {
+    title: document.getElementById('g-title').value,
+    category: document.getElementById('g-category').value,
+    excerpt: document.getElementById('g-excerpt').value,
+    lead: document.getElementById('g-lead').value,
+    quote: document.getElementById('g-quote').value,
+    coverCaption: document.getElementById('g-cover-caption').value,
+    body: bodyTextarea.value
+  };
+}
+function applyLangFieldsToForm(lang){
+  var d = bilingualDraft[lang] || emptyLangDraft();
+  document.getElementById('g-title').value = d.title;
+  document.getElementById('g-category').value = d.category;
+  document.getElementById('g-excerpt').value = d.excerpt;
+  document.getElementById('g-lead').value = d.lead;
+  document.getElementById('g-quote').value = d.quote;
+  document.getElementById('g-cover-caption').value = d.coverCaption;
+  bodyTextarea.value = d.body;
+}
+/* small "✓ English · English empty" style status line under the language
+   field, so it's obvious at a glance which language(s) already have
+   something written, even while looking at the other one */
+function updateLangAvailabilityHint(){
+  var el = document.getElementById('g-lang-status');
+  if(!el) return;
+  var enFilled = bilingualDraft.en.title.trim() || bilingualDraft.en.body.trim();
+  var deFilled = bilingualDraft.de.title.trim() || bilingualDraft.de.body.trim();
+  el.textContent = t('langStatus', {
+    en: enFilled ? t('langStatusFilled') : t('langStatusEmpty'),
+    de: deFilled ? t('langStatusFilled') : t('langStatusEmpty')
+  });
+}
+document.getElementById('g-lang').addEventListener('change', function(){
+  captureCurrentLangFields(currentContentLang);
+  currentContentLang = this.value;
+  applyLanguage(currentContentLang);
+  applyLangFieldsToForm(currentContentLang);
+  updateLangAvailabilityHint();
+});
 
 /* previously-used categories, so a recurring one can be reused instead of
    retyped – reads the site's own public blog.json directly, no GitHub
