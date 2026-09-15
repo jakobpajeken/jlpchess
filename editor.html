@@ -2078,18 +2078,34 @@ function renderBlog(){
        only pre-publish, a published post is trivially already "finished". */
     var notYetLive = isDraft || scheduled;
     var finishedBadge = (notYetLive && p.finished) ? '<span class="status-badge finished">✓ Fertig</span>' : '';
+    /* soft, informational only – Jakob can always still edit/save over it,
+       see the equivalent (hard, server-enforced) check for guest-editor.html
+       itself in guest-submit-worker.js */
+    var lock = activeEditLock(p);
+    var lockBadge = (p.guestEditable && lock) ? '<span class="status-badge locked" title="Läuft in ' + Math.max(1, Math.round((EDIT_LOCK_TTL_MS - (Date.now() - Date.parse(lock.since))) / 60000)) + ' Min. ab, falls niemand mehr speichert">⏳ Wird im Gast-Editor bearbeitet' + (lock.holderName ? ' (' + escapeHtml(lock.holderName) + ')' : '') + '</span>' : '';
+    var guestKey = getGuestAccessKey();
+    var shareRow = '';
+    if(notYetLive && p.slug && p.guestEditable){
+      var shareLink = guestKey ? (guestEditorLinkBase() + '?key=' + encodeURIComponent(guestKey) + '&slug=' + encodeURIComponent(p.slug)) : '';
+      shareRow = '<div class="item-sub">' +
+        (shareLink
+          ? '🔗 <a href="' + escapeHtml(shareLink) + '" target="_blank" rel="noopener">Gast-Editor-Link</a> <button type="button" class="btn small" data-copy-guest-link="' + idx + '">Kopieren</button>'
+          : '<span style="color:var(--err);">Bitte oben den Gast-Zugangsschlüssel eintragen, um den Link zu sehen.</span>') +
+        '</div>';
+    }
     var row = document.createElement('div');
     row.className = 'item-row';
     row.innerHTML =
       '<div class="item-main">' +
       (p.image ? '<img class="item-thumb" src="' + escapeHtml(p.image) + '" alt="">' : '') +
-      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + (badge ? ' ' + badge : '') + (finishedBadge ? ' ' + finishedBadge : '') + (guestBadge ? ' ' + guestBadge : '') + '</div>' +
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + (badge ? ' ' + badge : '') + (finishedBadge ? ' ' + finishedBadge : '') + (guestBadge ? ' ' + guestBadge : '') + (lockBadge ? ' ' + lockBadge : '') + '</div>' +
       '<div class="item-sub">' + escapeHtml(formatBlogDate(p.date, 'de')) + (p.date && p.excerpt ? ' · ' : '') + escapeHtml(previewLang(p.excerpt) || '') +
       (p.submittedBy && p.submittedBy.contact ? ' · <span title="Kontakt der Gastautorin/des Gastautors">' + escapeHtml(p.submittedBy.contact) + '</span>' : '') +
-      '</div></div>' +
+      '</div>' + shareRow + '</div>' +
       '</div>' +
       '<div class="item-actions">' +
       (notYetLive ? '<button type="button" class="btn small" data-toggle-finished="' + idx + '">' + (p.finished ? 'Fertig-Markierung entfernen' : 'Als fertig markieren') + '</button>' : '') +
+      (notYetLive && p.slug ? '<button type="button" class="btn small" data-toggle-guest-editable="' + idx + '">' + (p.guestEditable ? 'Freigabe aufheben' : 'Für Gast-Editor freigeben') + '</button>' : '') +
       '<button type="button" class="btn small" data-toggle-status="' + idx + '">' + (isDraft || scheduled ? 'Jetzt veröffentlichen' : 'Zu Entwurf') + '</button>' +
       (p.slug ? '<button type="button" class="btn small" data-preview="' + idx + '" title="Öffnet die Live-Ansicht direkt, ohne erst das Bearbeiten-Formular zu öffnen">👁 Vorschau</button>' : '') +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
