@@ -345,6 +345,28 @@
       <button type="button" class="btn small" id="er-full-add">+ Eintrag hinzufügen</button>
       <div id="er-full-form-slot"></div>
     </section>
+
+    <!-- ===================== POPUP ===================== -->
+    <section class="panel" id="panel-popup">
+      <div class="panel-head">
+        <div>
+          <h2>Popup</h2>
+          <p>Erscheint einmal pro Besuch, wenn jemand auf der <strong>englischen</strong> Coaching-Seite landet – nie auf Deutsch. Text ist immer Englisch, da das Angebot nur auf Englisch existiert.</p>
+        </div>
+      </div>
+      <div class="entry-form">
+        <label class="checkbox-row"><input type="checkbox" id="pop-enabled"> Aktiv (wird Besuchern angezeigt)</label>
+        <div class="field"><label>Eyebrow (kleiner Label-Text oben)</label><input type="text" id="pop-eyebrow" placeholder="z. B. Limited offer"></div>
+        <div class="field"><label>Überschrift</label><input type="text" id="pop-heading" placeholder="z. B. Free Game Analysis, Live on Stream"></div>
+        <div class="field"><label>Text</label><textarea id="pop-body" class="tall" placeholder="Haupttext des Popups"></textarea></div>
+        <div class="field"><label>Button-Text (Haupt-CTA)</label><input type="text" id="pop-cta" placeholder="z. B. Get in Touch"></div>
+        <div class="field"><label>Button-Text (Schließen/Später)</label><input type="text" id="pop-dismiss" placeholder="z. B. Maybe later"></div>
+        <div class="field"><label>Twitch-Handle</label><span class="hint">Nur der Name, ohne twitch.tv/ davor – das Icon im Popup verlinkt automatisch dorthin.</span><input type="text" id="pop-twitch" placeholder="z. B. jpchess64"></div>
+        <div class="form-actions">
+          <button type="button" class="btn solid" id="pop-save-btn">Speichern</button>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 
