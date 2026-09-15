@@ -966,7 +966,37 @@ document.getElementById('g-preview-btn').addEventListener('click', async functio
    end of the script (not up by the gate check) since it needs postGames /
    bodyTextarea / coverPreviewEl / renderPostGames etc., all defined
    further down – this only ever RUNS after every one of those is ready. */
-if(accessKey){
+/* shared by the "resume my own earlier draft" banner below and by
+   loadSharedDraft() further down – fills the whole form from a blog.json
+   entry and points savedSlug at it, so the next Save/Preview updates
+   THIS entry instead of creating a duplicate one. */
+function applyEntryToForm(entry, prefillAuthor){
+  var draftLang = (entry.title && entry.title.en) ? 'en' : 'de';
+  document.getElementById('g-lang').value = draftLang;
+  applyLanguage(draftLang);
+  if(prefillAuthor !== false){
+    document.getElementById('g-name').value = (entry.submittedBy && entry.submittedBy.name) || '';
+    document.getElementById('g-contact').value = (entry.submittedBy && entry.submittedBy.contact) || '';
+  }
+  document.getElementById('g-title').value = (entry.title && entry.title[draftLang]) || '';
+  document.getElementById('g-category').value = (entry.category && entry.category[draftLang]) || '';
+  document.getElementById('g-excerpt').value = (entry.excerpt && entry.excerpt[draftLang]) || '';
+  document.getElementById('g-lead').value = (entry.lead && entry.lead[draftLang]) || '';
+  document.getElementById('g-quote').value = (entry.quote && entry.quote[draftLang]) || '';
+  bodyTextarea.value = ((entry.body && entry.body[draftLang]) || []).join('\n\n');
+  document.getElementById('g-cover-caption').value = (entry.imageCaption && entry.imageCaption[draftLang]) || '';
+  document.getElementById('g-cover-credit').value = entry.imageCredit || '';
+  if(entry.image){
+    lastCoverImagePath = entry.image;
+    coverPreviewEl.innerHTML = '<img src="' + entry.image + '" alt="">';
+  }
+  postGames = (entry.games || []).slice();
+  renderPostGames();
+  savedSlug = entry.slug;
+  return draftLang;
+}
+
+if(accessKey && !slugParam){
   (async function checkForResumableDraft(){
     var storageKey = 'jlpGuestDraftSlug:' + accessKey;
     var slug;
@@ -993,31 +1023,60 @@ if(accessKey){
       banner.hidden = true;
     });
     document.getElementById('resume-continue-btn').addEventListener('click', function(){
-      document.getElementById('g-lang').value = draftLang;
-      applyLanguage(draftLang);
-      document.getElementById('g-name').value = (entry.submittedBy && entry.submittedBy.name) || '';
-      document.getElementById('g-contact').value = (entry.submittedBy && entry.submittedBy.contact) || '';
-      document.getElementById('g-title').value = (entry.title && entry.title[draftLang]) || '';
-      document.getElementById('g-category').value = (entry.category && entry.category[draftLang]) || '';
-      document.getElementById('g-excerpt').value = (entry.excerpt && entry.excerpt[draftLang]) || '';
-      document.getElementById('g-lead').value = (entry.lead && entry.lead[draftLang]) || '';
-      document.getElementById('g-quote').value = (entry.quote && entry.quote[draftLang]) || '';
-      bodyTextarea.value = ((entry.body && entry.body[draftLang]) || []).join('\n\n');
-      document.getElementById('g-cover-caption').value = (entry.imageCaption && entry.imageCaption[draftLang]) || '';
-      document.getElementById('g-cover-credit').value = entry.imageCredit || '';
-      if(entry.image){
-        lastCoverImagePath = entry.image;
-        coverPreviewEl.innerHTML = '<img src="' + entry.image + '" alt="">';
-      }
-      postGames = (entry.games || []).slice();
-      renderPostGames();
-      /* the crucial part: the next Save/Preview click updates THIS entry
-         instead of creating a duplicate one, exactly as if the guest had
-         never closed the tab */
-      savedSlug = entry.slug;
+      applyEntryToForm(entry);
       banner.hidden = true;
       showStatus(t('resumeLoaded'), 'ok');
     });
+  })();
+}
+
+/* ---- open a draft Jakob shared for collaborative editing
+   (guest-editor.html?key=...&slug=...) ----
+   Unlike the resume-flow above (same browser, localStorage-only), this
+   works from ANY browser Jakob sends the link to. The Worker checks the
+   draft is flagged guestEditable and not already locked by a different
+   editorSessionId, then acquires the lock for this one before handing
+   the content back – see handleLoad() in guest-submit-worker.js. The
+   form (#app) stays hidden the whole time this is unresolved, so nobody
+   can start typing into a draft someone else already has open. */
+if(accessKey && slugParam){
+  (async function loadSharedDraft(){
+    var statusEl = document.getElementById('shared-status');
+    statusEl.hidden = false;
+    statusEl.classList.remove('err');
+    statusEl.textContent = t('sharedLoading');
+    if(!GUEST_WORKER_URL){
+      statusEl.textContent = t('statusNoWorker');
+      statusEl.classList.add('err');
+      return;
+    }
+    var resp, data;
+    try{
+      resp = await fetch(GUEST_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'load', accessKey: accessKey, slug: slugParam, editorSessionId: editorSessionId })
+      });
+      data = await resp.json();
+    }catch(e){
+      statusEl.textContent = t('statusConnFailed');
+      statusEl.classList.add('err');
+      return;
+    }
+    if(!resp.ok || !data.ok){
+      statusEl.textContent = data.error || t('sharedLoadFailed');
+      statusEl.classList.add('err');
+      return;
+    }
+    if(data.locked){
+      statusEl.textContent = t('sharedLockedText', { name: data.lockHolderName || t('sharedLockedUnknown') });
+      statusEl.classList.add('err');
+      return;
+    }
+    applyEntryToForm(data.post, false);
+    statusEl.hidden = true;
+    app.hidden = false;
+    showStatus(t('sharedLoaded'), 'ok');
   })();
 }
 </script>
