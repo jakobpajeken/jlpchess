@@ -2942,8 +2942,8 @@ function renderBlogGrid(){
       return categoryArrayFor(post.category, lang).some(function(c){ return c.toLowerCase() === wanted; });
     });
     if(filterBar){
-      document.getElementById('blog-category-filter-text').textContent = t('blog.categoryFilterPrefix') + ': "' + blogCategoryFilter + '"';
-      document.getElementById('blog-category-clear').textContent = t('blog.categoryFilterClear');
+      document.getElementById('blog-category-filter-text').textContent = i18n['blog.categoryFilterPrefix'][lang] + ': "' + blogCategoryFilter + '"';
+      document.getElementById('blog-category-clear').textContent = i18n['blog.categoryFilterClear'][lang];
       filterBar.hidden = false;
     }
   } else if(filterBar){
