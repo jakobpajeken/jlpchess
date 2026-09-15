@@ -3197,6 +3197,40 @@ async function deleteResultEntry(cat, idx){
 Object.keys(RESULTS_META).forEach(function(cat){
   document.getElementById(RESULTS_META[cat].addBtnId).addEventListener('click', function(){ openResultForm(cat, null); });
 });
+
+/* ============================================================
+   POPUP (data/popup.json) – the English-only, Coaching-tab-only
+   free-analysis popup on the live site. One settings object, not a
+   list, so this is a plain form instead of the add/edit/delete
+   pattern the other panels use.
+   ============================================================ */
+function renderPopupPanel(){
+  document.getElementById('pop-enabled').checked = !!popupSettings.enabled;
+  document.getElementById('pop-eyebrow').value = popupSettings.eyebrow;
+  document.getElementById('pop-heading').value = popupSettings.heading;
+  document.getElementById('pop-body').value = popupSettings.body;
+  document.getElementById('pop-cta').value = popupSettings.ctaText;
+  document.getElementById('pop-dismiss').value = popupSettings.dismissText;
+  document.getElementById('pop-twitch').value = popupSettings.twitchHandle;
+}
+document.getElementById('pop-save-btn').addEventListener('click', async function(){
+  popupSettings = {
+    enabled: document.getElementById('pop-enabled').checked,
+    eyebrow: document.getElementById('pop-eyebrow').value.trim(),
+    heading: document.getElementById('pop-heading').value.trim(),
+    body: document.getElementById('pop-body').value.trim(),
+    ctaText: document.getElementById('pop-cta').value.trim(),
+    dismissText: document.getElementById('pop-dismiss').value.trim(),
+    /* strip a pasted "twitch.tv/" or "@" by hand, so the field always
+       holds just the bare handle the live site's popup expects */
+    twitchHandle: document.getElementById('pop-twitch').value.trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?twitch\.tv\//i, '').replace(/\/$/, '')
+  };
+  try{
+    await writeJson('popup.json', popupSettings);
+    renderPopupPanel();
+    showToast('Gespeichert ✓');
+  }catch(err){ showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
+});
 </script>
 </body>
 </html>
