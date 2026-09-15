@@ -406,6 +406,47 @@ var GITHUB_TOKEN_KEY = 'jlp-editor-token';
 var githubToken = null;
 var shaCache = {}; /* Datei-Pfad -> sha der zuletzt gelesenen Version, für Updates nötig */
 
+/* Gast-Editor: derselbe GUEST_ACCESS_KEY, den scripts/guest-submit-worker.js
+   als Secret trägt – nur gebraucht, um teilbare guest-editor.html-Links zu
+   bauen, nie an GitHub oder den Worker selbst geschickt (der prüft ihn nur
+   gegen sein eigenes Secret). Bleibt wie der GitHub-Token nur lokal. */
+var GUEST_KEY_STORAGE = 'jlp-guest-access-key';
+function getGuestAccessKey(){
+  try{ return localStorage.getItem(GUEST_KEY_STORAGE) || ''; }catch(e){ return ''; }
+}
+function guestEditorLinkBase(){
+  return location.href.replace(/editor\.html.*$/, '') + 'guest-editor.html';
+}
+/* mirrors activeLock()/EDIT_LOCK_TTL_MS in guest-submit-worker.js, purely
+   for display here – the Worker is the actual source of truth and does
+   its own equivalent check server-side before accepting a save */
+var EDIT_LOCK_TTL_MS = 20 * 60 * 1000;
+function activeEditLock(p){
+  if(p && p.editLock && p.editLock.holder && p.editLock.since){
+    var age = Date.now() - Date.parse(p.editLock.since);
+    if(age >= 0 && age < EDIT_LOCK_TTL_MS) return p.editLock;
+  }
+  return null;
+}
+(function initGuestKeyPanel(){
+  var input = document.getElementById('guest-key-input');
+  var status = document.getElementById('guest-key-status');
+  var saved = getGuestAccessKey();
+  if(saved){ input.value = saved; status.textContent = 'Gespeichert ✓'; }
+  document.getElementById('guest-key-save-btn').addEventListener('click', function(){
+    var v = input.value.trim();
+    try{ if(v) localStorage.setItem(GUEST_KEY_STORAGE, v); else localStorage.removeItem(GUEST_KEY_STORAGE); }catch(e){}
+    status.textContent = v ? 'Gespeichert ✓' : 'Gelöscht.';
+    if(typeof renderBlog === 'function' && typeof blogPosts !== 'undefined') renderBlog();
+  });
+  document.getElementById('guest-key-clear-btn').addEventListener('click', function(){
+    input.value = '';
+    try{ localStorage.removeItem(GUEST_KEY_STORAGE); }catch(e){}
+    status.textContent = 'Gelöscht.';
+    if(typeof renderBlog === 'function' && typeof blogPosts !== 'undefined') renderBlog();
+  });
+})();
+
 function showToast(msg, isErr){
   var t = document.getElementById('toast');
   t.textContent = msg;
