@@ -2103,23 +2103,31 @@ function renderBlog(){
           : '<span style="color:var(--err);">Bitte oben den Gast-Zugangsschlüssel eintragen, um den Link zu sehen.</span>') +
         '</div>';
     }
+    /* entry.guestVersion: a guest's alternative version of this shared
+       post (see toggleGuestEditable / guest-submit-worker.js) – never
+       merged automatically, just flagged here; reviewing/adopting it
+       happens inside the edit form (openBlogForm), not from the list,
+       to keep this row from growing yet another button. */
+    var altBadge = p.guestVersion ? '<span class="status-badge alt">🔀 Alternative Version</span>' : '';
     var row = document.createElement('div');
     row.className = 'item-row';
     row.innerHTML =
       '<div class="item-main">' +
       (p.image ? '<img class="item-thumb" src="' + escapeHtml(p.image) + '" alt="">' : '') +
-      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + (badge ? ' ' + badge : '') + (finishedBadge ? ' ' + finishedBadge : '') + (guestBadge ? ' ' + guestBadge : '') + (lockBadge ? ' ' + lockBadge : '') + '</div>' +
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + (badge ? ' ' + badge : '') + (finishedBadge ? ' ' + finishedBadge : '') + (guestBadge ? ' ' + guestBadge : '') + (lockBadge ? ' ' + lockBadge : '') + (altBadge ? ' ' + altBadge : '') + '</div>' +
       '<div class="item-sub">' + escapeHtml(formatBlogDate(p.date, 'de')) + (p.date && p.excerpt ? ' · ' : '') + escapeHtml(previewLang(p.excerpt) || '') +
       (p.submittedBy && p.submittedBy.contact ? ' · <span title="Kontakt der Gastautorin/des Gastautors">' + escapeHtml(p.submittedBy.contact) + '</span>' : '') +
       '</div>' + shareRow + '</div>' +
       '</div>' +
       '<div class="item-actions">' +
-      (notYetLive ? '<button type="button" class="btn small" data-toggle-finished="' + idx + '">' + (p.finished ? 'Fertig-Markierung entfernen' : 'Als fertig markieren') + '</button>' : '') +
-      (notYetLive && p.slug ? '<button type="button" class="btn small" data-toggle-guest-editable="' + idx + '">' + (p.guestEditable ? 'Freigabe aufheben' : 'Für Gast-Editor freigeben') + '</button>' : '') +
-      '<button type="button" class="btn small" data-toggle-status="' + idx + '">' + (isDraft || scheduled ? 'Jetzt veröffentlichen' : 'Zu Entwurf') + '</button>' +
-      (p.slug ? '<button type="button" class="btn small" data-preview="' + idx + '" title="Öffnet die Live-Ansicht direkt, ohne erst das Bearbeiten-Formular zu öffnen">👁 Vorschau</button>' : '') +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
+      (p.slug ? '<button type="button" class="btn small" data-preview="' + idx + '" title="Öffnet die Live-Ansicht direkt, ohne erst das Bearbeiten-Formular zu öffnen">👁 Vorschau</button>' : '') +
+      '<details class="item-overflow"><summary class="btn small" title="Weitere Aktionen">⋯</summary><div class="item-overflow-menu">' +
+      '<button type="button" class="btn small" data-toggle-status="' + idx + '">' + (isDraft || scheduled ? 'Jetzt veröffentlichen' : 'Zu Entwurf') + '</button>' +
+      (notYetLive ? '<button type="button" class="btn small" data-toggle-finished="' + idx + '">' + (p.finished ? 'Fertig-Markierung entfernen' : 'Als fertig markieren') + '</button>' : '') +
+      (notYetLive && p.slug ? '<button type="button" class="btn small" data-toggle-guest-editable="' + idx + '">' + (p.guestEditable ? 'Gast-Freigabe aufheben' : 'Für Gast-Editor freigeben') + '</button>' : '') +
       '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
+      '</div></details>' +
       '</div>';
     list.appendChild(row);
   });
