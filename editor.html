@@ -2018,6 +2018,7 @@ function renderBlog(){
   list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openBlogForm(parseInt(b.dataset.edit, 10)); }); });
   list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteBlog(parseInt(b.dataset.del, 10)); }); });
   list.querySelectorAll('[data-toggle-status]').forEach(function(b){ b.addEventListener('click', function(){ toggleBlogStatus(parseInt(b.dataset.toggleStatus, 10)); }); });
+  list.querySelectorAll('[data-toggle-finished]').forEach(function(b){ b.addEventListener('click', function(){ toggleBlogFinished(parseInt(b.dataset.toggleFinished, 10)); }); });
 }
 async function toggleBlogStatus(idx){
   var post = blogPosts[idx];
@@ -2030,6 +2031,21 @@ async function toggleBlogStatus(idx){
     showToast(wasLive ? 'Als Entwurf markiert.' : 'Veröffentlicht ✓');
   }catch(err){
     post.status = oldStatus; /* revert the in-memory flip if the write failed */
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+/* purely organisational – see the comment above finishedBadge in
+   renderBlog() for why this never touches status/visibility */
+async function toggleBlogFinished(idx){
+  var post = blogPosts[idx];
+  var old = !!post.finished;
+  post.finished = !old;
+  try{
+    await writeJson('blog.json', blogPosts);
+    renderBlog();
+    showToast(post.finished ? 'Als fertig markiert ✓' : 'Fertig-Markierung entfernt.');
+  }catch(err){
+    post.finished = old;
     showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
   }
 }
