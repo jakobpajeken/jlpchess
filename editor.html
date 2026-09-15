@@ -498,6 +498,26 @@ async function readResultsJson(){
     return empty;
   }
 }
+async function readPopupSettings(){
+  var empty = { enabled: false, eyebrow: '', heading: '', body: '', ctaText: '', dismissText: '', twitchHandle: '' };
+  try{
+    var file = await ghGetFile('data/popup.json');
+    if(!file || !file.content) return empty;
+    var parsed = JSON.parse(base64ToUtf8(file.content) || '{}');
+    return {
+      enabled: !!parsed.enabled,
+      eyebrow: parsed.eyebrow || '',
+      heading: parsed.heading || '',
+      body: parsed.body || '',
+      ctaText: parsed.ctaText || '',
+      dismissText: parsed.dismissText || '',
+      twitchHandle: parsed.twitchHandle || ''
+    };
+  }catch(e){
+    showToast('Konnte popup.json nicht laden: ' + e.message, true);
+    return empty;
+  }
+}
 /* The site's house style uses en dashes (–), never em dashes (—) — easy to
    type the wrong one by habit, autocorrect, or a pasted/translated/AI-
    generated source. Rather than relying on every text field to get this
