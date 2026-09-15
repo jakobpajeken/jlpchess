@@ -1289,6 +1289,13 @@ document.querySelectorAll('.langtoggle button').forEach(function(btn){
     var lang = btn.getAttribute('data-lang');
     setLang(lang);
     updateUrlLang(lang);
+    /* switching TO English while already sitting on the Coaching tab
+       counts as "arriving at the English coaching page" too, same as
+       actually clicking into the tab – see showTab() for the other path */
+    var coachingPanel = document.getElementById('coaching');
+    if(lang === 'en' && coachingPanel && coachingPanel.classList.contains('active-panel')){
+      maybeShowFreeAnalysisPopup('coaching');
+    }
   });
 });
 /* Force the page to sync with the i18n object right from the start, so the
