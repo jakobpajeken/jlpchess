@@ -2118,6 +2118,37 @@ function renderBlog(){
   list.querySelectorAll('[data-toggle-status]').forEach(function(b){ b.addEventListener('click', function(){ toggleBlogStatus(parseInt(b.dataset.toggleStatus, 10)); }); });
   list.querySelectorAll('[data-toggle-finished]').forEach(function(b){ b.addEventListener('click', function(){ toggleBlogFinished(parseInt(b.dataset.toggleFinished, 10)); }); });
   list.querySelectorAll('[data-preview]').forEach(function(b){ b.addEventListener('click', function(){ openBlogPreview(parseInt(b.dataset.preview, 10)); }); });
+  list.querySelectorAll('[data-toggle-guest-editable]').forEach(function(b){ b.addEventListener('click', function(){ toggleGuestEditable(parseInt(b.dataset.toggleGuestEditable, 10)); }); });
+  list.querySelectorAll('[data-copy-guest-link]').forEach(function(b){ b.addEventListener('click', function(){ copyGuestLink(parseInt(b.dataset.copyGuestLink, 10)); }); });
+}
+/* shares one of Jakob's own drafts out for collaborative editing in
+   guest-editor.html – see the "guestEditable" field's server-side
+   handling in guest-submit-worker.js. Revoking it also drops any active
+   editLock, since there's no longer a shared draft left to lock. */
+async function toggleGuestEditable(idx){
+  var post = blogPosts[idx];
+  var old = !!post.guestEditable;
+  post.guestEditable = !old;
+  if(!post.guestEditable) post.editLock = null;
+  try{
+    await writeJson('blog.json', blogPosts);
+    renderBlog();
+    showToast(post.guestEditable ? 'Für den Gast-Editor freigegeben ✓' : 'Freigabe aufgehoben.');
+  }catch(err){
+    post.guestEditable = old;
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+function copyGuestLink(idx){
+  var post = blogPosts[idx];
+  var guestKey = getGuestAccessKey();
+  if(!guestKey || !post.slug) return;
+  var link = guestEditorLinkBase() + '?key=' + encodeURIComponent(guestKey) + '&slug=' + encodeURIComponent(post.slug);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(function(){ showToast('Link kopiert ✓'); }, function(){ showToast('Kopieren fehlgeschlagen – Link von Hand markieren.', true); });
+  } else {
+    showToast('Kopieren wird von diesem Browser nicht unterstützt – Link von Hand markieren.', true);
+  }
 }
 /* opens the live view of an already-saved post directly from the list,
    without first opening its edit form – the point being "direct", one
