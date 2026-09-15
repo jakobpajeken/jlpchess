@@ -247,6 +247,80 @@ function normalizeDashes(value){
   return value;
 }
 
+/* shared by the 'save' and 'load' actions below */
+async function fetchBlogPosts(env){
+  var getResp = await fetch(contentsUrl(BLOG_JSON_PATH) + '?ref=' + REPO_BRANCH, { headers: ghHeaders(env) });
+  if(!getResp.ok) throw new Error('HTTP ' + getResp.status);
+  var file = await getResp.json();
+  var posts;
+  try{ posts = JSON.parse(base64ToUtf8(file.content) || '[]'); }
+  catch(e){ throw new Error('blog.json is not valid JSON.'); }
+  if(!Array.isArray(posts)) posts = [];
+  return { posts: posts, sha: file.sha };
+}
+async function putBlogPosts(env, posts, sha, message){
+  var putResp = await fetch(contentsUrl(BLOG_JSON_PATH), {
+    method: 'PUT',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, ghHeaders(env)),
+    body: JSON.stringify({
+      message: message,
+      content: utf8ToBase64(JSON.stringify(normalizeDashes(posts), null, 2) + '\n'),
+      branch: REPO_BRANCH,
+      sha: sha,
+      committer: { name: 'Guest submission (jlpchess)', email: 'jakobpajeken@gmail.com' }
+    })
+  });
+  if(!putResp.ok){
+    var errMsg = 'HTTP ' + putResp.status;
+    try{ var errJson = await putResp.json(); if(errJson.message) errMsg = errJson.message; }catch(e){}
+    throw new Error(errMsg);
+  }
+}
+
+/* Loading a post for collaborative editing (guest-editor.html?slug=...):
+   only posts Jakob has explicitly flagged guestEditable can be fetched
+   this way, and only while not locked by someone else. Also acquires
+   (or refreshes) the lock for this editorSessionId on success, so
+   opening the page and starting to type are covered by one lock. */
+async function handleLoad(body, env, origin){
+  if(body.accessKey !== env.GUEST_ACCESS_KEY){
+    return jsonResponse({ error: 'Wrong or missing access key.' }, 403, origin);
+  }
+  var slug = (body.slug || '').toString();
+  if(!slug) return jsonResponse({ error: 'Missing slug.' }, 400, origin);
+  var sessionId = (body.editorSessionId || '').toString().slice(0, 64);
+
+  var data;
+  try{ data = await fetchBlogPosts(env); }
+  catch(e){ return jsonResponse({ error: 'Could not read blog.json: ' + e.message }, 502, origin); }
+
+  var found = data.posts.find(function(p){ return p.slug === slug && p.guestEditable === true; });
+  if(!found){
+    return jsonResponse({ error: 'This article is not available for collaborative editing anymore (it may have been unshared, or already published).' }, 404, origin);
+  }
+  if(found.status === 'published'){
+    return jsonResponse({ error: 'This article has already been published and can no longer be edited here.' }, 409, origin);
+  }
+
+  var lock = activeLock(found);
+  if(lock && lock.holder !== sessionId){
+    return jsonResponse({ ok: true, locked: true, lockHolderName: lock.holderName || '', lockSince: lock.since }, 200, origin);
+  }
+
+  found.editLock = {
+    holder: sessionId,
+    holderName: (body.guestName || '').toString().trim().slice(0, 80),
+    since: new Date().toISOString()
+  };
+  try{
+    await putBlogPosts(env, data.posts, data.sha, 'Lock shared draft "' + slug + '" for editing via guest-editor.html');
+  }catch(e){
+    return jsonResponse({ error: 'Could not lock the article for editing: ' + e.message }, 502, origin);
+  }
+
+  return jsonResponse({ ok: true, locked: false, post: found }, 200, origin);
+}
+
 export default {
   async fetch(request, env){
     var origin = request.headers.get('Origin') || '';
@@ -265,6 +339,10 @@ export default {
     try{ body = await request.json(); }
     catch(e){ return jsonResponse({ error: 'Invalid JSON body' }, 400, origin); }
 
+    if(body.action === 'load'){
+      return handleLoad(body, env, origin);
+    }
+
     if(body.accessKey !== env.GUEST_ACCESS_KEY){
       return jsonResponse({ error: 'Wrong or missing access key.' }, 403, origin);
     }
@@ -278,19 +356,16 @@ export default {
       return jsonResponse({ error: 'Title and body text cannot be empty.' }, 400, origin);
     }
 
-    var file;
+    var file, posts;
     try{
-      var getResp = await fetch(contentsUrl(BLOG_JSON_PATH) + '?ref=' + REPO_BRANCH, { headers: ghHeaders(env) });
-      if(!getResp.ok) throw new Error('HTTP ' + getResp.status);
-      file = await getResp.json();
+      var data = await fetchBlogPosts(env);
+      posts = data.posts;
+      file = { sha: data.sha };
     }catch(e){
       return jsonResponse({ error: 'Could not read blog.json: ' + e.message }, 502, origin);
     }
 
-    var posts;
-    try{ posts = JSON.parse(base64ToUtf8(file.content) || '[]'); }
-    catch(e){ return jsonResponse({ error: 'blog.json is not valid JSON.' }, 502, origin); }
-    if(!Array.isArray(posts)) posts = [];
+    var editorSessionId = (body.editorSessionId || '').toString().slice(0, 64);
 
     function langField(existing, text){
       var obj = (existing && typeof existing === 'object') ? { en: existing.en || '', de: existing.de || '' } : { en: '', de: '' };
