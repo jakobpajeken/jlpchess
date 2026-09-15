@@ -1,0 +1,838 @@
+
+/* Set this once the Worker (scripts/guest-submit-worker.js) is deployed –
+   see that file's own header comment for the setup steps. Left blank
+   deliberately until then, so this page fails clearly instead of
+   silently, if someone opens it before setup is finished. */
+var GUEST_WORKER_URL = 'https://woka.jakobpajeken.workers.dev';
+
+/* ============================================================
+   UI language – this is the page's OWN interface language (labels,
+   buttons, hints, status messages), independent of GitHub Pages'
+   site-wide EN/DE toggle. It follows the "Language of this draft"
+   selector directly: whatever a guest picks there is also what the
+   editor itself speaks, so someone writing a German post isn't stuck
+   reading English button labels (and vice versa). Every user-facing
+   string in this file goes through t('key') / UI_STRINGS so nothing is
+   hard-coded in one language only. ============================== */
+var UI_STRINGS = {
+  en: {
+    docTitle: 'Write a blog post – IM Jakob Leon Pajeken',
+    gateChecking: 'Checking access …',
+    gateIncomplete: 'This link is incomplete – please use the full link you were given.',
+    resumeFoundText: 'We found a draft you started earlier on this device: "{title}".',
+    resumeContinueBtn: 'Continue this draft',
+    resumeDiscardBtn: 'Start a new one instead',
+    resumeLoaded: 'Draft loaded – pick up right where you left off.',
+    sharedLoading: 'Opening this shared draft …',
+    sharedLoadFailed: 'Could not open this draft. Please check the link, or ask Jakob for a new one.',
+    sharedLockedText: 'This article is currently being edited by {name} – please try again in a few minutes.',
+    sharedLockedUnknown: 'someone else',
+    sharedLoaded: 'Draft loaded – you\'re now editing it together with Jakob.',
+    h1: 'Write a blog post',
+    intro: 'Write your post for IM Jakob Leon Pajeken’s blog here. You can preview it at any time, exactly as the article would look once published.',
+    noticeHtml: '<strong>What happens next:</strong> Your text is saved, but <strong>not publicly visible</strong>. Jakob sees your draft in his own editor, can adjust it, and decides whether and when it gets published. You can come back and continue this draft later, but only <strong>on this same device and browser</strong> – it isn\'t saved to any account.',
+    nameLabel: 'Your name',
+    namePh: 'Shown as the author (Jakob can change this)',
+    contactLabel: 'Contact (optional)',
+    contactPh: 'Email, for follow-up questions – not publicly visible',
+    langLabel: 'Language of this draft',
+    langHint: 'Jakob can translate/add the other language later – you don’t need to write both.',
+    langOptEn: 'English',
+    langOptDe: 'German',
+    titleLabel: 'Title',
+    titlePh: 'e.g. How I won my first tournament game',
+    categoryLabel: 'Category',
+    categoryPh: 'e.g. Tournament report',
+    coverLabel: 'Cover photo (optional)',
+    coverHint: 'Shown at the top of the post. JPG, PNG, WebP or GIF, max 4 MB.',
+    coverNone: 'No cover photo',
+    coverCaptionPh: 'Caption shown under the photo (optional)',
+    coverCreditPh: 'Photographer / source (optional)',
+    excerptLabel: 'Excerpt',
+    excerptHint: 'One or two sentences – shown as the teaser on the blog overview.',
+    leadLabel: 'Lead',
+    leadHint: 'Shown a little larger at the start of the article.',
+    bodyLabel: 'Body',
+    bodyHint: 'One paragraph per block of text (separated by a blank line). Use the buttons below to format text or insert an image, a link, or a game at the cursor position.',
+    bodyPh: 'First paragraph.\n\nSecond paragraph.',
+    titleBold: 'Bold', letterBold: 'B',
+    titleItalic: 'Italic', letterItalic: 'I',
+    titleUnderline: 'Underline', letterUnderline: 'U',
+    titleSize: 'Font size', sizeBtn: '🔠 Size',
+    titleColor: 'Blue',
+    insertImageBtn: '🖼 Insert image',
+    insertLinkBtn: '🔗 Insert link',
+    gamesLabel: 'Games in this post (optional)',
+    gamesHint: 'Add a game below, then click “Insert into text” to place it wherever you like in the body above. Select several and click “Insert selection as one board” to show them together with a picker, like on the site’s career page. You’ll see the real interactive board once you click “Save &amp; preview”.',
+    gamesEmptyNote: 'No games added yet.',
+    addGameBtn: '+ Add game',
+    insertGroupBtn: '🎯 Insert selection as one board',
+    gameFormAddTitle: 'Add game',
+    gameFormEditTitle: 'Edit game',
+    gameTitleLabel: 'Title',
+    gameTitlePh: 'e.g. My first tournament win',
+    gameMetaLabel: 'Short description (optional)',
+    gameMetaPh: 'e.g. Club Championship · Round 3',
+    gamePgnLabel: 'PGN',
+    gamePgnHint: 'Full game text incl. [White "…"] [Black "…"] etc. – copy it from your chess app or tournament site.',
+    gameSaveBtnAdd: 'Add to post',
+    gameSaveBtnEdit: 'Save changes',
+    gameCancelBtn: 'Cancel',
+    gameInsertBtn: 'Insert into text',
+    gameEditBtn: 'Edit',
+    gameDeleteBtn: 'Delete',
+    gameSelectTitle: 'Select for a shared board',
+    gameUntitled: '(untitled)',
+    gameUntitledDefault: 'Untitled game',
+    quoteLabel: 'Quote (optional)',
+    quoteHint: 'Shown as a highlighted quote within the article.',
+    saveBtn: '💾 Save',
+    previewBtn: '👁 Save & preview',
+    statusSaving: 'Saving …',
+    statusSavedPreview: 'Saved ✓ – preview opens in a new tab.',
+    statusSavedPlain: 'Saved ✓',
+    statusNeedTitle: 'Please enter a title.',
+    statusNeedBody: 'Please enter some body text.',
+    statusConnFailed: 'Connection failed. Please wait a moment and try again.',
+    statusNoWorker: 'This page isn’t fully set up yet (missing Worker URL). Please let Jakob know.',
+    statusSaveFailedGeneric: 'Saving failed (status {status}).',
+    statusLinkBadUrl: 'The URL must start with http:// or https://.',
+    statusLinkInserted: 'Link inserted ✓',
+    statusCoverTooLarge: 'Cover photo is too large (max 4 MB).',
+    statusImageTooLarge: 'Image is too large (max 4 MB).',
+    statusImageReadFail: 'Could not read the image file.',
+    statusCoverReadFail: 'Could not read the cover photo file.',
+    statusImageAdded: 'Image added – it will be uploaded when you save.',
+    statusGameInserted: 'Game inserted into text ✓',
+    statusGameRemoved: 'Game removed. Please also delete any [game:…] marker for it from the text above.',
+    statusNeedPgn: 'Please paste a PGN.',
+    statusGameAdded: 'Game added ✓ (saved together with the post)',
+    statusNeedTwoGames: 'Please tick at least two games first.',
+    statusGroupInserted: '{n} games inserted as one board ✓',
+    confirmRemoveGame: 'Remove this game from the post?',
+    promptLinkUrl: 'Target URL (starting with https://):',
+    promptLinkText: 'Link text:',
+    promptImageCaption: 'Image caption (optional, can stay empty):',
+    promptImageCredit: 'Photographer / source (optional, can stay empty) – shown as a small note under the image:',
+    promptSizePx: 'Font size in pixels (normal body text is about 16):',
+    statusSizeInvalid: 'Please enter a number between 8 and 96.',
+    wrapBold: 'bold', wrapItalic: 'italic', wrapUnderline: 'underlined',
+    wrapSize: 'larger text', wrapColor: 'blue text'
+  },
+  de: {
+    docTitle: 'Blogbeitrag schreiben – IM Jakob Leon Pajeken',
+    gateChecking: 'Zugriff wird geprüft …',
+    gateIncomplete: 'Dieser Link ist unvollständig – bitte nutze den vollständigen Link, den du erhalten hast.',
+    resumeFoundText: 'Wir haben einen Entwurf gefunden, den du auf diesem Gerät schon begonnen hast: „{title}".',
+    resumeContinueBtn: 'Diesen Entwurf weiter bearbeiten',
+    resumeDiscardBtn: 'Stattdessen neu anfangen',
+    resumeLoaded: 'Entwurf geladen – mach genau da weiter, wo du aufgehört hast.',
+    sharedLoading: 'Dieser geteilte Entwurf wird geöffnet …',
+    sharedLoadFailed: 'Dieser Entwurf konnte nicht geöffnet werden. Bitte den Link prüfen oder Jakob um einen neuen bitten.',
+    sharedLockedText: 'Dieser Artikel wird gerade von {name} bearbeitet – bitte in ein paar Minuten erneut versuchen.',
+    sharedLockedUnknown: 'jemand anderem',
+    sharedLoaded: 'Entwurf geladen – du bearbeitest ihn jetzt gemeinsam mit Jakob.',
+    h1: 'Blogbeitrag schreiben',
+    intro: 'Schreibe hier deinen Beitrag für den Blog von IM Jakob Leon Pajeken. Du kannst ihn jederzeit als Vorschau ansehen, genau so, wie der Artikel später veröffentlicht aussehen würde.',
+    noticeHtml: '<strong>Was als Nächstes passiert:</strong> Dein Text wird gespeichert, ist aber <strong>nicht öffentlich sichtbar</strong>. Jakob sieht deinen Entwurf in seinem eigenen Editor, kann ihn anpassen und entscheidet, ob und wann er veröffentlicht wird. Du kannst später hier weiterschreiben, aber nur <strong>auf diesem selben Gerät und Browser</strong> – der Entwurf ist an kein Konto gebunden.',
+    nameLabel: 'Dein Name',
+    namePh: 'Wird als Autor angezeigt (Jakob kann das ändern)',
+    contactLabel: 'Kontakt (optional)',
+    contactPh: 'E-Mail, für Rückfragen – nicht öffentlich sichtbar',
+    langLabel: 'Sprache dieses Entwurfs',
+    langHint: 'Jakob kann die andere Sprache später übersetzen/ergänzen – du musst nicht beide schreiben.',
+    langOptEn: 'Englisch',
+    langOptDe: 'Deutsch',
+    titleLabel: 'Titel',
+    titlePh: 'z. B. Wie ich meine erste Turnierpartie gewonnen habe',
+    categoryLabel: 'Kategorie',
+    categoryPh: 'z. B. Turnierbericht',
+    coverLabel: 'Titelfoto (optional)',
+    coverHint: 'Wird oben im Beitrag angezeigt. JPG, PNG, WebP oder GIF, max. 4 MB.',
+    coverNone: 'Kein Titelfoto',
+    coverCaptionPh: 'Bildunterschrift, wird unter dem Foto angezeigt (optional)',
+    coverCreditPh: 'Fotograf / Quelle (optional)',
+    excerptLabel: 'Vorschautext',
+    excerptHint: 'Ein bis zwei Sätze – wird als Teaser in der Blog-Übersicht angezeigt.',
+    leadLabel: 'Einleitungssatz',
+    leadHint: 'Wird etwas größer am Anfang des Artikels angezeigt.',
+    bodyLabel: 'Text',
+    bodyHint: 'Ein Absatz pro Textblock (durch eine Leerzeile getrennt). Mit den Knöpfen unten kannst du Text formatieren oder an der Cursor-Position ein Bild, einen Link oder eine Partie einfügen.',
+    bodyPh: 'Erster Absatz.\n\nZweiter Absatz.',
+    titleBold: 'Fett', letterBold: 'F',
+    titleItalic: 'Kursiv', letterItalic: 'K',
+    titleUnderline: 'Unterstrichen', letterUnderline: 'U',
+    titleSize: 'Schriftgröße', sizeBtn: '🔠 Größe',
+    titleColor: 'Blau',
+    insertImageBtn: '🖼 Bild einfügen',
+    insertLinkBtn: '🔗 Link einfügen',
+    gamesLabel: 'Partien in diesem Beitrag (optional)',
+    gamesHint: 'Füge unten eine Partie hinzu, dann mit „In Text einfügen“ an der gewünschten Stelle im Text oben platzieren. Mehrere Partien ankreuzen und „Auswahl als ein Brett einfügen“ klicken, um sie wie auf der Karriere-Seite in einem gemeinsamen Brett mit Auswahlmenü darzustellen. Das echte interaktive Brett siehst du, sobald du auf „Speichern &amp; Vorschau“ klickst.',
+    gamesEmptyNote: 'Noch keine Partien hinzugefügt.',
+    addGameBtn: '+ Partie hinzufügen',
+    insertGroupBtn: '🎯 Auswahl als ein Brett einfügen',
+    gameFormAddTitle: 'Neue Partie',
+    gameFormEditTitle: 'Partie bearbeiten',
+    gameTitleLabel: 'Titel',
+    gameTitlePh: 'z. B. Mein erster Turniersieg',
+    gameMetaLabel: 'Kurzbeschreibung (optional)',
+    gameMetaPh: 'z. B. Vereinsmeisterschaft · Runde 3',
+    gamePgnLabel: 'PGN',
+    gamePgnHint: 'Kompletter Partietext inkl. [White "…"] [Black "…"] usw. – aus deiner Schach-App oder Turnierseite kopieren.',
+    gameSaveBtnAdd: 'Übernehmen',
+    gameSaveBtnEdit: 'Änderungen speichern',
+    gameCancelBtn: 'Abbrechen',
+    gameInsertBtn: 'In Text einfügen',
+    gameEditBtn: 'Bearbeiten',
+    gameDeleteBtn: 'Löschen',
+    gameSelectTitle: 'Für gemeinsames Brett auswählen',
+    gameUntitled: '(ohne Titel)',
+    gameUntitledDefault: 'Unbenannte Partie',
+    quoteLabel: 'Zitat (optional)',
+    quoteHint: 'Wird als hervorgehobenes Zitat im Artikel angezeigt.',
+    saveBtn: '💾 Speichern',
+    previewBtn: '👁 Speichern & Vorschau',
+    statusSaving: 'Wird gespeichert …',
+    statusSavedPreview: 'Gespeichert ✓ – Vorschau öffnet sich in einem neuen Tab.',
+    statusSavedPlain: 'Gespeichert ✓',
+    statusNeedTitle: 'Bitte einen Titel eingeben.',
+    statusNeedBody: 'Bitte einen Text eingeben.',
+    statusConnFailed: 'Verbindung fehlgeschlagen. Bitte kurz warten und erneut versuchen.',
+    statusNoWorker: 'Diese Seite ist noch nicht vollständig eingerichtet (Worker-URL fehlt). Bitte Jakob Bescheid geben.',
+    statusSaveFailedGeneric: 'Speichern fehlgeschlagen (Status {status}).',
+    statusLinkBadUrl: 'Die URL muss mit http:// oder https:// beginnen.',
+    statusLinkInserted: 'Link eingefügt ✓',
+    statusCoverTooLarge: 'Titelfoto ist zu groß (max. 4 MB).',
+    statusImageTooLarge: 'Bild ist zu groß (max. 4 MB).',
+    statusImageReadFail: 'Bilddatei konnte nicht gelesen werden.',
+    statusCoverReadFail: 'Titelfoto-Datei konnte nicht gelesen werden.',
+    statusImageAdded: 'Bild hinzugefügt – wird beim Speichern hochgeladen.',
+    statusGameInserted: 'Partie in Text eingefügt ✓',
+    statusGameRemoved: 'Partie entfernt. Bitte die zugehörige [game:…]-Markierung im Text oben auch manuell löschen.',
+    statusNeedPgn: 'Bitte einen PGN-Text einfügen.',
+    statusGameAdded: 'Partie hinzugefügt ✓ (wird mit dem Beitrag gespeichert)',
+    statusNeedTwoGames: 'Bitte zuerst mindestens zwei Partien ankreuzen.',
+    statusGroupInserted: '{n} Partien als ein Brett eingefügt ✓',
+    confirmRemoveGame: 'Diese Partie wirklich aus dem Beitrag entfernen?',
+    promptLinkUrl: 'Ziel-URL (mit https://):',
+    promptLinkText: 'Anzeigetext des Links:',
+    promptImageCaption: 'Bildunterschrift (optional, kann leer bleiben):',
+    promptImageCredit: 'Fotograf / Quelle (optional, kann leer bleiben) – erscheint als kleiner Hinweis unter dem Bild:',
+    promptSizePx: 'Schriftgröße in Pixel (normaler Fließtext ist ca. 16):',
+    statusSizeInvalid: 'Bitte eine Zahl zwischen 8 und 96 eingeben.',
+    wrapBold: 'fett', wrapItalic: 'kursiv', wrapUnderline: 'unterstrichen',
+    wrapSize: 'größerer Text', wrapColor: 'blauer Text'
+  }
+};
+var currentUiLang = 'en';
+function t(key, vars){
+  var dict = UI_STRINGS[currentUiLang] || UI_STRINGS.en;
+  var s = (key in dict) ? dict[key] : (UI_STRINGS.en[key] || key);
+  if(vars){ Object.keys(vars).forEach(function(k){ s = s.split('{' + k + '}').join(vars[k]); }); }
+  return s;
+}
+function applyLanguage(lang){
+  currentUiLang = (lang === 'de') ? 'de' : 'en';
+  document.documentElement.lang = currentUiLang;
+  document.title = t('docTitle');
+  document.querySelectorAll('[data-i18n]').forEach(function(el){ el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-html]').forEach(function(el){ el.innerHTML = t(el.getAttribute('data-i18n-html')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){ el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+  document.querySelectorAll('[data-i18n-title]').forEach(function(el){ el.title = t(el.getAttribute('data-i18n-title')); });
+  if(!accessKey) gate.textContent = t('gateIncomplete');
+  /* re-render dynamic, JS-built parts so their text follows too; closes
+     an in-progress "add game" form rather than trying to preserve
+     half-typed values across a language switch (rare edge case, and
+     nothing already typed is lost from the games list itself) */
+  if(typeof postGames !== 'undefined' && typeof renderPostGames === 'function') renderPostGames();
+  if(typeof gamesFormSlot !== 'undefined' && gamesFormSlot) gamesFormSlot.innerHTML = '';
+}
+
+var accessKey = new URLSearchParams(location.search).get('key') || '';
+/* present only on a guest-editor.html?slug=... link, i.e. one of Jakob's
+   own drafts he shared out for collaborative editing (see editor.html's
+   "Für Gast-Editor freigeben" toggle) – NOT set for a guest's own normal
+   fresh-draft submission flow */
+var slugParam = new URLSearchParams(location.search).get('slug') || '';
+/* stable per browser (not per draft, not per link) so the Worker can tell
+   "still me" apart from "someone else" when checking/refreshing the
+   editLock on a shared draft – see handleLoad()/the idx branch in
+   guest-submit-worker.js */
+var editorSessionId = (function(){
+  var storageKey = 'jlpGuestEditorSessionId';
+  try{
+    var existing = localStorage.getItem(storageKey);
+    if(existing) return existing;
+  }catch(e){}
+  var fresh = 'es' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  try{ localStorage.setItem(storageKey, fresh); }catch(e){}
+  return fresh;
+})();
+var gate = document.getElementById('gate');
+var app = document.getElementById('app');
+/* NOT calling applyLanguage('en') here on purpose: the static HTML
+   already IS the English defaults (title, labels, button text, <html
+   lang="en">), so there's nothing to apply yet – and doing so here would
+   run before postGames/gamesListEl further down the script even exist,
+   which used to throw and silently break every button on the page.
+   applyLanguage() only needs to run once something actually changes,
+   i.e. from the g-lang "change" listener below. */
+if(!accessKey){
+  gate.textContent = t('gateIncomplete');
+} else {
+  gate.hidden = true;
+  /* a slug link stays hidden until loadSharedDraft() (near the end of
+     this script) confirms the draft is actually loadable and not locked
+     by someone else – see #shared-status above */
+  if(!slugParam) app.hidden = false;
+}
+document.getElementById('g-lang').addEventListener('change', function(){ applyLanguage(this.value); });
+
+/* previously-used categories, so a recurring one can be reused instead of
+   retyped – reads the site's own public blog.json directly, no GitHub
+   access needed for that, it's already public */
+(async function loadCategoryOptions(){
+  try{
+    var posts = await fetch('data/blog.json', { cache: 'no-store' }).then(function(r){ return r.json(); });
+    var seen = {};
+    var list = document.getElementById('g-category-options');
+    (posts || []).forEach(function(p){
+      var cat = p.category;
+      [cat && cat.de, cat && cat.en, typeof cat === 'string' ? cat : null].forEach(function(v){
+        v = (v || '').trim();
+        if(v && !seen[v]){
+          seen[v] = true;
+          var opt = document.createElement('option');
+          opt.value = v;
+          list.appendChild(opt);
+        }
+      });
+    });
+  }catch(e){ /* non-essential – form still works without suggestions */ }
+})();
+
+/* same toggle-on-second-click wrap/unwrap behaviour as editor.html's own
+   formatting buttons (see there for the full rationale) */
+function wrapSelectionIn(textarea, openMarker, closeMarker, placeholder){
+  if(closeMarker == null) closeMarker = openMarker;
+  var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+  var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+  var value = textarea.value;
+  var selected = value.slice(start, end);
+  var before = value.slice(0, start);
+  var after = value.slice(end);
+
+  if(selected.length >= openMarker.length + closeMarker.length &&
+     selected.slice(0, openMarker.length) === openMarker &&
+     selected.slice(selected.length - closeMarker.length) === closeMarker){
+    var innerA = selected.slice(openMarker.length, selected.length - closeMarker.length);
+    textarea.value = before + innerA + after;
+    textarea.focus();
+    textarea.setSelectionRange(start, start + innerA.length);
+    return;
+  }
+  if(before.slice(before.length - openMarker.length) === openMarker &&
+     after.slice(0, closeMarker.length) === closeMarker){
+    var newBefore = before.slice(0, before.length - openMarker.length);
+    var newAfter = after.slice(closeMarker.length);
+    var innerB = selected || placeholder;
+    textarea.value = newBefore + innerB + newAfter;
+    textarea.focus();
+    textarea.setSelectionRange(newBefore.length, newBefore.length + innerB.length);
+    return;
+  }
+  var toInsert = selected || placeholder;
+  textarea.value = before + openMarker + toInsert + closeMarker + after;
+  var selStart = before.length + openMarker.length;
+  textarea.focus();
+  textarea.setSelectionRange(selStart, selStart + toInsert.length);
+}
+/* same [size=N] toggle-off idea as editor.html's toggleOffDynamicSize –
+   N varies per use so it can't be matched as a fixed string */
+function toggleOffDynamicSize(textarea){
+  var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+  var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+  var value = textarea.value;
+  var selected = value.slice(start, end);
+  var before = value.slice(0, start);
+  var after = value.slice(end);
+  var closeMarker = '[/size]';
+
+  var selMatch = /^\[size=\d+\]/.exec(selected);
+  if(selMatch && selected.slice(selected.length - closeMarker.length) === closeMarker){
+    var innerA = selected.slice(selMatch[0].length, selected.length - closeMarker.length);
+    textarea.value = before + innerA + after;
+    textarea.focus();
+    textarea.setSelectionRange(start, start + innerA.length);
+    return true;
+  }
+  var openMatch = /\[size=\d+\]$/.exec(before);
+  if(openMatch && after.slice(0, closeMarker.length) === closeMarker){
+    var newBefore = before.slice(0, before.length - openMatch[0].length);
+    var newAfter = after.slice(closeMarker.length);
+    textarea.value = newBefore + selected + newAfter;
+    textarea.focus();
+    textarea.setSelectionRange(newBefore.length, newBefore.length + selected.length);
+    return true;
+  }
+  return false;
+}
+
+var bodyTextarea = document.getElementById('g-body');
+document.getElementById('g-bold-btn').addEventListener('click', function(){ wrapSelectionIn(bodyTextarea, '**', null, t('wrapBold')); });
+document.getElementById('g-italic-btn').addEventListener('click', function(){ wrapSelectionIn(bodyTextarea, '*', null, t('wrapItalic')); });
+document.getElementById('g-underline-btn').addEventListener('click', function(){ wrapSelectionIn(bodyTextarea, '__', null, t('wrapUnderline')); });
+document.getElementById('g-size-btn').addEventListener('click', function(){
+  if(toggleOffDynamicSize(bodyTextarea)) return;
+  var input = window.prompt(t('promptSizePx'), '24');
+  if(input == null) return;
+  var px = parseInt(input.trim(), 10);
+  if(!px || px < 8 || px > 96){ showStatus(t('statusSizeInvalid'), 'err'); return; }
+  wrapSelectionIn(bodyTextarea, '[size=' + px + ']', '[/size]', t('wrapSize'));
+});
+/* this button's own on-screen color is just a toolbar icon and stays
+   as-is for legibility – it does NOT have to match what actually gets
+   applied. The real rendered text color is set only in blog-post.html's
+   .color-blue rule (same as editor.html) – not a free color picker */
+document.getElementById('g-color-btn').addEventListener('click', function(){ wrapSelectionIn(bodyTextarea, '[color=blue]', '[/color]', t('wrapColor')); });
+
+/* keeps track of the draft's own slug once the Worker has created it, so
+   a second "preview" click updates the SAME entry instead of creating a
+   duplicate one each time */
+var savedSlug = null;
+
+function showStatus(msg, kind){
+  var el = document.getElementById('g-status');
+  el.textContent = msg;
+  el.className = 'status-msg' + (kind ? ' ' + kind : '');
+}
+
+function escapeHtmlLocal(s){
+  return (s || '').toString().replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+
+/* same block-level insertion the real editor.html uses for images and
+   game markers – a blank line (two newlines) on each side, so the marker
+   always lands on its own paragraph rather than gluing onto whatever text
+   sits next to the cursor */
+function insertMarkerIntoBody(marker){
+  var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
+  var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
+  var before = bodyTextarea.value.slice(0, start);
+  var after = bodyTextarea.value.slice(end);
+  var needsLeadingBreak = before.length && (before.match(/\n*$/) || [''])[0].length < 2;
+  var needsTrailingBreak = after.length && (after.match(/^\n*/) || [''])[0].length < 2;
+  var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
+  bodyTextarea.value = before + insertText + after;
+  var caretPos = (before + insertText).length;
+  bodyTextarea.focus();
+  bodyTextarea.setSelectionRange(caretPos, caretPos);
+}
+
+/* ---- link insertion (plain, inline – no forced blank line, same as
+   editor.html's own "Link einfügen" button) ---- */
+document.getElementById('g-insert-link-btn').addEventListener('click', function(){
+  var url = window.prompt(t('promptLinkUrl'), 'https://');
+  if(!url || !url.trim()) return;
+  url = url.trim();
+  if(!/^https?:\/\//i.test(url)){ showStatus(t('statusLinkBadUrl'), 'err'); return; }
+  var text = window.prompt(t('promptLinkText'), '') || url;
+  var marker = '[' + text.replace(/[[\]]/g, '') + '](' + url + ')';
+  var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
+  var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
+  bodyTextarea.value = bodyTextarea.value.slice(0, start) + marker + bodyTextarea.value.slice(end);
+  var caretPos = start + marker.length;
+  bodyTextarea.focus();
+  bodyTextarea.setSelectionRange(caretPos, caretPos);
+  showStatus(t('statusLinkInserted'), 'ok');
+});
+
+/* ---- images: read as a data URL client-side, keep queued in memory,
+   only actually uploaded (by the Worker, via GitHub) on the next save.
+   Until then the body text carries a "pending:<id>" placeholder, which
+   gets swapped for the real images/blog/... path once the Worker returns
+   it (see saveDraft() below). ---- */
+var MAX_IMAGE_BYTES_CLIENT = 4 * 1024 * 1024;
+function fileToDataUrl(file){
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onload = function(){ resolve(reader.result); };
+    reader.onerror = function(){ reject(reader.error); };
+    reader.readAsDataURL(file);
+  });
+}
+
+var pendingCoverFile = null;
+var lastCoverImagePath = '';
+var coverPreviewEl = document.getElementById('g-cover-preview');
+document.getElementById('g-cover-file').addEventListener('change', function(e){
+  var file = e.target.files && e.target.files[0];
+  if(!file) return;
+  if(file.size > MAX_IMAGE_BYTES_CLIENT){
+    showStatus(t('statusCoverTooLarge'), 'err');
+    e.target.value = '';
+    return;
+  }
+  pendingCoverFile = file;
+  coverPreviewEl.innerHTML = '<img src="' + URL.createObjectURL(file) + '" alt="">';
+});
+
+var pendingInlineImages = [];
+var insertImageBtn = document.getElementById('g-insert-image-btn');
+var bodyImageFileInput = document.getElementById('g-body-image-file');
+insertImageBtn.addEventListener('click', function(){ bodyImageFileInput.click(); });
+bodyImageFileInput.addEventListener('change', async function(e){
+  var file = e.target.files && e.target.files[0];
+  bodyImageFileInput.value = '';
+  if(!file) return;
+  if(file.size > MAX_IMAGE_BYTES_CLIENT){ showStatus(t('statusImageTooLarge'), 'err'); return; }
+  var caption = window.prompt(t('promptImageCaption'), '') || '';
+  var credit = window.prompt(t('promptImageCredit'), '') || '';
+  var dataUrl;
+  try{ dataUrl = await fileToDataUrl(file); }
+  catch(err){ showStatus(t('statusImageReadFail'), 'err'); return; }
+  var id = 'img' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  pendingInlineImages.push({ id: id, dataUrl: dataUrl, filename: file.name });
+  var marker = '![' + caption.replace(/[[\]]/g, '') + '](pending:' + id + (credit.trim() ? ' "' + credit.replace(/"/g, '') + '"' : '') + ')';
+  insertMarkerIntoBody(marker);
+  showStatus(t('statusImageAdded'), 'ok');
+});
+
+/* ---- games embedded in this post, mirroring editor.html's own
+   "Partien in diesem Beitrag" tool ---- */
+function makeGameId(){
+  return 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+var postGames = [];
+var gamesListEl = document.getElementById('g-games-list');
+var gamesFormSlot = document.getElementById('g-games-form-slot');
+
+function renderPostGames(){
+  if(!postGames.length){ gamesListEl.innerHTML = '<div class="empty-note">' + escapeHtmlLocal(t('gamesEmptyNote')) + '</div>'; return; }
+  gamesListEl.innerHTML = '';
+  postGames.forEach(function(g, gIdx){
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML =
+      '<div class="item-info"><input type="checkbox" class="pg-select" data-idx="' + gIdx + '" title="' + escapeHtmlLocal(t('gameSelectTitle')) + '" style="margin-top:4px;">' +
+      '<div><div class="item-title">' + (g.title ? escapeHtmlLocal(g.title) : escapeHtmlLocal(t('gameUntitled'))) + '</div>' +
+      '<div class="item-sub">' + escapeHtmlLocal(g.meta || '') + '</div></div></div>' +
+      '<div class="item-actions">' +
+      '<button type="button" class="btn small" data-insert="' + gIdx + '">' + escapeHtmlLocal(t('gameInsertBtn')) + '</button>' +
+      '<button type="button" class="btn small" data-edit="' + gIdx + '">' + escapeHtmlLocal(t('gameEditBtn')) + '</button>' +
+      '<button type="button" class="btn small danger" data-del="' + gIdx + '">' + escapeHtmlLocal(t('gameDeleteBtn')) + '</button>' +
+      '</div>';
+    gamesListEl.appendChild(row);
+  });
+  gamesListEl.querySelectorAll('[data-insert]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var g = postGames[parseInt(b.dataset.insert, 10)];
+      insertMarkerIntoBody('[game:' + g.id + ']');
+      showStatus(t('statusGameInserted'), 'ok');
+    });
+  });
+  gamesListEl.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openGameForm(parseInt(b.dataset.edit, 10)); }); });
+  gamesListEl.querySelectorAll('[data-del]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var gIdx = parseInt(b.dataset.del, 10);
+      if(!confirm(t('confirmRemoveGame'))) return;
+      postGames.splice(gIdx, 1);
+      renderPostGames();
+      showStatus(t('statusGameRemoved'), 'ok');
+    });
+  });
+}
+
+function openGameForm(gIdx){
+  var editing = gIdx != null;
+  var g = editing ? postGames[gIdx] : { id: makeGameId(), title: '', meta: '', pgn: '' };
+  gamesFormSlot.innerHTML =
+    '<div class="entry-form">' +
+    '<h3>' + escapeHtmlLocal(editing ? t('gameFormEditTitle') : t('gameFormAddTitle')) + '</h3>' +
+    '<div class="field"><label>' + escapeHtmlLocal(t('gameTitleLabel')) + '</label><input type="text" id="gg-title" value="' + escapeHtmlLocal(g.title) + '" placeholder="' + escapeHtmlLocal(t('gameTitlePh')) + '"></div>' +
+    '<div class="field"><label>' + escapeHtmlLocal(t('gameMetaLabel')) + '</label><input type="text" id="gg-meta" value="' + escapeHtmlLocal(g.meta) + '" placeholder="' + escapeHtmlLocal(t('gameMetaPh')) + '"></div>' +
+    '<div class="field"><label>' + escapeHtmlLocal(t('gamePgnLabel')) + '</label><span class="hint">' + escapeHtmlLocal(t('gamePgnHint')) + '</span>' +
+    '<textarea id="gg-pgn" class="tall mono" placeholder="[Event &quot;…&quot;]&#10;[White &quot;…&quot;]&#10;[Black &quot;…&quot;]&#10;…&#10;1. e4 e5 2. Nf3 …">' + escapeHtmlLocal(g.pgn) + '</textarea></div>' +
+    '<div class="form-actions">' +
+    '<button type="button" class="btn solid" id="gg-save">' + escapeHtmlLocal(editing ? t('gameSaveBtnEdit') : t('gameSaveBtnAdd')) + '</button>' +
+    '<button type="button" class="btn" id="gg-cancel">' + escapeHtmlLocal(t('gameCancelBtn')) + '</button>' +
+    '</div></div>';
+  document.getElementById('gg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
+  document.getElementById('gg-save').addEventListener('click', function(){
+    var pgn = document.getElementById('gg-pgn').value.trim();
+    if(!pgn){ showStatus(t('statusNeedPgn'), 'err'); return; }
+    var entry = {
+      id: g.id,
+      title: document.getElementById('gg-title').value.trim() || t('gameUntitledDefault'),
+      meta: document.getElementById('gg-meta').value.trim(),
+      pgn: pgn
+    };
+    if(editing) postGames[gIdx] = entry; else postGames.push(entry);
+    gamesFormSlot.innerHTML = '';
+    renderPostGames();
+    showStatus(t('statusGameAdded'), 'ok');
+  });
+}
+document.getElementById('g-games-add-btn').addEventListener('click', function(){ openGameForm(null); });
+document.getElementById('g-games-insert-group-btn').addEventListener('click', function(){
+  var checked = Array.prototype.slice.call(gamesListEl.querySelectorAll('.pg-select:checked'));
+  var selected = checked.map(function(cb){ return postGames[parseInt(cb.dataset.idx, 10)]; }).filter(Boolean);
+  if(selected.length < 2){ showStatus(t('statusNeedTwoGames'), 'err'); return; }
+  insertMarkerIntoBody('[games:' + selected.map(function(g){ return g.id; }).join(',') + ']');
+  gamesListEl.querySelectorAll('.pg-select:checked').forEach(function(cb){ cb.checked = false; });
+  showStatus(t('statusGroupInserted', { n: selected.length }), 'ok');
+});
+renderPostGames();
+
+/* stashes the just-saved draft in localStorage so blog-post.html can show
+   it instantly, instead of waiting for GitHub Pages to deploy the commit
+   (can take anywhere from a few seconds to a few minutes) */
+function stashLocalPreview(slug, lang){
+  try{
+    function langField(text){
+      var o = { en: '', de: '' };
+      o[lang] = (text || '').toString().trim();
+      return o;
+    }
+    var post = {
+      slug: slug,
+      status: 'draft',
+      date: new Date().toISOString().slice(0, 10),
+      author: document.getElementById('g-name').value.trim() || 'Guest author',
+      image: lastCoverImagePath || '',
+      imageCaption: langField(document.getElementById('g-cover-caption').value),
+      imageCredit: document.getElementById('g-cover-credit').value.trim(),
+      title: langField(document.getElementById('g-title').value),
+      category: langField(document.getElementById('g-category').value),
+      excerpt: langField(document.getElementById('g-excerpt').value),
+      lead: langField(document.getElementById('g-lead').value),
+      quote: langField(document.getElementById('g-quote').value),
+      body: (function(){
+        var b = { en: [], de: [] };
+        var text = document.getElementById('g-body').value.trim();
+        b[lang] = text ? text.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+        return b;
+      })(),
+      games: postGames.map(function(g){ return { id: g.id, title: g.title, meta: g.meta, pgn: g.pgn }; })
+    };
+    localStorage.setItem('jlpBlogPreview:' + slug, JSON.stringify({ post: post, savedAt: Date.now() }));
+  }catch(e){ /* localStorage unavailable (e.g. private browsing) – preview just falls back to waiting for deployment */ }
+}
+
+async function saveDraft(){
+  if(!GUEST_WORKER_URL){
+    showStatus(t('statusNoWorker'), 'err');
+    return null;
+  }
+  var title = document.getElementById('g-title').value.trim();
+  var bodyText = document.getElementById('g-body').value.trim();
+  if(!title){ showStatus(t('statusNeedTitle'), 'err'); return null; }
+  if(!bodyText){ showStatus(t('statusNeedBody'), 'err'); return null; }
+  var bodyParas = bodyText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean);
+
+  var payload = {
+    accessKey: accessKey,
+    slug: savedSlug,
+    editorSessionId: editorSessionId,
+    lang: document.getElementById('g-lang').value,
+    guestName: document.getElementById('g-name').value,
+    guestContact: document.getElementById('g-contact').value,
+    title: title,
+    category: document.getElementById('g-category').value,
+    excerpt: document.getElementById('g-excerpt').value,
+    lead: document.getElementById('g-lead').value,
+    body: bodyParas,
+    quote: document.getElementById('g-quote').value,
+    imageCaption: document.getElementById('g-cover-caption').value,
+    imageCredit: document.getElementById('g-cover-credit').value,
+    games: postGames.map(function(g){ return { id: g.id, title: g.title, meta: g.meta, pgn: g.pgn }; })
+  };
+  if(pendingCoverFile){
+    try{ payload.coverImage = { base64: await fileToDataUrl(pendingCoverFile), filename: pendingCoverFile.name }; }
+    catch(e){ showStatus(t('statusCoverReadFail'), 'err'); return null; }
+  }
+  if(pendingInlineImages.length){
+    payload.inlineImages = pendingInlineImages.map(function(img){ return { id: img.id, base64: img.dataUrl, filename: img.filename }; });
+  }
+
+  var resp;
+  try{
+    resp = await fetch(GUEST_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  }catch(e){
+    showStatus(t('statusConnFailed'), 'err');
+    return null;
+  }
+  var data;
+  try{ data = await resp.json(); }catch(e){ data = {}; }
+  if(!resp.ok || !data.ok){
+    showStatus(data.error || t('statusSaveFailedGeneric', { status: resp.status }), 'err');
+    return null;
+  }
+  savedSlug = data.slug;
+  /* remembered per-browser (not per-page-load) so closing the tab and
+     coming back later – even a different day – can still find and offer
+     to resume THIS exact draft instead of only ever starting a new one;
+     see the resume-on-load check near the end of this script */
+  try{ localStorage.setItem('jlpGuestDraftSlug:' + accessKey, data.slug); }catch(e){}
+  pendingCoverFile = null;
+  if(data.coverImagePath) lastCoverImagePath = data.coverImagePath;
+  if(data.imageMap){
+    Object.keys(data.imageMap).forEach(function(id){
+      bodyTextarea.value = bodyTextarea.value.split('pending:' + id).join(data.imageMap[id]);
+    });
+  }
+  pendingInlineImages = [];
+  stashLocalPreview(data.slug, data.lang);
+  return data;
+}
+
+document.getElementById('g-save-btn').addEventListener('click', async function(){
+  var btn = this;
+  btn.disabled = true;
+  showStatus(t('statusSaving'));
+  var data = await saveDraft();
+  btn.disabled = false;
+  if(!data) return;
+  showStatus(t('statusSavedPlain'), 'ok');
+});
+
+document.getElementById('g-preview-btn').addEventListener('click', async function(){
+  var btn = this;
+  btn.disabled = true;
+  showStatus(t('statusSaving'));
+  var data = await saveDraft();
+  btn.disabled = false;
+  if(!data) return;
+  showStatus(t('statusSavedPreview'), 'ok');
+  window.open('blog-post.html?slug=' + encodeURIComponent(data.slug) + '&lang=' + encodeURIComponent(data.lang), '_blank');
+});
+
+/* ---- resume an earlier draft from this same browser, if one exists ----
+   Closing the tab used to lose all connection to a draft in progress –
+   the next visit had no way to know it existed, so saving again always
+   created a brand-new post instead of continuing the old one. Fixed by
+   remembering the slug locally (see saveDraft() above) and, on load,
+   checking whether it still exists as one of this guest's own pending
+   drafts – if so, offering to reload it into the form. Placed at the very
+   end of the script (not up by the gate check) since it needs postGames /
+   bodyTextarea / coverPreviewEl / renderPostGames etc., all defined
+   further down – this only ever RUNS after every one of those is ready. */
+/* shared by the "resume my own earlier draft" banner below and by
+   loadSharedDraft() further down – fills the whole form from a blog.json
+   entry and points savedSlug at it, so the next Save/Preview updates
+   THIS entry instead of creating a duplicate one. */
+function applyEntryToForm(entry, prefillAuthor){
+  var draftLang = (entry.title && entry.title.en) ? 'en' : 'de';
+  document.getElementById('g-lang').value = draftLang;
+  applyLanguage(draftLang);
+  if(prefillAuthor !== false){
+    document.getElementById('g-name').value = (entry.submittedBy && entry.submittedBy.name) || '';
+    document.getElementById('g-contact').value = (entry.submittedBy && entry.submittedBy.contact) || '';
+  }
+  document.getElementById('g-title').value = (entry.title && entry.title[draftLang]) || '';
+  document.getElementById('g-category').value = (entry.category && entry.category[draftLang]) || '';
+  document.getElementById('g-excerpt').value = (entry.excerpt && entry.excerpt[draftLang]) || '';
+  document.getElementById('g-lead').value = (entry.lead && entry.lead[draftLang]) || '';
+  document.getElementById('g-quote').value = (entry.quote && entry.quote[draftLang]) || '';
+  bodyTextarea.value = ((entry.body && entry.body[draftLang]) || []).join('\n\n');
+  document.getElementById('g-cover-caption').value = (entry.imageCaption && entry.imageCaption[draftLang]) || '';
+  document.getElementById('g-cover-credit').value = entry.imageCredit || '';
+  if(entry.image){
+    lastCoverImagePath = entry.image;
+    coverPreviewEl.innerHTML = '<img src="' + entry.image + '" alt="">';
+  }
+  postGames = (entry.games || []).slice();
+  renderPostGames();
+  savedSlug = entry.slug;
+  return draftLang;
+}
+
+if(accessKey && !slugParam){
+  (async function checkForResumableDraft(){
+    var storageKey = 'jlpGuestDraftSlug:' + accessKey;
+    var slug;
+    try{ slug = localStorage.getItem(storageKey); }catch(e){ slug = null; }
+    if(!slug) return;
+    var posts;
+    try{ posts = await fetch('data/blog.json', { cache: 'no-store' }).then(function(r){ return r.json(); }); }
+    catch(e){ return; }
+    var entry = (posts || []).find(function(p){ return p.slug === slug && p.status === 'draft' && p.submittedBy; });
+    if(!entry){
+      /* published, deleted, or otherwise gone – nothing left to resume,
+         and no point asking again on the next visit either */
+      try{ localStorage.removeItem(storageKey); }catch(e){}
+      return;
+    }
+    var draftLang = (entry.title && entry.title.en) ? 'en' : 'de';
+    var banner = document.getElementById('resume-banner');
+    document.getElementById('resume-banner-text').textContent =
+      t('resumeFoundText', { title: (entry.title && entry.title[draftLang]) || '' });
+    banner.hidden = false;
+
+    document.getElementById('resume-discard-btn').addEventListener('click', function(){
+      try{ localStorage.removeItem(storageKey); }catch(e){}
+      banner.hidden = true;
+    });
+    document.getElementById('resume-continue-btn').addEventListener('click', function(){
+      applyEntryToForm(entry);
+      banner.hidden = true;
+      showStatus(t('resumeLoaded'), 'ok');
+    });
+  })();
+}
+
+/* ---- open a draft Jakob shared for collaborative editing
+   (guest-editor.html?key=...&slug=...) ----
+   Unlike the resume-flow above (same browser, localStorage-only), this
+   works from ANY browser Jakob sends the link to. The Worker checks the
+   draft is flagged guestEditable and not already locked by a different
+   editorSessionId, then acquires the lock for this one before handing
+   the content back – see handleLoad() in guest-submit-worker.js. The
+   form (#app) stays hidden the whole time this is unresolved, so nobody
+   can start typing into a draft someone else already has open. */
+if(accessKey && slugParam){
+  (async function loadSharedDraft(){
+    var statusEl = document.getElementById('shared-status');
+    statusEl.hidden = false;
+    statusEl.classList.remove('err');
+    statusEl.textContent = t('sharedLoading');
+    if(!GUEST_WORKER_URL){
+      statusEl.textContent = t('statusNoWorker');
+      statusEl.classList.add('err');
+      return;
+    }
+    var resp, data;
+    try{
+      resp = await fetch(GUEST_WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'load', accessKey: accessKey, slug: slugParam, editorSessionId: editorSessionId })
+      });
+      data = await resp.json();
+    }catch(e){
+      statusEl.textContent = t('statusConnFailed');
+      statusEl.classList.add('err');
+      return;
+    }
+    if(!resp.ok || !data.ok){
+      statusEl.textContent = data.error || t('sharedLoadFailed');
+      statusEl.classList.add('err');
+      return;
+    }
+    if(data.locked){
+      statusEl.textContent = t('sharedLockedText', { name: data.lockHolderName || t('sharedLockedUnknown') });
+      statusEl.classList.add('err');
+      return;
+    }
+    applyEntryToForm(data.post, false);
+    statusEl.hidden = true;
+    app.hidden = false;
+    showStatus(t('sharedLoaded'), 'ok');
+  })();
+}
