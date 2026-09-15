@@ -376,12 +376,14 @@ export default {
       return jsonResponse({ error: 'Wrong or missing access key.' }, 403, origin);
     }
 
-    var lang = body.lang === 'en' ? 'en' : 'de';
-    var title = (body.title || '').toString().trim();
-    var bodyParas = Array.isArray(body.body)
-      ? body.body.map(function(p){ return (p || '').toString().trim(); }).filter(Boolean)
-      : [];
-    if(!title || !bodyParas.length){
+    var title = bilingualText(body.title);
+    var category = bilingualText(body.category);
+    var excerpt = bilingualText(body.excerpt);
+    var lead = bilingualText(body.lead);
+    var quote = bilingualText(body.quote);
+    var imageCaption = bilingualText(body.imageCaption);
+    var bodyText = bilingualBody(body.body);
+    if(!(title.en || title.de) || !(bodyText.en.length || bodyText.de.length)){
       return jsonResponse({ error: 'Title and body text cannot be empty.' }, 400, origin);
     }
 
@@ -395,18 +397,6 @@ export default {
     }
 
     var editorSessionId = (body.editorSessionId || '').toString().slice(0, 64);
-
-    function langField(existing, text){
-      var obj = (existing && typeof existing === 'object') ? { en: existing.en || '', de: existing.de || '' } : { en: '', de: '' };
-      obj[lang] = (text || '').toString().trim();
-      return obj;
-    }
-    function langBody(existing, paras){
-      var obj = (existing && typeof existing === 'object' && !Array.isArray(existing))
-        ? { en: existing.en || [], de: existing.de || [] } : { en: [], de: [] };
-      obj[lang] = paras;
-      return obj;
-    }
 
     var idx = -1;
     if(body.slug){
