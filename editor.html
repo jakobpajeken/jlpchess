@@ -621,7 +621,8 @@ async function connectGithub(token){
     blogPosts = await readJson('blog.json');
     testimonials = await readJson('testimonials.json');
     results = await readResultsJson();
-    renderGames(); renderBlog(); renderTesti(); renderAllResultLists();
+    popupSettings = await readPopupSettings();
+    renderGames(); renderBlog(); renderTesti(); renderAllResultLists(); renderPopupPanel();
     document.getElementById('main').hidden = false;
     statusEl.innerHTML = 'Verbunden mit <span class="folder-name">' + escapeHtml(GITHUB_OWNER + '/' + GITHUB_REPO) + '</span>';
     document.getElementById('gh-connect-btn').hidden = true;
