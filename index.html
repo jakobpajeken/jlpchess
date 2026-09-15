@@ -2912,17 +2912,47 @@ function isBlogPostPubliclyVisible(p){
   }
   return true;
 }
+/* Category can hold several values per language (an older post can still
+   have it as a single plain string) – normalizes either shape into a
+   plain array in one language, falling back to the other language if
+   this one has none yet. Same logic as blog-post.html's pickCategoryText,
+   kept as a separate small copy here rather than shared, same as this
+   site's other per-page-duplicated helpers. */
+function categoryArrayFor(val, lang){
+  var raw = (val && typeof val === 'object' && !Array.isArray(val)) ? (val[lang] || val.en || val.de) : val;
+  if(Array.isArray(raw)) return raw.map(function(v){ return (v || '').toString().trim(); }).filter(Boolean);
+  return raw ? [raw.toString().trim()] : [];
+}
+/* the category filter a visitor is currently viewing (from a category
+   link on an article page), or null for the normal, unfiltered list –
+   read once from ?category= on load, see the bottom of this section for
+   where that's parsed and wired up to the tab bar. */
+var blogCategoryFilter = null;
 function renderBlogGrid(){
   if(!Array.isArray(blogPostsData) || !blogPostsData.length) return; /* keep the fallback cards in the HTML */
   var grid = document.getElementById('blog-grid');
   if(!grid) return;
   var readMore = document.documentElement.lang === 'de' ? 'Weiterlesen →' : 'Read more →';
+  var lang = currentSiteLang();
   var publicPosts = blogPostsData.filter(isBlogPostPubliclyVisible);
+  var filterBar = document.getElementById('blog-category-filter');
+  if(blogCategoryFilter){
+    var wanted = blogCategoryFilter.toLowerCase();
+    publicPosts = publicPosts.filter(function(post){
+      return categoryArrayFor(post.category, lang).some(function(c){ return c.toLowerCase() === wanted; });
+    });
+    if(filterBar){
+      document.getElementById('blog-category-filter-text').textContent = t('blog.categoryFilterPrefix') + ': "' + blogCategoryFilter + '"';
+      document.getElementById('blog-category-clear').textContent = t('blog.categoryFilterClear');
+      filterBar.hidden = false;
+    }
+  } else if(filterBar){
+    filterBar.hidden = true;
+  }
   /* newest first: editor.html always appends new posts to the end of the
      array, so the last entry is the most recently added one */
   var ordered = publicPosts.slice().reverse();
   var visible = ordered.slice(0, blogVisibleCount);
-  var lang = currentSiteLang();
   grid.innerHTML = visible.map(function(post){
     /* &lang= here matters: without it, blog-post.html falls back to
        whatever language localStorage remembers from a PREVIOUS visit,
