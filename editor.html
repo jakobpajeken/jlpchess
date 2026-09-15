@@ -2302,6 +2302,10 @@ function openBlogForm(idx){
     (editing && activeEditLock(p)
       ? '<div class="form-notice">⏳ Wird gerade im Gast-Editor bearbeitet' + (activeEditLock(p).holderName ? ' (von ' + escapeHtml(activeEditLock(p).holderName) + ')' : '') + '. Du kannst hier trotzdem speichern – deine Version überschreibt dann den dortigen Stand.</div>'
       : '') +
+    (editing && p.guestVersion
+      ? '<div class="form-notice alt">🔀 Es liegt eine <strong>Alternative Version</strong> vom Gast-Editor vor' + (p.guestVersion.savedBy && p.guestVersion.savedBy.name ? ' (von ' + escapeHtml(p.guestVersion.savedBy.name) + ')' : '') + ', gespeichert am ' + escapeHtml(formatBlogDate((p.guestVersion.savedAt || '').slice(0, 10), 'de')) + '. Dein eigener Text oben ist davon unberührt.' +
+        '<div><button type="button" class="btn small" id="bf-alt-view-btn">👁 Ansehen</button> <button type="button" class="btn small" id="bf-alt-adopt-btn">✓ Übernehmen</button> <button type="button" class="btn small danger" id="bf-alt-discard-btn">Verwerfen</button></div></div>'
+      : '') +
     '<div class="field"><label>Status</label><span class="hint">Ein Entwurf ist nicht im öffentlichen Blog gelistet – nur über einen direkten Link erreichbar (mit deutlichem Entwurf-Hinweis). „Geplant" ist genauso unsichtbar, wird aber automatisch veröffentlicht, sobald das Datum unten erreicht ist — dafür muss niemand mehr etwas tun, auch dieser Rechner nicht.</span>' +
     '<select id="bf-status">' +
     '<option value="draft"' + (statusValue === 'draft' ? ' selected' : '') + '>Entwurf</option>' +
