@@ -3096,6 +3096,13 @@ function openBlogForm(idx){
          published yet (see above) – once published, "finished" no longer
          means anything, so just carry over whatever it already was */
       finished: document.getElementById('bf-finished') ? document.getElementById('bf-finished').checked : !!p.finished,
+      /* not shown/editable anywhere in this form itself – submittedBy is
+         set by guest-submit-worker.js, guestEditable/editLock are toggled
+         from the list row (see toggleGuestEditable) – just carried over
+         unchanged so a normal save here never silently drops them */
+      submittedBy: p.submittedBy || null,
+      guestEditable: !!p.guestEditable,
+      editLock: p.editLock || null,
       category: joinCategoryValue(document.getElementById('bf-category-en').value, document.getElementById('bf-category-de').value),
       date: document.getElementById('bf-date').value,
       author: document.getElementById('bf-author').value.trim() || DEFAULT_BLOG_AUTHOR,
