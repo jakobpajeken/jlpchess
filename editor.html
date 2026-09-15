@@ -2036,6 +2036,7 @@ function renderBlog(){
       '<div class="item-actions">' +
       (notYetLive ? '<button type="button" class="btn small" data-toggle-finished="' + idx + '">' + (p.finished ? 'Fertig-Markierung entfernen' : 'Als fertig markieren') + '</button>' : '') +
       '<button type="button" class="btn small" data-toggle-status="' + idx + '">' + (isDraft || scheduled ? 'Jetzt veröffentlichen' : 'Zu Entwurf') + '</button>' +
+      (p.slug ? '<button type="button" class="btn small" data-preview="' + idx + '" title="Öffnet die Live-Ansicht direkt, ohne erst das Bearbeiten-Formular zu öffnen">👁 Vorschau</button>' : '') +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
       '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
       '</div>';
