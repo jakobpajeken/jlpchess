@@ -3362,8 +3362,14 @@
     "slug": "what-makes-a-good-repertoire",
     "status": "draft",
     "category": {
-      "en": "Openings",
-      "de": "Eröffnungen"
+      "en": [
+        "Openings",
+        "General Chess Knowledge"
+      ],
+      "de": [
+        "Eröffnungen",
+        "Allgemeines Schachwissen"
+      ]
     },
     "date": "2026-09-15",
     "author": "IM Jakob Leon Pajeken",
@@ -3577,8 +3583,7 @@
       "en": "When the theory ends, your knowledge shouldn't end there. Ideally, that's exactly where the area begins in which you are most knowledgeable.",
       "de": "Wenn die Theorie endet, sollte nicht das eigene Wissen enden. Im Idealfall beginnt genau dort der Bereich, in dem man sich selbst am besten auskennt."
     },
-    "games": [],
-    "finished": true
+    "games": []
   },
   {
     "title": {
