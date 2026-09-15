@@ -2086,7 +2086,7 @@ function openBlogForm(idx){
   var dateValue = editing ? (p.date || '') : todayInBerlin();
   var authorValue = p.author || DEFAULT_BLOG_AUTHOR;
   var titleSplit = splitLangValue(p.title);
-  var categorySplit = splitLangValue(p.category);
+  var categorySplit = splitCategoryValue(p.category);
   var imageCaptionSplit = splitLangValue(p.imageCaption);
   var excerptSplit = splitLangValue(p.excerpt);
   var leadSplit = splitLangValue(p.lead);
@@ -2138,8 +2138,8 @@ function openBlogForm(idx){
     '<div class="field"><label>Titel (Deutsch)</label><div class="cover-row"><input type="text" id="bf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Drei Eröffnungsfehler, die ich ständig sehe" style="flex:1;"><button type="button" class="btn small" id="bf-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '</div>' +
     '<div class="form-row">' +
-    '<div class="field"><label>Kategorie (Englisch)</label><div class="cover-row"><input type="text" id="bf-category-en" list="bf-category-en-options" value="' + escapeHtml(categorySplit.en) + '" placeholder="z. B. Openings" style="flex:1;"><datalist id="bf-category-en-options">' + catOptionsEn + '</datalist><button type="button" class="btn small" id="bf-category-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
-    '<div class="field"><label>Kategorie (Deutsch)</label><div class="cover-row"><input type="text" id="bf-category-de" list="bf-category-de-options" value="' + escapeHtml(categorySplit.de) + '" placeholder="z. B. Eröffnungen" style="flex:1;"><datalist id="bf-category-de-options">' + catOptionsDe + '</datalist><button type="button" class="btn small" id="bf-category-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Kategorien (Englisch)</label><span class="hint">Mehrere durch Komma trennen, z. B. "Openings, Training".</span><div class="cover-row"><input type="text" id="bf-category-en" list="bf-category-en-options" value="' + escapeHtml(categorySplit.en.join(', ')) + '" placeholder="z. B. Openings, Training" style="flex:1;"><datalist id="bf-category-en-options">' + catOptionsEn + '</datalist><button type="button" class="btn small" id="bf-category-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Kategorien (Deutsch)</label><span class="hint">Mehrere durch Komma trennen, z. B. "Eröffnungen, Training".</span><div class="cover-row"><input type="text" id="bf-category-de" list="bf-category-de-options" value="' + escapeHtml(categorySplit.de.join(', ')) + '" placeholder="z. B. Eröffnungen, Training" style="flex:1;"><datalist id="bf-category-de-options">' + catOptionsDe + '</datalist><button type="button" class="btn small" id="bf-category-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
     '</div>' +
     '<div class="form-row">' +
     '<div class="field"><label>Datum</label><span class="hint">Bei einem neuen Beitrag automatisch das heutige Datum (MEZ/MESZ) – bei Bedarf änderbar.</span><input type="date" id="bf-date" value="' + escapeHtml(dateValue) + '"></div>' +
