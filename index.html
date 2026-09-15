@@ -1393,7 +1393,37 @@ function showTab(tabId, sectionId){
   /* keep the URL's #hash in sync, so whatever's currently open is what a
      copied/shared link reopens – same idea as ?lang=, just via the hash */
   try{ history.replaceState(null, '', location.pathname + location.search + '#' + (sectionId || tabId)); }catch(e){}
+  maybeShowFreeAnalysisPopup(tabId);
 }
+/* Free-analysis popup: fires the first time the Coaching tab opens in
+   English during this browser session – never in German (not just
+   hidden: the German version of this page must never advertise a
+   Twitch/YouTube stream that's only offered in English), and never more
+   than once per session so it doesn't nag on every tab switch. */
+function maybeShowFreeAnalysisPopup(tabId){
+  if(tabId !== 'coaching') return;
+  if(currentSiteLang() !== 'en') return;
+  var shown;
+  try{ shown = sessionStorage.getItem('jlpFreeAnalysisPopupShown'); }catch(e){ shown = null; }
+  if(shown) return;
+  try{ sessionStorage.setItem('jlpFreeAnalysisPopupShown', '1'); }catch(e){}
+  var popup = document.getElementById('free-analysis-popup');
+  if(popup) popup.hidden = false;
+}
+function hideFreeAnalysisPopup(){
+  var popup = document.getElementById('free-analysis-popup');
+  if(popup) popup.hidden = true;
+}
+document.getElementById('free-analysis-close').addEventListener('click', hideFreeAnalysisPopup);
+document.getElementById('free-analysis-dismiss').addEventListener('click', hideFreeAnalysisPopup);
+document.getElementById('free-analysis-cta').addEventListener('click', hideFreeAnalysisPopup);
+document.getElementById('free-analysis-popup').addEventListener('click', function(e){
+  if(e.target === this) hideFreeAnalysisPopup();
+});
+document.addEventListener('keydown', function(e){
+  var popup = document.getElementById('free-analysis-popup');
+  if(e.key === 'Escape' && popup && !popup.hidden) hideFreeAnalysisPopup();
+});
 document.querySelectorAll('[data-goto-tab]').forEach(function(el){
   el.addEventListener('click', function(e){
     e.preventDefault();
