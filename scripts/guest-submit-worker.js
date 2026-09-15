@@ -234,6 +234,23 @@ function sanitizeGames(rawGames){
   });
   return out;
 }
+/* Content is always bilingual now – the client (guest-editor.html) keeps
+   both languages in memory and sends both every time, exactly like
+   editor.html's own save does, so there's nothing to merge server-side:
+   whatever comes in simply IS the new value for both languages. */
+function bilingualText(raw){
+  return {
+    en: ((raw && raw.en) || '').toString().trim(),
+    de: ((raw && raw.de) || '').toString().trim()
+  };
+}
+function bilingualBody(raw){
+  function paras(arr){
+    return Array.isArray(arr) ? arr.map(function(p){ return (p || '').toString().trim(); }).filter(Boolean) : [];
+  }
+  return { en: paras(raw && raw.en), de: paras(raw && raw.de) };
+}
+
 /* same house style as editor.html's own normalizeDashes – applied here
    too since a guest's browser goes through none of the site's own JS */
 function normalizeDashes(value){
