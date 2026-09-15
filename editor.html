@@ -1989,17 +1989,26 @@ function renderBlog(){
        sets it, so its mere presence is enough to flag "someone else
        wrote this, still needs your review" at a glance. */
     var guestBadge = p.submittedBy ? '<span class="status-badge guest">Gastbeitrag' + (p.submittedBy.name ? ': ' + escapeHtml(p.submittedBy.name) : '') + '</span>' : '';
+    /* "Fertig" is purely an organisational marker for this list, entirely
+       separate from status – it never changes what's publicly visible
+       (only status/date do that). Lets a draft/scheduled post be flagged
+       "done, just waiting on me to hit publish" instead of getting lost
+       among ones still being worked on – so it's shown (and toggleable)
+       only pre-publish, a published post is trivially already "finished". */
+    var notYetLive = isDraft || scheduled;
+    var finishedBadge = (notYetLive && p.finished) ? '<span class="status-badge finished">✓ Fertig</span>' : '';
     var row = document.createElement('div');
     row.className = 'item-row';
     row.innerHTML =
       '<div class="item-main">' +
       (p.image ? '<img class="item-thumb" src="' + escapeHtml(p.image) + '" alt="">' : '') +
-      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + (badge ? ' ' + badge : '') + (guestBadge ? ' ' + guestBadge : '') + '</div>' +
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + (badge ? ' ' + badge : '') + (finishedBadge ? ' ' + finishedBadge : '') + (guestBadge ? ' ' + guestBadge : '') + '</div>' +
       '<div class="item-sub">' + escapeHtml(formatBlogDate(p.date, 'de')) + (p.date && p.excerpt ? ' · ' : '') + escapeHtml(previewLang(p.excerpt) || '') +
       (p.submittedBy && p.submittedBy.contact ? ' · <span title="Kontakt der Gastautorin/des Gastautors">' + escapeHtml(p.submittedBy.contact) + '</span>' : '') +
       '</div></div>' +
       '</div>' +
       '<div class="item-actions">' +
+      (notYetLive ? '<button type="button" class="btn small" data-toggle-finished="' + idx + '">' + (p.finished ? 'Fertig-Markierung entfernen' : 'Als fertig markieren') + '</button>' : '') +
       '<button type="button" class="btn small" data-toggle-status="' + idx + '">' + (isDraft || scheduled ? 'Jetzt veröffentlichen' : 'Zu Entwurf') + '</button>' +
       '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
       '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
