@@ -55,6 +55,7 @@
   header p{color:var(--ivory-dim);margin:10px 0 0;max-width:64ch;}
   .notice{margin:20px 0;padding:16px 18px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--gold);font-size:0.9rem;color:var(--ivory-dim);}
   .notice strong{color:var(--ivory);}
+  .notice.err{border-left-color:var(--err);color:var(--err);}
   .field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
   .field label{font-size:0.82rem;color:var(--ivory-dim);}
   .field .hint{font-size:0.76rem;color:var(--ivory-dim);opacity:0.8;}
@@ -116,6 +117,12 @@
   </header>
 
   <div id="gate" data-i18n="gateChecking">Checking access …</div>
+
+  <!-- shown only for a guest-editor.html?slug=... link (a post Jakob
+       flagged guestEditable and shared out): while its status is
+       loading/locked/failed the form itself stays hidden, so nobody can
+       start typing into a draft someone else already has open -->
+  <div id="shared-status" class="notice" hidden></div>
 
   <div id="app" hidden>
     <!-- shown only when a slug saved earlier in THIS browser (localStorage,
@@ -259,6 +266,11 @@ var UI_STRINGS = {
     resumeContinueBtn: 'Continue this draft',
     resumeDiscardBtn: 'Start a new one instead',
     resumeLoaded: 'Draft loaded – pick up right where you left off.',
+    sharedLoading: 'Opening this shared draft …',
+    sharedLoadFailed: 'Could not open this draft. Please check the link, or ask Jakob for a new one.',
+    sharedLockedText: 'This article is currently being edited by {name} – please try again in a few minutes.',
+    sharedLockedUnknown: 'someone else',
+    sharedLoaded: 'Draft loaded – you\'re now editing it together with Jakob.',
     h1: 'Write a blog post',
     intro: 'Write your post for IM Jakob Leon Pajeken’s blog here. You can preview it at any time, exactly as the article would look once published.',
     noticeHtml: '<strong>What happens next:</strong> Your text is saved, but <strong>not publicly visible</strong>. Jakob sees your draft in his own editor, can adjust it, and decides whether and when it gets published. You can come back and continue this draft later, but only <strong>on this same device and browser</strong> – it isn\'t saved to any account.',
