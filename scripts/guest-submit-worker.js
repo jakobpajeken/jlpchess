@@ -45,6 +45,18 @@
  *    GITHUB_TOKEN, size- and type-checked first (see MAX_IMAGE_BYTES /
  *    ALLOWED_IMAGE_TYPES below) so this can't be used to dump arbitrary or
  *    oversized files into the repo.
+ *  - Two different kinds of guest content, saved to two different places:
+ *    (1) a guest's OWN submission (no slug, or continuing one via their
+ *    own resume link) is written straight into the post's real title/
+ *    body/etc fields – it doesn't exist anywhere else yet, so there's
+ *    nothing of Jakob's to protect. (2) a post Jakob flagged
+ *    guestEditable and shared via ?slug=... is HIS post – a guest's save
+ *    there never touches the real fields at all, it only ever writes
+ *    entry.guestVersion (a full parallel copy). Jakob keeps editing the
+ *    real fields in editor.html completely undisturbed, and sees the
+ *    guest's work as a clearly separate "alternative version" he can
+ *    look at and adopt on his own terms, never something that can
+ *    silently overwrite (or be overwritten by) his own save.
  *
  * Setup (see chat for the full walkthrough):
  *   1. Create a SECOND Worker in the Cloudflare dashboard (separate from
