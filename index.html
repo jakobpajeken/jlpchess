@@ -1451,16 +1451,11 @@ function hideFreeAnalysisPopup(){
   var popup = document.getElementById('free-analysis-popup');
   if(popup) popup.hidden = true;
 }
-document.getElementById('free-analysis-close').addEventListener('click', hideFreeAnalysisPopup);
+/* deliberately no X button, no click-outside-to-close, and no Escape
+   handler here – the visitor has to actually pick "Get in Touch" or
+   "Maybe later", not just dismiss it without deciding */
 document.getElementById('free-analysis-dismiss').addEventListener('click', hideFreeAnalysisPopup);
 document.getElementById('free-analysis-cta').addEventListener('click', hideFreeAnalysisPopup);
-document.getElementById('free-analysis-popup').addEventListener('click', function(e){
-  if(e.target === this) hideFreeAnalysisPopup();
-});
-document.addEventListener('keydown', function(e){
-  var popup = document.getElementById('free-analysis-popup');
-  if(e.key === 'Escape' && popup && !popup.hidden) hideFreeAnalysisPopup();
-});
 document.querySelectorAll('[data-goto-tab]').forEach(function(el){
   el.addEventListener('click', function(e){
     e.preventDefault();
