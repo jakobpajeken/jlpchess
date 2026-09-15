@@ -986,12 +986,19 @@ async function saveDraft(){
   pendingCoverFile = null;
   if(data.coverImagePath) lastCoverImagePath = data.coverImagePath;
   if(data.imageMap){
+    /* an inserted image's [pending:id] marker could be sitting in either
+       language's buffer depending on which one was active when it was
+       inserted – substitute in both, then refresh whichever is visible */
     Object.keys(data.imageMap).forEach(function(id){
-      bodyTextarea.value = bodyTextarea.value.split('pending:' + id).join(data.imageMap[id]);
+      ['en', 'de'].forEach(function(lang){
+        bilingualDraft[lang].body = bilingualDraft[lang].body.split('pending:' + id).join(data.imageMap[id]);
+      });
     });
+    applyLangFieldsToForm(currentContentLang);
   }
   pendingInlineImages = [];
-  stashLocalPreview(data.slug, data.lang);
+  stashLocalPreview(data.slug);
+  updateLangAvailabilityHint();
   return data;
 }
 
@@ -1013,7 +1020,7 @@ document.getElementById('g-preview-btn').addEventListener('click', async functio
   btn.disabled = false;
   if(!data) return;
   showStatus(t('statusSavedPreview'), 'ok');
-  window.open('blog-post.html?slug=' + encodeURIComponent(data.slug) + '&lang=' + encodeURIComponent(data.lang), '_blank');
+  window.open('blog-post.html?slug=' + encodeURIComponent(data.slug) + '&lang=' + encodeURIComponent(currentContentLang), '_blank');
 });
 
 /* ---- resume an earlier draft from this same browser, if one exists ----
