@@ -1044,6 +1044,21 @@
   </div>
 </footer>
 
+<!-- English-only popup, shown once per visit when the Coaching tab opens
+     in English – see maybeShowFreeAnalysisPopup() in the script below.
+     Hardcoded English (no data-i18n) is deliberate: it must never exist
+     in German at all, not just be hidden there. -->
+<div class="free-analysis-overlay" id="free-analysis-popup" hidden>
+  <div class="free-analysis-card" role="dialog" aria-modal="true" aria-labelledby="free-analysis-heading">
+    <button type="button" class="free-analysis-close" id="free-analysis-close" aria-label="Close">&times;</button>
+    <p class="free-analysis-eyebrow">Limited offer</p>
+    <h3 id="free-analysis-heading">Free Game Analysis, Live on Stream</h3>
+    <p>I'll review your recent games for free, one-on-one, about 60 minutes, if I can stream the session live on Twitch (and later share it on YouTube). A real, in-depth look at your games, and a bit of content for the channel. Interested?</p>
+    <a href="#" class="btn solid" id="free-analysis-cta" data-goto-tab="coaching" data-goto-section="coaching-cta">Get in Touch</a>
+    <button type="button" class="btn" id="free-analysis-dismiss">Maybe later</button>
+  </div>
+</div>
+
 <script>
 const i18n = {
   "nav.about":{en:"Home",de:"Home"},
