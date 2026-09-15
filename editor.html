@@ -2117,6 +2117,8 @@ function openBlogForm(idx){
     '<option value="scheduled"' + (statusValue === 'scheduled' ? ' selected' : '') + '>Geplant (veröffentlicht sich selbst am unten eingetragenen Datum)</option>' +
     '<option value="published"' + (statusValue === 'published' ? ' selected' : '') + '>Veröffentlicht</option>' +
     '</select></div>' +
+    (statusValue !== 'published' ?
+      '<label class="checkbox-row"><input type="checkbox" id="bf-finished"' + (p.finished ? ' checked' : '') + '> Als fertig markieren (rein organisatorisch – ändert nichts an der Sichtbarkeit, „Status" oben bestimmt weiterhin allein, ob der Beitrag online ist)</label>' : '') +
     '<div class="translate-row">' +
     '<button type="button" class="btn solid" id="bf-ai-fill-btn">✨ Gesamten Beitrag von der KI erstellen lassen</button>' +
     '<span class="status" id="bf-ai-fill-status"></span>' +
