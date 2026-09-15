@@ -2046,6 +2046,22 @@ function renderBlog(){
   list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteBlog(parseInt(b.dataset.del, 10)); }); });
   list.querySelectorAll('[data-toggle-status]').forEach(function(b){ b.addEventListener('click', function(){ toggleBlogStatus(parseInt(b.dataset.toggleStatus, 10)); }); });
   list.querySelectorAll('[data-toggle-finished]').forEach(function(b){ b.addEventListener('click', function(){ toggleBlogFinished(parseInt(b.dataset.toggleFinished, 10)); }); });
+  list.querySelectorAll('[data-preview]').forEach(function(b){ b.addEventListener('click', function(){ openBlogPreview(parseInt(b.dataset.preview, 10)); }); });
+}
+/* opens the live view of an already-saved post directly from the list,
+   without first opening its edit form – the point being "direct", one
+   click. Re-stashes it into localStorage first (same mechanism the
+   in-form "Vorschau ansehen" button uses) purely so the preview is
+   guaranteed to reflect this exact saved state even if GitHub Pages
+   hasn't finished deploying the underlying commit yet. */
+function openBlogPreview(idx){
+  var p = blogPosts[idx];
+  if(!p || !p.slug) return;
+  try{
+    localStorage.setItem('jlpBlogPreview:' + p.slug, JSON.stringify({ post: p, savedAt: Date.now() }));
+  }catch(e){ /* localStorage unavailable – preview just falls back to waiting for deployment */ }
+  var lang = (p.title && typeof p.title === 'object' && p.title.de) ? 'de' : 'en';
+  window.open('blog-post.html?slug=' + encodeURIComponent(p.slug) + '&lang=' + lang, '_blank');
 }
 async function toggleBlogStatus(idx){
   var post = blogPosts[idx];
