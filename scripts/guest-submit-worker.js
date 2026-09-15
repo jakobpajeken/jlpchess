@@ -92,6 +92,26 @@ var ALLOWED_IMAGE_TYPES = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/we
    editor.html itself writes – no separate GitHub write needed. */
 var MAX_GAMES_PER_POST = 8;
 
+/* Collaborative editing: Jakob can flag one of his OWN drafts as
+   guestEditable in editor.html and share a guest-editor.html?slug=...
+   link so someone else can help write it, without it ever looking like
+   a guest's own submission (see entry.guestEditable vs entry.submittedBy
+   below). While one person has it open, entry.editLock blocks anyone
+   else from saving over them; it expires on its own after this many ms
+   so an abandoned tab can never lock a post forever. */
+var EDIT_LOCK_TTL_MS = 20 * 60 * 1000;
+
+/* Returns the entry's lock only if it's still within its TTL, else null
+   (an expired lock is treated as no lock at all – no explicit release
+   needed). */
+function activeLock(entry){
+  if(entry && entry.editLock && entry.editLock.holder && entry.editLock.since){
+    var age = Date.now() - Date.parse(entry.editLock.since);
+    if(age >= 0 && age < EDIT_LOCK_TTL_MS) return entry.editLock;
+  }
+  return null;
+}
+
 var ALLOWED_ORIGINS = [
   'https://jp-chess.com',
   'https://www.jp-chess.com',
