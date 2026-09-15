@@ -3573,5 +3573,27 @@
     },
     "games": [],
     "finished": true
+  },
+  {
+    "title": {
+      "en": "How to Remember Chess Openings Better: Understand, Analyze, and Memorize Strategically",
+      "de": "Eröffnungen im Schach besser merken: Verstehen, analysieren und gezielt auswendig lernen"
+    },
+    "slug": "how-to-remember-chess-openings-better-understand-analyze-and",
+    "status": "draft",
+    "category": "",
+    "date": "2026-09-15",
+    "author": "IM Jakob Leon Pajeken",
+    "image": "",
+    "imageCaption": "",
+    "imageCredit": "",
+    "excerpt": "",
+    "lead": "",
+    "body": {
+      "en": [],
+      "de": []
+    },
+    "quote": "",
+    "games": []
   }
 ]
