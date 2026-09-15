@@ -2196,7 +2196,7 @@ async function adoptGuestVersion(idx){
   try{
     await writeJson('blog.json', blogPosts);
     renderBlog();
-    if(document.getElementById('blog-form')) openBlogForm(idx);
+    openBlogForm(idx);
     showToast('Alternative Version übernommen ✓');
   }catch(err){
     Object.assign(post, backup);
@@ -2212,7 +2212,7 @@ async function discardGuestVersion(idx){
   try{
     await writeJson('blog.json', blogPosts);
     renderBlog();
-    if(document.getElementById('blog-form')) openBlogForm(idx);
+    openBlogForm(idx);
     showToast('Alternative Version verworfen.');
   }catch(err){
     post.guestVersion = old;
