@@ -1037,21 +1037,40 @@ document.getElementById('g-preview-btn').addEventListener('click', async functio
    loadSharedDraft() further down – fills the whole form from a blog.json
    entry and points savedSlug at it, so the next Save/Preview updates
    THIS entry instead of creating a duplicate one. */
-function applyEntryToForm(entry, prefillAuthor){
-  var draftLang = (entry.title && entry.title.en) ? 'en' : 'de';
-  document.getElementById('g-lang').value = draftLang;
-  applyLanguage(draftLang);
+function categoryFieldText(val, lang){
+  var v = val && val[lang];
+  if(Array.isArray(v)) return v.join(', ');
+  return v || '';
+}
+function applyEntryToForm(entry, prefillAuthor, slugOverride){
+  bilingualDraft.en = {
+    title: (entry.title && entry.title.en) || '',
+    category: categoryFieldText(entry.category, 'en'),
+    excerpt: (entry.excerpt && entry.excerpt.en) || '',
+    lead: (entry.lead && entry.lead.en) || '',
+    quote: (entry.quote && entry.quote.en) || '',
+    coverCaption: (entry.imageCaption && entry.imageCaption.en) || '',
+    body: ((entry.body && entry.body.en) || []).join('\n\n')
+  };
+  bilingualDraft.de = {
+    title: (entry.title && entry.title.de) || '',
+    category: categoryFieldText(entry.category, 'de'),
+    excerpt: (entry.excerpt && entry.excerpt.de) || '',
+    lead: (entry.lead && entry.lead.de) || '',
+    quote: (entry.quote && entry.quote.de) || '',
+    coverCaption: (entry.imageCaption && entry.imageCaption.de) || '',
+    body: ((entry.body && entry.body.de) || []).join('\n\n')
+  };
+  currentContentLang = bilingualDraft.en.title ? 'en' : (bilingualDraft.de.title ? 'de' : 'en');
+  document.getElementById('g-lang').value = currentContentLang;
+  applyLanguage(currentContentLang);
+  applyLangFieldsToForm(currentContentLang);
+  updateLangAvailabilityHint();
   if(prefillAuthor !== false){
-    document.getElementById('g-name').value = (entry.submittedBy && entry.submittedBy.name) || '';
-    document.getElementById('g-contact').value = (entry.submittedBy && entry.submittedBy.contact) || '';
+    var by = entry.submittedBy || entry.savedBy;
+    document.getElementById('g-name').value = (by && by.name) || '';
+    document.getElementById('g-contact').value = (by && by.contact) || '';
   }
-  document.getElementById('g-title').value = (entry.title && entry.title[draftLang]) || '';
-  document.getElementById('g-category').value = (entry.category && entry.category[draftLang]) || '';
-  document.getElementById('g-excerpt').value = (entry.excerpt && entry.excerpt[draftLang]) || '';
-  document.getElementById('g-lead').value = (entry.lead && entry.lead[draftLang]) || '';
-  document.getElementById('g-quote').value = (entry.quote && entry.quote[draftLang]) || '';
-  bodyTextarea.value = ((entry.body && entry.body[draftLang]) || []).join('\n\n');
-  document.getElementById('g-cover-caption').value = (entry.imageCaption && entry.imageCaption[draftLang]) || '';
   document.getElementById('g-cover-credit').value = entry.imageCredit || '';
   if(entry.image){
     lastCoverImagePath = entry.image;
@@ -1059,8 +1078,8 @@ function applyEntryToForm(entry, prefillAuthor){
   }
   postGames = (entry.games || []).slice();
   renderPostGames();
-  savedSlug = entry.slug;
-  return draftLang;
+  savedSlug = slugOverride || entry.slug;
+  return currentContentLang;
 }
 
 if(accessKey && !slugParam){
