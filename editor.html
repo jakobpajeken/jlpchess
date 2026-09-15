@@ -292,13 +292,13 @@
       <details style="margin:0 0 18px;">
         <summary style="cursor:pointer;color:var(--gold-bright);font-size:0.9rem;">Gast-Editor-Zugangsschlüssel</summary>
         <div style="margin-top:12px;padding:18px 20px;border:1px solid var(--line);background:var(--surface);">
-          <p class="hint" style="margin:0 0 10px;">Derselbe Schlüssel, der im Cloudflare-Worker als GUEST_ACCESS_KEY hinterlegt ist – wird nur gebraucht, um Freigabe-Links für den Gast-Editor zu erzeugen. Bleibt nur in diesem Browser gespeichert.</p>
+          <p style="margin:0 0 10px;font-size:0.82rem;color:var(--ivory-dim);">Derselbe Schlüssel, der im Cloudflare-Worker als GUEST_ACCESS_KEY hinterlegt ist – wird nur gebraucht, um Freigabe-Links für den Gast-Editor zu erzeugen. Bleibt nur in diesem Browser gespeichert.</p>
           <div class="cover-row">
             <input type="password" id="guest-key-input" placeholder="Gast-Zugangsschlüssel einfügen" autocomplete="off" style="flex:1;min-width:220px;background:var(--ink);border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:0.9rem;padding:10px 12px;">
             <button type="button" class="btn small" id="guest-key-save-btn">Speichern</button>
             <button type="button" class="btn small" id="guest-key-clear-btn">Löschen</button>
           </div>
-          <span class="hint" id="guest-key-status"></span>
+          <span id="guest-key-status" style="font-size:0.82rem;color:var(--ivory-dim);"></span>
         </div>
       </details>
       <div class="item-list" id="blog-list"></div>
