@@ -423,7 +423,7 @@ export default {
       }
       var existingSlugs = posts.map(function(p){ return p.slug; });
       entry = {
-        slug: uniqueSlug(title, existingSlugs),
+        slug: uniqueSlug(title.en || title.de, existingSlugs),
         status: 'draft',
         date: todayInBerlin(),
         author: (body.guestName || '').toString().trim() || 'Guest author',
