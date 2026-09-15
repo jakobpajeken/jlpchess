@@ -524,7 +524,10 @@ if(!accessKey){
   gate.textContent = t('gateIncomplete');
 } else {
   gate.hidden = true;
-  app.hidden = false;
+  /* a slug link stays hidden until loadSharedDraft() (near the end of
+     this script) confirms the draft is actually loadable and not locked
+     by someone else – see #shared-status above */
+  if(!slugParam) app.hidden = false;
 }
 document.getElementById('g-lang').addEventListener('change', function(){ applyLanguage(this.value); });
 
@@ -875,6 +878,7 @@ async function saveDraft(){
   var payload = {
     accessKey: accessKey,
     slug: savedSlug,
+    editorSessionId: editorSessionId,
     lang: document.getElementById('g-lang').value,
     guestName: document.getElementById('g-name').value,
     guestContact: document.getElementById('g-contact').value,
