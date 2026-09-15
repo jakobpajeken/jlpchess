@@ -1558,9 +1558,12 @@ function formatBlogDate(iso, lang){
 function collectCategoryOptions(lang){
   var seen = {}, list = [];
   (blogPosts || []).forEach(function(post){
-    var split = splitLangValue(post.category);
-    var val = (lang === 'de' ? (split.de || split.en) : (split.en || split.de) || '').trim();
-    if(val && !seen[val]){ seen[val] = true; list.push(val); }
+    var split = splitCategoryValue(post.category);
+    var values = (lang === 'de' ? split.de : split.en);
+    if(!values.length) values = (lang === 'de' ? split.en : split.de); /* fall back to the other language if this post has none in this one yet */
+    values.forEach(function(val){
+      if(val && !seen[val]){ seen[val] = true; list.push(val); }
+    });
   });
   return list;
 }
