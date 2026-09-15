@@ -473,35 +473,20 @@ export default {
       }
     }
     if(Object.keys(imageMap).length){
-      bodyParas = bodyParas.map(function(para){
-        Object.keys(imageMap).forEach(function(id){
-          para = para.split('pending:' + id).join(imageMap[id]);
+      function substitute(paras){
+        return paras.map(function(para){
+          Object.keys(imageMap).forEach(function(id){
+            para = para.split('pending:' + id).join(imageMap[id]);
+          });
+          return para;
         });
-        return para;
-      });
+      }
+      bodyText.en = substitute(bodyText.en);
+      bodyText.de = substitute(bodyText.de);
     }
 
-    entry.title = langField(entry.title, title);
-    entry.category = langField(entry.category, body.category);
-    entry.excerpt = langField(entry.excerpt, body.excerpt);
-    entry.lead = langField(entry.lead, body.lead);
-    entry.quote = langField(entry.quote, body.quote);
-    entry.body = langBody(entry.body, bodyParas);
-    if(coverImagePath) entry.image = coverImagePath; /* else: leave whatever it already was untouched */
-    entry.imageCaption = langField(entry.imageCaption, body.imageCaption);
-    entry.imageCredit = (body.imageCredit || '').toString().trim();
-    entry.games = sanitizeGames(body.games);
-    entry.status = 'draft'; /* never anything else, no matter what a submission claims */
-    /* guestEditable posts are Jakob's own – shared out so someone can
-       help write them, never relabeled as a guest submission. Everything
-       else keeps the original "who submitted this" bookkeeping. */
-    if(!entry.guestEditable){
-      entry.submittedBy = {
-        name: (body.guestName || '').toString().trim(),
-        contact: (body.guestContact || '').toString().trim(),
-        submittedAt: new Date().toISOString()
-      };
-    }
+    var games = sanitizeGames(body.games);
+    var imageCredit = (body.imageCredit || '').toString().trim();
     /* extend the lock for whoever just saved, so a continuously-editing
        session never expires mid-session; a stale lock from a closed tab
        still times out on its own via activeLock()'s TTL check */
@@ -512,17 +497,59 @@ export default {
         since: new Date().toISOString()
       };
     }
+
+    var commitMessage;
+    if(entry.guestEditable){
+      /* Jakob's own post, shared out – a guest's save NEVER touches the
+         real fields above (title/body/... stay exactly as he left them).
+         It only ever writes this separate snapshot, which he can look at
+         and explicitly adopt in editor.html – see the trust-model note
+         at the top of this file. */
+      entry.guestVersion = {
+        title: title, category: category, excerpt: excerpt, lead: lead, quote: quote,
+        body: bodyText,
+        image: coverImagePath || (entry.guestVersion && entry.guestVersion.image) || entry.image || '',
+        imageCaption: imageCaption,
+        imageCredit: imageCredit,
+        games: games,
+        savedAt: new Date().toISOString(),
+        savedBy: { name: (body.guestName || '').toString().trim(), contact: (body.guestContact || '').toString().trim() }
+      };
+      commitMessage = 'Update alternative version of "' + entry.slug + '" via guest-editor.html';
+    } else {
+      entry.title = title;
+      entry.category = category;
+      entry.excerpt = excerpt;
+      entry.lead = lead;
+      entry.quote = quote;
+      entry.body = bodyText;
+      if(coverImagePath) entry.image = coverImagePath; /* else: leave whatever it already was untouched */
+      entry.imageCaption = imageCaption;
+      entry.imageCredit = imageCredit;
+      entry.games = games;
+      entry.status = 'draft'; /* never anything else, no matter what a submission claims */
+      /* not part of the public schema – purely so the editor's blog list
+         (and this Worker's own idx lookup above) can tell a guest draft
+         apart from one of Jakob's own, and so he knows who to credit /
+         write back to */
+      entry.submittedBy = {
+        name: (body.guestName || '').toString().trim(),
+        contact: (body.guestContact || '').toString().trim(),
+        submittedAt: new Date().toISOString()
+      };
+      commitMessage = 'Add guest blog draft via guest-editor.html (' + (entry.submittedBy.name || 'anonymous') + ')';
+    }
     posts[idx] = entry;
 
-    var commitMessage = entry.guestEditable
-      ? 'Update shared draft "' + entry.slug + '" via guest-editor.html'
-      : 'Add guest blog draft via guest-editor.html (' + ((entry.submittedBy && entry.submittedBy.name) || 'anonymous') + ')';
     try{
       await putBlogPosts(env, posts, file.sha, commitMessage);
     }catch(e){
       return jsonResponse({ error: 'Saving failed: ' + e.message }, 502, origin);
     }
 
-    return jsonResponse({ ok: true, slug: entry.slug, lang: lang, coverImagePath: coverImagePath, imageMap: imageMap, editLock: entry.editLock || null }, 200, origin);
+    return jsonResponse({
+      ok: true, slug: entry.slug, coverImagePath: coverImagePath, imageMap: imageMap,
+      editLock: entry.editLock || null, guestEditable: !!entry.guestEditable
+    }, 200, origin);
   }
 };
