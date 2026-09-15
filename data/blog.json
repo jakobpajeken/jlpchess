@@ -3025,10 +3025,7 @@
     "status": "draft",
     "finished": false,
     "category": {
-      "en": [
-        "Training",
-        "General Chess Knowledge"
-      ],
+      "en": "Training,General Chess Knowledge",
       "de": [
         "Training",
         "Allgemeines Schachwissen"
@@ -3037,7 +3034,10 @@
     "date": "2026-09-13",
     "author": "IM Jakob Leon Pajeken",
     "image": "",
-    "imageCaption": "",
+    "imageCaption": {
+      "en": "",
+      "de": ""
+    },
     "imageCredit": "",
     "excerpt": {
       "en": "The Real Reason You're Not Making Progress",
@@ -3077,13 +3077,16 @@
         "Höre auf, deine Zeit mit endlosen Eröffnungsvideos und passivem zuhören verschwenden. Setze stattdessen auf aktives Arbeiten, fordere dein Gehirn mit kniffligen Aufgaben heraus und trainiere deine Variantenberechnung. Wer diesen Fokus beibehält, wird die Ergebnisse schon bald auf der DWZ- und Elo-Tafel sehen."
       ]
     },
-    "quote": "",
+    "quote": {
+      "en": "",
+      "de": ""
+    },
     "games": [],
     "guestEditable": true,
     "editLock": {
       "holder": "esmu2q0n66q5ew2n7n",
       "holderName": "",
-      "since": "2026-09-15T13:42:14.994Z"
+      "since": "2026-09-15T13:42:51.186Z"
     }
   },
   {
