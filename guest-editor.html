@@ -892,13 +892,14 @@ renderPostGames();
 
 /* stashes the just-saved draft in localStorage so blog-post.html can show
    it instantly, instead of waiting for GitHub Pages to deploy the commit
-   (can take anywhere from a few seconds to a few minutes) */
-function stashLocalPreview(slug, lang){
+   (can take anywhere from a few seconds to a few minutes). Mirrors
+   bilingualDraft exactly, same shape as what's actually sent to the
+   Worker, so the instant preview is accurate in either language. */
+function stashLocalPreview(slug){
   try{
-    function langField(text){
-      var o = { en: '', de: '' };
-      o[lang] = (text || '').toString().trim();
-      return o;
+    function paras(text){
+      text = (text || '').trim();
+      return text ? text.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
     }
     var post = {
       slug: slug,
@@ -906,19 +907,14 @@ function stashLocalPreview(slug, lang){
       date: new Date().toISOString().slice(0, 10),
       author: document.getElementById('g-name').value.trim() || 'Guest author',
       image: lastCoverImagePath || '',
-      imageCaption: langField(document.getElementById('g-cover-caption').value),
+      imageCaption: { en: bilingualDraft.en.coverCaption.trim(), de: bilingualDraft.de.coverCaption.trim() },
       imageCredit: document.getElementById('g-cover-credit').value.trim(),
-      title: langField(document.getElementById('g-title').value),
-      category: langField(document.getElementById('g-category').value),
-      excerpt: langField(document.getElementById('g-excerpt').value),
-      lead: langField(document.getElementById('g-lead').value),
-      quote: langField(document.getElementById('g-quote').value),
-      body: (function(){
-        var b = { en: [], de: [] };
-        var text = document.getElementById('g-body').value.trim();
-        b[lang] = text ? text.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
-        return b;
-      })(),
+      title: { en: bilingualDraft.en.title.trim(), de: bilingualDraft.de.title.trim() },
+      category: { en: bilingualDraft.en.category.trim(), de: bilingualDraft.de.category.trim() },
+      excerpt: { en: bilingualDraft.en.excerpt.trim(), de: bilingualDraft.de.excerpt.trim() },
+      lead: { en: bilingualDraft.en.lead.trim(), de: bilingualDraft.de.lead.trim() },
+      quote: { en: bilingualDraft.en.quote.trim(), de: bilingualDraft.de.quote.trim() },
+      body: { en: paras(bilingualDraft.en.body), de: paras(bilingualDraft.de.body) },
       games: postGames.map(function(g){ return { id: g.id, title: g.title, meta: g.meta, pgn: g.pgn }; })
     };
     localStorage.setItem('jlpBlogPreview:' + slug, JSON.stringify({ post: post, savedAt: Date.now() }));
@@ -930,26 +926,29 @@ async function saveDraft(){
     showStatus(t('statusNoWorker'), 'err');
     return null;
   }
-  var title = document.getElementById('g-title').value.trim();
-  var bodyText = document.getElementById('g-body').value.trim();
-  if(!title){ showStatus(t('statusNeedTitle'), 'err'); return null; }
-  if(!bodyText){ showStatus(t('statusNeedBody'), 'err'); return null; }
-  var bodyParas = bodyText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean);
+  captureCurrentLangFields(currentContentLang);
+  function paras(text){
+    text = (text || '').trim();
+    return text ? text.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+  }
+  var hasEn = bilingualDraft.en.title.trim() && bilingualDraft.en.body.trim();
+  var hasDe = bilingualDraft.de.title.trim() && bilingualDraft.de.body.trim();
+  if(!hasEn && !hasDe){ showStatus(t('statusNeedContent'), 'err'); return null; }
 
   var payload = {
     accessKey: accessKey,
     slug: savedSlug,
     editorSessionId: editorSessionId,
-    lang: document.getElementById('g-lang').value,
+    activeLang: currentContentLang,
     guestName: document.getElementById('g-name').value,
     guestContact: document.getElementById('g-contact').value,
-    title: title,
-    category: document.getElementById('g-category').value,
-    excerpt: document.getElementById('g-excerpt').value,
-    lead: document.getElementById('g-lead').value,
-    body: bodyParas,
-    quote: document.getElementById('g-quote').value,
-    imageCaption: document.getElementById('g-cover-caption').value,
+    title: { en: bilingualDraft.en.title.trim(), de: bilingualDraft.de.title.trim() },
+    category: { en: bilingualDraft.en.category.trim(), de: bilingualDraft.de.category.trim() },
+    excerpt: { en: bilingualDraft.en.excerpt.trim(), de: bilingualDraft.de.excerpt.trim() },
+    lead: { en: bilingualDraft.en.lead.trim(), de: bilingualDraft.de.lead.trim() },
+    quote: { en: bilingualDraft.en.quote.trim(), de: bilingualDraft.de.quote.trim() },
+    body: { en: paras(bilingualDraft.en.body), de: paras(bilingualDraft.de.body) },
+    imageCaption: { en: bilingualDraft.en.coverCaption.trim(), de: bilingualDraft.de.coverCaption.trim() },
     imageCredit: document.getElementById('g-cover-credit').value,
     games: postGames.map(function(g){ return { id: g.id, title: g.title, meta: g.meta, pgn: g.pgn }; })
   };
