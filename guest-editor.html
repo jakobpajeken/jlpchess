@@ -1159,7 +1159,13 @@ if(accessKey && slugParam){
       statusEl.classList.add('err');
       return;
     }
-    applyEntryToForm(data.post, false);
+    /* resume this guest's own earlier alternative version if one exists,
+       otherwise start from Jakob's current text as a baseline to riff on
+       – either way, saving here only ever writes guestVersion, never his
+       real fields (see the Worker's guestEditable branch) */
+    applyEntryToForm(data.post.guestVersion || data.post, false, data.post.slug);
+    var altNotice = document.getElementById('shared-alt-notice');
+    if(altNotice) altNotice.hidden = false;
     statusEl.hidden = true;
     app.hidden = false;
     showStatus(t('sharedLoaded'), 'ok');
