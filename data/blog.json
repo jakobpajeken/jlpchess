@@ -3786,5 +3786,35 @@
     },
     "games": [],
     "finished": true
+  },
+  {
+    "title": {
+      "en": "Do not rush",
+      "de": "Das Prinzip \"Do not rush\""
+    },
+    "slug": "do-not-rush",
+    "status": "draft",
+    "finished": false,
+    "submittedBy": null,
+    "guestEditable": false,
+    "editLock": null,
+    "guestVersion": null,
+    "category": {
+      "en": [],
+      "de": []
+    },
+    "date": "2026-09-15",
+    "author": "IM Jakob Leon Pajeken",
+    "image": "",
+    "imageCaption": "",
+    "imageCredit": "",
+    "excerpt": "",
+    "lead": "",
+    "body": {
+      "en": [],
+      "de": []
+    },
+    "quote": "",
+    "games": []
   }
 ]
