@@ -2169,6 +2169,56 @@ function copyGuestLink(idx){
     showToast('Kopieren wird von diesem Browser nicht unterstützt – Link von Hand markieren.', true);
   }
 }
+/* ---- reviewing a guest's alternative version (entry.guestVersion) ----
+   Never merged automatically (see guest-submit-worker.js) – these three
+   are the only ways it ever changes the real post, and all three are
+   Jakob's own explicit choice, from inside the edit form. */
+function viewGuestVersion(idx){
+  var p = blogPosts[idx];
+  if(!p || !p.guestVersion || !p.slug) return;
+  var gv = p.guestVersion;
+  var preview = Object.assign({}, p, gv, { slug: p.slug, status: 'draft', date: p.date });
+  try{ localStorage.setItem('jlpBlogPreview:' + p.slug, JSON.stringify({ post: preview, savedAt: Date.now() })); }catch(e){}
+  var lang = (gv.title && gv.title.de) ? 'de' : 'en';
+  window.open('blog-post.html?slug=' + encodeURIComponent(p.slug) + '&lang=' + lang, '_blank');
+}
+async function adoptGuestVersion(idx){
+  var post = blogPosts[idx];
+  if(!post || !post.guestVersion) return;
+  if(!confirm('Diese Alternative Version wirklich übernehmen? Dein bisheriger Text an diesem Beitrag wird dabei ersetzt.')) return;
+  var gv = post.guestVersion;
+  var backup = Object.assign({}, post);
+  Object.assign(post, {
+    title: gv.title, category: gv.category, excerpt: gv.excerpt, lead: gv.lead, quote: gv.quote,
+    body: gv.body, image: gv.image || post.image, imageCaption: gv.imageCaption,
+    imageCredit: gv.imageCredit, games: gv.games, guestVersion: null
+  });
+  try{
+    await writeJson('blog.json', blogPosts);
+    renderBlog();
+    if(document.getElementById('blog-form')) openBlogForm(idx);
+    showToast('Alternative Version übernommen ✓');
+  }catch(err){
+    Object.assign(post, backup);
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+async function discardGuestVersion(idx){
+  var post = blogPosts[idx];
+  if(!post || !post.guestVersion) return;
+  if(!confirm('Diese Alternative Version wirklich verwerfen? Sie kann danach nicht wiederhergestellt werden.')) return;
+  var old = post.guestVersion;
+  post.guestVersion = null;
+  try{
+    await writeJson('blog.json', blogPosts);
+    renderBlog();
+    if(document.getElementById('blog-form')) openBlogForm(idx);
+    showToast('Alternative Version verworfen.');
+  }catch(err){
+    post.guestVersion = old;
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
 /* opens the live view of an already-saved post directly from the list,
    without first opening its edit form – the point being "direct", one
    click. Re-stashes it into localStorage first (same mechanism the
