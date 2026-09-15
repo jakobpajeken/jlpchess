@@ -568,6 +568,7 @@ async function saveImageFile(file, hintName){
 
 var games = [], blogPosts = [], testimonials = [];
 var results = { titles: [], team: [], national: [], full: [] };
+var popupSettings = { enabled: false, eyebrow: '', heading: '', body: '', ctaText: '', dismissText: '', twitchHandle: '' };
 
 function disconnectGithub(){
   githubToken = null;
