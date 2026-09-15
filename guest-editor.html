@@ -16,10 +16,20 @@
 
   Soll so nah wie möglich an editor.html sein – gleiche Formatierung
   (fett/kursiv/unterstrichen/Größe/blau), gleiche Bild-/Link-/Partien-
-  Werkzeuge. Einziger bewusster Unterschied: nur EINE Sprache pro
-  Entwurf (kein EN/DE-Splitfeld) – und die Oberfläche selbst wechselt
-  zwischen Englisch/Deutsch, je nachdem was unter "Language of this
-  draft" gewählt ist (siehe UI_STRINGS/applyLanguage() unten).
+  Werkzeuge. Beide Sprachen (EN/DE) sind möglich, aber anders als in
+  editor.html nicht als zwei Spalten nebeneinander, sondern über den
+  Sprach-Umschalter oben: beide Versionen leben im Speicher
+  (bilingualDraft, siehe unten), der Umschalter zeigt/speichert immer
+  nur eine auf einmal – einfacher für jemanden, der vielleicht nur eine
+  Sprache schreiben will, aber genauso vollständig zweisprachig, wenn
+  gewünscht. Die Oberfläche selbst spricht ebenfalls die gerade gewählte
+  Sprache (siehe UI_STRINGS/applyLanguage() unten).
+
+  Ein Entwurf, den Jakob per "Für Gast-Editor freigeben" (guestEditable)
+  geteilt hat, wird NICHT direkt in seinen echten Text geschrieben –
+  Gast-Speicherungen landen dort in entry.guestVersion, einer separaten
+  Kopie, die Jakob in editor.html ansehen und übernehmen kann, ohne dass
+  sein eigener Stand je überschrieben wird (siehe guest-submit-worker.js).
 
   Absichtlich NICHT enthalten: die "✨ KI-Hilfe" aus editor.html – die
   hängt an Jakobs eigenem, persönlichem Gemini-API-Schlüssel (lokal in
