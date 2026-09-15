@@ -1419,14 +1419,36 @@ function showTab(tabId, sectionId){
    English during this browser session – never in German (not just
    hidden: the German version of this page must never advertise a
    Twitch/YouTube stream that's only offered in English), and never more
-   than once per session so it doesn't nag on every tab switch. */
-function maybeShowFreeAnalysisPopup(tabId){
+   than once per session so it doesn't nag on every tab switch.
+   Content AND the on/off switch both live in data/popup.json, editable
+   from editor.html, instead of being hardcoded here – fetched once on
+   load (not per-tab-switch) since it rarely changes. */
+var freeAnalysisSettingsPromise = fetch('data/popup.json', { cache: 'no-store' })
+  .then(function(r){ return r.ok ? r.json() : null; })
+  .catch(function(){ return null; });
+function applyFreeAnalysisSettings(s){
+  var setText = function(id, val){ var el = document.getElementById(id); if(el && val) el.textContent = val; };
+  setText('free-analysis-eyebrow', s.eyebrow);
+  setText('free-analysis-heading', s.heading);
+  setText('free-analysis-body', s.body);
+  setText('free-analysis-cta', s.ctaText);
+  setText('free-analysis-dismiss', s.dismissText);
+  if(s.twitchHandle){
+    setText('free-analysis-twitch-handle', s.twitchHandle);
+    var link = document.getElementById('free-analysis-twitch-link');
+    if(link) link.href = 'https://www.twitch.tv/' + s.twitchHandle;
+  }
+}
+async function maybeShowFreeAnalysisPopup(tabId){
   if(tabId !== 'coaching') return;
   if(currentSiteLang() !== 'en') return;
   var shown;
   try{ shown = sessionStorage.getItem('jlpFreeAnalysisPopupShown'); }catch(e){ shown = null; }
   if(shown) return;
+  var settings = await freeAnalysisSettingsPromise;
+  if(!settings || !settings.enabled) return;
   try{ sessionStorage.setItem('jlpFreeAnalysisPopupShown', '1'); }catch(e){}
+  applyFreeAnalysisSettings(settings);
   var popup = document.getElementById('free-analysis-popup');
   if(popup) popup.hidden = false;
 }
