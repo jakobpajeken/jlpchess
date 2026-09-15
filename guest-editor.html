@@ -154,12 +154,13 @@
     </div>
 
     <div class="field">
-      <label data-i18n="langLabel">Language of this draft</label>
-      <span class="hint" data-i18n="langHint">Jakob can translate/add the other language later – you don't need to write both.</span>
+      <label data-i18n="langLabel">Language you're writing in</label>
+      <span class="hint" data-i18n="langHint">Switch anytime to write the other language too – both are saved. Leave one empty and Jakob can add it later.</span>
       <select id="g-lang">
         <option value="en" selected data-i18n="langOptEn">English</option>
         <option value="de" data-i18n="langOptDe">German</option>
       </select>
+      <span class="hint" id="g-lang-status"></span>
     </div>
 
     <div class="field">
@@ -278,10 +279,13 @@ var UI_STRINGS = {
     namePh: 'Shown as the author (Jakob can change this)',
     contactLabel: 'Contact (optional)',
     contactPh: 'Email, for follow-up questions – not publicly visible',
-    langLabel: 'Language of this draft',
-    langHint: 'Jakob can translate/add the other language later – you don’t need to write both.',
+    langLabel: 'Language you\'re writing in',
+    langHint: 'Switch anytime to write the other language too – both are saved. Leave one empty and Jakob can add it later.',
     langOptEn: 'English',
     langOptDe: 'German',
+    langStatus: 'English: {en} · German: {de}',
+    langStatusFilled: 'written',
+    langStatusEmpty: 'empty',
     titleLabel: 'Title',
     titlePh: 'e.g. How I won my first tournament game',
     categoryLabel: 'Category',
