@@ -3172,10 +3172,15 @@ function openBlogForm(idx){
       /* not shown/editable anywhere in this form itself – submittedBy is
          set by guest-submit-worker.js, guestEditable/editLock are toggled
          from the list row (see toggleGuestEditable) – just carried over
-         unchanged so a normal save here never silently drops them */
+         unchanged so a normal save here never silently drops them.
+         guestVersion (a guest's alternative version of this same post)
+         is likewise untouched by a normal save – it's reviewed/adopted/
+         discarded explicitly, above, never overwritten as a side effect
+         of Jakob saving his own text. */
       submittedBy: p.submittedBy || null,
       guestEditable: !!p.guestEditable,
       editLock: p.editLock || null,
+      guestVersion: p.guestVersion || null,
       category: joinCategoryValue(document.getElementById('bf-category-en').value, document.getElementById('bf-category-de').value),
       date: document.getElementById('bf-date').value,
       author: document.getElementById('bf-author').value.trim() || DEFAULT_BLOG_AUTHOR,
