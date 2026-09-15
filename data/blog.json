@@ -3082,12 +3082,8 @@
       "de": ""
     },
     "games": [],
-    "guestEditable": true,
-    "editLock": {
-      "holder": "esmu2q0n66q5ew2n7n",
-      "holderName": "",
-      "since": "2026-09-15T13:42:51.186Z"
-    }
+    "guestEditable": false,
+    "editLock": null
   },
   {
     "title": {
