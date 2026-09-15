@@ -2230,6 +2230,9 @@ function openBlogForm(idx){
   slot.innerHTML =
     '<form class="entry-form" id="blog-form">' +
     '<h3>' + (editing ? 'Beitrag bearbeiten' : 'Neuer Beitrag') + '</h3>' +
+    (editing && activeEditLock(p)
+      ? '<div class="form-notice">⏳ Wird gerade im Gast-Editor bearbeitet' + (activeEditLock(p).holderName ? ' (von ' + escapeHtml(activeEditLock(p).holderName) + ')' : '') + '. Du kannst hier trotzdem speichern – deine Version überschreibt dann den dortigen Stand.</div>'
+      : '') +
     '<div class="field"><label>Status</label><span class="hint">Ein Entwurf ist nicht im öffentlichen Blog gelistet – nur über einen direkten Link erreichbar (mit deutlichem Entwurf-Hinweis). „Geplant" ist genauso unsichtbar, wird aber automatisch veröffentlicht, sobald das Datum unten erreicht ist — dafür muss niemand mehr etwas tun, auch dieser Rechner nicht.</span>' +
     '<select id="bf-status">' +
     '<option value="draft"' + (statusValue === 'draft' ? ' selected' : '') + '>Entwurf</option>' +
