@@ -299,6 +299,18 @@
   @media (max-width:640px){.testi-wrap{padding:0;} .testi-arrow{display:none;}}
 
   /* blog */
+  .blog-category-filter{
+    display:flex;align-items:center;gap:10px;margin:0 0 24px;padding:10px 16px;
+    background:var(--surface);border:1px solid var(--line);font-size:0.88rem;color:var(--ivory-dim);
+  }
+  .blog-category-filter[hidden]{display:none;}
+  .blog-category-clear{
+    background:none;border:none;color:var(--gold-bright);cursor:pointer;
+    font-size:0.85rem;text-decoration:underline;text-underline-offset:2px;padding:0;
+  }
+  .blog-category-clear:hover{color:var(--gold);}
+  .post-category-link{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;transition:color .15s;}
+  .post-category-link:hover{color:var(--gold-bright);}
   .blog-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);}
   .blog-card{background:var(--ink);display:flex;align-items:stretch;}
   .blog-card-image{width:280px;flex-shrink:0;overflow:hidden;background:var(--surface);}
