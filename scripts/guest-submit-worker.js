@@ -381,13 +381,22 @@ export default {
 
     var idx = -1;
     if(body.slug){
-      idx = posts.findIndex(function(p){ return p.slug === body.slug && p.status === 'draft' && p.submittedBy; });
+      idx = posts.findIndex(function(p){ return p.slug === body.slug && p.status === 'draft' && (p.submittedBy || p.guestEditable); });
     }
 
     var entry;
     if(idx !== -1){
-      /* updating the guest's own earlier submission, still a draft */
+      /* updating either the guest's own earlier submission, or one of
+         Jakob's own drafts he flagged guestEditable – either way still
+         a draft, and not locked by a different editing session */
       entry = posts[idx];
+      if(entry.status === 'published'){
+        return jsonResponse({ error: 'This article has already been published and can no longer be edited here.' }, 409, origin);
+      }
+      var lock = activeLock(entry);
+      if(lock && lock.holder !== editorSessionId){
+        return jsonResponse({ error: 'This article is currently being edited by someone else. Please try again in a few minutes.', locked: true, lockHolderName: lock.holderName || '', lockSince: lock.since }, 409, origin);
+      }
     } else {
       var pendingCount = posts.filter(function(p){ return p.status === 'draft' && p.submittedBy; }).length;
       if(pendingCount >= MAX_PENDING_GUEST_DRAFTS){
