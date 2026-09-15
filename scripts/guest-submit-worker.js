@@ -473,38 +473,37 @@ export default {
     entry.imageCredit = (body.imageCredit || '').toString().trim();
     entry.games = sanitizeGames(body.games);
     entry.status = 'draft'; /* never anything else, no matter what a submission claims */
-    /* not part of the public schema – purely so the editor's blog list
-       (and this Worker's own idx lookup above) can tell a guest draft
-       apart from one of Jakob's own, and so he knows who to credit /
-       write back to */
-    entry.submittedBy = {
-      name: (body.guestName || '').toString().trim(),
-      contact: (body.guestContact || '').toString().trim(),
-      submittedAt: new Date().toISOString()
-    };
+    /* guestEditable posts are Jakob's own – shared out so someone can
+       help write them, never relabeled as a guest submission. Everything
+       else keeps the original "who submitted this" bookkeeping. */
+    if(!entry.guestEditable){
+      entry.submittedBy = {
+        name: (body.guestName || '').toString().trim(),
+        contact: (body.guestContact || '').toString().trim(),
+        submittedAt: new Date().toISOString()
+      };
+    }
+    /* extend the lock for whoever just saved, so a continuously-editing
+       session never expires mid-session; a stale lock from a closed tab
+       still times out on its own via activeLock()'s TTL check */
+    if(editorSessionId){
+      entry.editLock = {
+        holder: editorSessionId,
+        holderName: (body.guestName || '').toString().trim().slice(0, 80),
+        since: new Date().toISOString()
+      };
+    }
     posts[idx] = entry;
 
+    var commitMessage = entry.guestEditable
+      ? 'Update shared draft "' + entry.slug + '" via guest-editor.html'
+      : 'Add guest blog draft via guest-editor.html (' + ((entry.submittedBy && entry.submittedBy.name) || 'anonymous') + ')';
     try{
-      var putResp = await fetch(contentsUrl(BLOG_JSON_PATH), {
-        method: 'PUT',
-        headers: Object.assign({ 'Content-Type': 'application/json' }, ghHeaders(env)),
-        body: JSON.stringify({
-          message: 'Add guest blog draft via guest-editor.html (' + (entry.submittedBy.name || 'anonymous') + ')',
-          content: utf8ToBase64(JSON.stringify(normalizeDashes(posts), null, 2) + '\n'),
-          branch: REPO_BRANCH,
-          sha: file.sha,
-          committer: { name: 'Guest submission (jlpchess)', email: 'jakobpajeken@gmail.com' }
-        })
-      });
-      if(!putResp.ok){
-        var errMsg = 'HTTP ' + putResp.status;
-        try{ var errJson = await putResp.json(); if(errJson.message) errMsg = errJson.message; }catch(e){}
-        return jsonResponse({ error: 'Saving failed: ' + errMsg }, 502, origin);
-      }
+      await putBlogPosts(env, posts, file.sha, commitMessage);
     }catch(e){
-      return jsonResponse({ error: 'Worker error: ' + e.message }, 500, origin);
+      return jsonResponse({ error: 'Saving failed: ' + e.message }, 502, origin);
     }
 
-    return jsonResponse({ ok: true, slug: entry.slug, lang: lang, coverImagePath: coverImagePath, imageMap: imageMap }, 200, origin);
+    return jsonResponse({ ok: true, slug: entry.slug, lang: lang, coverImagePath: coverImagePath, imageMap: imageMap, editLock: entry.editLock || null }, 200, origin);
   }
 };
