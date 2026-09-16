@@ -2622,8 +2622,15 @@ function parsePgnHeaders(pgnText){
    moves don't advance the mainline ply count and their comments are
    dropped – rather than risk misattributing either to the wrong move;
    showing sub-lines is a bigger feature for another time. */
+/* strips only the LEADING header lines, not every [...] anywhere in the
+   text – see blog-post.html's identical fix for the full rationale
+   (mirrored here): a naive whole-text strip also ate a [%cal ...]/
+   [%csl ...] command sitting inside a {...} comment further down. */
 function extractPgnComments(pgnText){
-  var movetext = (pgnText || '').replace(/\[[^\]]*\]\s*/g, '');
+  var lines = (pgnText || '').split('\n');
+  var li = 0;
+  while(li < lines.length && /^\s*\[\w+\s+"[^"]*"\]\s*$/.test(lines[li])) li++;
+  var movetext = lines.slice(li).join('\n');
   var comments = {};
   var ply = 0;
   var i = 0, len = movetext.length;
