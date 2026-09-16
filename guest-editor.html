@@ -868,23 +868,45 @@ function renderPostGames(){
   });
 }
 
+/* Same idea as editor.html's identical pair of helpers (see there for the
+   full rationale, mirrored here) – a game/fragment can start from any
+   position via the PGN's own [SetUp "1"]/[FEN "..."] headers, so this form
+   has one plain "Startposition" field instead of asking a guest to hand-
+   write PGN header tags. No chess.js here (see this file's own header
+   comment), so unlike editor.html this can't validate the FEN – Jakob
+   still sees it rendered for real once he opens the draft in his editor. */
+function extractFenHeader(pgnText){
+  var m = /\[FEN\s+"([^"]*)"\]/.exec(pgnText || '');
+  var hasSetup = /\[SetUp\s+"1"\]/.test(pgnText || '');
+  return (hasSetup && m) ? m[1] : '';
+}
+function buildPgnWithFen(pgnText, fen){
+  var stripped = (pgnText || '').replace(/\[(SetUp|FEN)\s+"[^"]*"\]\s*/g, '').trim();
+  fen = (fen || '').trim();
+  if(!fen) return stripped;
+  return '[SetUp "1"]\n[FEN "' + fen.replace(/"/g, '') + '"]\n\n' + (stripped || '*');
+}
 function openGameForm(gIdx){
   var editing = gIdx != null;
   var g = editing ? postGames[gIdx] : { id: makeGameId(), title: '', meta: '', pgn: '' };
+  var fenValue = extractFenHeader(g.pgn);
   gamesFormSlot.innerHTML =
     '<div class="entry-form">' +
     '<h3>' + escapeHtmlLocal(editing ? t('gameFormEditTitle') : t('gameFormAddTitle')) + '</h3>' +
     '<div class="field"><label>' + escapeHtmlLocal(t('gameTitleLabel')) + '</label><input type="text" id="gg-title" value="' + escapeHtmlLocal(g.title) + '" placeholder="' + escapeHtmlLocal(t('gameTitlePh')) + '"></div>' +
     '<div class="field"><label>' + escapeHtmlLocal(t('gameMetaLabel')) + '</label><input type="text" id="gg-meta" value="' + escapeHtmlLocal(g.meta) + '" placeholder="' + escapeHtmlLocal(t('gameMetaPh')) + '"></div>' +
+    '<div class="field"><label>' + escapeHtmlLocal(t('gameFenLabel')) + '</label><span class="hint">' + escapeHtmlLocal(t('gameFenHint')) + '</span>' +
+    '<input type="text" id="gg-fen" class="mono" value="' + escapeHtmlLocal(fenValue) + '" placeholder="' + escapeHtmlLocal(t('gameFenPh')) + '"></div>' +
     '<div class="field"><label>' + escapeHtmlLocal(t('gamePgnLabel')) + '</label><span class="hint">' + escapeHtmlLocal(t('gamePgnHint')) + '</span>' +
-    '<textarea id="gg-pgn" class="tall mono" placeholder="[Event &quot;…&quot;]&#10;[White &quot;…&quot;]&#10;[Black &quot;…&quot;]&#10;…&#10;1. e4 e5 2. Nf3 …">' + escapeHtmlLocal(g.pgn) + '</textarea></div>' +
+    '<textarea id="gg-pgn" class="tall mono" placeholder="[Event &quot;…&quot;]&#10;[White &quot;…&quot;]&#10;[Black &quot;…&quot;]&#10;…&#10;1. e4 e5 2. Nf3 …">' + escapeHtmlLocal(buildPgnWithFen(g.pgn, '')) + '</textarea></div>' +
     '<div class="form-actions">' +
     '<button type="button" class="btn solid" id="gg-save">' + escapeHtmlLocal(editing ? t('gameSaveBtnEdit') : t('gameSaveBtnAdd')) + '</button>' +
     '<button type="button" class="btn" id="gg-cancel">' + escapeHtmlLocal(t('gameCancelBtn')) + '</button>' +
     '</div></div>';
   document.getElementById('gg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
   document.getElementById('gg-save').addEventListener('click', function(){
-    var pgn = document.getElementById('gg-pgn').value.trim();
+    var fenInput = document.getElementById('gg-fen').value.trim();
+    var pgn = buildPgnWithFen(document.getElementById('gg-pgn').value.trim(), fenInput);
     if(!pgn){ showStatus(t('statusNeedPgn'), 'err'); return; }
     var entry = {
       id: g.id,
