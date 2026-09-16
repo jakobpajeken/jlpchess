@@ -1966,10 +1966,31 @@ async function moveGame(idx, direction){
     showToast('Verschieben fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
   }
 }
+/* Shared by both "add game" forms (career-page + blog-post-embedded) and
+   mirrored (simpler, no validation – no chess.js there) in guest-editor.html.
+   A game/fragment can start from any position: chess.js already honors a
+   PGN's own [SetUp "1"]/[FEN "..."] headers when loading it (see
+   createGameWidget above), so rather than making someone hand-write PGN
+   header tags, this form has one plain "Startposition" field and this
+   builds/strips the header for them. An empty PGN with a FEN becomes a
+   pure diagram (see createGameWidget's navEl.hidden – zero moves hides
+   the play/prev/next controls). */
+function extractFenHeader(pgnText){
+  var m = /\[FEN\s+"([^"]*)"\]/.exec(pgnText || '');
+  var hasSetup = /\[SetUp\s+"1"\]/.test(pgnText || '');
+  return (hasSetup && m) ? m[1] : '';
+}
+function buildPgnWithFen(pgnText, fen){
+  var stripped = (pgnText || '').replace(/\[(SetUp|FEN)\s+"[^"]*"\]\s*/g, '').trim();
+  fen = (fen || '').trim();
+  if(!fen) return stripped;
+  return '[SetUp "1"]\n[FEN "' + fen.replace(/"/g, '') + '"]\n\n' + (stripped || '*');
+}
 function openGameForm(idx){
   var editing = idx != null;
   var g = editing ? games[idx] : { title: '', meta: '', pgn: '' };
   var titleSplit = splitLangValue(g.title);
+  var fenValue = extractFenHeader(g.pgn);
   var slot = document.getElementById('games-form-slot');
   slot.innerHTML =
     '<form class="entry-form" id="game-form">' +
