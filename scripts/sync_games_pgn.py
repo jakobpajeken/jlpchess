@@ -407,9 +407,12 @@ def translate_comment(raw_comment, cache_key, cache):
     return {"de": de_text, "en": en_text}
 
 
-def serialize_line(node, board, cache):
+def serialize_line(node, board, cache, ply_offset):
     """node: a GameNode with a move set (never the game root). board: the
-    position immediately BEFORE node.move. Returns a list of move dicts
+    position immediately BEFORE node.move. ply_offset: subtracted from
+    python-chess's own node.ply() to get a plain 1-based count from
+    wherever THIS game/fragment actually starts (see extract_annotations()
+    for why that offset is needed at all). Returns a list of move dicts
     describing this line (following each node's own mainline child, i.e.
     variations[0]) up to wherever it ends; any sibling alternatives at a
     given move are attached to that move's dict as a "variations" list of
@@ -424,11 +427,12 @@ def serialize_line(node, board, cache):
         san = cur_board.san(cur.move)
         next_board = cur_board.copy()
         next_board.push(cur.move)
+        ply = cur.ply() - ply_offset
         entry = {
-            "ply": cur.ply(),
+            "ply": ply,
             "san": san,
             "nag": "".join(nag_symbol(n) for n in sorted(cur.nags) if nag_symbol(n)),
-            "comment": translate_comment(cur.comment, (cur.ply(), san), cache),
+            "comment": translate_comment(cur.comment, (ply, san), cache),
         }
         arrows, highlights = extract_arrows_and_highlights(cur.comment)
         if arrows:
@@ -437,7 +441,7 @@ def serialize_line(node, board, cache):
             entry["highlights"] = highlights
         children = cur.variations
         if len(children) > 1:
-            entry["variations"] = [serialize_line(child, next_board, cache) for child in children[1:]]
+            entry["variations"] = [serialize_line(child, next_board, cache, ply_offset) for child in children[1:]]
         line.append(entry)
         cur_board = next_board
         cur = children[0] if children else None
@@ -447,7 +451,21 @@ def serialize_line(node, board, cache):
 def extract_annotations(game, old_annotations=None):
     cache = build_comment_cache(old_annotations)
     mainline = game.variations
-    line = serialize_line(mainline[0], game.board(), cache) if mainline else []
+    # python-chess's node.ply() counts half-moves "as if the game had
+    # started from the standard position" — for a game/fragment that
+    # actually starts from a custom [FEN ...] (e.g. move 37, Black to
+    # move), that makes the very first move's ply() come out as something
+    # like 74, not 1. The client, though, indexes comments/variations by a
+    # plain 1-based count from THIS game's own first move (ply 1, 2, 3, …
+    # — see pgnMoveNumberPrefix()/renderMoveList() in blog-post.html,
+    # which separately derives the *displayed* move number from the FEN's
+    # own fullmove-number field, not from this ply value at all). Every
+    # ply stored below is normalized by this offset so the two line up —
+    # left as python-chess's raw numbering, every comment/variation/arrow
+    # on a custom-start game silently failed to look up at all, since
+    # gameComments[1] was never the same key as the stored gameComments[74].
+    ply_offset = (mainline[0].ply() - 1) if mainline else 0
+    line = serialize_line(mainline[0], game.board(), cache, ply_offset) if mainline else []
     # A comment appearing before the very first move (common in ChessBase
     # as scene-setting intro text for a game) is attached by python-chess
     # to the game's root node, not to move 1 -- surfaced here as a
@@ -461,7 +479,7 @@ def extract_annotations(game, old_annotations=None):
     # at the game root itself, same idea as any other branch point -- just
     # one level up from what serialize_line() ever sees, so it's handled
     # here instead.
-    root_variations = [serialize_line(child, game.board(), cache) for child in mainline[1:]] if len(mainline) > 1 else []
+    root_variations = [serialize_line(child, game.board(), cache, ply_offset) for child in mainline[1:]] if len(mainline) > 1 else []
     if intro.get("de") or intro.get("en") or root_variations or intro_arrows or intro_highlights:
         root_entry = {"ply": 0, "san": None, "nag": "", "comment": intro, "variations": root_variations}
         if intro_arrows:
