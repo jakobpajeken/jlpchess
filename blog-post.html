@@ -1447,8 +1447,19 @@ function createGameWidget(container, gameOrGames){
     return index;
   }
   function pgnMoveNumberPrefix(ply, isFirstInLine){
-    var moveNum = Math.ceil(ply / 2);
-    var isWhite = (ply % 2) === 1;
+    /* ply counts halfmoves from wherever THIS game/fragment starts, which
+       is White-to-move-1 for a normal game but can be anything for a
+       custom-FEN fragment (see startColor/startMoveNum, set in loadGame()
+       from the PGN's own [SetUp]/[FEN] headers) – e.g. a fragment
+       starting "15...Nf3" has ply 1 = Black, move 15. */
+    var isWhite, moveNum;
+    if(startColor === 'b'){
+      isWhite = (ply % 2) === 0;
+      moveNum = startMoveNum + Math.floor(ply / 2);
+    } else {
+      isWhite = (ply % 2) === 1;
+      moveNum = startMoveNum + Math.floor((ply - 1) / 2);
+    }
     if(isWhite) return moveNum + '.';
     return isFirstInLine ? moveNum + '...' : '';
   }
