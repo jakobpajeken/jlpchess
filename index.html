@@ -1602,6 +1602,13 @@ var sampleGames = [
 var currentGame = null;
 var historyVerbose = [];
 var moveIndex = 0;
+/* see blog-post.html's identical fields for the full rationale (mirrored
+   here) – a game/fragment can start from any legal position via the PGN's
+   own [SetUp "1"]/[FEN "..."] headers, not just the standard one. */
+var startingFen = null, startColor = 'w', startMoveNum = 1;
+function resetToGameStart(){
+  if(startingFen) gameEngine.load(startingFen); else gameEngine.reset();
+}
 /* the SAN path (from move 1) of whatever line is currently being viewed –
    the mainline by default, or a variation's own path once you click into
    one. Arrow keys and the prev/next/start/end buttons all step through
@@ -2365,7 +2372,7 @@ function highlightMoveList(){
    just as happily as historyVerbose's own move objects did. */
 function goToLineIndex(line, branches, idx, defaultSans, entries){
   hideMoveChoiceDialog();
-  gameEngine.reset();
+  resetToGameStart();
   for(var i = 0; i < idx; i++){ gameEngine.move(line[i]); }
   activeLine = line;
   activeBranches = branches;
