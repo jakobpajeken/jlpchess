@@ -380,36 +380,31 @@ def translate_comment(raw_comment, cache_key, cache):
     if cached and text in ((cached.get("de") or "").strip(), (cached.get("en") or "").strip()):
         return cached
 
+    # One call both detects the language AND (for the common case, source
+    # actually German) already gives us the EN translation for free — only
+    # the less common "this comment is English" case needs a second call,
+    # in the other direction.
     detected = None
-    translated = None
+    en_via_autodetect = None
     try:
-        translated, detected = translate_via_deepl_autodetect(text, "EN")
+        en_via_autodetect, detected = translate_via_deepl_autodetect(text, "EN")
         if detected not in ("DE", "EN"):
             detected = None
     except Exception:
         pass
-
-    if detected == "EN":
-        # already have the EN->? translation from the autodetect call above,
-        # but that was translated TO English (source was English) — meaningless;
-        # redo it in the direction we actually need: EN source -> DE target.
-        translated = None
-
     if detected is None:
         detected = detect_language_heuristic(text)
 
     if detected == "EN":
         en_text = text
-        de_text = translated if translated is not None else None
-        if de_text is None:
-            de_text = translate_text(text, "EN", "DE")
+        de_text = translate_text(text, "EN", "DE")
         de_text = convert_inline_notation(normalize_dashes(de_text), _EN_TO_DE_PIECE)
-        return {"de": de_text, "en": en_text}
     else:
         de_text = text
-        en_text = translated if translated is not None else translate_text(text, "DE", "EN")
+        en_text = en_via_autodetect if en_via_autodetect is not None else translate_text(text, "DE", "EN")
         en_text = convert_inline_notation(normalize_dashes(en_text), _DE_TO_EN_PIECE)
-        return {"de": de_text, "en": en_text}
+
+    return {"de": de_text, "en": en_text}
 
 
 def serialize_line(node, board, cache):
