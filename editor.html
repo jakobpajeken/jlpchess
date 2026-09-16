@@ -3168,7 +3168,7 @@ function openBlogForm(idx){
     wireTranslateButton('bfg-title-translate-rev', 'bfg-title-de', 'bfg-title-en', 'DE', 'EN');
     var previewEl = document.getElementById('bfg-preview');
     function runPreview(){
-      var pgnVal = document.getElementById('bfg-pgn').value.trim();
+      var pgnVal = buildPgnWithFen(document.getElementById('bfg-pgn').value.trim(), document.getElementById('bfg-fen').value.trim());
       if(!pgnVal){ previewEl.innerHTML = ''; return; }
       previewEl.innerHTML = '<div class="game-preview"></div>';
       createGameWidget(previewEl.firstElementChild, {
@@ -3178,9 +3178,14 @@ function openBlogForm(idx){
       });
     }
     document.getElementById('bfg-preview-btn').addEventListener('click', runPreview);
-    if(g.pgn) runPreview(); /* editing an existing game – show it right away */
+    if(g.pgn || fenValue) runPreview(); /* editing an existing game/diagram – show it right away */
     document.getElementById('bfg-save').addEventListener('click', function(){
       var titleEn = document.getElementById('bfg-title-en').value.trim();
+      var fenInput = document.getElementById('bfg-fen').value.trim();
+      if(fenInput && typeof Chess !== 'undefined' && !(new Chess()).load(fenInput)){
+        showToast('Diese Startposition (FEN) ist ungültig.', true);
+        return;
+      }
       /* merge onto the existing game object (when editing) rather than
          replacing it outright, so "annotations" – added by
          scripts/sync_games_pgn.py for the ChessBase round-trip, never
@@ -3190,9 +3195,9 @@ function openBlogForm(idx){
         id: g.id,
         title: joinLangValue(titleEn, document.getElementById('bfg-title-de').value) || 'Unbenannte Partie',
         meta: document.getElementById('bfg-meta').value.trim(),
-        pgn: document.getElementById('bfg-pgn').value.trim()
+        pgn: buildPgnWithFen(document.getElementById('bfg-pgn').value.trim(), fenInput)
       });
-      if(!entry.pgn){ showToast('Bitte einen PGN-Text einfügen.', true); return; }
+      if(!entry.pgn){ showToast('Bitte einen PGN-Text oder eine Startposition eingeben.', true); return; }
       if(editingGame) postGames[gIdx] = entry; else postGames.push(entry);
       gamesFormSlot.innerHTML = '';
       renderPostGames();
