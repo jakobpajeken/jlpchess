@@ -1414,9 +1414,17 @@ function createGameWidget(container, gameOrGames){
     return headers;
   }
   /* same extraction as index.html's games widget – see the comment there
-     for why this is needed independently of chess.js. Kept in sync. */
+     for why this is needed independently of chess.js. Kept in sync.
+     Strips only the LEADING header lines (each a whole "[Tag "value"]"
+     line, stopping at the first line that isn't one) – NOT every [...]
+     anywhere in the text, which used to also eat a [%cal ...]/[%csl ...]
+     command sitting inside a {...} comment further down, silently
+     discarding it before the loop below ever got to see it. */
   function extractPgnComments(pgnText){
-    var movetext = (pgnText || '').replace(/\[[^\]]*\]\s*/g, '');
+    var lines = (pgnText || '').split('\n');
+    var li = 0;
+    while(li < lines.length && /^\s*\[\w+\s+"[^"]*"\]\s*$/.test(lines[li])) li++;
+    var movetext = lines.slice(li).join('\n');
     var comments = {};
     var ply = 0;
     var i = 0, len = movetext.length;
