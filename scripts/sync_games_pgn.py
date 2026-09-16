@@ -103,6 +103,18 @@ def translate_via_deepl(text, source, target):
     return translated
 
 
+def translate_via_deepl_autodetect(text, target):
+    """Like translate_via_deepl, but lets DeepL figure out the source
+    language itself instead of assuming one — see translate_comment()
+    below for why that matters for game comments specifically. Returns
+    (translated_text, detected_source_lang), the latter e.g. "DE"/"EN"."""
+    data = _http_post_json(DEEPL_PROXY_URL, {"text": text, "source": "auto", "autoDetect": True, "target": target})
+    translated = data.get("translatedText")
+    if not translated:
+        raise RuntimeError(data.get("error") or "empty response")
+    return translated, (data.get("detectedSourceLang") or "").upper()
+
+
 def translate_via_mymemory(text, source, target):
     url = ("https://api.mymemory.translated.net/get?q=" + urllib.parse.quote(text)
            + "&langpair=" + source.lower() + "|" + target.lower())
@@ -131,6 +143,77 @@ def translate_text(text, source, target):
     except Exception:
         pass
     return text
+
+
+# A short, common-function-word list per language — used only as a fallback
+# for detect_comment_language() below, when DeepL's own (much more
+# reliable) auto-detection couldn't be reached. Deliberately tiny: this
+# only has to separate German from English, not identify a language in
+# general, and function words (articles, conjunctions, "is/not/very" etc.)
+# show up in even a one-sentence chess comment far more reliably than
+# content words do.
+_DE_WORDS = set("der die das und ist nicht sehr besser schlechter mit für "
+                "ein eine einen dem den auf nach vor nun jetzt hier immer "
+                "noch schon war wird kann muss sollte weil aber oder wenn "
+                "zug gewinnt verliert gut schlecht stark schwach".split())
+_EN_WORDS = set("the and is not very better worse with for a an the on "
+                "after before now here always still already was will can "
+                "must should because but or if move wins loses good bad "
+                "strong weak".split())
+
+
+def detect_language_heuristic(text):
+    """Cheap DE/EN guess for when DeepL's own auto-detect isn't reachable –
+    German-specific characters are the strongest signal (no false
+    positives), function-word overlap is the tiebreaker otherwise. Defaults
+    to German, matching this script's original assumption, so a very
+    short/ambiguous comment (a lot of them are, e.g. just "Nf3!") behaves
+    exactly as it always has rather than flipping unpredictably."""
+    if re.search(r"[äöüßÄÖÜ]", text):
+        return "DE"
+    words = re.findall(r"[A-Za-z]+", text.lower())
+    de_score = sum(1 for w in words if w in _DE_WORDS)
+    en_score = sum(1 for w in words if w in _EN_WORDS)
+    if en_score > de_score:
+        return "EN"
+    return "DE"
+
+
+# Piece-letter notation differs between English SAN (K Q R B N) and German
+# notation (K D T L S) — a move mentioned inline in prose ("with Sf3 White
+# is much better" / "mit Sf3 steht Weiß viel besser") needs its piece
+# letter converted the same way the move-list already does (see
+# sanToGermanNotation() in blog-post.html/index.html), but DeepL has no way
+# to know "Sf3" is a chess move and not just a word, so it passes it
+# through unchanged — this fixes it up afterward, in the TRANSLATED text.
+_DE_TO_EN_PIECE = {"S": "N", "L": "B", "T": "R", "D": "Q", "K": "K"}
+_EN_TO_DE_PIECE = {"N": "S", "B": "L", "R": "T", "Q": "D", "K": "K"}
+
+
+def _san_token_re(piece_map):
+    letters = "".join(piece_map.keys())
+    return re.compile(r"\b([" + letters + r"])([a-h]?)([1-8]?)(x?)([a-h][1-8])(=[KQRBNSTLD])?([+#]?)\b")
+
+
+def convert_inline_notation(text, piece_map):
+    """Rewrites every chess move mentioned inline in `text` (not the actual
+    game notation, which chess.js/python-chess handle separately — this is
+    only for moves referenced in prose) from one language's piece letters
+    to the other's, per piece_map (_DE_TO_EN_PIECE or _EN_TO_DE_PIECE)."""
+    pattern = _san_token_re(piece_map)
+
+    def repl(m):
+        piece, disambig_file, disambig_rank, capture, dest, promo, suffix = m.groups()
+        mapped = piece_map.get(piece)
+        if not mapped:
+            return m.group(0)
+        mapped_promo = ""
+        if promo:
+            promo_piece = promo[1:]
+            mapped_promo = "=" + piece_map.get(promo_piece, promo_piece)
+        return mapped + (disambig_file or "") + (disambig_rank or "") + (capture or "") + dest + mapped_promo + (suffix or "")
+
+    return pattern.sub(repl, text)
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAMES_JSON = os.path.join(REPO_ROOT, "data", "games.json")
