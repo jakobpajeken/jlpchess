@@ -1017,8 +1017,16 @@ function createGameWidget(container, game){
   var ranksEl = container.querySelector('[data-role="ranks"]');
   var filesEl = container.querySelector('[data-role="files"]');
   var arrowsEl = container.querySelector('[data-role="arrows"]');
+  var navEl = container.querySelector('.board-nav');
 
   var engine = null, historyVerbose = [], moveIndex = 0;
+  /* see blog-post.html's identical fields for the full rationale (mirrored
+     here) – a game/fragment can start from any legal position via the
+     PGN's own [SetUp "1"]/[FEN "..."] headers, not just the standard one. */
+  var startingFen = null, startColor = 'w', startMoveNum = 1;
+  function resetToGameStart(){
+    if(startingFen) engine.load(startingFen); else engine.reset();
+  }
   var orientation = 'white';
   var whiteName = 'White', blackName = 'Black';
   var playInterval = null; /* set while auto-play is running, one move every 1.5s */
@@ -1425,7 +1433,7 @@ function createGameWidget(container, game){
     });
   }
   function goToPly(ply){
-    engine.reset();
+    resetToGameStart();
     for(var i = 0; i < ply; i++){ engine.move(historyVerbose[i]); }
     moveIndex = ply;
     renderPosition(engine.fen());
