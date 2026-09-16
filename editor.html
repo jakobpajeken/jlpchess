@@ -3067,6 +3067,7 @@ function openBlogForm(idx){
     var editingGame = gIdx != null;
     var g = editingGame ? postGames[gIdx] : { id: makeGameId(), title: '', meta: '', pgn: '' };
     var titleSplit = splitLangValue(g.title);
+    var fenValue = extractFenHeader(g.pgn);
     /* a plain <div>, not a <form> – this sits inside the outer #blog-form,
        and browsers silently drop a nested <form> tag (forms cannot nest),
        so the "save" action here is a regular button with a click handler
