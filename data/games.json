@@ -48739,7 +48739,7 @@
         "san": "Ba4",
         "nag": "",
         "comment": {
-          "de": "Die Situation vor der Partie war folgende: Ich wusste, dass ich, wenn ich diese Partie gewinnen würde, in der letzten Runde eine direkte Chance hätte, um eine GM-Norm zu spielen. Deshalb wollte ich diese Partie um alles in der Welt gewinnen. Doch trotz guter Vorbereitung verpasste ich die Chance, mir einen größeren Vorteil zu verschaffen, und geriet schon bald in dieses Endspiel. Ich war bereits etwas frustriert und überlegte ernsthaft, Lxe8 zu spielen und das 4-gegen-3-Bauernendspiel auszuprobieren, wobei ich mich mehr oder weniger mit dem Remis abgefunden hätte. Doch dann erinnerte ich mich an den Grundsatz „Nicht überstürzen“ und erkannte, dass ich diese Entscheidung noch eine ganze Weile hinauszögern konnte. Ich dachte sogar ganz bewusst: „Ich werde ihn buchstäblich nur ärgern, indem ich warte und nichts tue.“ Mein Gegner ließ sich von dieser Strategie jedoch überhaupt nicht beirren. Er passte sich einfach meiner Energie an und tat ebenfalls nichts. Was er jedoch übersah, war der entscheidende Moment, in dem ich vom Hinauszögern zum Verbessern überging. Mit einer unglaublichen Anzahl von Abwartungszügen Kg7–Kg8 von Schwarz verbesserte ich nach und nach meine Stellung, ohne dass mein Gegner es bemerkte. Schließlich gelang es mir, zu gewinnen.",
+          "de": "Die Situation vor der Partie war folgende: Ich wusste, dass ich, wenn ich diese Partie gewinnen würde, in der Schlussrunde eine direkte Chance hätte, um eine GM-Norm zu spielen. Deshalb wollte ich diese Partie um alles in der Welt gewinnen. Doch trotz guter Vorbereitung verpasste ich die Chance, einen größeren Vorteil herauszuspielen, und geriet sehr bald in dieses Endspiel. Ich war bereits etwas frustriert und überlegte ernsthaft, Lxe8 zu spielen und das 4-gegen-3-Bauernendspiel auszuprobieren, wobei ich mich mehr oder weniger mit dem Remis abgefunden hätte. Doch dann erinnerte ich mich an den Grundsatz „Nicht überstürzen“ und erkannte, dass ich diese Entscheidung noch eine ganze Weile hinauszögern konnte. Ich dachte sogar ganz bewusst: „Ich werde ihn buchstäblich nur ärgern, indem ich warte und nichts tue.“ Mein Gegner ließ sich von dieser Strategie jedoch überhaupt nicht aus der Ruhe bringen. Er passte sich einfach meiner Energie an und tat ebenfalls nichts. Was er jedoch übersah, war der entscheidende Moment, als ich vom Hinauszögern zum Verbessern überging. Mit einer unglaublichen Anzahl von Kg7–Kg8-Wartezügen von Schwarz verbesserte ich nach und nach meine Stellung, ohne dass mein Gegner es bemerkte. Schließlich gelang es mir, zu gewinnen.",
           "en": "The situation before the game was the following: I knew that if I won this game, I would have a direct chance to play for a GM norm in the final round. So I wanted to win this game more than anything. However, after a good preparation, I missed the chance to gain a bigger advantage and very soon found myself in this endgame. I was already a bit frustrated, and I was seriously considering playing Bxe8 and trying out the 4-vs-3 pawn endgame, while more or less accepting the draw. But then I remembered the principle of “Do Not Rush” and realized that I could postpone that decision for quite some time. I even consciously thought: “I’m literally just going to annoy him by waiting and doing nothing.” My opponent, however, was completely unfazed by this strategy. He simply matched my energy and also did nothing. What he missed, though, was the crucial moment when I switched from stalling to improving. With an insane number of Kg7–Kg8 waiting moves from Black, I gradually improved my position without my opponent realizing. Eventually, I managed to win."
         }
       },
@@ -49203,7 +49203,7 @@
               "san": "Bc2",
               "nag": "!",
               "comment": {
-                "de": "den Vorstoß mit e5 vorbereiten, ohne Gegenzugmöglichkeiten zuzulassen.",
+                "de": "den Vorstoß mit e5 vorbereiten, ohne Gegenchancen zuzulassen.",
                 "en": "preparing the e5 adavance without allowing any counterplay."
               },
               "arrows": [
@@ -49411,7 +49411,7 @@
               "san": "c5",
               "nag": "!",
               "comment": {
-                "de": "Hätte Schwarz das Feld c7 für den Springer freigemacht, hätte er wieder 0,00 erreicht, allerdings noch kein Remis.",
+                "de": "Hätte man das c7-Feld für den Springer freigemacht, hätte Schwarz wieder 0,00 erreicht, allerdings noch kein Remis.",
                 "en": "vacating the c7-square for the knight would have given black an 0.00 again, however not a draw yet."
               },
               "arrows": [
