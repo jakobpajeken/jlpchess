@@ -330,3 +330,34 @@ Kb7 Qb6+ 119. Ka8 Kc6 120. Rc7+ Kd5 121. Rd7+ Kc5 122. Rc7+ Qxc7 1/2-1/2
 
 {[%evp 0,137,12,17,25,12,19,14,23,14,4,25,26,10,54,30,30,35,28,24,31,42,36,43,45,65,89,27,40,2,16,38,41,43,48,49,49,45,52,52,4,14,23,8,8,5,49,-37,-54,-32,-52,-61,-73,-68,-82,-79,-99,-99,-107,-123,-121,-140,-142,-155,-121,-142,-105,-141,-127,-100,-129,-184,-143,-85,-86,-84,-84,-97,-102,-77,-82,-82,-66,-93,-95,-86,-83,-65,1,-67,-78,-62,-17,-108,-79,-36,-72,-75,-66,-85,-75,-42,-52,-59,-56,-61,-38,-112,-54,-71,-129,-91,-110,-155,-113,-130,-122,-94,-106,-125,32767,32767,-140,-172,-263,-288,-264,-247,-150,-267,-297,-441,-339,-362,-291,-344,-374,-317,-358,-445]} 37... h4 $1 {Here, Erigaisi’s mastery begins. The position is clearly better for Black: White’s knight lacks a good outpost, while the passed pawn on c3 provides a long-term advantage and also restricts White’s position. Black has more space, better control of both semi-open files, and sustained pressure against the e4-pawn. Just watch how Erigaisi manages to win by simply letting Vokhidov do all the work, essentially allowing him to self-destruct.} 38. Kf1 Qb7 39. Rc1 Qd7 40. Rce1 Kf8 41. Rc1 Kg8 42. Rce1 Kh8 43. Rc1 Rc7 44. Rce1 Kh7 45. Rc1 Kg8 46. Rce1 Kh8 47. Rc1 Rc8 48. Rce1 Qe8 49. f3 $6 {Alltough this move doesn't really change the evaluation of the position it's the first step in the wrong direction, giving up control over important black squares next to the king.} Kg8 {Erigaisi just keeps doing nothing.} 50. Rc1 Rec7 51. Rcc2 Kh8 52. Ke1 Qe5 53. Kd1 $2 {Vokhidov struggles to maintain the tension and worsens his position further.} (53. Ng4 $1 Qg3+ 54. Kf1 $17 {[%cal Gd3e3,Ge3g5]}) 53... Re7 54. Ng4 Qf4 55. Qxb5 $2 {The final mistake.} (55. Qe3 Qg3 56. Qb6 Rce8 57. Qxb5 f5 58. exf5 gxf5 59. Qxe8+ Rxe8 60. Rxe8+ Kh7 61. Ne3 Qg6 $19 {The position remains lost, however not entirely hopeless.}) 55... f5 $19 56. Nf2 Qh2 57. Nd3 fxe4 58. Rxe4 Rxe4 59. fxe4 Qg1+ 60. Ne1 Be5 $1 {[%csl Gc3,Rd1,Re1][%cal Ge5g3,Gc3d2,Gc3b2]} 61. Re2 Bg3 62. Kc2 Bxe1 63. Qd7 Rg8 64. Qxd6 Qf1 65. Qe5+ Kh7 66. Kd3 c2 67. Qc7+ Rg7 68. Qxc2 Bg3 69. Kd4 0-1
 
+[Event "Kiel Doppelbauer GM 2nd"]
+[Site "Kiel"]
+[Date "2022.07.04"]
+[Round "8"]
+[White "Pajeken, Jakob Leon"]
+[Black "Hacker, Jonas"]
+[Result "1-0"]
+[Annotator "Pajeken,J"]
+[ECO "E04"]
+[WhiteElo "2434"]
+[BlackElo "2471"]
+[WhiteFideId "-1"]
+[WhiteFideId "-1"]
+[SetUp "1"]
+[FEN "4nrk1/1Rp1rppp/2B5/8/8/4P1P1/5P1P/2R3K1 w - - 0 29"]
+[PlyCount "69"]
+[GameId "2193730602961848"]
+[EventDate "2022.06.29"]
+[EventType "tourn"]
+[EventRounds "9"]
+[EventCountry "GER"]
+[EventCategory "10"]
+[SourceTitle "CBM 209 Extra"]
+[Source "ChessBase"]
+[SourceDate "2022.09.30"]
+[SourceVersion "1"]
+[SourceVersionDate "2022.09.30"]
+[SourceQuality "1"]
+
+{[%evp 0,125,22,16,3,16,20,19,20,11,11,5,24,25,1,2,11,10,16,25,25,24,37,44,29,46,46,52,-32,38,-8,51,51,48,56,53,55,42,35,113,27,33,80,101,65,78,83,118,72,157,83,200,81,198,109,84,94,88,51,68,147,78,82,60,163,63,69,54,177,152,95,55,99,121,84,97,93,97,97,72,95,55,86,56,91,75,84,101,85,51,112,68,143,66,90,116,85,72,110,90,97,70,89,68,73,77,89,96,109,144,101,97,125,82,177,77,150,108,53,64,64,97,130,136,438,407,470,497] [#]} 29. Ba4 h5 30. Kg2 g6 31. Kf3 Kg7 32. h4 Kg8 33. Ra7 Kg7 34. Ke2 Kg8 35. Rc5 Kg7 36. Rc4 Kg8 37. Rc6 Kg7 38. Rc3 Kg8 39. Kd3 Kg7 40. Rc4 Kg8 41. Rc5 Kg7 42. Rc6 Rd7+ 43. Ke2 Re7 44. Kf3 Re5 45. Rc4 Re7 46. Rc2 Kg8 47. Ke2 Kg7 48. Rc3 Kg8 49. Rc5 Kg7 50. Bc2 Kg8 51. f3 Kg7 52. Bd3 Kg8 53. e4 Kg7 54. f4 Kg8 55. Kf3 Kg7 56. Bc2 Kg8 57. e5 Kg7 58. Ba4 Kg8 59. Rc3 Kg7 60. Ra8 Kg8 61. Rd3 c6 62. Rdd8 Re6 63. Rac8 1-0
+
