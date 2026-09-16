@@ -1,0 +1,3234 @@
+
+/* ============================================================
+   GitHub-Zugriff (GitHub Contents API)
+   ------------------------------------------------------------
+   Ersetzt den früheren lokalen Dateizugriff (File System Access
+   API), damit dieses Tool von jedem Gerät und Browser aus nutzbar
+   ist. Jede Speicherung hier wird ein echter Commit in deinem
+   Repository – der Token bleibt ausschließlich in diesem Browser
+   (localStorage), er wird nie irgendwohin sonst übertragen außer
+   direkt an api.github.com.
+   ============================================================ */
+var GITHUB_OWNER = 'jakobpajeken';
+var GITHUB_REPO = 'jlpchess';
+var GITHUB_BRANCH = 'main';
+var GITHUB_TOKEN_KEY = 'jlp-editor-token';
+var githubToken = null;
+var shaCache = {}; /* Datei-Pfad -> sha der zuletzt gelesenen Version, für Updates nötig */
+
+/* Gast-Editor: derselbe GUEST_ACCESS_KEY, den scripts/guest-submit-worker.js
+   als Secret trägt – nur gebraucht, um teilbare guest-editor.html-Links zu
+   bauen, nie an GitHub oder den Worker selbst geschickt (der prüft ihn nur
+   gegen sein eigenes Secret). Bleibt wie der GitHub-Token nur lokal. */
+var GUEST_KEY_STORAGE = 'jlp-guest-access-key';
+function getGuestAccessKey(){
+  try{ return localStorage.getItem(GUEST_KEY_STORAGE) || ''; }catch(e){ return ''; }
+}
+function guestEditorLinkBase(){
+  return location.href.replace(/editor\.html.*$/, '') + 'guest-editor.html';
+}
+/* mirrors activeLock()/EDIT_LOCK_TTL_MS in guest-submit-worker.js, purely
+   for display here – the Worker is the actual source of truth and does
+   its own equivalent check server-side before accepting a save */
+var EDIT_LOCK_TTL_MS = 20 * 60 * 1000;
+function activeEditLock(p){
+  if(p && p.editLock && p.editLock.holder && p.editLock.since){
+    var age = Date.now() - Date.parse(p.editLock.since);
+    if(age >= 0 && age < EDIT_LOCK_TTL_MS) return p.editLock;
+  }
+  return null;
+}
+(function initGuestKeyPanel(){
+  var input = document.getElementById('guest-key-input');
+  var status = document.getElementById('guest-key-status');
+  var saved = getGuestAccessKey();
+  if(saved){ input.value = saved; status.textContent = 'Gespeichert ✓'; }
+  document.getElementById('guest-key-save-btn').addEventListener('click', function(){
+    var v = input.value.trim();
+    try{ if(v) localStorage.setItem(GUEST_KEY_STORAGE, v); else localStorage.removeItem(GUEST_KEY_STORAGE); }catch(e){}
+    status.textContent = v ? 'Gespeichert ✓' : 'Gelöscht.';
+    if(typeof renderBlog === 'function' && typeof blogPosts !== 'undefined') renderBlog();
+  });
+  document.getElementById('guest-key-clear-btn').addEventListener('click', function(){
+    input.value = '';
+    try{ localStorage.removeItem(GUEST_KEY_STORAGE); }catch(e){}
+    status.textContent = 'Gelöscht.';
+    if(typeof renderBlog === 'function' && typeof blogPosts !== 'undefined') renderBlog();
+  });
+})();
+
+function showToast(msg, isErr){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isErr ? ' err' : '');
+  t.hidden = false;
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(function(){ t.hidden = true; }, 3200);
+}
+
+function ghHeaders(){
+  return {
+    'Authorization': 'Bearer ' + githubToken,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+function ghUrl(path){
+  return 'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + path.split('/').map(encodeURIComponent).join('/');
+}
+/* UTF-8-sichere Base64-Kodierung (Umlaute etc.) – die GitHub-API
+   verlangt/liefert Dateiinhalte immer als Base64. */
+function utf8ToBase64(str){
+  var bytes = new TextEncoder().encode(str);
+  var binary = '';
+  bytes.forEach(function(b){ binary += String.fromCharCode(b); });
+  return btoa(binary);
+}
+function base64ToUtf8(b64){
+  var binary = atob(b64.replace(/\s/g, ''));
+  var bytes = new Uint8Array(binary.length);
+  for(var i = 0; i < binary.length; i++){ bytes[i] = binary.charCodeAt(i); }
+  return new TextDecoder().decode(bytes);
+}
+function fileToBase64(file){
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onload = function(){
+      var result = reader.result; /* "data:<mime>;base64,<data>" */
+      var idx = result.indexOf(',');
+      resolve(idx >= 0 ? result.slice(idx + 1) : result);
+    };
+    reader.onerror = function(){ reject(reader.error); };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function ghGetFile(path){
+  var resp = await fetch(ghUrl(path) + '?ref=' + GITHUB_BRANCH, { headers: ghHeaders() });
+  if(resp.status === 404) return null; /* Datei existiert noch nicht */
+  if(resp.status === 401 || resp.status === 403){ disconnectGithub(); throw new Error('Token ungültig oder ohne Zugriff.'); }
+  if(!resp.ok) throw new Error('Lesen fehlgeschlagen (HTTP ' + resp.status + ').');
+  var data = await resp.json();
+  shaCache[path] = data.sha;
+  return data;
+}
+async function ghPutFile(path, base64Content, message){
+  if(!(path in shaCache)){
+    var existing = await ghGetFile(path).catch(function(){ return null; });
+    if(existing) shaCache[path] = existing.sha;
+  }
+  var body = { message: message, content: base64Content, branch: GITHUB_BRANCH,
+    committer: { name: 'Jakob Leon Pajeken', email: 'jakobpajeken@gmail.com' } };
+  if(shaCache[path]) body.sha = shaCache[path];
+  var resp = await fetch(ghUrl(path), {
+    method: 'PUT',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, ghHeaders()),
+    body: JSON.stringify(body)
+  });
+  if(resp.status === 401 || resp.status === 403){ disconnectGithub(); throw new Error('Token ungültig oder ohne Zugriff.'); }
+  if(!resp.ok){
+    var errMsg = 'HTTP ' + resp.status;
+    try{ var errJson = await resp.json(); if(errJson.message) errMsg = errJson.message; }catch(e){}
+    throw new Error('Speichern fehlgeschlagen: ' + errMsg);
+  }
+  var result = await resp.json();
+  shaCache[path] = result.content.sha;
+  return result;
+}
+
+async function readJson(name){
+  try{
+    var file = await ghGetFile('data/' + name);
+    if(!file || !file.content) return [];
+    var parsed = JSON.parse(base64ToUtf8(file.content) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(e){
+    showToast('Konnte ' + name + ' nicht laden: ' + e.message, true);
+    return [];
+  }
+}
+async function readResultsJson(){
+  var empty = { titles: [], team: [], national: [], full: [] };
+  try{
+    var file = await ghGetFile('data/results.json');
+    if(!file || !file.content) return empty;
+    var parsed = JSON.parse(base64ToUtf8(file.content) || '{}');
+    return {
+      titles: Array.isArray(parsed.titles) ? parsed.titles : [],
+      team: Array.isArray(parsed.team) ? parsed.team : [],
+      national: Array.isArray(parsed.national) ? parsed.national : [],
+      full: Array.isArray(parsed.full) ? parsed.full : []
+    };
+  }catch(e){
+    showToast('Konnte results.json nicht laden: ' + e.message, true);
+    return empty;
+  }
+}
+async function readPopupSettings(){
+  var empty = { enabled: false, eyebrow: '', heading: '', body: '', ctaText: '', dismissText: '', twitchHandle: '' };
+  try{
+    var file = await ghGetFile('data/popup.json');
+    if(!file || !file.content) return empty;
+    var parsed = JSON.parse(base64ToUtf8(file.content) || '{}');
+    return {
+      enabled: !!parsed.enabled,
+      eyebrow: parsed.eyebrow || '',
+      heading: parsed.heading || '',
+      body: parsed.body || '',
+      ctaText: parsed.ctaText || '',
+      dismissText: parsed.dismissText || '',
+      twitchHandle: parsed.twitchHandle || ''
+    };
+  }catch(e){
+    showToast('Konnte popup.json nicht laden: ' + e.message, true);
+    return empty;
+  }
+}
+/* The site's house style uses en dashes (–), never em dashes (—) — easy to
+   type the wrong one by habit, autocorrect, or a pasted/translated/AI-
+   generated source. Rather than relying on every text field to get this
+   right on its own, every save goes through here, which walks the whole
+   object and quietly fixes any em dash it finds in a string, anywhere in
+   the structure (titles, PGN comments, everything). */
+function normalizeDashes(value){
+  if(typeof value === 'string') return value.replace(/—/g, '–');
+  if(Array.isArray(value)) return value.map(normalizeDashes);
+  if(value && typeof value === 'object'){
+    var out = {};
+    Object.keys(value).forEach(function(k){ out[k] = normalizeDashes(value[k]); });
+    return out;
+  }
+  return value;
+}
+async function writeJson(name, data){
+  var content = utf8ToBase64(JSON.stringify(normalizeDashes(data), null, 2) + '\n');
+  await ghPutFile('data/' + name, content, 'Update ' + name + ' via online editor');
+}
+/* Splits the raw text of data/games.pgn into individual game blocks – just
+   enough parsing to list and copy whole games, not the full recursive
+   variation/NAG tree scripts/sync_games_pgn.py builds server-side with the
+   real "chess" library (deliberately not reimplemented here in JS: this is
+   only ever used to label options in a picker and copy one whole block
+   verbatim, never to interpret a game's structure, so the heavier parser
+   would be pure risk for no benefit). */
+function splitPgnDatabase(text){
+  var blocks = (text || '').split(/\n(?=\[Event )/).map(function(b){ return b.trim(); }).filter(Boolean);
+  return blocks.map(function(block){
+    var headers = {};
+    var re = /\[(\w+)\s+"([^"]*)"\]/g;
+    var m;
+    while((m = re.exec(block)) !== null){ headers[m[1].toLowerCase()] = m[2]; }
+    return { pgn: block, headers: headers, websiteId: headers.websiteid || null };
+  });
+}
+/* Fetches data/games.pgn fresh from GitHub every time it's opened, rather
+   than relying on the "games"/"blogPosts" arrays already loaded into this
+   session – those only pick up a ChessBase edit after
+   scripts/sync_games_pgn.py has had a sync cycle to run, so reading the
+   PGN file directly here means a game saved in ChessBase moments ago is
+   already pickable, without waiting on that. Returns null (rather than
+   throwing) on any failure, so callers can fall back to the games.json
+   array they already have instead of breaking the picker entirely. */
+async function fetchGamesPgnDatabase(){
+  try{
+    var file = await ghGetFile('data/games.pgn');
+    if(!file || !file.content) return [];
+    return splitPgnDatabase(base64ToUtf8(file.content));
+  }catch(e){
+    return null;
+  }
+}
+/* Bilder werden immer unter einem neuen, zeitgestempelten Dateinamen
+   angelegt (nie überschrieben), daher ist vor dem Hochladen kein
+   sha-Abgleich nötig. */
+async function saveImageFile(file, hintName){
+  var extMatch = /\.[a-zA-Z0-9]+$/.exec(file.name || '');
+  var ext = extMatch ? extMatch[0].toLowerCase() : '.jpg';
+  var base = slugify(hintName || file.name.replace(/\.[^.]+$/, '')) || 'bild';
+  var filename = base + '-' + Date.now() + ext;
+  var path = 'images/blog/' + filename;
+  var base64Content = await fileToBase64(file);
+  await ghPutFile(path, base64Content, 'Add image ' + filename + ' via online editor');
+  return path;
+}
+
+var games = [], blogPosts = [], testimonials = [];
+var results = { titles: [], team: [], national: [], full: [] };
+var popupSettings = { enabled: false, eyebrow: '', heading: '', body: '', ctaText: '', dismissText: '', twitchHandle: '' };
+
+function disconnectGithub(){
+  githubToken = null;
+  shaCache = {};
+  try{ localStorage.removeItem(GITHUB_TOKEN_KEY); }catch(e){}
+  document.getElementById('main').hidden = true;
+  document.getElementById('gh-token-input').value = '';
+  document.getElementById('gh-token-input').hidden = false;
+  document.getElementById('folder-status').textContent = 'Nicht verbunden.';
+  document.getElementById('gh-connect-btn').hidden = false;
+  document.getElementById('gh-disconnect-btn').hidden = true;
+}
+async function connectGithub(token){
+  githubToken = token;
+  shaCache = {};
+  var statusEl = document.getElementById('folder-status');
+  statusEl.textContent = 'Verbinde …';
+  try{
+    var resp = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO, { headers: ghHeaders() });
+    if(resp.status === 401 || resp.status === 403 || resp.status === 404){
+      throw new Error('Token ungültig oder ohne Zugriff auf dieses Repository.');
+    }
+    if(!resp.ok) throw new Error('HTTP ' + resp.status);
+    var repoInfo = await resp.json();
+    if(repoInfo.permissions && repoInfo.permissions.push === false){
+      throw new Error('Dieser Token hat kein Schreibrecht für das Repository.');
+    }
+    try{ localStorage.setItem(GITHUB_TOKEN_KEY, token); }catch(e){}
+    games = await readJson('games.json');
+    blogPosts = await readJson('blog.json');
+    testimonials = await readJson('testimonials.json');
+    results = await readResultsJson();
+    popupSettings = await readPopupSettings();
+    renderGames(); renderBlog(); renderTesti(); renderAllResultLists(); renderPopupPanel();
+    document.getElementById('main').hidden = false;
+    statusEl.innerHTML = 'Verbunden mit <span class="folder-name">' + escapeHtml(GITHUB_OWNER + '/' + GITHUB_REPO) + '</span>';
+    document.getElementById('gh-connect-btn').hidden = true;
+    document.getElementById('gh-token-input').hidden = true;
+    document.getElementById('gh-disconnect-btn').hidden = false;
+    showToast('Verbunden ✓');
+  }catch(e){
+    githubToken = null;
+    statusEl.textContent = 'Verbindung fehlgeschlagen: ' + e.message;
+    showToast('Verbindung fehlgeschlagen.', true);
+  }
+}
+document.getElementById('gh-connect-btn').addEventListener('click', function(){
+  var token = document.getElementById('gh-token-input').value.trim();
+  if(!token){ showToast('Bitte einen Token einfügen.', true); return; }
+  connectGithub(token);
+});
+document.getElementById('gh-disconnect-btn').addEventListener('click', function(){
+  if(!confirm('Token auf diesem Gerät entfernen? Du müsstest ihn dann neu einfügen.')) return;
+  disconnectGithub();
+});
+/* verbindet automatisch neu, wenn dieses Gerät schon einen Token gespeichert hat */
+(function(){
+  var saved = null;
+  try{ saved = localStorage.getItem(GITHUB_TOKEN_KEY); }catch(e){}
+  if(saved) connectGithub(saved);
+})();
+
+/* ============================================================
+   KI-Schreibhilfe (Google Gemini, kostenloses Kontingent)
+   ------------------------------------------------------------
+   Entirely optional and independent of the GitHub connection above –
+   this only powers the "✨ KI-Hilfe" buttons next to the blog body
+   text fields. The key lives in localStorage on this device only,
+   same as the GitHub token, and is sent to nobody but Google's own
+   API when a request is actually made.
+   History: Groq (free, reliable, but Jakob found the output quality
+   not good enough) and OpenAI's own paid API (good quality, but he
+   explicitly does not want to pay) and Mistral AI (free, untested
+   quality/reliability here) were all tried and set aside – Jakob
+   confirmed Gemini's OWN output quality was fine all along, the only
+   real problem was frequent 503 "model overloaded" errors. Fixed at
+   the root (not just papered over with retries) by switching from the
+   generateContent endpoint to Gemini's newer Interactions API: Google
+   itself documents generateContent as legacy since June 2026, with
+   Interactions API as the actively maintained, recommended interface
+   going forward – using the current interface instead of the
+   deprecated one is the most direct way to avoid whatever reduced
+   capacity/priority the legacy path gets. See askAI below for the
+   endpoint/request/response details, and
+   https://ai.google.dev/gemini-api/docs/interactions-overview /
+   https://ai.google.dev/gemini-api/docs/migrate-to-interactions for
+   Google's own docs on it. */
+var GEMINI_KEY_STORAGE = 'jlp_gemini_api_key';
+function getGeminiKey(){
+  try{ return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }catch(e){ return ''; }
+}
+function updateGeminiStatus(){
+  var status = document.getElementById('gemini-status');
+  var clearBtn = document.getElementById('gemini-clear-btn');
+  var hasKey = !!getGeminiKey();
+  if(status) status.textContent = hasKey ? 'KI-Schreibhilfe im Blog-Editor ist aktiv.' : 'Ohne Schlüssel keine KI-Schreibhilfe im Blog-Editor.';
+  if(clearBtn) clearBtn.hidden = !hasKey;
+}
+document.getElementById('gemini-save-btn').addEventListener('click', function(){
+  var val = document.getElementById('gemini-key-input').value.trim();
+  if(!val){ showToast('Bitte einen Schlüssel einfügen.', true); return; }
+  try{ localStorage.setItem(GEMINI_KEY_STORAGE, val); }catch(e){}
+  document.getElementById('gemini-key-input').value = '';
+  updateGeminiStatus();
+  showToast('KI-Schlüssel gespeichert ✓');
+});
+document.getElementById('gemini-clear-btn').addEventListener('click', function(){
+  try{ localStorage.removeItem(GEMINI_KEY_STORAGE); }catch(e){}
+  updateGeminiStatus();
+  showToast('KI-Schlüssel entfernt.');
+});
+(function(){
+  if(getGeminiKey()) document.getElementById('gemini-key-input').placeholder = '•••• bereits gespeichert – neuen Schlüssel einfügen zum Ändern';
+  updateGeminiStatus();
+})();
+/* Sends `prompt` to Gemini via the Interactions API (POST /v1beta/
+   interactions – the current, actively maintained interface; the older
+   generateContent endpoint this used previously is Google's own
+   documented "legacy" path as of June 2026) and returns its plain-text
+   reply. Throws with a message safe to show directly in a toast if the
+   key is missing, the request fails, or the model declined to answer.
+
+   Status 503 ("model overloaded") is a common, purely transient response
+   from Google's servers being under heavy load – it has nothing to do
+   with this site, the prompt, or the API key. Retries a few times with a
+   growing pause (1s, 2s, 4s, 8s, 16s – 5 retries, ~30s total) before
+   finally giving up. `onRetry(attempt, maxAttempts)`, if given, is
+   called before each retry so the caller can show "trying again …"
+   instead of a stuck spinner. */
+async function askAI(prompt, onRetry){
+  var key = getGeminiKey();
+  if(!key) throw new Error('Kein KI-Schlüssel hinterlegt (oben eintragen).');
+  var maxAttempts = 6; /* 1 initial try + up to 5 retries */
+  for(var attempt = 1; attempt <= maxAttempts; attempt++){
+    var resp, networkErr = null;
+    try{
+      resp = await fetch('https://generativelanguage.googleapis.com/v1beta/interactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': key,
+          'Api-Revision': '2026-05-20' /* pins the response shape this code parses below */
+        },
+        body: JSON.stringify({ model: 'gemini-flash-latest', input: prompt })
+      });
+    }catch(e){ networkErr = e; }
+    if(networkErr){
+      if(attempt < maxAttempts){
+        if(onRetry) onRetry(attempt, maxAttempts);
+        await new Promise(function(r){ setTimeout(r, Math.pow(2, attempt - 1) * 1000); });
+        continue;
+      }
+      throw new Error('KI-Anfrage fehlgeschlagen (keine Verbindung).');
+    }
+    if(!resp.ok){
+      if(resp.status === 400 || resp.status === 401 || resp.status === 403){
+        throw new Error('KI-Schlüssel ungültig oder abgelehnt (Status ' + resp.status + ').');
+      }
+      if(resp.status === 429) throw new Error('KI-Kontingent gerade ausgeschöpft – kurz warten und nochmal versuchen.');
+      if(resp.status === 503 || resp.status >= 500){
+        if(attempt < maxAttempts){
+          if(onRetry) onRetry(attempt, maxAttempts);
+          await new Promise(function(r){ setTimeout(r, Math.pow(2, attempt - 1) * 1000); });
+          continue;
+        }
+        throw new Error('KI-Dienst bei Google gerade überlastet (Status ' + resp.status + ') – das liegt an Googles Gemini-Servern, nicht an dieser Website. Bitte in ein paar Minuten nochmal versuchen.');
+      }
+      throw new Error('KI-Anfrage fehlgeschlagen (Status ' + resp.status + ').');
+    }
+    var data = await resp.json();
+    /* the Interactions API returns a typed step timeline instead of
+       generateContent's candidates[0].content.parts – walk every
+       model_output step's text content blocks and join them, in case
+       the reply ever comes back split across more than one. */
+    var steps = (data && data.steps) || [];
+    var textParts = [];
+    steps.forEach(function(step){
+      if(step.type !== 'model_output' || !step.content) return;
+      step.content.forEach(function(block){
+        if(block.type === 'text' && block.text) textParts.push(block.text);
+      });
+    });
+    var text = textParts.join('');
+    if(!text){
+      throw new Error('KI hat keine Antwort geliefert.');
+    }
+    return text.trim();
+  }
+}
+
+/* Builds the prompt for "Gesamten Beitrag von der KI erstellen lassen" –
+   unlike askAI's other caller (the small per-textarea "KI-Hilfe" that
+   only rewrites text already on the page), this asks the model to
+   understand the FULL shape of a blog post in this editor and write
+   every text field itself, in both languages, from a short instruction.
+   existingCatsEn/De are passed in so it reuses an existing category
+   instead of inventing near-duplicates every time. */
+function buildBlogFillPrompt(instruction, existingCatsEn, existingCatsDe){
+  return [
+    'You are helping IM Jakob Leon Pajeken, a professional chess coach, write a post for the blog on his coaching website. Write in his voice: knowledgeable, concrete and encouraging, speaking directly to chess students and their parents - never generic filler.',
+    '',
+    'Task from the site editor (may be written in English or German): ' + instruction,
+    '',
+    'Produce the ENTIRE blog post as a single JSON object, written natively and fluently in BOTH English and German for every field (write each language as a native speaker would - do not machine-translate one from the other), with EXACTLY this shape and nothing else:',
+    '{',
+    '  "title": {"en": "...", "de": "..."},',
+    '  "category": {"en": "...", "de": "..."},',
+    '  "excerpt": {"en": "...", "de": "..."},',
+    '  "lead": {"en": "...", "de": "..."},',
+    '  "body": {"en": ["paragraph 1", "paragraph 2", "..."], "de": ["Absatz 1", "Absatz 2", "..."]},',
+    '  "quote": {"en": "...", "de": "..."},',
+    '  "imageCaption": {"en": "...", "de": "..."}',
+    '}',
+    '',
+    'Field notes:',
+    '- title: short and specific, no clickbait.',
+    '- category: a short 1-2 word topic label. Reuse one of these EXISTING categories if one genuinely fits (English: ' + (existingCatsEn.join(', ') || 'none yet') + ' | German: ' + (existingCatsDe.join(', ') || 'none yet') + '); only invent a new one if none fit.',
+    '- excerpt: one or two sentences - the teaser shown on the blog overview card.',
+    '- lead: one short paragraph, shown larger right under the title, that pulls the reader in.',
+    '- body: 5 to 9 paragraphs as separate array entries (each entry is exactly one paragraph, no blank lines inside an entry), forming a complete, well-structured article with a real beginning, middle and end.',
+    '- quote: an optional short pull-quote in Jakob\'s own voice that genuinely fits the post; use "" for both languages if none fits well - never force one.',
+    '- imageCaption: a short caption for a possible cover photo related to the topic; use "" for both languages if nothing sensible comes to mind - the actual photo is chosen separately by Jakob afterward, not by you.',
+    '',
+    'Formatting allowed INSIDE body paragraphs only, used sparingly and only where it genuinely helps: **bold**, *italic*, __underline__, [link text](https://example.com) for a real external URL if relevant, [size=NUMBER]bigger text[/size] for occasional emphasis, [color=blue]highlighted text[/color] for the site\'s own accent color. Do NOT use any [game:...] or [games:...] marker and do NOT use an image marker like ![caption](path) anywhere - you have no knowledge of which real games or photos exist in the site\'s database, and inventing one would break the page; Jakob adds those manually afterward through the editor\'s own tools.',
+    '',
+    'Return ONLY the JSON object - no markdown code fence, no explanation before or after it.'
+  ].join('\n');
+}
+/* Parses the AI's reply into the shape the blog form needs, tolerating the
+   most common ways a model still wraps "JSON-only" output (a ```json
+   fence, or stray prose around the object) despite being told not to.
+   Throws a message safe to show directly in a toast/panel. */
+function parseAiBlogPost(reply){
+  var text = (reply || '').trim();
+  var fenceMatch = /^```(?:json)?\s*([\s\S]*?)\s*```$/.exec(text);
+  if(fenceMatch) text = fenceMatch[1].trim();
+  if(!fenceMatch){
+    var braceMatch = /\{[\s\S]*\}/.exec(text);
+    if(braceMatch) text = braceMatch[0];
+  }
+  var data;
+  try{ data = JSON.parse(text); }
+  catch(e){ throw new Error('Antwort der KI konnte nicht gelesen werden (kein gültiges JSON). Bitte nochmal versuchen, ggf. mit einer genaueren Anweisung.'); }
+  function lang(obj){
+    obj = obj || {};
+    return { en: (obj.en == null ? '' : obj.en).toString().trim(), de: (obj.de == null ? '' : obj.de).toString().trim() };
+  }
+  function bodyLang(obj){
+    obj = obj || {};
+    function paras(v){ return Array.isArray(v) ? v.map(function(s){ return (s == null ? '' : s).toString().trim(); }).filter(Boolean) : []; }
+    return { en: paras(obj.en), de: paras(obj.de) };
+  }
+  var post = {
+    title: lang(data.title),
+    category: lang(data.category),
+    excerpt: lang(data.excerpt),
+    lead: lang(data.lead),
+    body: bodyLang(data.body),
+    quote: lang(data.quote),
+    imageCaption: lang(data.imageCaption)
+  };
+  if(!post.title.en && !post.title.de) throw new Error('Antwort der KI enthielt keinen Titel. Bitte nochmal versuchen oder die Anweisung genauer fassen.');
+  if(!post.body.en.length && !post.body.de.length) throw new Error('Antwort der KI enthielt keinen Haupttext. Bitte nochmal versuchen oder die Anweisung genauer fassen.');
+  return post;
+}
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+var PIECE_SVG_DATA = {
+  wK:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMzc2IiB4Mj0iNzcuNjQxIiB5MT0iMzcuMzQ2IiB5Mj0iMzcuMzQ2IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yNS44MjEgMTIuMDIyaC0xLjc2di0zLjI1aC0yLjA2N2MtLjU1OCAwLS44MzgtLjI3Mi0uODM4LS44MjJ2LS4wMjVjMC0uNTQyLjI4LS44MTMuODM4LS44MTNoMi4wNjZWNS4wMDRjMC0uNTg1LjI5Ny0uODcyLjg5LS44NzIuNTc1IDAgLjg3MS4yODcuODcxLjg3MnYyLjEwOGgyLjEzNGMuNTQyIDAgLjgxMy4yNy44MTMuODEzdi4wMjVjMCAuNTUtLjI3MS44MjEtLjgxMy44MjFsLTIuMTE3LjAyNnpNMTEuMDMgMzcuNzQ0bC0uODEzLTQuNjRjLS4wMTcgMC0uMDQyLS4wMzMtLjA3Ni0uMTAxLS4wODUtLjExOS0uMzIyLS4yNzEtLjcxMS0uNDU3LS4zODEtLjE5NS0uODM4LS41MTctMS4zNDYtLjk4MmE0MS45OSA0MS45OSAwIDAgMS0xLjcwMi0xLjQ5IDguNTA5IDguNTA5IDAgMCAxLTEuMS0xLjIzN0M0LjI3MyAyNy40NSAzLjcwNSAyNS43NzIgMy41OTUgMjMuOGMtLjE3LTEuODk3LjYwMS0zLjc5NCAyLjMwMy01LjY4MiAxLjcxOS0xLjg4IDQuMDQ3LTIuNzY4IDYuOTY4LTIuNjUgMS4wOTIuMDY4IDIuMzguMzMgMy44NDQuNzk2LjQ4My4xOTUuOTc0LjM5IDEuNDgyLjU3NmwxLjQ5OC41ODRjLjI2My4xMzYuNS4yNzEuNjk1LjM5OGE0LjM4IDQuMzggMCAwIDEtLjEyNy0xLjA0MWMwLTEuMjg3LjQ1Ny0yLjM4OCAxLjM4LTMuMzAyLjkxNC0uOTA2IDIuMDIzLTEuMzcyIDMuMzEtMS4zODkgMS4yODcgMCAyLjM4OC40NjYgMy4zMDIgMS4zOC45MDYuOTE1IDEuMzYzIDIuMDE1IDEuMzYzIDMuMjg1IDAgLjI2My0uMDM0LjYxLS4xMDEgMS4wNDIuMjI4LS4xNDQuNDU3LS4yNzEuNjY5LS4zNzMuNzYyLS4zMyAxLjc2LS43MiAzLjAwNS0xLjE2IDEuNDIzLS40ODIgMi43MDEtLjc1MyAzLjg0NC0uODIxIDIuOTIxLS4xMzYgNS4yNDEuNzUzIDYuOTQzIDIuNjUgMS42NjggMS44ODggMi40NDcgMy43ODUgMi4zMjggNS42ODEtLjEyNyAxLjk3My0uNzAzIDMuNjUtMS43MSA1LjAzOC0uMzMuNDQ5LS43MDMuODYzLTEuMTE4IDEuMjUzYTQwLjUgNDAuNSAwIDAgMS0xLjY2IDEuNDczYy0uNTQxLjQ2Ni0xLjAwNy43OTYtMS4zODguOTgyLS4zOC4xODYtLjYuMzQ3LS42NjkuNDU3YS4yOTQuMjk0IDAgMCAxLS4wNS4wNzdjLS4wMTcuMDE3LS4wMjYuMDM0LS4wMjYuMDVsLS43OTYgNC42NjYgMS42NDMgNi4xMjFjLS44My43NDUtMi42ODQgMS4zNTUtNS41NTQgMS44MzctMi44NzkuNDgzLTYuMjA2LjcyLTkuOTc0LjcyLTMuODM1IDAtNy4yMTQtLjI1NC0xMC4xMTgtLjc1NC0yLjkxMi0uNTA4LTQuNzQxLTEuMTQzLTUuNDg2LTEuODk2eiIvPjxwYXRoIGZpbGw9InVybCgjYSkiIGQ9Ik0yNS43OTYgMjkuNTMyYzIuODQ1LjAzMyA1LjQ0NC4yMDMgNy44MDYuNTA4IDIuMzcuMzA0IDQuMjI1LjY5NCA1LjU2MyAxLjE1MWExMjYuMzIgMTI2LjMyIDAgMCAwIDIuMDU3LTEuNjUxIDEyLjAxOCAxMi4wMTggMCAwIDAgMS44NjMtMS44NDZjLjc4Ny0xLjAwNyAxLjE4NS0yLjMzNyAxLjE4NS0zLjk5NiAwLTEuNDgyLS4zNTYtMi43MjYtMS4wNjctMy43MTctMS4yNy0xLjg1NC0zLjIwOS0yLjc3Ny01LjgtMi43NzctMS41NTcgMC0zLjE0OS4zMjItNC43OTIuOTY1LTEuNDM5LjU4NC0yLjUzMSAxLjIyOC0zLjI2OCAxLjk0LTEuMzg4IDEuMzg4LTIuNDIxIDMuMTc0LTMuMDgyIDUuMzUtLjIyOC43NzktLjM2NCAxLjQ5LS40MDYgMi4xMjVzLS4wNiAxLjI4Ny0uMDYgMS45NDd6bS0xMy4yNSA2LjY5N2MzLjE0LS43OTYgNy4zMDYtMS4xOTQgMTIuNTA1LTEuMTk0IDUuMDg4IDAgOS4yMDMuMzggMTIuMzI3IDEuMTQzbC42MTgtMy42NWMtMy4zMjctLjg3MS03LjY3LTEuMzEyLTEzLjA0Ny0xLjMxMi01LjQxIDAtOS43NDUuNDUtMTMuMDIyIDEuMzM4em0yNS4yOTggNC40MS0uNzM3LTIuODQ0Yy0zLjI3Ni0uNzI4LTcuMzMyLTEuMDkyLTEyLjE1OC0xLjA5Mi00LjgwOSAwLTguODU2LjM2NC0xMi4xMzMgMS4wOTJsLS43ODcgMi44N2MzLjE1OC0uOTIzIDcuNDY4LTEuMzg4IDEyLjk0Ni0xLjM4OCA1LjQ0NCAwIDkuNzI4LjQ1NyAxMi44NjkgMS4zNjN6bS42NTIgMi4zMzhjLTMuMTkyLTEuMjg3LTcuNjgtMS45NC0xMy40NDUtMS45NC01Ljk4NiAwLTEwLjUxNi42NjEtMTMuNTk4IDEuOTkgMi45MTMgMS4xNTIgNy40MTcgMS43MzYgMTMuNTIyIDEuNzM2IDIuOTEyIDAgNS41NjItLjE2IDcuOTU4LS40ODMgMi40MDUtLjMyMSA0LjI1LS43NjIgNS41NjMtMS4zMDNNMjQuMDc3IDI5LjUzMmMtLjAwOC0uNjQ0LS4wMzQtMS4yODctLjA2OC0xLjkyMnMtLjE2LTEuMzQ3LS4zNzItMi4xMjZjLS42NzctMi4yMS0xLjcwMi0zLjk5Ni0zLjA4Mi01LjM1LS43MTEtLjY5NS0xLjc5NS0xLjM0Ny0zLjI2OC0xLjk0LTEuNjg1LS42Ni0zLjI4NS0uOTktNC43OTItLjk5LTIuNjA4IDAtNC41NDcuOTMxLTUuOCAyLjgwMy0uNzExLjk5LTEuMDY3IDIuMjM1LTEuMDY3IDMuNzE2IDAgMS42MjYuMzk4IDIuOTU1IDEuMTg2IDMuOTk3LjQ4Mi42MSAxLjA5MiAxLjIyNyAxLjgzNyAxLjgzN3MxLjQ0IDEuMTY4IDIuMDgzIDEuNjZjMi44OTUtMS4wNDIgNy4zNC0xLjYgMTMuMzQzLTEuNjg1bS44NzItNC42MTVjLjExOS0uNDY1LjIxMi0uNzg3LjI5Ni0uOTY1LjE3LS42NDMuMzU2LTEuMTk0LjU3Ni0xLjY0My4wOTMtLjI3OS4yMzctLjYuNDMyLS45NzMuMTg2LS4zNzMuMzktLjgwNS42MS0xLjI3OS4xMjctLjI4LjI3LS42MjYuNDE1LTEuMDMzLjE1Mi0uNDA2LjMwNC0uODA0LjQ0OC0xLjIwMi4xMzYtLjMzLjIwMy0uNjg2LjIwMy0xLjA2NyAwLS44MTMtLjI5Ni0xLjQ5OC0uODcyLTIuMDY2LS41NzUtLjU3NS0xLjI3OC0uODYzLTIuMTA4LS44NjMtMS45NjQgMC0yLjk1NS45OS0yLjk1NSAyLjk1NSAwIC4zOC4wNjguNzM2LjIwMyAxLjA2Ny4zNjUgMS4wNzUuNjQ0IDEuODIuODM5IDIuMjM1LjIyLjQ3NC40MTUuOTA2LjYgMS4yNzguMTc5LjM3My4zNC42OTQuNDY2Ljk3NC4yMi41NS4zOTggMS4wOTIuNTUgMS42NDIuMDM1LjA5NC4xMjguNDE1LjI5Ny45NCIvPjwvc3ZnPg==',
+  wQ:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMjUzIiB4Mj0iNzcuNjQxIiB5MT0iMzcuMjI0IiB5Mj0iMzcuMzQ2IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIHN0cm9rZT0iIzFmMWExNyIgc3Ryb2tlLXdpZHRoPSIuMDc2IiBkPSJNNDQuNTQxIDE0LjcyM2MtLjk0IDAtMS43NDQtLjMzLTIuNDA0LS45ODJzLS45OTEtMS40NDgtLjk5MS0yLjM5NnEwLTEuMzg0NS45OS0yLjM4OGMuNjYtLjY3NyAxLjQ2NS0xLjAwNyAyLjQwNS0xLjAwNy45MzEgMCAxLjcyNy4zMyAyLjM4OCAxLjAwNy42Ni42Ny45OSAxLjQ2NS45OSAyLjM4OCAwIC45NDgtLjMzIDEuNzQ0LS45OSAyLjM5NmEzLjI4IDMuMjggMCAwIDEtMi4zODguOTgyem0tNC4zMSAyOS4yMTljLS44MTIuNzEtMi42MzMgMS4zMDQtNS40NiAxLjc4Ni0yLjgyOC40NzQtNi4wODguNzItOS43NzEuNzItMy43NSAwLTcuMDUzLS4yNTQtOS44OTgtLjc0NS0yLjg0NC0uNS00LjY0LTEuMTE4LTUuMzg0LTEuODYzbDEuNTY2LTUuOTUyLS42OTQtMy44OTVMOC40MDUgMzAuMiA2LjI5NyAxNC43NzRsMS4yMS0uNDc0IDYuOCAxMS40NTUuMTUyLTEzLjY0IDEuNjg1LS4yOTYgNS4xODIgMTMuNzE2IDIuNzc2LTE0Ljc1N2gxLjcybDIuNzc2IDE0LjcwNkwzMy43MyAxMS44MmwxLjcxLjI5Ni4xNTMgMTMuNjQgNi44MjQtMTEuNDggMS4xNi41NDEtMi4wNTggMTUuMzU5LTIuMjEgMy43OTMtLjY5NCAzLjk0NXpNMTQuNTM1IDExLjk4OGMtLjk0OCAwLTEuNzUyLS4zMjEtMi40MTMtLjk3My0uNjYtLjY1Mi0uOTktMS40NTYtLjk5LTIuMzk2IDAtLjkyMy4zMy0xLjcxOS45OS0yLjM4czEuNDY1LS45OSAyLjQxMy0uOTljLjkyMyAwIDEuNzE5LjMzIDIuMzguOTlzLjk5IDEuNDU3Ljk5IDIuMzhjMCAuOTQtLjMzIDEuNzQ0LS45OSAyLjM5NmEzLjI2NiAzLjI2NiAwIDAgMS0yLjM4Ljk3M3pNNS40IDE0LjcyM2MtLjk0IDAtMS43MzYtLjMzLTIuMzg4LS45ODJzLS45ODItMS40NDgtLjk4Mi0yLjM5NmMwLS45MjMuMzMtMS43MTkuOTgyLTIuMzg4QzMuNjY0IDguMjggNC40NiA3Ljk1IDUuNCA3Ljk1Yy45NDggMCAxLjc0NC4zMyAyLjQxMyAxLjAwNy42Ni42Ny45OSAxLjQ2NS45OSAyLjM4OCAwIC45NDgtLjMzIDEuNzQ0LS45OSAyLjM5NmEzLjMyMyAzLjMyMyAwIDAgMS0yLjQxMy45ODJ6bTE5LjU1LTMuOTdjLS45NCAwLTEuNzQ1LS4zMy0yLjM5Ny0uOTkxLS42NTItLjY2LS45NzQtMS40NjUtLjk3NC0yLjQwNSAwLS45MzEuMzIyLTEuNzI3Ljk3NC0yLjM4N3MxLjQ1Ni0uOTkgMi4zOTYtLjk5Yy45MjMgMCAxLjcyNy4zMyAyLjM5Ni45OWEzLjIzIDMuMjMgMCAwIDEgMSAyLjM4N2MwIC45NC0uMzMgMS43NDQtMSAyLjQwNS0uNjY5LjY2LTEuNDczLjk5LTIuMzk2Ljk5em0xMC40MTMgMS4yMzVjLS45NCAwLTEuNzM2LS4zMjEtMi4zODctLjk3My0uNjUyLS42NTItLjk4My0xLjQ1Ni0uOTgzLTIuMzk2IDAtLjkyMy4zMy0xLjcxOS45ODMtMi4zOHMxLjQ0Ny0uOTkgMi4zODctLjk5Yy45NDggMCAxLjc1My4zMyAyLjQxMy45OXMuOTkgMS40NTcuOTkgMi4zOGMwIC45NC0uMzMgMS43NDQtLjk5IDIuMzk2cy0xLjQ2NS45NzMtMi40MTMuOTczeiIvPjxwYXRoIGZpbGw9InVybCgjYSkiIHN0cm9rZT0iIzFmMWExNyIgc3Ryb2tlLXdpZHRoPSIuMDc2IiBkPSJNMzguMjE3IDQzLjA0NGMtMy4wMjMtMS4yNTMtNy40MTctMS44OC0xMy4xNjYtMS44OC01Ljg3NiAwLTEwLjMxMy42NDQtMTMuMzI3IDEuOTMxIDIuODk2IDEuMTQzIDcuMzE2IDEuNzEgMTMuMjUgMS43MSAyLjg0NSAwIDUuNDQ1LS4xNTIgNy43OTgtLjQ2NSAyLjM2My0uMzE0IDQuMTc1LS43NDUgNS40NDUtMS4yOTZ6TTI0Ljk0OSA5LjAxN2MxLjExIDAgMS42Ni0uNTYgMS42Ni0xLjY2IDAtMS4wOTItLjU1LTEuNjQyLTEuNjYtMS42NDItMS4wOTIgMC0xLjYzNC41NS0xLjYzNCAxLjY0MiAwIDEuMS41NDIgMS42NiAxLjYzNCAxLjY2em0xMi42MjQgMjQuOTc2Yy0zLjE5Mi0uODEyLTcuMzY2LTEuMjEtMTIuNTIyLTEuMjEtNS4yOTIgMC05LjUxNy40MDYtMTIuNjc1IDEuMjM2bC4zNzMgMi4zNzljMy4yMTctLjc2MiA3LjMyMy0xLjE0MyAxMi4zMDItMS4xNDMgNC45NDQgMCA4Ljk3NS4zNzIgMTIuMDk5IDEuMTE3em0uNjE4LTEuNDkgMS42MTctMi44NTNhNi40MzIgNi40MzIgMCAwIDEtMi40My40NzRjLTIuMjE4IDAtMy45ODctLjg5Ny01LjMwOC0yLjctLjk5LjgyLTIuMSAxLjIzNS0zLjMyOCAxLjIzNS0xLjU4MyAwLTIuODUzLS42MTgtMy43OTMtMS44NjItMS4wNTggMS4xNi0yLjMyIDEuNzQ0LTMuNzkzIDEuNzQ0LTEuMTk0IDAtMi4yODYtLjQwNi0zLjI3Ni0xLjIyLTEuMzg5IDEuNzctMy4xODQgMi42NS01LjM4NSAyLjY1YTcuMDU1IDcuMDU1IDAgMCAxLTIuNTA2LS40NjVsMS43MzUgMi45NzJjMy4yMS0uOTIzIDcuNjItMS4zODkgMTMuMjI1LTEuMzg5IDUuNzA3IDAgMTAuMTE4LjQ3NCAxMy4yNDIgMS40MTR6bS0xMS4xMDgtNS45MjYtMi4xMDgtMTIuMTMzLTIuMTA5IDExLjk4OWMuMDUxLS4wMzQuMTYxLS4xMTkuMzQ4LS4yNTQuMzgtLjc0NS45NTYtMS4xMTggMS43MzUtMS4xMTguODQ3IDAgMS4zODkuMzczIDEuNjM0IDEuMTE4LjEwMi4xMDEuMjcxLjIzNy41LjM5OHptNi44NjYuNDc0VjE1LjU2bC00LjA5IDExLjI2MWMuMzE0LS4xMS41NzctLjI2Mi43OTctLjQ0LjMzLS40MTUuNzc5LS42MjcgMS4zMzgtLjYyNy42NiAwIDEuMTkzLjI5NyAxLjU5MS44NzIuMDQzLjA2OC4xMDIuMTM2LjE3LjIxMi4wNjcuMDc2LjEzNS4xNDQuMTk0LjIxMnptLTEzLjkzNi0uMzQ3TDE1Ljk1IDE1LjU2MnYxMS4zMzZjLjA0My0uMDY3LjExOS0uMTQ0LjIyLS4yNDUuMzMtLjY5NC44NzItMS4wNDIgMS42MzQtMS4wNDIuNjI3IDAgMS4xNDMuMjYzIDEuNTQxLjc5Ni40NDkuMTk1LjY3LjI5Ny42Ny4yOTd6bS02LjMgMS4zODhMOC4zOCAxOC44OWwxLjM2MyA4LjM4MmMuOTQuNjYgMS44NjMuOTkgMi43NTIuOTkuMzQ3IDAgLjc1My0uMDU5IDEuMjE5LS4xNjl6bTIyLjM5NS4xMTljLjM4MS4xMTguODA1LjE3OCAxLjI3LjE3OCAxLjAwOCAwIDEuOTQ4LS4zMTQgMi44MjgtLjk0bDEuMzYzLTguNTg1em0xLjQ5IDEyLjU1Ni0uNzQ1LTIuODAzYy0zLjI0Mi0uNzEtNy4yMDUtMS4wNjYtMTEuOTA0LTEuMDY2LTQuNjQ4IDAtOC42MS4zNTUtMTEuODc4IDEuMDY2bC0uNzcxIDIuODI4YzMuMDczLS45MzEgNy4yOTgtMS4zODggMTIuNjc1LTEuMzg4IDUuMjQgMCA5LjQ0OC40NDggMTIuNjIzIDEuMzYzek0xNC41MzUgMTAuMjUzYzEuMDg0IDAgMS42MzQtLjU0MiAxLjYzNC0xLjYzNHMtLjU1LTEuNjM0LTEuNjM0LTEuNjM0Yy0xLjEwOSAwLTEuNjY4LjU0Mi0xLjY2OCAxLjYzNHMuNTYgMS42MzQgMS42NjggMS42MzR6bTIwLjgyOCAwYzEuMTEgMCAxLjY2OC0uNTQyIDEuNjY4LTEuNjM0cy0uNTU5LTEuNjM0LTEuNjY4LTEuNjM0Yy0xLjA4MyAwLTEuNjM0LjU0Mi0xLjYzNCAxLjYzNHMuNTUgMS42MzQgMS42MzQgMS42MzR6TTUuNCAxMi45ODhjMS4xMDkgMCAxLjY2OC0uNTUgMS42NjgtMS42NDMgMC0xLjExLS41Ni0xLjY2LTEuNjY4LTEuNjYtMS4wODQgMC0xLjYzNC41NS0xLjYzNCAxLjY2IDAgMS4wOTIuNTUgMS42NDMgMS42MzQgMS42NDN6bTM5LjE0MSAwYzEuMDkyIDAgMS42NDMtLjU1IDEuNjQzLTEuNjQzIDAtMS4xMS0uNTUtMS42Ni0xLjY0My0xLjY2LTEuMSAwLTEuNjYuNTUtMS42NiAxLjY2IDAgMS4wOTIuNTYgMS42NDMgMS42NiAxLjY0M3oiLz48L3N2Zz4=',
+  wR:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMzc2IiB4Mj0iNzcuNjQxIiB5MT0iMzcuNDY5IiB5Mj0iMzcuNDY5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yOC40MDggOS4yMmg0LjIxNlY1LjgyNWg2Ljc5OXY5LjI5NmwtNS41MDMgNC4yNDJ2MTEuODYybDQuMjE2IDQuMjE2djUuMDhoMy43OTN2NS45MjdIOC4wNzFWNDAuNTJoMy43OTN2LTUuMDhsNC4yNDItNC4yMTZWMTkuMzYzbC01LjUwNC00LjI0MlY1LjgyNWg2Ljc3NFY5LjIyaDQuMjQyVjUuODI1aDYuNzl6Ii8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0ibTMzLjA3MyAxNy42NzggMy4xNS0yLjU1N2gtMjIuNDJsMy4xNzUgMi41NTd6bTcuMTk3IDI0LjUyOEg5Ljc1NnYyLjU1N0g0MC4yN3ptLTMuODQ0LTUuMDU1SDEzLjZ2My4zN2gyMi44MjZ6bS00LjIxNy0xNy43ODhIMTcuODE2djExLjg2MmgxNC4zOTN6bTUuNTA0LTUuOTI3VjcuNTFoLTMuMzk1djMuMzk1aC03LjY0NlY3LjUxaC0zLjM0NHYzLjM5NWgtNy42MlY3LjUxaC0zLjM5NXY1LjkyNnptLTEuOTE0IDIyLjAwNS0yLjU0OC0yLjUzMUgxNi44bC0yLjYgMi41MzF6Ii8+PC9zdmc+',
+  wB:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMTMiIHgyPSI3Ny42NDEiIHkxPSIzNy41OTIiIHkyPSIzNy40NjkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZWFyR3JhZGllbnQ+PHBhdGggZmlsbD0iIzFmMWExNyIgZD0iTTI1LjQ0NyA0Mi4wMDhjLS4yMjguOTQtLjUxNiAxLjU5Mi0uODQ2IDEuOTU2cy0uNzYyLjc0NS0xLjMxMyAxLjE0M2MtLjU5Mi40MTUtMS4yOTUuNzYyLTIuMTA4IDEuMDVzLTEuNzEuMzY0LTIuNy4yMTFsLTYuOTY5LS45NjVhMi44NTggMi44NTggMCAwIDAtLjc2MiAwYy0uMjIuMDM0LS40MzIuMDUxLS42MzUuMDUxLS4zNDcgMC0uNzg3LjA3Ni0xLjMyLjIzNy0uNTQyLjE1Mi0uOTU3LjM4MS0xLjI1NC42NzdsLTIuNDA0LTMuOTQ1Yy4yOTYtLjMzLjU1OS0uNTU5Ljc4Ny0uNjk0LjIzNy0uMTI3LjUwOC0uMjcxLjgyMS0uNDE1YTkuMTc5IDkuMTc5IDAgMCAxIDMuMDc0LS44MjJjLjQ2Ni0uMDMzLjkyMy0uMDQyIDEuMzYzLS4wMjVhOS44IDkuOCAwIDAgMCAxLjM5Ny0uMDVjLjg5LjE1MiAxLjc4Ni4yODcgMi42ODQuNDA2LjkwNi4xMjcgMS44MTIuMjU0IDIuNzE4LjM5Ljk5IDAgMS42Ni0uMTAyIDIuMDA2LS4yOTcuMTg3LS4xMDIuNDc0LS4yODguODcyLS41NS4zOTgtLjI2My43OTYtLjY1MiAxLjE5NC0xLjE2OS0uODgtLjA5My0xLjc3LS4yNjItMi42ODQtLjUwOGEyNC4wOTQgMjQuMDk0IDAgMCAxLTIuNDA0LS43NTNsMi41ODItNi40MDFjLTEuMjk1LS43NDUtMi4xOTMtMS4zMzgtMi43MS0xLjc5NWE1LjMgNS4zIDAgMCAxLTEuMjEtMS41NzVjLS40MzItLjc2Mi0uNzExLTEuNDk5LS44My0yLjIxYTkuMzQxIDkuMzQxIDAgMCAxLS4xNi0xLjkxM2MuMDE2LS45OS4yNDUtMi4wODMuNzAyLTMuMjg1LjQ1Ny0xLjE5NCAxLjMxMi0yLjI3IDIuNTY2LTMuMjFhNzkuMDkxIDc5LjA5MSAwIDAgMCAzLjA1Ni0yLjQ1NSAyNy43NDYgMjcuNzQ2IDAgMCAwIDIuOTQ2LTIuOTU0Yy0xLjIxOS0uNjI3LTEuODI4LTEuNjI2LTEuODI4LTIuOTk4IDAtLjkzLjMyMS0xLjcxOC45NzMtMi4zODcuNjUyLS42NiAxLjQ1Ny0uOTkgMi4zOTYtLjk5LjkyMyAwIDEuNzIuMzMgMi4zOC45OS42Ni42NjkuOTkgMS40NTYuOTkgMi4zODcgMCAxLjM1NS0uNjEgMi4zNTQtMS44MjkgMi45OThhMjYuNzk2IDI2Ljc5NiAwIDAgMCAyLjkxMyAyLjk1NGMuOTgyLjgzOSAyLjAxNSAxLjY2IDMuMDkgMi40NTYgMS4yMzYuOTQgMi4wODMgMi4wMTUgMi41MjMgMy4yMDkuNDQ5IDEuMjAyLjY5NCAyLjI5NC43MiAzLjI4NSAwIC41NjctLjA1IDEuMjAyLS4xNyAxLjkxM3MtLjM4IDEuNDQ4LS43OTUgMi4yMWE2LjA4NCA2LjA4NCAwIDAgMS0xLjI1MyAxLjU3NWMtLjUuNDU3LTEuMzg5IDEuMDUtMi42NjcgMS43OTVsMi41ODIgNi40YTI4LjU3IDI4LjU3IDAgMCAxLTIuNDU1Ljc1NGMtLjkxNS4yNDYtMS43ODcuNDE1LTIuNjM0LjUwOC4zODEuNTE3Ljc3MS45MDYgMS4xNjkgMS4xNjguMzk4LjI2My42OTQuNDUuODk3LjU1LjM0Ny4xOTYgMS4wMTYuMjk3IDIuMDA3LjI5N2EyNjMuMzUgMjYzLjM1IDAgMCAxIDIuNjkyLS4zOSA4MS4xMyA4MS4xMyAwIDAgMCAyLjcxOC0uNDA2Yy40NC4wNTEuODkuMDY4IDEuMzQ2LjA1MWExMy4xMiAxMy4xMiAwIDAgMSAxLjQwNi4wMjUgOS42MjcgOS42MjcgMCAwIDEgMy4wNzMuODIyYy4yOTcuMTQ0LjU2Ny4yODguODA1LjQxNS4yNDUuMTM1LjUwOC4zNjQuODA0LjY5NGwtMi40MyAzLjk0NWMtLjI5Ni0uMjk2LS43MTEtLjUyNS0xLjI1My0uNjc3LS41MzQtLjE2LS45NjUtLjIzNy0xLjI5Ni0uMjM3LS4yMiAwLS40NC0uMDE3LS42Ni0uMDVhMi43OTQgMi43OTQgMCAwIDAtLjc1MyAwbC02Ljk1Mi45NjRjLS45OS4xNTMtMS45MTMuMDg1LTIuNzYtLjE5NC0uODU1LS4yOC0xLjU1OC0uNjUyLTIuMS0xLjExOGEyMC4wNCAyMC4wNCAwIDAgMS0xLjMwMy0xLjE1MWMtLjMyMi0uMzIyLS41OTMtLjk1Ny0uODA1LTEuODk3Ii8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTI2LjMyIDM5LjE5N2MwIDEuMDkyLjI0NSAyLjAyNC43NTMgMi43OTQuNS43NyAxLjA0MSAxLjM3MiAxLjYyNiAxLjc5NS45MDUuNjY5IDIuMjM1IDEgMy45ODcgMSAuNDMyIDAgMS4yNzktLjA5NCAyLjUzMi0uMjhhNzQuNzM3IDc0LjczNyAwIDAgMSAyLjQ4LS4zNTZjLjYyNy0uMDc2IDEuMDUtLjEzNSAxLjI3LS4xODZhNi41MyA2LjUzIDAgMCAxIDEuOTgyLjA1Yy4yNjIuMDY4LjU1OS4xMjguODguMTg3YTEuNiAxLjYgMCAwIDEgLjgwNS4zOGwxLjE5NC0xLjkzYTcuMzcyIDcuMzcyIDAgMCAwLTIuMTYtLjcyYy0xLjI1Mi0uMjItMi4zNTMtLjI2Mi0zLjMwMS0uMTUxLS4yOC4wMzMtLjY0NC4xMTgtMS4xMDEuMjQ1LS40NTcuMTM2LTEuMDY3LjI2My0xLjg0Ni4zNzItMS42NzYuMjcyLTIuNTU3LjM5OS0yLjY1OC4zOTktLjY0NCAwLTEuMjAzLS4wNzctMS42ODUtLjI0NmExMC4zNyAxMC4zNyAwIDAgMS0xLjI4Ny0uNTQyYy0uODgtLjM5OC0xLjc3LTEuMzM4LTIuNjg0LTIuODF6bS0xLjc2MiAwaC0uNzk1Yy0uOTMyIDEuNDktMS44MTIgMi40My0yLjY1OSAyLjgxMS0uMzk4LjE5NS0uODMuMzczLTEuMzEyLjU0Mi0uNDgzLjE3LTEuMDMzLjI0Ni0xLjY2LjI0Ni0uMTE4IDAtLjk5OS0uMTI3LTIuNjU4LS4zOTgtLjc4OC0uMTEtMS40MjMtLjIzOC0xLjg4LS4zNzNhOC44MjggOC44MjggMCAwIDAtMS4wOTItLjI0NWMtLjk0OC0uMTEtMi4wNC0uMDY4LTMuMzAyLjE1MmE3LjA1NiA3LjA1NiAwIDAgMC0yLjEzNC43MmwxLjE5NCAxLjkzYy4xOTUtLjE5NS40NTctLjMyMi43NzktLjM4MS4zMjItLjA2LjYxOC0uMTE5Ljg4LS4xODZhNi41MyA2LjUzIDAgMCAxIDEuOTgyLS4wNTFjLjIyLjA1LjY0My4xMSAxLjI3LjE4Ni42MjYuMDc2IDEuNDY1LjE5NSAyLjUwNi4zNTYgMS4yMzYuMTg2IDIuMDgzLjI4IDIuNTMxLjI4IDEuNzM2IDAgMy4wNjUtLjMzMSAzLjk4OC0xIC41NjctLjQyMyAxLjEtMS4wMjQgMS42LTEuNzk1LjUwOC0uNzcuNzYyLTEuNzAyLjc2Mi0yLjc5NG0uODktOS4zNDdjMS42IDAgMy4xNC4xMjcgNC42MTQuMzcyIDEuNjE3LS41NzUgMi43OTQtMS40ODEgMy41MjItMi43YTYuNzQ1IDYuNzQ1IDAgMCAwIC45NC0zLjQ5N2MwLS43NjItLjE4Ny0xLjYtLjU2OC0yLjUyMy0uMzgtLjkxNS0uOTk5LTEuNzQ0LTEuODYyLTIuNDktLjk3NC0uODEyLTIuMDQtMS43MDEtMy4yLTIuNjY2YTMzLjA5MyAzMy4wOTMgMCAwIDEtMy40NDctMy4zODdjLTEuMTYgMS4yODctMi4zMTEgMi40MjEtMy40NyAzLjM4N2E0MDYuNTUgNDA2LjU1IDAgMCAwLTMuMTc2IDIuNjY3Yy0uODguNzQ1LTEuNDk5IDEuNTc0LTEuODcxIDIuNDg5LS4zNzMuOTIzLS41NTkgMS43Ni0uNTU5IDIuNTIzIDAgMS4yNy4zMDUgMi40MzguOTE0IDMuNDk3LjcxMiAxLjIxOSAxLjg5NyAyLjEyNSAzLjU0OCAyLjdhMjcuNzQ5IDI3Ljc0OSAwIDAgMSA0LjYxNC0uMzcyem0wIDQuNTEzYzEuOTM4IDAgMy43OTMuMTk0IDUuNTc5LjU3NWwtMS4xODUtMy4wNTZhMjguMjk3IDI4LjI5NyAwIDAgMC00LjM5NS0uMzQ3Yy0xLjUwNyAwLTIuOTguMTE4LTQuNDEuMzQ3bC0xLjE5NCAzLjA1NmMxLjc2OS0uMzggMy42NC0uNTc1IDUuNjA0LS41NzV6bTAtMjMuNTM4YzEuMTI2IDAgMS42ODQtLjU1OSAxLjY4NC0xLjY4NXMtLjU1OS0xLjY5My0xLjY4NS0xLjY5My0xLjY4NC41NjctMS42ODQgMS42OTMuNTU4IDEuNjg1IDEuNjg0IDEuNjg1em0wIDI3LjAwOWExOC45NyAxOC45NyAwIDAgMCAzLjI4NS0uMjhjMS4wNjYtLjE5NCAyLjEtLjQyMyAzLjA5LS42ODUtMS45NC0uNTA4LTQuMDY0LS43Ny02LjM3Ni0uNzctMi4zNDUgMC00LjQ3LjI2Mi02LjM3NS43Ny45NTcuMjYyIDEuOTczLjQ5IDMuMDQ4LjY4NmExOS40NiAxOS40NiAwIDAgMCAzLjMyNy4yNzl6bS0uODktMTQuMzM0LTIuMDY1LS4wMjZjLS41NiAwLS44MzktLjI3OS0uODM5LS44NDYgMC0uNTU5LjI4LS44MzguODM5LS44MzhoMi4wNjV2LTIuMTM0YzAtLjU3Ni4yOTctLjg3Mi44OS0uODcyLjU3NSAwIC44NzIuMjk2Ljg3Mi44NzJ2Mi4xMzRoMi4xMzNjLjU0MiAwIC44MTMuMjguODEzLjgzOCAwIC41NjctLjI3MS44NDYtLjgxMy44NDZIMjYuMzJ2Mi4wMzJjMCAuNjAyLS4yOTcuODk4LS44NzMuODk4LS41OTIgMC0uODg5LS4yOTYtLjg4OS0uODk4eiIvPjwvc3ZnPg==',
+  wN:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuNDA1IiB4Mj0iNzcuNjQxIiB5MT0iMzcuMzQ2IiB5Mj0iMzcuMzQ2IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yNi4xNzggOS4zOTVjMi42LjE3IDUuMDA0LjgzOCA3LjIyMiAyLjAxNSAyLjIxIDEuMTY5IDQuMDk4IDIuNjc2IDUuNjU2IDQuNTEzIDEuMDkyIDEuMjg3IDIuMTE3IDIuODQ1IDMuMDgyIDQuNjY1YTI4LjY4NCAyOC42ODQgMCAwIDEgMi4zMiA1Ljc3NCAzNi41MTEgMzYuNTExIDAgMCAxIDEuMjUzIDcuNDZjLjE3NyAyLjU5OS4yNjIgNS4wMTIuMjYyIDcuMjN2NS40MDJIMTUuNDY4Yy0uMTUzIDAtLjIyLS40MDctLjIxMi0xLjIxLjAwOS0uODE0LjA2LTEuNDY2LjE2LTEuOTY1LjA2LS4zOTguMjIxLS45NTcuNDY3LTEuNjg1LjI1NC0uNzI4LjY2LTEuNjA5IDEuMjQ0LTIuNjUuMjYzLS41MzQuODktMS4zMDQgMS44OC0yLjMyLjk5OS0xLjAxNiAyLjEzMy0yLjIwMSAzLjQyOS0zLjUzOS43NDUtLjc2MiAxLjMyLTEuNzE5IDEuNzQ0LTIuODc5LjQyMy0xLjE1MS42MDEtMi4yMDEuNTMzLTMuMTVhOC4zNyA4LjM3IDAgMCAxLTIuMDA2IDEuMjJjLTMuNTA1IDEuMjUzLTYuMDQ1IDMuMDczLTcuNjEyIDUuNDUyLS4xMTguMTUzLS40OS44MjItMS4xMTcgMi4wMTUtLjMzLjYyNy0uNjE4IDEuMDU5LS44NDcgMS4yODctLjMxMy4zMTQtLjc3LjQ5MS0xLjM2My41MjUtLjkyMy4wNDMtMS42NDMtLjM5OC0yLjE2LTEuMzQ2LS42OTMuMjAzLTEuMzEyLjI4OC0xLjg2Mi4yNTQtLjkyMy0uMzQ3LTEuNTkyLS43Mi0yLjAwNi0xLjExNy0uODQ3LS44NDctMS4zODktMS42ODUtMS42NTEtMi41MzJhOS40MyA5LjQzIDAgMCAxLS4zODEtMi43MjZjMC0xLjM4OS44NTUtMy4yMjYgMi41ODItNS41MTIgMi4wMTUtMi42MjUgMy4wOS00LjYzMSAzLjIxNy02LjAwMyAwLS41OTMuMDYtMS4yNjEuMTc4LTIuMDA3YTQuMTk4IDQuMTk4IDAgMCAxIC42MTgtMS40OWMuMjItLjMzLjM2NC0uNTU4LjQzMi0uNjc3LjA3Ni0uMTI3LjIxMi0uMzEzLjQxNS0uNTU5LjE0NC0uMjAzLjI3LS4zNTUuMzcyLS40NTcuMDkzLS4xMS4yMi0uMjU0LjM3My0uNDQuMTc4LS4yMTIuNDA2LS40NTcuNjk0LS43NDVhMTguMDYgMTguMDYgMCAwIDEtMS4wNjctNy40NmMzLjI4NSAxLjE2OSA2LjA1NCAzLjAxNSA4LjI4IDUuNTMuNTUxLTEuODcyIDEuNjI2LTMuMzg3IDMuMjI2LTQuNTM5IDEuMzIxLjkyMyAyLjM3MSAyLjE1IDMuMTUgMy42NjYiLz48cGF0aCBmaWxsPSJ1cmwoI2EpIiBkPSJNNDIuOTc2IDQ0LjY5M2MtLjAxNyAwIDAtLjQ0OS4wNDItMS4zNDYuMDUxLS45MDYuMDc2LTEuODguMDc2LTIuOTIxLjAxNy0yLjA2Ni4wMTctNC4yIDAtNi40MWEyNi44MzcgMjYuODM3IDAgMCAwLS44ODktNi42MTJjLS41NjctMi4xMTctMS4xODUtMy45Mi0xLjg2Mi01LjQxOS0uNjc4LTEuNDk4LTEuNDE0LTIuNzg1LTIuMjEtMy44NzgtMS4xODUtMS43ODYtMi44MTEtMy4zMDItNC44Ni00LjUzOC0yLjA0OS0xLjI0NC00LjE5LTIuMDU3LTYuNDI2LTIuNDM4LjE1Mi44MTMuMjIgMS42MDkuMjAzIDIuMzg3LS4wMzQuNTkzLS4zMTMuODktLjg0Ny44OS0uNjEgMC0uODgtLjI5Ny0uODItLjg5LjA1LTIuMTg0LS43MjktNC4wNTUtMi4zMy01LjYwNC0xLjI1MiAxLjMyLTEuOTM4IDIuODUzLTIuMDMxIDQuNjA1LS4wMzQuNTg1LS4zMy44MzktLjg5OC43Ny0uNTI1LS4wMTYtLjc4Ny0uMzItLjc4Ny0uOTE0IDAgMCAuMDE3LS4wNjcuMDQyLS4yMDMtLjY3Ny4yMi0xLjM4OC41MjUtMi4xMzMuOTIzLS40NzQuMzMtLjg2NC4yNDYtMS4xNi0uMjQ1LS4yOTctLjUtLjE3LS44OS4zOTgtMS4xNjkuNzEtLjM2NCAxLjI0NC0uNjM1IDEuNjA4LS44MjFhMTcuNjM0IDE3LjYzNCAwIDAgMC00Ljg2LTMuNTIyIDE3LjMxIDE3LjMxIDAgMCAwIDEuODg5IDYuNTI4Yy4yNzkuNDIzLjIxMS44MDQtLjIwNCAxLjEzNC0uNDY1LjM2NC0uODU1LjMxMy0xLjE2OC0uMTdhOC44NyA4Ljg3IDAgMCAxLS40OTEtLjg5N2MtLjM0Ny4zNDctLjU4NC42MS0uNjk0Ljc3LS4xMTkuMTUzLS4zMjIuNDgzLS42MS45OTEtLjI4OC41MTctLjUuOTQtLjYzNSAxLjI3LS4xNDQuNDE1LS4yMTIuNzQ1LS4xODYgMS4wMDguMDI1LjI1NC4wNS41MzMuMDY3Ljg1NWE3LjYxIDcuNjEgMCAwIDEtMS4wMDcgMi43NTIgMTMzLjcxIDEzMy43MSAwIDAgMS0xLjk5OCAzLjE1IDEyNy42MDcgMTI3LjYwNyAwIDAgMS0xLjc4NyAyLjY3NWMtLjQxNS42MDEtLjcyOCAxLjM1NC0uOTQgMi4yODYtLjE1Mi41NTktLjE1MiAxLjI0NCAwIDIuMDQuMTQ0LjgwNS40NzUgMS40MzEuOTY2IDEuODguNzYyLjc3IDEuNDk4IDEuMTI2IDIuMjEgMS4wNjcuMjI4IDAgLjU0MS0uMDkzLjkzLS4yOC4zOS0uMTc4LjY4Ny0uNTI1LjkwNy0xLjA0MS40MjMtLjk0Ljc3OS0xLjQxNCAxLjA2Ny0xLjQxNC40MDYgMCAuNjM1LjIzNy42NjguNjk0IDAgLjEwMi0uMTM1LjUxNy0uMzk3IDEuMjQ1LS4xNTMuMzMtLjM0OC42NzctLjU5MyAxLjA0MS0uMzIyLjQzMi0uNDU3LjYxLS40MjMuNTQyLjI2Mi45NDguNzAyIDEuMTEgMS4zMTIuNS4xNzgtLjE3OC4zOS0uNTI1LjYxOC0xLjAxNnEuMzU1NS0uNzUgMS4wOTItMi4wMDdjLjU4NC0uOTgyIDEuMjAyLTEuNzcgMS44NjMtMi4zODguNjYtLjYxIDEuMjQ0LTEuMTA5IDEuNzYtMS40ODEuMjk3LS4yMi42NjEtLjQ2NiAxLjA5My0uNzQ1LjQzMi0uMjg4IDEuMDA4LS41NzYgMS43MzYtLjg3Mi41NzYtLjIyOSAxLjIxOS0uNTE3IDEuOTIyLS44NTZzMS4zMjktLjc3IDEuODctMS4zMDNjLjc2My0uNzQ1IDEuMzQ3LTEuNjYgMS43NjItMi43NTIuMjItLjYxLjI5Ni0xLjM2My4yNDUtMi4yNi0uMTQ0LS41Ni4xMzYtLjgzOS44NDctLjgzOS41MzMgMCAuODMuMjcxLjg5OC44MjEgMCAxLjg2My0uNTM0IDMuNTY1LTEuNTkyIDUuMTA2LjM0NyAxLjA1OC40NCAyLjIxOC4yNyAzLjQ3MS0uMTQzIDEuMDA4LS40OTkgMi4wOTEtMS4wNSAzLjI0My0uNTU4IDEuMTQzLTEuNjc2IDIuNDIxLTMuMzYgMy44MjctMy40MyAyLjg0NS01LjA0NiA1Ljc3NC00Ljg2IDguNzhoMTIuMTc1ek05LjMzOCAyOS42MTNjLS40ODMuMjk3LS43Ny42OTUtLjg3MiAxLjE5NC4wMTcuNTQyLS4yMzcuODM5LS43NjIuODktLjU4NC4wNjctLjg4LS4xNzgtLjg5OC0uNzQ2LjA2OC0xLjA5Mi41NS0xLjk1NSAxLjQ2NS0yLjU5OS40MzItLjM0Ny44My0uMzIyIDEuMTk0LjA5My4zNjQuNDQ5LjMyMi44MzgtLjEyNyAxLjE2OXptNy4zNjYtMTEuODI3Yy4yMTIuMzMuMjk2LjY3Ny4yNDUgMS4wNDEtLjE2IDEuMDU4LS43NTMgMS40OTktMS43NiAxLjMzOGExLjU5NiAxLjU5NiAwIDAgMS0uNzItLjI5NmMtLjA2LjA3Ni0uMTYxLjI2Mi0uMjk3LjU0MS0uMTc4LjUzNC0uNTI1LjcxMi0xLjA0MS41NS0uNTA4LS4yMDItLjcxMS0uNTc1LS41OTMtMS4xMTcuNzQ1LTEuOTA1IDIuMDkxLTMuMjA5IDQuMDM5LTMuOTIuNTY3LS4xNy45NCAwIDEuMTE3LjQ5MS4yMDQuNTM0LjA1MS44OTgtLjQ0OCAxLjA5MmEyLjc0NSAyLjc0NSAwIDAgMS0uMjcxLjEzNmMtLjA4NS4wNDItLjE3LjA5My0uMjcxLjE0NCIvPjwvc3ZnPg==',
+  wP:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMTMiIHgyPSI3Ny43NjQiIHkxPSIzNy4zNDYiIHkyPSIzNy40NjkiIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoMSAwIDAgLjk3MzI0IDAgMS4yNDMpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yNSA0Ni40NDhIMTEuNjA2YTEzLjEzOSAxMy4xMzkgMCAwIDEtLjk5LTUuMDQzYzAtMi45NzUuODYzLTUuNjQ0IDIuNTk4LTguMDE4IDEuNzM2LTIuMzY1IDMuOTcxLTQuMDU0IDYuNjk3LTUuMDY3YTYuODI0IDYuODI0IDAgMCAxLTIuODYxLTIuMzk4Yy0uNzM3LTEuMDcxLTEuMS0yLjI4My0xLjEtMy42MzQgMC0xLjY5LjU3NS0zLjE1NiAxLjczNS00LjM5MiAxLjE1MS0xLjI0NCAyLjU3NC0xLjk2MSA0LjI2Ny0yLjE1LTEuMzQ2LS45ODEtMi4wMTUtMi4yODMtMi4wMTUtMy44OSAwLTEuMzUxLjQ5MS0yLjUxMyAxLjQ4Mi0zLjQ3Ny45ODItLjk2NCAyLjE3Ni0xLjQ0MiAzLjU4MS0xLjQ0MiAxLjM4OSAwIDIuNTgyLjQ3OCAzLjU3MyAxLjQ0Mi45OS45NjQgMS40OSAyLjEyNiAxLjQ5IDMuNDc3IDAgMS42MDctLjY2OSAyLjkwOS0yLjAxNSAzLjg5IDEuNjkzLjE4OSAzLjExNi45MDYgNC4yNjcgMi4xNSAxLjE2IDEuMjM2IDEuNzM2IDIuNzAzIDEuNzM2IDQuMzkyIDAgMS4zNTEtLjM3MyAyLjU2My0xLjEyNiAzLjYzNGE3LjAzNiA3LjAzNiAwIDAgMS0yLjg2MiAyLjM5OGMyLjcyNiAxLjAxMyA0Ljk2MiAyLjcwMiA2LjY5NyA1LjA2NyAxLjczNiAyLjM3NCAyLjYgNS4wNDMgMi42IDguMDE4cTAgMi42MDg1LS45NjYgNS4wNDN6Ii8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTI1IDQ0LjgwOGgxMi4xNzVhMTEuNzkgMTEuNzkgMCAwIDAgLjUyNS0zLjQwM2MwLTIuNTEzLS43MTEtNC43ODctMi4xNDItNi44MzEtMS40My0yLjA0NC0zLjI3Ny0zLjU1Mi01LjUyLTQuNTE2LTEuNTg0LS42Mi0xLjY0My0uNjU5LTEuNjQzLTEuNzM4IDAtLjg0OS41NTktMS40NzUgMS42NjgtMS44NzkgMS41MzMtMS4wNDYgMi4zMDMtMi40MyAyLjMwMy00LjE1MyAwLTEuMjQ0LS40MzItMi4zMjQtMS4yODctMy4yNjMtLjg2NC0uOTMxLTEuOTA1LTEuNDY3LTMuMTI0LTEuNjE1LTEtLjA4My0xLjQ5LS42MjYtMS40OS0xLjY0IDAtLjQ1My4xNzgtLjg3My41NDItMS4yNi44OTctLjY3NiAxLjM0Ni0xLjU1OCAxLjM0Ni0yLjY1NCAwLS44OTgtLjMzOS0xLjY3My0xLTIuMzE1LS42Ni0uNjQzLTEuNDQ3LS45NjQtMi4zNTMtLjk2NC0uOTQgMC0xLjc0NC4zMi0yLjM5Ni45NjRhMy4xMzYgMy4xMzYgMCAwIDAtLjk3NCAyLjMxNWMwIDEuMDguNDQgMS45NjEgMS4zMzggMi42NTMuMzY0LjM1NS41NDIuNzc1LjU0MiAxLjI2MSAwIDEuMDE0LS40ODMgMS41NTctMS40NjUgMS42NGE0LjkgNC45IDAgMCAwLTMuMTMzIDEuNjE1Yy0uODU1Ljk0LTEuMjc4IDIuMDE5LTEuMjc4IDMuMjYzIDAgMS43MjIuNzcgMy4xMDcgMi4zMDMgNC4xNTMgMS4xMS40MTIgMS42NjggMS4wNDYgMS42NjggMS44NzkgMCAxLjA4LS4wNjggMS4xMTgtMS42NjggMS43MzgtMi4yNDQuOTY0LTQuMDgxIDIuNDcyLTUuNTAzIDQuNTE2LTEuNDIzIDIuMDQ0LTIuMTM0IDQuMzE4LTIuMTM0IDYuODMxIDAgMS4xOTUuMTc4IDIuMzI0LjUyNSAzLjQwM3oiLz48L3N2Zz4=',
+  bK:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMTMiIHgyPSI3Ny43NjQiIHkxPSIzNy4yMjQiIHkyPSIzNy40NjkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZWFyR3JhZGllbnQ+PHBhdGggZmlsbD0iIzFmMWExNyIgZD0iTTI1LjgyMSAxMi4wMjJoLTEuNzZ2LTMuMjVoLTIuMDY3Yy0uNTU4IDAtLjgzOC0uMjcyLS44MzgtLjgyMnYtLjAyNWMwLS41NDIuMjgtLjgxMy44MzgtLjgxM2gyLjA2NlY1LjAwNGMwLS41ODUuMjk3LS44NzIuODktLjg3Mi41NzUgMCAuODcxLjI4Ny44NzEuODcydjIuMTA4aDIuMTM0Yy41NDIgMCAuODEzLjI3LjgxMy44MTN2LjAyNWMwIC41NS0uMjcxLjgyMS0uODEzLjgyMWwtMi4xMTcuMDI2ek0xMS4wMyAzNy43NDRsLS44MTMtNC42NGMtLjAxNyAwLS4wNDItLjAzMy0uMDc2LS4xMDEtLjA4NS0uMTE5LS4zMjItLjI3MS0uNzExLS40NTctLjM4MS0uMTk1LS44MzgtLjUxNy0xLjM0Ni0uOTgyYTQxLjk5IDQxLjk5IDAgMCAxLTEuNzAyLTEuNDkgOC41MDkgOC41MDkgMCAwIDEtMS4xLTEuMjM3QzQuMjczIDI3LjQ1IDMuNzA1IDI1Ljc3MiAzLjU5NSAyMy44Yy0uMTctMS44OTcuNjAxLTMuNzk0IDIuMzAzLTUuNjgyIDEuNzE5LTEuODggNC4wNDctMi43NjggNi45NjgtMi42NSAxLjA5Mi4wNjggMi4zOC4zMyAzLjg0NC43OTYuNDgzLjE5NS45NzQuMzkgMS40ODIuNTc2bDEuNDk4LjU4NGMuMjYzLjEzNi41LjI3MS42OTUuMzk4YTQuMzggNC4zOCAwIDAgMS0uMTI3LTEuMDQxYzAtMS4yODcuNDU3LTIuMzg4IDEuMzgtMy4zMDIuOTE0LS45MDYgMi4wMjMtMS4zNzIgMy4zMS0xLjM4OSAxLjI4NyAwIDIuMzg4LjQ2NiAzLjMwMiAxLjM4LjkwNi45MTUgMS4zNjMgMi4wMTUgMS4zNjMgMy4yODUgMCAuMjYzLS4wMzQuNjEtLjEwMSAxLjA0Mi4yMjgtLjE0NC40NTctLjI3MS42NjktLjM3My43NjItLjMzIDEuNzYtLjcyIDMuMDA1LTEuMTYgMS40MjMtLjQ4MiAyLjcwMS0uNzUzIDMuODQ0LS44MjEgMi45MjEtLjEzNiA1LjI0MS43NTMgNi45NDMgMi42NSAxLjY2OCAxLjg4OCAyLjQ0NyAzLjc4NSAyLjMyOCA1LjY4MS0uMTI3IDEuOTczLS43MDMgMy42NS0xLjcxIDUuMDM4LS4zMy40NDktLjcwMy44NjMtMS4xMTggMS4yNTNhNDAuNSA0MC41IDAgMCAxLTEuNjYgMS40NzNjLS41NDEuNDY2LTEuMDA3Ljc5Ni0xLjM4OC45ODItLjM4LjE4Ni0uNi4zNDctLjY2OS40NTdhLjI5NC4yOTQgMCAwIDEtLjA1LjA3N2MtLjAxNy4wMTctLjAyNi4wMzQtLjAyNi4wNWwtLjc5NiA0LjY2NiAxLjY0MyA2LjEyMWMtLjgzLjc0NS0yLjY4NCAxLjM1NS01LjU1NCAxLjgzNy0yLjg3OS40ODMtNi4yMDYuNzItOS45NzQuNzItMy44MzUgMC03LjIxNC0uMjU0LTEwLjExOC0uNzU0LTIuOTEyLS41MDgtNC43NDEtMS4xNDMtNS40ODYtMS44OTZ6Ii8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTI0Ljk1IDIwLjY3NWEyLjI5NSAyLjI5NSAwIDAgMC0uMTI4LS40MjMgNS42MDYgNS42MDYgMCAwIDAtLjI0NS0uNzJjLS4wNTEtLjExLS4xMTktLjI1NC0uMTk1LS40MzFhOS4wMjggOS4wMjggMCAwIDEtLjI1NC0uNTZjLS4wNS0uMTE4LS4xMS0uMjctLjE4Ni0uNDU2LS4wNjgtLjE5NS0uMTM2LS4zNzMtLjE4Ny0uNTM0YTEuNzM1IDEuNzM1IDAgMCAxLS4wNjctLjQ3NGMwLS44NzIuNDE1LTEuMzEyIDEuMjYxLTEuMzEyLjg4IDAgMS4zMTMuNDMxIDEuMzEzIDEuMjg3IDAgLjIyLS4wMzQuMzcyLS4wOTQuNDc0LS4yMzcuNjI2LS4zNTUuOTY1LS4zNzIgMS4wMTYtLjI1NC41LS40MDYuODIxLS40NzQuOTY1LS4xMTkuMjctLjE5NS41MDgtLjIyLjcyLS4wNTEuMTAxLS4wODUuMTg2LS4xMDIuMjYycy0uMDM0LjEzNi0uMDUuMTg2bS0yLjc3OCA4LjU2Yy0yLjA2Ni4wMzQtMy45NTQuMTM2LTUuNjczLjMyMi0xLjcxLjE3OC0zLjAzLjQ0LTMuOTc5Ljc3YTE4Ljk3MyAxOC45NzMgMCAwIDAtMS43MTktMS44NTQgMzMuMDA3IDMzLjAwNyAwIDAgMS0xLjcyNy0xLjc0NGMtLjgzLS44NDctMS4yMzYtMS43Ny0xLjIzNi0yLjc3NyAwLTEuMjQ1LjIwMy0yLjE1LjYxOC0yLjcyNi40NC0uNjcgMS4xMzUtMS4xNiAyLjA1OC0xLjQ4MmE4LjQ4NiA4LjQ4NiAwIDAgMSAyLjgwMi0uNDgzYzEuMTk0IDAgMi4zMjguMjYzIDMuNDIuNzk2IDEuMDc2LjU2IDEuNzg3IDEuMDA4IDIuMTM0IDEuMzM4IDEuMTI2IDEuMTQzIDIuMDA3IDIuMzggMi42MzMgMy43MTcuMjEyLjUuMzczIDEuMTk0LjQ4MyAyLjA3NC4xMS44OS4xNyAxLjU2Ny4xODYgMi4wNXptMi43NzctNC4zMThjLjExOS0uNDY2LjIxMi0uNzg3LjI5Ni0uOTY1LjE3LS42NDMuMzU2LTEuMTk0LjU3Ni0xLjY0My4wOTMtLjI3OS4yMzctLjYuNDMyLS45NzMuMTg2LS4zNzMuMzktLjgwNS42MS0xLjI3OS4xMjctLjI4LjI3LS42MjYuNDE1LTEuMDMzLjE1Mi0uNDA2LjMwNC0uODA0LjQ0OC0xLjIwMi4xMzYtLjMzLjIwMy0uNjg2LjIwMy0xLjA2NyAwLS44MTMtLjI5Ni0xLjQ5OC0uODcyLTIuMDY2LS41NzUtLjU3NS0xLjI3OC0uODYzLTIuMTA4LS44NjMtMS45NjQgMC0yLjk1NS45OS0yLjk1NSAyLjk1NSAwIC4zOC4wNjguNzM2LjIwMyAxLjA2Ni4zNjUgMS4wNzYuNjQ0IDEuODIuODM5IDIuMjM2LjIyLjQ3NC40MTUuOTA2LjYgMS4yNzguMTc5LjM3My4zNC42OTQuNDY2Ljk3NC4yMi41NS4zOTggMS4wOTIuNTUgMS42NDIuMDM1LjA5My4xMjguNDE1LjI5Ny45NG0tLjg4OSA2LjIyM2MwLS42Ni0uMDE3LTEuNTc1LS4wNS0yLjczNS0uMDM0LTEuMTY4LS4xNjEtMi4xNDItLjM3My0yLjkyLS42NzctMi4yMS0xLjcwMi0zLjk5Ny0zLjA4Mi01LjM1MS0uNzExLS42OTUtMS43OTUtMS4zNDctMy4yNjgtMS45NC0xLjY4NS0uNjYtMy4yODUtLjk5LTQuNzkyLS45OS0yLjYwOCAwLTQuNTQ3LjkzMS01LjggMi44MDMtLjcxMS45OS0xLjA2NyAyLjIzNS0xLjA2NyAzLjcxNiAwIDEuNjI2LjM5OCAyLjk1NSAxLjE4NiAzLjk5Ny40MTUuNTkyIDEuMjEgMS4zMjkgMi4zODcgMi4yMSAxLjE2OS44NzIgMi4xNjggMS42ODQgMi45NzIgMi40MyAxLjQ0LS4zMTQgMy4wNjUtLjU4NSA0Ljg3Ny0uODIyIDEuODEyLS4yMjkgNC4xNDktLjM2NCA3LjAxLS4zOThtMTMuNzg0IDExLjczNS0uNzM3LTIuOTNjLTMuMjI1LS43MzYtNy4yODEtMS4xMDktMTIuMTU4LTEuMTA5LTQuODI2IDAtOC44NjQuMzczLTEyLjEwNyAxLjExbC0uNzg3IDIuOTU0YzMuMTQtLjk1NiA3LjQ0Mi0xLjQzOSAxMi45Mi0xLjQzOSAyLjYyNCAwIDUuMDcxLjEzNiA3LjMxNS4zOTggMi4yNTIuMjYyIDQuMTA2LjYwMSA1LjU1NCAxLjAxNm0tLjY0My03LjQxN2MtMy4wNC0uODM4LTcuMDk2LTEuMjYxLTEyLjE1LTEuMjYxLTUuMDk3IDAtOS4xOTUuNDMxLTEyLjMwMiAxLjI4N2wuMzcyIDIuNTA2YzMuMTI1LS44MTMgNy4wOTUtMS4yMiAxMS45My0xLjIyIDQuODA5IDAgOC43MjkuMzk4IDExLjc1MiAxLjE5NHptLTExLjM2My00LjI5MmMyLjg0NS4wNSA1LjE4Mi4xOTQgNy4wMDIuNDIzIDEuODEyLjIyOSAzLjQ1NS41MDggNC45MS44MjEuOTA3LS44OTcgMS45MTQtMS43NDQgMy4wMjMtMi41NTdzMS44ODgtMS41MDcgMi4zMzctMi4wODNjLjc4OC0xLjA3NSAxLjE4Ni0yLjQxMyAxLjE4Ni00LjAyMSAwLTEuNDY1LS4zNTYtMi43MDEtMS4wNjctMy42OTItMS4yNy0xLjg3LTMuMjE4LTIuODAyLTUuODI1LTIuODAyLTEuNTI0IDAtMy4xMDguMzMtNC43NjcuOTktMS41MDcuNTkzLTIuNTkgMS4yMzctMy4yNzcgMS45My0xLjQwNSAxLjM2NC0yLjQzIDMuMTUtMy4wNzMgNS4zNi0uMjQ2Ljc2Mi0uMzgxIDEuNzI3LS40MDcgMi45MDRzLS4wNDIgMi4wODMtLjA0MiAyLjcyN20xLjgxMi0xLjkzYzAtLjQ4My4wNi0xLjE2LjE2LTIuMDUuMTExLS44OC4yOC0xLjU3NS41MDktMi4wNzQuNjE4LTEuMzM4IDEuNDktMi41NzQgMi42MzMtMy43MTcuMzMtLjMzIDEuMDQyLS43NzkgMi4xMzQtMS4zMzhhNy42NTUgNy42NTUgMCAwIDEgMy40NDYtLjc5NmMuOTMgMCAxLjg0NS4xNjEgMi43NjguNDgzLjkxNS4zMjIgMS42MDkuODEzIDIuMDY2IDEuNDgyLjQxNS41NTkuNjI3IDEuNDY0LjYyNyAyLjcyNiAwIC45OS0uNDA3IDEuOTEzLTEuMjIgMi43NzdhNDAuMzUgNDAuMzUgMCAwIDEtMS43MSAxLjY1MWMtLjYxLjU1LTEuMjAyIDEuMjAyLTEuNzYgMS45NDctLjk1OC0uMzMtMi4yOTUtLjU5Mi00LjAwNi0uNzctMS43MS0uMTg2LTMuNTktLjI4OC01LjY0Ny0uMzIyeiIvPjwvc3ZnPg==',
+  bQ:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMjUzIiB4Mj0iNzcuNzY0IiB5MT0iMzcuMjI0IiB5Mj0iMzcuMzYiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZWFyR3JhZGllbnQ+PHBhdGggZmlsbD0iIzFmMWExNyIgZD0iTTI0Ljk1IDEwLjc1MmMtLjk0IDAtMS43NDUtLjMzLTIuMzk3LS45OXMtLjk3NC0xLjQ2NS0uOTc0LTIuNDA1YzAtLjkzMS4zMjItMS43MjcuOTc0LTIuMzg3czEuNDU2LS45OSAyLjM5Ni0uOTljLjkyMyAwIDEuNzI3LjMzIDIuMzk2Ljk5YTMuMjMgMy4yMyAwIDAgMSAxIDIuMzg3YzAgLjk0LS4zMyAxLjc0NC0xIDIuNDA1LS42NjkuNjYtMS40NzMuOTktMi4zOTYuOTl6bTE1LjI4MSAzMy4xOWMtLjgxMi43MS0yLjYzMyAxLjMwNC01LjQ2IDEuNzg2LTIuODI4LjQ3NC02LjA4OC43Mi05Ljc3MS43Mi0zLjc1IDAtNy4wNTMtLjI1NC05Ljg5OC0uNzQ1LTIuODQ0LS41LTQuNjQtMS4xMTgtNS4zODQtMS44NjNsMS41NjYtNS45NTItLjY5NC0zLjg5NUw4LjQwNSAzMC4yIDYuMjk3IDE0Ljc3NGwxLjIxLS40NzQgNi44IDExLjQ1NS4xNTItMTMuNjQgMS42ODUtLjI5NiA1LjE4MiAxMy43MTYgMi43NzYtMTQuNzU3aDEuNzJsMi43NzYgMTQuNzA2TDMzLjczIDExLjgybDEuNzEuMjk2LjE1MyAxMy42NCA2LjgyNC0xMS40OCAxLjE2LjU0MS0yLjA1OCAxNS4zNTktMi4yMSAzLjc5My0uNjk0IDMuOTQ1ek0xNC41MzUgMTEuOTg5Yy0uOTQ4IDAtMS43NTItLjMyMi0yLjQxMy0uOTc0LS42Ni0uNjUyLS45OS0xLjQ1Ni0uOTktMi4zOTYgMC0uOTIzLjMzLTEuNzE5Ljk5LTIuMzhzMS40NjUtLjk5IDIuNDEzLS45OWMuOTIzIDAgMS43MTkuMzMgMi4zOC45OXMuOTkgMS40NTcuOTkgMi4zOGMwIC45NC0uMzMgMS43NDQtLjk5IDIuMzk2YTMuMjY2IDMuMjY2IDAgMCAxLTIuMzguOTc0bTIwLjgyOCAwYy0uOTQgMC0xLjczNi0uMzIyLTIuMzg3LS45NzQtLjY1Mi0uNjUyLS45ODItMS40NTYtLjk4Mi0yLjM5NiAwLS45MjMuMzMtMS43MTkuOTgyLTIuMzhzMS40NDctLjk5IDIuMzg3LS45OWMuOTQ4IDAgMS43NTMuMzMgMi40MTMuOTlzLjk5IDEuNDU3Ljk5IDIuMzhjMCAuOTQtLjMzIDEuNzQ0LS45OSAyLjM5NnMtMS40NjUuOTc0LTIuNDEzLjk3NE01LjQgMTQuNzIzYy0uOTQgMC0xLjczNi0uMzMtMi4zODgtLjk4MnMtLjk4Mi0xLjQ0OC0uOTgyLTIuMzk2YzAtLjkyMy4zMy0xLjcxOS45ODItMi4zODhDMy42NjQgOC4yOCA0LjQ2IDcuOTUgNS40IDcuOTVjLjk0OCAwIDEuNzQ0LjMzIDIuNDEzIDEuMDA3LjY2LjY3Ljk5IDEuNDY1Ljk5IDIuMzg4IDAgLjk0OC0uMzMgMS43NDQtLjk5IDIuMzk2YTMuMzIzIDMuMzIzIDAgMCAxLTIuNDEzLjk4Mm0zOS4xNDEgMGMtLjk0IDAtMS43NDQtLjMzLTIuNDA0LS45ODJzLS45OTEtMS40NDgtLjk5MS0yLjM5NnEwLTEuMzg0NS45OS0yLjM4OGMuNjYtLjY3NyAxLjQ2NS0xLjAwNyAyLjQwNS0xLjAwNy45MzEgMCAxLjcyNy4zMyAyLjM4OCAxLjAwNy42Ni42Ny45OSAxLjQ2NS45OSAyLjM4OCAwIC45NDgtLjMzIDEuNzQ0LS45OSAyLjM5NmEzLjI4IDMuMjggMCAwIDEtMi4zODguOTgyIi8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTM3LjIgMzUuNzNjLTMuMDQtLjg0LTcuMDk1LTEuMjYyLTEyLjE1LTEuMjYyLTUuMDk2IDAtOS4xOTQuNDMxLTEyLjMwMSAxLjI4NmwuMzcyIDIuNTA3YzMuMTI0LS44MTMgNy4wOTUtMS4yMiAxMS45My0xLjIyIDQuODA5IDAgOC43MjkuMzk4IDExLjc1MiAxLjE5NHptMS43MzYtNC40MzdjLTEuMzcyLS41LTMuMzAyLS45MDYtNS43OTEtMS4yMjgtMi40OS0uMzIyLTUuMjMzLS40ODMtOC4yNDctLjQ4My0yLjk0NiAwLTUuNjM4LjE1My04LjA4NS40NTgtMi40NDcuMzA0LTQuMzc4LjcwMi01Ljc4MyAxLjIwMmwxLjI0NSAyLjI1MmMxLjM4OC0uNDA2IDMuMTkxLS43MDMgNS40MS0uODkgMi4yMS0uMTc3IDQuNjMxLS4yNyA3LjI2NC0uMjdzNS4wNjMuMDkzIDcuMjkuMjdxMy4zNTI1LjI4MDUgNS40MzYuOTE1em0tMS4wOTIgMTEuODUzLS43MzctMi45M2MtMy4yMjYtLjczNi03LjI4MS0xLjEwOS0xMi4xNTgtMS4xMDktNC44MjYgMC04Ljg2NC4zNzMtMTIuMTA3IDEuMTFsLS43ODggMi45NTRjMy4xNDItLjk1NiA3LjQ0My0xLjQ0IDEyLjkyLTEuNDQgMi42MjUgMCA1LjA3Mi4xMzYgNy4zMTYuMzk5IDIuMjUyLjI2MiA0LjEwNi42MDEgNS41NTQgMS4wMTYiLz48L3N2Zz4=',
+  bR:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMTkyIiB4Mj0iNzcuNzM2IiB5MT0iMzcuNTUyIiB5Mj0iMzcuNDI5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yOC40MDggOS4yMmg0LjIxNlY1LjgyNWg2Ljc5OXY5LjI5NmwtNS41MDMgNC4yNDJ2MTEuODYybDQuMjE2IDQuMjE2djUuMDhoMy43OTN2NS45MjdIOC4wNzFWNDAuNTJoMy43OTN2LTUuMDhsNC4yNDItNC4yMTZWMTkuMzYzbC01LjUwNC00LjI0MlY1LjgyNWg2Ljc3NFY5LjIyaDQuMjQyVjUuODI1aDYuNzl6Ii8+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTI1LjAxMyAzNS4wNDNoLTEwLjI3TDEzLjYgMzYuMTF2MS40NGgyMi44MjZ2LTEuNDRsLTEuMTQzLTEuMDY3ek0xMy42IDQwLjEyM3YyLjUzMmgyMi44MjZ2LTIuNTMyek0yNS4wMTMgMTMuMDRoLTEyLjd2MS4xNDJsMS44MTIgMS4zNjRoMjEuODAxbDEuNzYxLTEuMzY0VjEzLjA0em0wIDQuMTloLTguNjc5bDEuNDgyIDEuMTY5djEuNDE0aDE0LjM5M3YtMS40MTRsMS40ODItMS4xNjh6bTAgMTMuNTQ3aC03LjE5N3YxLjE0M2wtMS40ODIgMS40NGgxNy4zNTdsLTEuNDgyLTEuNDR2LTEuMTQzeiIvPjwvc3ZnPg==',
+  bB:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMDk0IiB4Mj0iNzcuNjY5IiB5MT0iMzcuMTAxIiB5Mj0iMzcuNDY5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yNSA0Mi4xNjJjLS4yMjkuOTQtLjUxNiAxLjU5Mi0uODQ3IDEuOTU2LS4zMy4zNjQtLjc2Mi43NDUtMS4zMTIgMS4xNDMtLjU5My40MTUtMS4yOTUuNzYyLTIuMTA4IDEuMDVzLTEuNzEuMzY0LTIuNzAxLjIxMWwtNi45NjgtLjk2NWEyLjg1OCAyLjg1OCAwIDAgMC0uNzYyIDBjLS4yMi4wMzQtLjQzMi4wNTEtLjYzNS4wNTEtLjM0NyAwLS43ODcuMDc2LTEuMzIuMjM3LS41NDMuMTUzLS45NTguMzgxLTEuMjU0LjY3N2wtMi40MDUtMy45NDVjLjI5Ny0uMzMuNTYtLjU1OS43ODgtLjY5NC4yMzctLjEyNy41MDgtLjI3MS44MjEtLjQxNWE5LjE3OSA5LjE3OSAwIDAgMSAzLjA3My0uODIxYy40NjYtLjAzNC45MjMtLjA0MyAxLjM2NC0uMDI2YTkuOCA5LjggMCAwIDAgMS4zOTctLjA1Yy44ODkuMTUyIDEuNzg2LjI4NyAyLjY4NC40MDYuOTA1LjEyNyAxLjgxMS4yNTQgMi43MTcuMzkuOTkxIDAgMS42Ni0uMTAyIDIuMDA3LS4yOTcuMTg2LS4xMDIuNDc0LS4yODguODcyLS41NS4zOTgtLjI2My43OTYtLjY1MiAxLjE5NC0xLjE2OS0uODgtLjA5My0xLjc3LS4yNjItMi42ODQtLjUwOGEyNC4wOTQgMjQuMDk0IDAgMCAxLTIuNDA1LS43NTNsMi41ODMtNi40MDFjLTEuMjk2LS43NDUtMi4xOTMtMS4zMzgtMi43MS0xLjc5NWE1LjMgNS4zIDAgMCAxLTEuMjEtMS41NzVjLS40MzItLjc2Mi0uNzEyLTEuNDk4LS44My0yLjIxYTkuMzQxIDkuMzQxIDAgMCAxLS4xNi0xLjkxM2MuMDE2LS45OS4yNDUtMi4wODMuNzAyLTMuMjg1LjQ1Ny0xLjE5NCAxLjMxMi0yLjI3IDIuNTY1LTMuMjA5YTc5LjA5MSA3OS4wOTEgMCAwIDAgMy4wNTctMi40NTUgMjcuNzQ2IDI3Ljc0NiAwIDAgMCAyLjk0Ni0yLjk1NWMtMS4yMi0uNjI3LTEuODI5LTEuNjI2LTEuODI5LTIuOTk3IDAtLjkzMi4zMjItMS43Mi45NzQtMi4zODguNjUyLS42NiAxLjQ1Ni0uOTkgMi4zOTYtLjk5LjkyMyAwIDEuNzE5LjMzIDIuMzguOTkuNjYuNjY5Ljk5IDEuNDU2Ljk5IDIuMzg4cTAgMi4wMzEtMS44MyAyLjk5N2EyNi43OTYgMjYuNzk2IDAgMCAwIDIuOTE0IDIuOTU1IDU2Ljc0IDU2Ljc0IDAgMCAwIDMuMDkgMi40NTVjMS4yMzYuOTQgMi4wODMgMi4wMTUgMi41MjMgMy4yMDkuNDQ5IDEuMjAyLjY5NCAyLjI5NC43MiAzLjI4NSAwIC41NjctLjA1MSAxLjIwMi0uMTcgMS45MTNzLS4zOCAxLjQ0OC0uNzk2IDIuMjFhNi4wODQgNi4wODQgMCAwIDEtMS4yNTMgMS41NzVjLS41LjQ1Ny0xLjM4OCAxLjA1LTIuNjY3IDEuNzk1bDIuNTgzIDYuNGMtLjcyOS4yNjMtMS41NS41MTctMi40NTYuNzU0LS45MTQuMjQ2LTEuNzg2LjQxNS0yLjYzMy41MDguMzgxLjUxNy43Ny45MDYgMS4xNjggMS4xNjkuMzk4LjI2Mi42OTUuNDQ4Ljg5OC41NS4zNDcuMTk1IDEuMDE2LjI5NiAyLjAwNy4yOTZhMjYzLjM1IDI2My4zNSAwIDAgMSAyLjY5Mi0uMzkgODEuMTMgODEuMTMgMCAwIDAgMi43MTgtLjQwNmMuNDQuMDUxLjg4OS4wNjggMS4zNDYuMDUxYTEzLjEyIDEzLjEyIDAgMCAxIDEuNDA1LjAyNiA5LjYyNyA5LjYyNyAwIDAgMSAzLjA3NC44MmMuMjk2LjE0NS41NjcuMjg5LjgwNC40MTYuMjQ2LjEzNS41MDguMzY0LjgwNC42OTRsLTIuNDMgMy45NDVjLS4yOTYtLjI5Ni0uNzEtLjUyNC0xLjI1My0uNjc3LS41MzMtLjE2LS45NjUtLjIzNy0xLjI5NS0uMjM3LS4yMiAwLS40NC0uMDE3LS42Ni0uMDVhMi43OTQgMi43OTQgMCAwIDAtLjc1NCAwbC02Ljk1Ljk2NGMtLjk5Mi4xNTMtMS45MTQuMDg1LTIuNzYxLS4xOTQtLjg1NS0uMjgtMS41NTgtLjY1Mi0yLjEtMS4xMTgtLjU0Mi0uNDQ5LS45ODItLjgzLTEuMzA0LTEuMTUxLS4zMjEtLjMyMi0uNTkyLS45NTctLjgwNC0xLjg5NyIvPjxwYXRoIGZpbGw9InVybCgjYSkiIGQ9Ik0yNC4wODYgMjMuNzA1djIuMTA4YzAgLjYxLjMwNC45MTQuOTE0LjkxNHMuOTE0LS4zMDQuOTE0LS45MTR2LTIuMTM0aDIuMjM2Yy41NzUgMCAuODcyLS4yOTYuODcyLS44OTcgMC0uNTkzLS4yOTctLjg4OS0uODcyLS44ODloLTIuMjM2di0yLjIzNWMwLS42MS0uMzA0LS45MTUtLjkxNC0uOTE1cy0uOTE0LjMwNS0uOTE0LjkxNXYyLjIzNUgyMS45Yy0uNTg0IDAtLjg3Mi4yOTYtLjg3Mi44ODkgMCAuNjAxLjI4OC44OTcuODcyLjg5N3ptNy41MSAxMy43NDEtMS4wNDItMi41MzFjLTEuNjg1LS4zNjQtMy41MzktLjU0Mi01LjU1NC0uNTQyLTEuOTk4IDAtMy44MzUuMTc4LTUuNTAzLjU0MmwtMS4wNDIgMi41MDZjMi4wNS0uNTE3IDQuMjM0LS43NyA2LjU0NS0uNzcgMi4yODYgMCA0LjQ3OS4yNjIgNi41OTYuNzk1bS0yLjA4My01LjExNC0uNzItMS43MzV2LS42N2EyNy4wMyAyNy4wMyAwIDAgMC0zLjc5My0uMjcgMjcuMzUgMjcuMzUgMCAwIDAtMy43NjguMjdsLS4wMjUuNjctLjY2OSAxLjczNUEyNS44NSAyNS44NSAwIDAgMSAyNSAzMS45NmMxLjU5MiAwIDMuMDkuMTI3IDQuNTEzLjM3Mm0tLjg2NCA5LjM4MWMtLjY2LS41LTEuMzMtMS4yODctMS45OS0yLjM2MmgtLjc4N2MwIC44MTMuMTg2IDEuNi41NjcgMi4zNjJ6bS01LjExNCAwYy4zODEtLjgxMi41NzYtMS42LjU3Ni0yLjM2MmgtLjc5NmMtLjY0MyAxLjA1OS0xLjMxMiAxLjg0Ni0yLjAxNSAyLjM2MnoiLz48L3N2Zz4=',
+  bN:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMjEuMjUzIiB4Mj0iNzcuNjQxIiB5MT0iMzcuNTkyIiB5Mj0iMzcuNDY5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGZpbGw9IiMxZjFhMTciIGQ9Ik0yNi4xNzggOS4zOTVjMi42LjE3IDUuMDA0LjgzOCA3LjIyMiAyLjAxNSAyLjIxIDEuMTY5IDQuMDk4IDIuNjc2IDUuNjU2IDQuNTEzIDEuMDkyIDEuMjg3IDIuMTE3IDIuODQ1IDMuMDgyIDQuNjY1YTI4LjY4NCAyOC42ODQgMCAwIDEgMi4zMiA1Ljc3NCAzNi41MTEgMzYuNTExIDAgMCAxIDEuMjUzIDcuNDZjLjE3NyAyLjU5OS4yNjIgNS4wMTIuMjYyIDcuMjN2NS40MDJIMTUuNDY4Yy0uMTUzIDAtLjIyLS40MDctLjIxMi0xLjIxLjAwOS0uODE0LjA2LTEuNDY2LjE2LTEuOTY1LjA2LS4zOTguMjIxLS45NTcuNDY3LTEuNjg1LjI1NC0uNzI4LjY2LTEuNjA5IDEuMjQ0LTIuNjUuMjYzLS41MzQuODktMS4zMDQgMS44OC0yLjMyLjk5OS0xLjAxNiAyLjEzMy0yLjIwMSAzLjQyOS0zLjUzOS43NDUtLjc2MiAxLjMyLTEuNzE5IDEuNzQ0LTIuODc5LjQyMy0xLjE1MS42MDEtMi4yMDEuNTMzLTMuMTVhOC4zNyA4LjM3IDAgMCAxLTIuMDA2IDEuMjJjLTMuNTA1IDEuMjUzLTYuMDQ1IDMuMDczLTcuNjEyIDUuNDUyLS4xMTguMTUzLS40OS44MjItMS4xMTcgMi4wMTUtLjMzLjYyNy0uNjE4IDEuMDU5LS44NDcgMS4yODctLjMxMy4zMTQtLjc3LjQ5MS0xLjM2My41MjUtLjkyMy4wNDMtMS42NDMtLjM5OC0yLjE2LTEuMzQ2LS42OTMuMjAzLTEuMzEyLjI4OC0xLjg2Mi4yNTQtLjkyMy0uMzQ3LTEuNTkyLS43Mi0yLjAwNi0xLjExNy0uODQ3LS44NDctMS4zODktMS42ODUtMS42NTEtMi41MzJhOS40MyA5LjQzIDAgMCAxLS4zODEtMi43MjZjMC0xLjM4OS44NTUtMy4yMjYgMi41ODItNS41MTIgMi4wMTUtMi42MjUgMy4wOS00LjYzMSAzLjIxNy02LjAwMyAwLS41OTMuMDYtMS4yNjEuMTc4LTIuMDA3YTQuMTk4IDQuMTk4IDAgMCAxIC42MTgtMS40OWMuMjItLjMzLjM2NC0uNTU4LjQzMi0uNjc3LjA3Ni0uMTI3LjIxMi0uMzEzLjQxNS0uNTU5LjE0NC0uMjAzLjI3LS4zNTUuMzcyLS40NTcuMDkzLS4xMS4yMi0uMjU0LjM3My0uNDQuMTc4LS4yMTIuNDA2LS40NTcuNjk0LS43NDVhMTguMDYgMTguMDYgMCAwIDEtMS4wNjctNy40NmMzLjI4NSAxLjE2OSA2LjA1NCAzLjAxNSA4LjI4IDUuNTMuNTUxLTEuODcyIDEuNjI2LTMuMzg3IDMuMjI2LTQuNTM5IDEuMzIxLjkyMyAyLjM3MSAyLjE1IDMuMTUgMy42NjYiLz48cGF0aCBmaWxsPSJ1cmwoI2EpIiBkPSJtMTUuNjg4IDE3Ljc4Ni41NDItLjI4Yy41LS4xOTQuNjUyLS41NTkuNDc0LTEuMDkyLS4xOTUtLjQ5MS0uNTc2LS42Ni0xLjE0My0uNDkxLTEuOTQ3LjcxMS0zLjI5NCAyLjAxNS00LjAzOSAzLjkyLS4xMTguNTQyLjA3Ni45MTQuNTkzIDEuMTE4LjUxNi4xNi44NjQtLjAxNyAxLjA0MS0uNTUuMTM2LS4yOC4yMjktLjQ2Ni4yOTctLjU0My4xODYuMTQ0LjQyMy4yNDYuNzIuMjk3IDEuMDA3LjE2IDEuNi0uMjggMS43Ni0xLjMzOGExLjQ5OCAxLjQ5OCAwIDAgMC0uMjQ1LTEuMDQxTTExLjU3MyAzNC41NWMuMDYtLjE1My4xNy0uMzczLjMyMi0uNjcuMjgtLjY5My40MTUtMS4xMDguNDE1LTEuMjQ0LS4wMjYtLjQ1Ny0uMjcxLS42OTQtLjcyLS42OTQtLjMzIDAtLjcxMS40NzQtMS4xNiAxLjQxNGEuOTcuOTcgMCAwIDEtLjI5Ni4zNDdjLS40NDkuNDY2LS4zODEuODU1LjE5NCAxLjE2OC41MzQuMzE0Ljk0LjIxMiAxLjI0NS0uMzIxbTE0LjYzLTkuMjA0YzEuMTYtMS41MjQgMS43MjgtMy4yMTcgMS43MS01LjA4LS4wNjctLjU1LS4zOC0uODItLjk0LS44Mi0uNzYxIDAtMS4wNTcuMjc5LS44OTcuODM3LjA1MS45MTUtLjAzMyAxLjY2OC0uMjcgMi4yNjEtLjM4Mi45NC0uODA1IDEuNjQzLTEuMjYyIDIuMTA4LS4yNTQuNS0uMTAyLjg2NC40NDkgMS4wOTIuNTI1LjI0Ni45MzEuMTE5IDEuMjEtLjM5OE0xOS43MjYgMTMuMjRhNi43OTggNi43OTggMCAwIDEgLjA1MS0xLjkzYy0uOTkuMTk0LTEuOTIyLjY2LTIuODAyIDEuMzg4LS41MjUuMjgtLjY1Mi42Ny0uMzczIDEuMTY5LjI4LjUwOC42Ny41OTIgMS4xNjkuMjQ1LjM0Ny0uMTg2LjY2OS0uMzU1Ljk1Ni0uNTA4LjI4OC0uMTYuNjE4LS4yOCAxLS4zNjR6bTIzLjI1IDMxLjQ1NGMtLjAxNyAwIDAtLjQ0OS4wNDItMS4zNDYuMTMxLTMuMTA4LjA5Ni02LjIyMS4wNzYtOS4zM2EyNi44MzcgMjYuODM3IDAgMCAwLS44ODktNi42MTNjLS44NC0zLjMxLTIuMTI0LTYuNDg1LTQuMDcyLTkuMjk3LTIuNjM0LTMuODQ1LTYuODE0LTYuMDMzLTExLjI4Ni02Ljk3Ni4xMjYuNzY2LjAzMyAxLjU0LjA3NiAyLjMxMWEyNS44MiAyNS44MiAwIDAgMSA0LjUzOCAyLjAzMmM0LjI0MSAyLjU1NSA2LjQxNCA3LjI3NiA3LjE5NyAxMS45MyAxLjI3MiA2LjE1NC40NTMgMTEuNTU3LjgxMyAxNy4yODl6TTkuNDM5IDMwLjEzOWMuNDc1LS4zNC41MjUtLjcyOS4xNDQtMS4xOTQtLjM5OC0uMzgxLS44My0uNDE1LTEuMzEyLS4xMDItMS4wMDcuNjYtMS41NSAxLjUzMy0xLjYxNyAyLjYwOC4wMTcuNTQyLjM0Ny44MDQuOTc0Ljc3LjU5Mi0uMDUuODgtLjM1NS44NjMtLjkyMi4xMzYtLjUyNS40NDktLjkxNS45NDgtMS4xNiIvPjwvc3ZnPg==',
+  bP:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MG1tIiBoZWlnaHQ9IjUwbW0iIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHBhdGggZmlsbD0iIzFmMWExNyIgZD0iTTI1IDQ2LjQ0OEgxMS42MDZhMTMuMTM5IDEzLjEzOSAwIDAgMS0uOTktNS4wNDNjMC0yLjk3NS44NjMtNS42NDQgMi41OTgtOC4wMTggMS43MzYtMi4zNjUgMy45NzEtNC4wNTQgNi42OTctNS4wNjdhNi44MjQgNi44MjQgMCAwIDEtMi44NjEtMi4zOThjLS43MzctMS4wNzEtMS4xLTIuMjgzLTEuMS0zLjYzNCAwLTEuNjkuNTc1LTMuMTU2IDEuNzM1LTQuMzkyIDEuMTUxLTEuMjQ0IDIuNTc0LTEuOTYxIDQuMjY3LTIuMTUtMS4zNDYtLjk4MS0yLjAxNS0yLjI4My0yLjAxNS0zLjg5IDAtMS4zNTEuNDkxLTIuNTEzIDEuNDgyLTMuNDc3Ljk4Mi0uOTY0IDIuMTc2LTEuNDQyIDMuNTgxLTEuNDQyIDEuMzg5IDAgMi41ODIuNDc4IDMuNTczIDEuNDQyczEuNDkgMi4xMjYgMS40OSAzLjQ3N2MwIDEuNjA3LS42NjkgMi45MDktMi4wMTUgMy44OSAxLjY5My4xODkgMy4xMTYuOTA2IDQuMjY3IDIuMTUgMS4xNiAxLjIzNiAxLjczNiAyLjcwMyAxLjczNiA0LjM5MiAwIDEuMzUxLS4zNzMgMi41NjMtMS4xMjYgMy42MzRhNy4wMzYgNy4wMzYgMCAwIDEtMi44NjIgMi4zOThjMi43MjYgMS4wMTMgNC45NjIgMi43MDIgNi42OTcgNS4wNjcgMS43MzYgMi4zNzQgMi42IDUuMDQzIDIuNiA4LjAxOHEwIDIuNjA4NS0uOTY2IDUuMDQzeiIvPjwvc3ZnPg=='
+};
+function pieceImgUrl(pieceKey){
+  return PIECE_SVG_DATA[pieceKey] || '';
+}
+/* solid-glyph fallback, only used if the image itself fails to load */
+var pieceFallbackGlyph = {
+  wK:'♚', wQ:'♛', wR:'♜', wB:'♝', wN:'♞', wP:'♟',
+  bK:'♚', bQ:'♛', bR:'♜', bB:'♝', bN:'♞', bP:'♟'
+};
+
+/* ---------- live PGN preview widget for the "Partie" sub-form ----------
+   Same rendering approach as the embedded game-replay widget in
+   blog-post.html, so what you see here matches what visitors will see. */
+/* strips comments, ; line-comments, ( ) variations and $NAG codes before
+   handing the move text to chess.js – real PGNs copied from lichess/
+   chess.com commonly include these, and the bundled chess.js version
+   chokes on some of them, which made pasted games silently fail to load. */
+function sanitizePgn(pgn){
+  var s = String(pgn || '');
+  s = s.replace(/\{[^}]*\}/g, ' ');
+  s = s.replace(/;[^\n]*/g, ' ');
+  var prev;
+  do { prev = s; s = s.replace(/\([^()]*\)/g, ' '); } while(s !== prev);
+  s = s.replace(/\$\d+/g, ' ');
+  return s.replace(/[ \t]+/g, ' ');
+}
+function isJakobBlack(headers){
+  return !!(headers && headers.black && /pajeken/i.test(headers.black));
+}
+function createGameWidget(container, game){
+  container.classList.add('embedded-game');
+  container.tabIndex = 0; /* focusable, so arrow keys can target this specific widget */
+  container.innerHTML =
+    '<div class="board-wrap">' +
+      '<div class="player-label" data-role="player-top"><span class="side-dot"></span><span data-role="top-name">Black</span></div>' +
+      '<div class="board-frame">' +
+        '<div class="ranks-col" data-role="ranks" aria-hidden="true"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div>' +
+        '<div class="board-and-files">' +
+          '<div class="board-stack">' +
+            '<div class="chess-board" aria-label="Chess board"></div>' +
+            '<svg class="board-arrows-overlay" data-role="arrows" viewBox="0 0 8 8" aria-hidden="true"></svg>' +
+          '</div>' +
+          '<div class="files-row" data-role="files" aria-hidden="true"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="player-label" data-role="player-bottom"><span class="side-dot"></span><span data-role="bottom-name">White</span></div>' +
+      '<div class="board-nav">' +
+        '<button type="button" data-nav="start">|«</button>' +
+        '<button type="button" data-nav="prev">«</button>' +
+        '<button type="button" data-nav="play" aria-label="Play" title="Play">▶</button>' +
+        '<button type="button" data-nav="next">»</button>' +
+        '<button type="button" data-nav="end">»|</button>' +
+        '<button type="button" data-nav="flip" aria-label="Flip board" title="Flip board">⇅</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="game-meta">' +
+      '<div class="game-title" data-role="title"></div>' +
+      '<div class="game-info" data-role="info"></div>' +
+      '<div class="pgn-error" data-role="error"></div>' +
+      '<div class="move-list" data-role="movelist"></div>' +
+    '</div>';
+
+  var boardEl = container.querySelector('.chess-board');
+  var listEl = container.querySelector('[data-role="movelist"]');
+  var titleEl = container.querySelector('[data-role="title"]');
+  var infoEl = container.querySelector('[data-role="info"]');
+  var errorEl = container.querySelector('[data-role="error"]');
+  var topEl = container.querySelector('[data-role="player-top"]');
+  var bottomEl = container.querySelector('[data-role="player-bottom"]');
+  var topNameEl = container.querySelector('[data-role="top-name"]');
+  var bottomNameEl = container.querySelector('[data-role="bottom-name"]');
+  var ranksEl = container.querySelector('[data-role="ranks"]');
+  var filesEl = container.querySelector('[data-role="files"]');
+  var arrowsEl = container.querySelector('[data-role="arrows"]');
+  var navEl = container.querySelector('.board-nav');
+
+  var engine = null, historyVerbose = [], moveIndex = 0;
+  /* see blog-post.html's identical fields for the full rationale (mirrored
+     here) – a game/fragment can start from any legal position via the
+     PGN's own [SetUp "1"]/[FEN "..."] headers, not just the standard one. */
+  var startingFen = null, startColor = 'w', startMoveNum = 1;
+  function resetToGameStart(){
+    if(startingFen) engine.load(startingFen); else engine.reset();
+  }
+  var orientation = 'white';
+  var whiteName = 'White', blackName = 'Black';
+  var playInterval = null; /* set while auto-play is running, one move every 1.5s */
+  var PLAY_MOVE_MS = 1500;
+  /* entryData[ply] = { arrows, highlights } parsed from that move's own
+     [%cal]/[%csl] PGN comment – see parsePgnAnnotations() below. Unlike
+     index.html/blog-post.html this preview reads straight from whatever
+     PGN was just pasted into the form, before scripts/sync_games_pgn.py
+     has ever run on it, so it does its own lightweight extraction here
+     instead of reading pre-parsed JSON. */
+  var entryData = [];
+
+  function buildBoardSquares(){
+    boardEl.innerHTML = '';
+    for(var r = 0; r < 8; r++){
+      for(var c = 0; c < 8; c++){
+        var sq = document.createElement('div');
+        var isLight = (r + c) % 2 === 0;
+        sq.className = 'chess-square ' + (isLight ? 'light' : 'dark');
+        sq.dataset.row = r; sq.dataset.col = c;
+        sq.addEventListener('pointerdown', onSquarePointerDown);
+        boardEl.appendChild(sq);
+      }
+    }
+  }
+  var ARROW_COLORS = { G: '#408f4c', R: '#c62828', Y: '#e8a70a', B: '#1f6fb2' };
+  function squareRowCol(square){
+    return { row: 8 - parseInt(square[1], 10), col: square.charCodeAt(0) - 97 };
+  }
+  function renderBoardAnnotations(){
+    if(!arrowsEl) return;
+    while(arrowsEl.firstChild) arrowsEl.removeChild(arrowsEl.firstChild);
+    var entry = entryData[moveIndex];
+    var arrows = (entry && entry.arrows) || [];
+    var highlights = (entry && entry.highlights) || [];
+    if(!arrows.length && !highlights.length) return;
+    var flipped = orientation === 'black';
+    var svgns = 'http://www.w3.org/2000/svg';
+    function center(square){
+      var rc = squareRowCol(square);
+      var row = flipped ? 7 - rc.row : rc.row;
+      var col = flipped ? 7 - rc.col : rc.col;
+      return { x: col + 0.5, y: row + 0.5 };
+    }
+    highlights.forEach(function(h){
+      var rc = squareRowCol(h.square);
+      var row = flipped ? 7 - rc.row : rc.row;
+      var col = flipped ? 7 - rc.col : rc.col;
+      var rect = document.createElementNS(svgns, 'rect');
+      rect.setAttribute('x', col + 0.04); rect.setAttribute('y', row + 0.04);
+      rect.setAttribute('width', 0.92); rect.setAttribute('height', 0.92);
+      rect.setAttribute('fill', 'none');
+      rect.setAttribute('stroke', ARROW_COLORS[h.color] || '#888');
+      rect.setAttribute('stroke-width', '0.08');
+      rect.setAttribute('opacity', '0.9');
+      arrowsEl.appendChild(rect);
+    });
+    arrows.forEach(function(a){
+      var from = center(a.from), to = center(a.to);
+      var dx = to.x - from.x, dy = to.y - from.y;
+      var len = Math.sqrt(dx * dx + dy * dy);
+      if(len < 0.01) return;
+      var ux = dx / len, uy = dy / len;
+      var color = ARROW_COLORS[a.color] || '#888';
+      /* tail always starts exactly on the source square's centre; the tip
+         stops a bit short of the target's again, like before – see
+         index.html's renderBoardAnnotations() */
+      var TIP_SHORTEN = 0.15;
+      var tipX = to.x - ux * TIP_SHORTEN, tipY = to.y - uy * TIP_SHORTEN;
+      var perpX = -uy, perpY = ux;
+      /* open, rounded-stroke style (like Feather's arrow icons) instead of
+         a filled triangle – see index.html's renderBoardAnnotations() */
+      var STROKE_W = 0.0867, STROKE_W_HEAD = 0.0694, CHEV_LEN = 0.20, CHEV_SPREAD = 0.09;
+      var line = document.createElementNS(svgns, 'line');
+      line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+      line.setAttribute('x2', tipX); line.setAttribute('y2', tipY);
+      line.setAttribute('stroke', color);
+      line.setAttribute('stroke-width', STROKE_W);
+      line.setAttribute('stroke-linecap', 'round');
+      line.setAttribute('opacity', '1');
+      arrowsEl.appendChild(line);
+      var backX = tipX - ux * CHEV_LEN, backY = tipY - uy * CHEV_LEN;
+      var c1x = backX + perpX * CHEV_SPREAD, c1y = backY + perpY * CHEV_SPREAD;
+      var c2x = backX - perpX * CHEV_SPREAD, c2y = backY - perpY * CHEV_SPREAD;
+      var chevron = document.createElementNS(svgns, 'path');
+      chevron.setAttribute('d', 'M' + c1x + ',' + c1y + ' L' + tipX + ',' + tipY + ' L' + c2x + ',' + c2y);
+      chevron.setAttribute('fill', 'none');
+      chevron.setAttribute('stroke', color);
+      chevron.setAttribute('stroke-width', STROKE_W_HEAD);
+      chevron.setAttribute('stroke-linecap', 'round');
+      chevron.setAttribute('stroke-linejoin', 'round');
+      chevron.setAttribute('opacity', '1');
+      arrowsEl.appendChild(chevron);
+    });
+  }
+  /* Reads [%cal .../%csl ...] straight out of the raw PGN's own move
+     comments – the same commands scripts/sync_games_pgn.py extracts
+     server-side, just walked by hand here since this preview runs on
+     PGN text that hasn't been through that script yet. Ignores
+     parenthesised sub-variations (this preview is mainline-only); a
+     comment attached before move 1 lands on entryData[0]. */
+  function extractArrowsAndHighlights(comment){
+    var arrows = [], highlights = [], m;
+    var calRe = /\[%cal ([^\]]*)\]/g;
+    while((m = calRe.exec(comment || '')) !== null){
+      m[1].split(',').forEach(function(item){
+        var mm = /^([A-Za-z])([a-h][1-8])([a-h][1-8])$/.exec(item.trim());
+        if(mm) arrows.push({ color: mm[1].toUpperCase(), from: mm[2], to: mm[3] });
+      });
+    }
+    var cslRe = /\[%csl ([^\]]*)\]/g;
+    while((m = cslRe.exec(comment || '')) !== null){
+      m[1].split(',').forEach(function(item){
+        var mm = /^([A-Za-z])([a-h][1-8])$/.exec(item.trim());
+        if(mm) highlights.push({ color: mm[1].toUpperCase(), square: mm[2] });
+      });
+    }
+    return { arrows: arrows, highlights: highlights };
+  }
+  function parsePgnAnnotations(pgnText){
+    /* only drop the leading "[Tag "value"]" header LINES, not every
+       [...]-bracketed thing in the file – a naive whole-text bracket
+       strip here would also eat [%cal]/[%csl] since those sit inside a
+       {...} comment further down in the movetext, not up in the headers */
+    var lines = (pgnText || '').split('\n');
+    var idx = 0;
+    while(idx < lines.length && /^\s*\[\w+\s+"[^"]*"\]\s*$/.test(lines[idx])) idx++;
+    var movetext = lines.slice(idx).join('\n');
+    /* strip parenthesised variations, depth-aware so nested ones don't
+       leak their closing parens into the mainline text */
+    var stripped = '', depth = 0;
+    for(var i = 0; i < movetext.length; i++){
+      var ch = movetext[i];
+      if(ch === '('){ depth++; continue; }
+      if(ch === ')'){ if(depth > 0) depth--; continue; }
+      if(depth === 0) stripped += ch;
+    }
+    var comments = [];
+    var ply = 0, n = stripped.length, pos = 0;
+    while(pos < n){
+      var c = stripped[pos];
+      if(/\s/.test(c)){ pos++; continue; }
+      if(c === '{'){
+        var end = stripped.indexOf('}', pos);
+        if(end === -1) break;
+        var text = stripped.slice(pos + 1, end);
+        comments[ply] = (comments[ply] ? comments[ply] + ' ' : '') + text;
+        pos = end + 1;
+        continue;
+      }
+      if(c === '$'){
+        pos++; while(pos < n && /\d/.test(stripped[pos])) pos++;
+        continue;
+      }
+      var j = pos;
+      while(j < n && !/\s/.test(stripped[j]) && stripped[j] !== '{' && stripped[j] !== '(') j++;
+      var token = stripped.slice(pos, j);
+      pos = j;
+      if(!token || /^\d+\.+$/.test(token) || /^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)) continue;
+      ply++;
+    }
+    return comments.map(function(c){ return extractArrowsAndHighlights(c); });
+  }
+  /* Click-to-move – lets you play out your own moves from wherever the
+     preview is currently showing. This widget has no stored-variation
+     system (it's mainline-only, always re-parsed fresh from the pasted
+     PGN), so a manual move simply truncates the mainline at moveIndex
+     and appends the new one, same as recording a real game. */
+  var selectedSquare = null;
+  function domSquareToAlgebraic(row, col, flipped){
+    var rank = flipped ? row + 1 : 8 - row;
+    var fileIdx = flipped ? 7 - col : col;
+    return String.fromCharCode(97 + fileIdx) + rank;
+  }
+  function clearSquareSelection(){
+    selectedSquare = null;
+    Array.prototype.forEach.call(boardEl.children, function(sq){
+      sq.classList.remove('selected', 'legal-move', 'legal-capture');
+    });
+  }
+  function showLegalMovesFrom(square){
+    var flipped = orientation === 'black';
+    engine.moves({ square: square, verbose: true }).forEach(function(m){
+      var rc = squareRowCol(m.to);
+      var row = flipped ? 7 - rc.row : rc.row;
+      var col = flipped ? 7 - rc.col : rc.col;
+      var sq = boardEl.children[row * 8 + col];
+      if(sq) sq.classList.add(m.captured ? 'legal-capture' : 'legal-move');
+    });
+  }
+  function onBoardSquareClick(sqEl){
+    if(!engine) return;
+    var flipped = orientation === 'black';
+    var square = domSquareToAlgebraic(parseInt(sqEl.dataset.row, 10), parseInt(sqEl.dataset.col, 10), flipped);
+    if(selectedSquare){
+      if(selectedSquare === square){ clearSquareSelection(); return; }
+      var candidates = engine.moves({ square: selectedSquare, verbose: true }).filter(function(m){ return m.to === square; });
+      if(candidates.length){
+        var chosen = candidates.length > 1 ? (candidates.filter(function(m){ return m.promotion === 'q'; })[0] || candidates[0]) : candidates[0];
+        clearSquareSelection();
+        makeManualMove(chosen);
+        return;
+      }
+      clearSquareSelection();
+      var otherPiece = engine.get(square);
+      if(otherPiece && otherPiece.color === engine.turn()){
+        selectedSquare = square;
+        sqEl.classList.add('selected');
+        showLegalMovesFrom(square);
+      }
+      return;
+    }
+    var piece = engine.get(square);
+    if(piece && piece.color === engine.turn()){
+      selectedSquare = square;
+      sqEl.classList.add('selected');
+      showLegalMovesFrom(square);
+    }
+  }
+  /* Drag-to-move, layered on top of click-to-move – see index.html's own
+     onSquarePointerDown for the full rationale (mirrored here
+     per-widget-instance). */
+  var pieceDrag = null;
+  function squareFromPoint(clientX, clientY){
+    var el = document.elementFromPoint(clientX, clientY);
+    while(el && el !== boardEl && !el.classList.contains('chess-square')) el = el.parentElement;
+    return (el && el.classList.contains('chess-square')) ? el : null;
+  }
+  function onSquarePointerDown(e){
+    if(e.button != null && e.button !== 0) return;
+    var sqEl = e.currentTarget;
+    onBoardSquareClick(sqEl);
+    var flipped = orientation === 'black';
+    var square = domSquareToAlgebraic(parseInt(sqEl.dataset.row, 10), parseInt(sqEl.dataset.col, 10), flipped);
+    if(selectedSquare === square) beginPieceDrag(e, sqEl, square);
+  }
+  function beginPieceDrag(e, sqEl, square){
+    var pieceEl = sqEl.querySelector('.piece-img, .piece-fallback');
+    if(!pieceEl) return;
+    pieceDrag = { square: square, fromEl: sqEl, pieceEl: pieceEl, startX: e.clientX, startY: e.clientY, moved: false, ghost: null };
+    try{ sqEl.setPointerCapture(e.pointerId); }catch(err){}
+    sqEl.addEventListener('pointermove', onPieceDragMove);
+    sqEl.addEventListener('pointerup', onPieceDragEnd);
+    sqEl.addEventListener('pointercancel', onPieceDragEnd);
+  }
+  function onPieceDragMove(e){
+    if(!pieceDrag) return;
+    var dx = e.clientX - pieceDrag.startX, dy = e.clientY - pieceDrag.startY;
+    if(!pieceDrag.moved && Math.sqrt(dx * dx + dy * dy) < 4) return;
+    if(!pieceDrag.moved){
+      pieceDrag.moved = true;
+      var rect = pieceDrag.pieceEl.getBoundingClientRect();
+      pieceDrag.offsetX = rect.width / 2;
+      pieceDrag.offsetY = rect.height / 2;
+      var ghost = pieceDrag.pieceEl.cloneNode(true);
+      ghost.className += ' piece-drag-ghost';
+      ghost.style.width = rect.width + 'px';
+      ghost.style.height = rect.height + 'px';
+      document.body.appendChild(ghost);
+      pieceDrag.ghost = ghost;
+      pieceDrag.pieceEl.style.opacity = '0';
+    }
+    pieceDrag.ghost.style.left = (e.clientX - pieceDrag.offsetX) + 'px';
+    pieceDrag.ghost.style.top = (e.clientY - pieceDrag.offsetY) + 'px';
+    Array.prototype.forEach.call(boardEl.children, function(sq){ sq.classList.remove('drag-over'); });
+    var overEl = squareFromPoint(e.clientX, e.clientY);
+    if(overEl) overEl.classList.add('drag-over');
+  }
+  function onPieceDragEnd(e){
+    if(!pieceDrag) return;
+    var drag = pieceDrag;
+    pieceDrag = null;
+    drag.fromEl.removeEventListener('pointermove', onPieceDragMove);
+    drag.fromEl.removeEventListener('pointerup', onPieceDragEnd);
+    drag.fromEl.removeEventListener('pointercancel', onPieceDragEnd);
+    try{ drag.fromEl.releasePointerCapture(e.pointerId); }catch(err){}
+    Array.prototype.forEach.call(boardEl.children, function(sq){ sq.classList.remove('drag-over'); });
+    if(drag.ghost) drag.ghost.remove();
+    drag.pieceEl.style.opacity = '';
+    if(!drag.moved) return;
+    var targetEl = squareFromPoint(e.clientX, e.clientY);
+    if(!targetEl) return;
+    var flipped = orientation === 'black';
+    var targetSquare = domSquareToAlgebraic(parseInt(targetEl.dataset.row, 10), parseInt(targetEl.dataset.col, 10), flipped);
+    if(targetSquare === drag.square) return;
+    var candidates = engine.moves({ square: drag.square, verbose: true }).filter(function(m){ return m.to === targetSquare; });
+    if(candidates.length){
+      var chosen = candidates.length > 1 ? (candidates.filter(function(m){ return m.promotion === 'q'; })[0] || candidates[0]) : candidates[0];
+      clearSquareSelection();
+      makeManualMove(chosen);
+    }
+  }
+  function makeManualMove(moveObj){
+    stopPlay();
+    var mv = engine.move(moveObj);
+    if(!mv) return;
+    historyVerbose = historyVerbose.slice(0, moveIndex).concat([mv]);
+    entryData = entryData.slice(0, moveIndex + 1); /* no annotation exists for a hand-played move */
+    moveIndex++;
+    renderMoveList();
+    renderPosition(engine.fen());
+    renderBoardAnnotations();
+    clearSquareSelection();
+  }
+  function makePieceEl(pieceKey, isWhite){
+    var img = document.createElement('img');
+    img.className = 'piece-img';
+    img.alt = '';
+    img.src = pieceImgUrl(pieceKey);
+    img.onerror = function(){
+      var span = document.createElement('span');
+      span.className = 'piece-fallback ' + (isWhite ? 'piece-w' : 'piece-b');
+      span.textContent = pieceFallbackGlyph[pieceKey] || '';
+      img.replaceWith(span);
+    };
+    return img;
+  }
+  function renderPosition(fen){
+    var rows = fen.split(' ')[0].split('/');
+    var squares = boardEl.children;
+    var flipped = orientation === 'black';
+    for(var r = 0; r < 8; r++){
+      var col = 0;
+      for(var i = 0; i < rows[r].length; i++){
+        var ch = rows[r][i];
+        if(/\d/.test(ch)){
+          var empty = parseInt(ch, 10);
+          for(var e = 0; e < empty; e++){
+            var emptyIdx = flipped ? (7 - r) * 8 + (7 - col) : r * 8 + col;
+            squares[emptyIdx].innerHTML = '';
+            col++;
+          }
+        } else {
+          var isWhite = ch === ch.toUpperCase();
+          var pieceKey = (isWhite ? 'w' : 'b') + ch.toUpperCase();
+          var pieceIdx = flipped ? (7 - r) * 8 + (7 - col) : r * 8 + col;
+          var sqEl = squares[pieceIdx];
+          sqEl.innerHTML = '';
+          sqEl.appendChild(makePieceEl(pieceKey, isWhite));
+          col++;
+        }
+      }
+    }
+  }
+  function renderCoordinates(){
+    var flipped = orientation === 'black';
+    var ranks = flipped ? ['1','2','3','4','5','6','7','8'] : ['8','7','6','5','4','3','2','1'];
+    var files = flipped ? ['h','g','f','e','d','c','b','a'] : ['a','b','c','d','e','f','g','h'];
+    if(ranksEl) ranksEl.innerHTML = ranks.map(function(r){ return '<span>' + r + '</span>'; }).join('');
+    if(filesEl) filesEl.innerHTML = files.map(function(f){ return '<span>' + f + '</span>'; }).join('');
+  }
+  function applyPlayerLabels(){
+    if(!topEl || !bottomEl) return;
+    var flipped = orientation === 'black';
+    topEl.classList.remove('player-black', 'player-white');
+    bottomEl.classList.remove('player-black', 'player-white');
+    topEl.classList.add(flipped ? 'player-white' : 'player-black');
+    bottomEl.classList.add(flipped ? 'player-black' : 'player-white');
+    if(topNameEl) topNameEl.textContent = flipped ? whiteName : blackName;
+    if(bottomNameEl) bottomNameEl.textContent = flipped ? blackName : whiteName;
+  }
+  function setOrientation(newOrientation){
+    orientation = newOrientation;
+    renderCoordinates();
+    if(engine) renderPosition(engine.fen());
+    applyPlayerLabels();
+    renderBoardAnnotations();
+  }
+  function makeMoveBtn(san, ply){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'move-btn';
+    btn.textContent = san;
+    btn.dataset.ply = ply;
+    btn.addEventListener('click', function(){ manualGoToPly(ply); });
+    return btn;
+  }
+  function renderMoveList(){
+    listEl.innerHTML = '';
+    var i = 0;
+    /* a fragment starting with Black to move opens with one lone Black
+       move ("15..."), then the normal White+Black pairing continues from
+       there – see blog-post.html's renderMoveList for the full rationale
+       (mirrored here, minus variations, which this mainline-only preview
+       doesn't support). */
+    if(startColor === 'b' && historyVerbose.length){
+      var lonePair = document.createElement('span');
+      lonePair.className = 'move-pair';
+      var loneNum = document.createElement('span');
+      loneNum.className = 'move-num';
+      loneNum.textContent = startMoveNum + '...';
+      lonePair.appendChild(loneNum);
+      lonePair.appendChild(makeMoveBtn(historyVerbose[0].san, 1));
+      listEl.appendChild(lonePair);
+      i = 1;
+    }
+    var pairStartNum = startColor === 'b' ? startMoveNum + 1 : startMoveNum;
+    for(; i < historyVerbose.length; i += 2){
+      var moveNum = pairStartNum + Math.floor((startColor === 'b' ? i - 1 : i) / 2);
+      var pair = document.createElement('span');
+      pair.className = 'move-pair';
+      var num = document.createElement('span');
+      num.className = 'move-num';
+      num.textContent = moveNum + '.';
+      pair.appendChild(num);
+      pair.appendChild(makeMoveBtn(historyVerbose[i].san, i + 1));
+      if(historyVerbose[i + 1]) pair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, i + 2));
+      listEl.appendChild(pair);
+    }
+    highlightMoveList();
+  }
+  function highlightMoveList(){
+    container.querySelectorAll('.move-btn').forEach(function(btn){
+      var isActive = parseInt(btn.dataset.ply, 10) === moveIndex;
+      btn.classList.toggle('active', isActive);
+      /* scrollTop directly on the move-list box, not scrollIntoView – the
+         latter walks up and scrolls every scrollable ancestor it finds,
+         including the page itself */
+      if(isActive){
+        var target = btn.offsetTop - (listEl.clientHeight / 2) + (btn.offsetHeight / 2);
+        listEl.scrollTop = Math.max(0, target);
+      }
+    });
+  }
+  function goToPly(ply){
+    resetToGameStart();
+    for(var i = 0; i < ply; i++){ engine.move(historyVerbose[i]); }
+    moveIndex = ply;
+    renderPosition(engine.fen());
+    highlightMoveList();
+    renderBoardAnnotations();
+    clearSquareSelection();
+  }
+  function stopPlay(){
+    if(playInterval){ clearInterval(playInterval); playInterval = null; }
+    updatePlayButton();
+  }
+  function startPlay(){
+    if(playInterval) return;
+    if(moveIndex >= historyVerbose.length) goToPly(0);
+    playInterval = setInterval(function(){
+      if(moveIndex >= historyVerbose.length){ stopPlay(); return; }
+      goToPly(moveIndex + 1);
+      if(moveIndex >= historyVerbose.length) stopPlay(); /* stop right on the final move, not one tick later */
+    }, PLAY_MOVE_MS);
+    updatePlayButton();
+  }
+  function togglePlay(){
+    if(playInterval) stopPlay(); else startPlay();
+  }
+  function updatePlayButton(){
+    var btn = container.querySelector('[data-nav="play"]');
+    if(!btn) return;
+    var playing = !!playInterval;
+    btn.textContent = playing ? '❚❚' : '▶';
+    btn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+    btn.title = playing ? 'Pause' : 'Play';
+  }
+  function manualGoToPly(ply){
+    stopPlay();
+    goToPly(ply);
+  }
+  function formatPgnDate(d){
+    var parts = d.split('.');
+    if(parts.length === 3 && parts[0].length === 4) return parts[2] + '.' + parts[1] + '.' + parts[0];
+    return d;
+  }
+  function parsePgnHeaders(pgnText){
+    var headers = {};
+    var re = /\[(\w+)\s+"([^"]*)"\]/g;
+    var m;
+    while((m = re.exec(pgnText)) !== null){ headers[m[1].toLowerCase()] = m[2]; }
+    return headers;
+  }
+
+  buildBoardSquares();
+
+  if(typeof Chess === 'undefined'){
+    errorEl.textContent = 'Das Partienachspiel-Tool konnte nicht geladen werden (chess.js).';
+    return null;
+  }
+
+  engine = new Chess();
+  var ok = engine.load_pgn(sanitizePgn(game.pgn || ''), { sloppy: true });
+  if(!ok){
+    errorEl.textContent = 'Diese Partie konnte nicht gelesen werden – bitte den PGN-Text prüfen (muss mit Zugtext wie "1. e4 e5 ..." enden).';
+    return null;
+  }
+  historyVerbose = engine.history({ verbose: true });
+  entryData = parsePgnAnnotations(game.pgn || '');
+  if(navEl) navEl.hidden = historyVerbose.length === 0; /* see blog-post.html's identical check for the "diagram" rationale */
+  var headers = parsePgnHeaders(game.pgn || '');
+  startingFen = (headers.setup === '1' && headers.fen) ? headers.fen : null;
+  var startFenParts = startingFen ? startingFen.split(' ') : null;
+  startColor = (startFenParts && startFenParts[1] === 'b') ? 'b' : 'w';
+  startMoveNum = (startFenParts && parseInt(startFenParts[5], 10)) || 1;
+  resetToGameStart();
+  moveIndex = 0;
+
+  whiteName = headers.white || 'White';
+  blackName = headers.black || 'Black';
+  if(headers.whiteelo) whiteName += ' (' + headers.whiteelo + ')';
+  if(headers.blackelo) blackName += ' (' + headers.blackelo + ')';
+  orientation = isJakobBlack(headers) ? 'black' : 'white';
+  renderCoordinates();
+  renderPosition(engine.fen());
+  applyPlayerLabels();
+  renderMoveList();
+  renderBoardAnnotations();
+
+  titleEl.textContent = previewLang(game.title) || (whiteName + ' vs ' + blackName);
+
+  /* the tournament name gets "(Runde N)" appended, right between the
+     tournament name and the date, whenever the PGN has a round number –
+     this preview always shows German, matching the rest of the editor UI */
+  var infoBits = [];
+  if(headers.event){
+    var eventBit = headers.event;
+    var round = headers.round && headers.round.trim();
+    if(round && round !== '?') eventBit += ' (Runde ' + round + ')';
+    infoBits.push(eventBit);
+  }
+  if(headers.date && headers.date.indexOf('?') === -1) infoBits.push(formatPgnDate(headers.date));
+  if(headers.result) infoBits.push(headers.result);
+  infoEl.textContent = game.meta || infoBits.join(' · ');
+
+  container.querySelector('[data-nav="start"]').addEventListener('click', function(){ manualGoToPly(0); });
+  container.querySelector('[data-nav="prev"]').addEventListener('click', function(){ manualGoToPly(Math.max(0, moveIndex - 1)); });
+  container.querySelector('[data-nav="play"]').addEventListener('click', function(){ togglePlay(); });
+  container.querySelector('[data-nav="next"]').addEventListener('click', function(){ manualGoToPly(Math.min(historyVerbose.length, moveIndex + 1)); });
+  container.querySelector('[data-nav="end"]').addEventListener('click', function(){ manualGoToPly(historyVerbose.length); });
+  container.querySelector('[data-nav="flip"]').addEventListener('click', function(){ setOrientation(orientation === 'black' ? 'white' : 'black'); });
+  container.addEventListener('keydown', function(e){
+    var tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+    if(tag === 'input' || tag === 'textarea') return;
+    if(e.key === 'ArrowLeft'){ manualGoToPly(Math.max(0, moveIndex - 1)); e.preventDefault(); }
+    else if(e.key === 'ArrowRight'){ manualGoToPly(Math.min(historyVerbose.length, moveIndex + 1)); e.preventDefault(); }
+  });
+  return { ok: true };
+}
+/* Testimonial quotes and game titles can be stored either as a plain
+   string (shown as-is in both languages) or as {en, de} once a real
+   translation has been added. These two helpers convert between that and
+   the pair of EN/DE form fields. */
+function splitLangValue(val){
+  if(val && typeof val === 'object') return { en: val.en || '', de: val.de || '' };
+  return { en: val || '', de: '' };
+}
+function joinLangValue(en, de){
+  en = (en || '').trim();
+  de = (de || '').trim();
+  return de ? { en: en, de: de } : en;
+}
+function previewLang(val){
+  if(val && typeof val === 'object') return val.de || val.en || '';
+  return val || '';
+}
+/* Category can hold several values (unlike every other {en,de} field on a
+   post, which is always a single string) – and, for any post saved before
+   this feature existed, still be a single plain string per language. This
+   normalizes either shape into a plain array so the rest of the code only
+   ever has to deal with one. */
+function categoryArray(val){
+  if(Array.isArray(val)) return val.map(function(v){ return (v || '').toString().trim(); }).filter(Boolean);
+  if(typeof val === 'string' && val.trim()) return [val.trim()];
+  return [];
+}
+function splitCategoryValue(val){
+  if(val && typeof val === 'object' && !Array.isArray(val)){
+    return { en: categoryArray(val.en), de: categoryArray(val.de) };
+  }
+  return { en: categoryArray(val), de: [] };
+}
+/* the reverse of splitCategoryValue: two comma-separated input strings ->
+   the {en,de} value actually written to blog.json (each side an array –
+   a single category is simply a one-item array, so it still reads fine
+   everywhere a plain string used to). */
+function joinCategoryValue(enText, deText){
+  return { en: categoryArray((enText || '').split(',')), de: categoryArray((deText || '').split(',')) };
+}
+/* today's date in the Europe/Berlin timezone (CET/CEST, DST-aware), formatted
+   as YYYY-MM-DD for a <input type="date"> value – used to prefill a new
+   blog post's date on first publish, while staying manually editable */
+function todayInBerlin(){
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date());
+}
+var DEFAULT_BLOG_AUTHOR = 'IM Jakob Leon Pajeken';
+function slugify(s){
+  return String(s || '')
+    .toLowerCase()
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+function uniqueSlug(base, excludeIndex){
+  var slug = slugify(base) || 'beitrag';
+  var i = 2;
+  while(blogPosts.some(function(p, idx){ return p.slug === slug && idx !== excludeIndex; })){
+    slug = slugify(base) + '-' + i;
+    i++;
+  }
+  return slug;
+}
+/* ---------- blog post date + read time (shared with index.html / blog-post.html) ----------
+   Dates are stored as a plain ISO string ("YYYY-MM-DD", from a native
+   <input type="date">) and formatted per language only at display time –
+   that's what makes the date automatically correct in both languages
+   instead of needing to be typed out twice. */
+var MONTH_NAMES_FULL = {
+  en:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  de:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
+};
+function formatBlogDate(iso, lang){
+  if(!iso) return '';
+  var parts = String(iso).split('-');
+  if(parts.length !== 3) return iso; /* not an ISO date – show whatever was stored */
+  var y = parseInt(parts[0], 10), m = parseInt(parts[1], 10), d = parseInt(parts[2], 10);
+  if(!y || !m || !d) return iso;
+  var names = MONTH_NAMES_FULL[lang] || MONTH_NAMES_FULL.en;
+  var month = names[m - 1] || parts[1];
+  return lang === 'de' ? (d + '. ' + month + ' ' + y) : (month + ' ' + d + ', ' + y);
+}
+/* previously-used blog categories, per language, for the datalist dropdown
+   so a recurring category (e.g. "Openings" / "Eröffnungen") can be reused
+   instead of retyped (and possibly misspelled differently) each time */
+function collectCategoryOptions(lang){
+  var seen = {}, list = [];
+  (blogPosts || []).forEach(function(post){
+    var split = splitCategoryValue(post.category);
+    var values = (lang === 'de' ? split.de : split.en);
+    if(!values.length) values = (lang === 'de' ? split.en : split.de); /* fall back to the other language if this post has none in this one yet */
+    values.forEach(function(val){
+      if(val && !seen[val]){ seen[val] = true; list.push(val); }
+    });
+  });
+  return list;
+}
+/* (read time itself is calculated on blog-post.html / index.html at
+   display time from post.body – the editor never shows it, so it has no
+   need for that calculation) */
+/* ---------- machine translation (English -> German), via Google Translate's
+   public (unofficial, no API key) endpoint – used by the "Ins Deutsche
+   übersetzen" button. Results are always editable afterward; this is a
+   starting point, not a final translation.
+   (MyMemory's free API was tried first, but its crowdsourced translation
+   memory can return confidently-wrong, completely unrelated text for
+   ordinary sentences – not usable as a silent default.) ---- */
+function splitForTranslation(text, maxLen){
+  maxLen = maxLen || 1800; /* Google's endpoint handles full paragraphs fine; this is just a safety cap for pathologically long text */
+  if(text.length <= maxLen) return [text];
+  var sentences = text.match(/[^.!?]+[.!?]+(\s+|$)|[^.!?]+$/g) || [text];
+  var chunks = [], cur = '';
+  sentences.forEach(function(s){
+    if(cur && (cur + s).length > maxLen){ chunks.push(cur); cur = s; }
+    else cur += s;
+  });
+  if(cur) chunks.push(cur);
+  return chunks;
+}
+/* DeepL, via a small Cloudflare Worker proxy (see scripts/deepl-worker.js) –
+   noticeably better EN->DE quality than the fallbacks below. Left empty
+   until the Worker is deployed; translateChunk() simply skips straight to
+   Google/MyMemory while this is blank, so nothing breaks in the meantime. */
+var DEEPL_PROXY_URL = 'https://jlpdeepl.jakobpajeken.workers.dev';
+async function translateViaDeepL(trimmed, sourceLang, targetLang){
+  var resp = await fetch(DEEPL_PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: trimmed, source: sourceLang, target: targetLang })
+  });
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
+  var data = await resp.json();
+  if(!data.translatedText) throw new Error(data.error || 'leere Antwort');
+  return data.translatedText;
+}
+async function translateViaGoogle(trimmed, sourceLang, targetLang){
+  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sourceLang.toLowerCase() +
+    '&tl=' + targetLang.toLowerCase() + '&dt=t&q=' + encodeURIComponent(trimmed);
+  var resp = await fetch(url);
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
+  var data = await resp.json();
+  if(!Array.isArray(data) || !Array.isArray(data[0])) throw new Error('leere Antwort');
+  var translated = data[0].map(function(seg){ return (seg && seg[0]) || ''; }).join('');
+  if(!translated.trim()) throw new Error('leere Antwort');
+  return translated;
+}
+/* MyMemory's crowdsourced translation memory occasionally returns a
+   confidently-wrong, completely unrelated snippet (e.g. movie subtitle
+   text) for an ordinary sentence – so a result whose length is wildly out
+   of proportion to the source is rejected rather than used silently. */
+async function translateViaMyMemory(trimmed, sourceLang, targetLang){
+  var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(trimmed) +
+    '&langpair=' + sourceLang.toLowerCase() + '|' + targetLang.toLowerCase();
+  var resp = await fetch(url);
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
+  var data = await resp.json();
+  var translated = data && data.responseData && data.responseData.translatedText;
+  if(!translated || /MYMEMORY WARNING|INVALID LANGPAIR|NO QUERY SPECIFIED/i.test(translated)){
+    throw new Error('keine Übersetzung geliefert');
+  }
+  if(translated.length > trimmed.length * 4 + 60 || translated.length < trimmed.length * 0.15){
+    throw new Error('Ergebnis wirkt unplausibel');
+  }
+  return translated;
+}
+async function translateChunk(text, sourceLang, targetLang){
+  var trimmed = text.trim();
+  if(!trimmed) return '';
+  if(DEEPL_PROXY_URL){
+    try{ return await translateViaDeepL(trimmed, sourceLang, targetLang); }catch(deeplErr){ /* fall through to the other services below */ }
+  }
+  try{
+    return await translateViaGoogle(trimmed, sourceLang, targetLang);
+  }catch(googleErr){
+    try{
+      return await translateViaMyMemory(trimmed, sourceLang, targetLang);
+    }catch(myMemoryErr){
+      throw new Error('Übersetzungsdienst nicht erreichbar.');
+    }
+  }
+}
+/* generic bidirectional translation, chunked for length; sourceLang/
+   targetLang default to EN->DE so every existing call site (which only
+   ever passed a bare string) keeps working unchanged */
+async function translateText(text, sourceLang, targetLang){
+  if(!text || !text.trim()) return '';
+  sourceLang = sourceLang || 'EN';
+  targetLang = targetLang || 'DE';
+  var chunks = splitForTranslation(text);
+  var results = [];
+  for(var i = 0; i < chunks.length; i++){ results.push(await translateChunk(chunks[i], sourceLang, targetLang)); }
+  return results.join('').trim();
+}
+async function translateEnToDe(text){ return translateText(text, 'EN', 'DE'); }
+async function translateDeToEn(text){ return translateText(text, 'DE', 'EN'); }
+/* translates only the caption inside a ![caption](path "credit") marker,
+   leaving the path/credit and any [game:ID] marker untouched */
+async function translateBodyParagraph(para, sourceLang, targetLang){
+  if(/^\[game:/.test(para)) return para; /* game marker – nothing to translate */
+  var imgMatch = /^!\[([^\]]*)\](\([^)]+\))$/.exec(para);
+  if(imgMatch){
+    var caption = imgMatch[1];
+    if(!caption.trim()) return para;
+    var translatedCaption = await translateText(caption, sourceLang, targetLang);
+    return '![' + translatedCaption + ']' + imgMatch[2];
+  }
+  /* **bold**, *italic*, __underline__ spans, inline links (e.g. an
+     affiliate link mid-sentence – [text](url)), [size=N]...[/size]
+     spans, and [color=blue]...[/color] spans all need their own inner
+     text translated but their markup (the asterisks/underscores, the
+     URL, the pixel size, the fixed blue) left completely alone – pull
+     each one out into a placeholder token before translating the
+     surrounding prose, so the translator never even sees (and so can't
+     mangle) the raw markdown syntax itself, then translate each span's
+     own text separately and stitch the markup back around it.
+     extract() is RECURSIVE: after matching e.g. **...**, it re-runs the
+     whole chain on the captured inner text before storing it, so it
+     doesn't matter which type is nested inside which – a heading like
+     **[color=blue][size=24]Text[/size][/color]** (bold OUTSIDE color,
+     the site's actual heading convention) and one like
+     [color=blue]**important**[/color] (bold INSIDE color) both fully
+     decompose correctly. A non-recursive, fixed-order version of this
+     shipped briefly and only handled the second case – bold, being
+     matched first at the top level, would swallow an entire
+     unextracted "[color=blue][size=24]...[/size][/color]" span as one
+     opaque blob (nothing else had a chance to see it yet), so those
+     markers went completely unprotected into the translator and came
+     back as literal, broken "[color=blue]" text with a leftover
+     unresolved ⟦P0⟧ token where the real text should be. Recursing into
+     the captured inner text before storing it means whichever type
+     happens to be innermost always gets its own placeholder FIRST
+     (lowest index), so by the time an outer placeholder is resolved
+     below, any token still inside its own .text is already resolved –
+     same ascending-index guarantee as before, just no longer dependent
+     on guessing the "always this order" case that turned out to be
+     wrong for how headings are actually written on this site. */
+  var placeholders = [];
+  /* Order within each callback matters: recurse into the inner text
+     FIRST (so any nested span gets pushed – and so claims its index –
+     before this one does), and only THEN read placeholders.length for
+     THIS placeholder's own index and push it. Reading the index before
+     recursing (as an earlier version of this did) grabs a slot number
+     that a nested push then reuses for itself, so two different spans
+     end up sharing one token and the outer markup's own token is never
+     actually in the text anywhere – exactly how the leftover literal
+     "[color=blue]" text and unresolved ⟦P0⟧ token got saved into a
+     draft the last time this ran. */
+  function extract(text){
+    return text
+      .replace(/\*\*([^*]+)\*\*/g, function(match, inner){
+        var extractedInner = extract(inner);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'bold', text: extractedInner });
+        return '⟦P' + idx + '⟧';
+      })
+      .replace(/\*([^*]+)\*/g, function(match, inner){
+        var extractedInner = extract(inner);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'italic', text: extractedInner });
+        return '⟦P' + idx + '⟧';
+      })
+      .replace(/__([^_]+)__/g, function(match, inner){
+        var extractedInner = extract(inner);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'underline', text: extractedInner });
+        return '⟦P' + idx + '⟧';
+      })
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(match, text, url){
+        var extractedText = extract(text);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'link', text: extractedText, url: url });
+        return '⟦P' + idx + '⟧';
+      })
+      .replace(/\[size=(\d+)\]([\s\S]*?)\[\/size\]/g, function(match, px, inner){
+        var extractedInner = extract(inner);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'size', px: px, text: extractedInner });
+        return '⟦P' + idx + '⟧';
+      })
+      .replace(/\[color=blue\]([\s\S]*?)\[\/color\]/g, function(match, inner){
+        var extractedInner = extract(inner);
+        var idx = placeholders.length;
+        placeholders.push({ type: 'color', text: extractedInner });
+        return '⟦P' + idx + '⟧';
+      });
+  }
+  var withPlaceholders = extract(para);
+  if(!placeholders.length) return await translateText(para, sourceLang, targetLang);
+  /* Translates `text`, which may itself still contain ⟦Pn⟧ tokens (a
+     placeholder's own .text can hold a nested token, per the ordering
+     above) – splits on the token pattern first so only the REAL prose
+     segments are ever handed to the translator, and every token passes
+     through completely untouched, wherever it lands in the string. */
+  async function translatePreservingTokens(text){
+    var parts = text.split(/(⟦P\d+⟧)/g);
+    var out = '';
+    for(var k = 0; k < parts.length; k++){
+      if(/^⟦P\d+⟧$/.test(parts[k])) out += parts[k];
+      else if(parts[k]) out += await translateText(parts[k], sourceLang, targetLang);
+    }
+    return out;
+  }
+  var translatedText = await translatePreservingTokens(withPlaceholders);
+  var resolved = [];
+  for(var i = 0; i < placeholders.length; i++){
+    var p = placeholders[i];
+    var translatedInner = await translatePreservingTokens(p.text);
+    /* any token still sitting inside translatedInner references an
+       earlier (lower-index) placeholder – those were extracted first,
+       so they're already fully resolved by this point in the loop. */
+    for(var j = 0; j < i; j++){
+      translatedInner = translatedInner.split('⟦P' + j + '⟧').join(resolved[j]);
+    }
+    resolved[i] = p.type === 'bold' ? '**' + translatedInner + '**'
+      : p.type === 'italic' ? '*' + translatedInner + '*'
+      : p.type === 'underline' ? '__' + translatedInner + '__'
+      : p.type === 'link' ? '[' + translatedInner + '](' + p.url + ')'
+      : p.type === 'size' ? '[size=' + p.px + ']' + translatedInner + '[/size]'
+      : '[color=blue]' + translatedInner + '[/color]';
+  }
+  for(var r = 0; r < resolved.length; r++){
+    translatedText = translatedText.split('⟦P' + r + '⟧').join(resolved[r]);
+  }
+  return translatedText;
+}
+/* wires a single translate button that reads sourceFieldId, translates it,
+   and writes into targetFieldId – used to give every EN/DE field pair in
+   the editor a button on each side (translate either direction). */
+function wireTranslateButton(btnId, sourceFieldId, targetFieldId, sourceLang, targetLang){
+  var btn = document.getElementById(btnId);
+  if(!btn) return;
+  btn.addEventListener('click', async function(){
+    var sourceEl = document.getElementById(sourceFieldId);
+    var targetEl = document.getElementById(targetFieldId);
+    if(!sourceEl || !targetEl) return;
+    var text = sourceEl.value.trim();
+    if(!text){
+      showToast('Bitte zuerst ' + (sourceLang === 'EN' ? 'englischen' : 'deutschen') + ' Text eingeben.', true);
+      return;
+    }
+    btn.disabled = true;
+    try{ targetEl.value = await translateText(text, sourceLang, targetLang); }
+    catch(err){ showToast('Übersetzung fehlgeschlagen.', true); }
+    btn.disabled = false;
+  });
+}
+/* ============================================================
+   Tabs
+   ============================================================ */
+document.querySelectorAll('.tabbar button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tabbar button').forEach(function(b){ b.classList.toggle('active', b === btn); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('active', p.id === 'panel-' + btn.dataset.panel); });
+  });
+});
+
+/* ============================================================
+   PARTIEN
+   ============================================================ */
+function renderGames(){
+  var list = document.getElementById('games-list');
+  if(!games.length){ list.innerHTML = '<div class="empty-note">Noch keine Partien. Die Website zeigt bis dahin ihre eingebauten Beispielpartien.</div>'; return; }
+  list.innerHTML = '';
+  games.forEach(function(g, idx){
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML =
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(g.title) || '(ohne Titel)') + '</div>' +
+      '<div class="item-sub">' + escapeHtml(g.meta || '') + '</div></div>' +
+      '<div class="item-actions">' +
+      '<button type="button" class="btn small move-btn" data-up="' + idx + '" title="Nach oben" aria-label="Nach oben"' + (idx === 0 ? ' disabled' : '') + '>▲</button>' +
+      '<button type="button" class="btn small move-btn" data-down="' + idx + '" title="Nach unten" aria-label="Nach unten"' + (idx === games.length - 1 ? ' disabled' : '') + '>▼</button>' +
+      '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
+      '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
+      '</div>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openGameForm(parseInt(b.dataset.edit, 10)); }); });
+  list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteGame(parseInt(b.dataset.del, 10)); }); });
+  list.querySelectorAll('[data-up]').forEach(function(b){ b.addEventListener('click', function(){ moveGame(parseInt(b.dataset.up, 10), -1); }); });
+  list.querySelectorAll('[data-down]').forEach(function(b){ b.addEventListener('click', function(){ moveGame(parseInt(b.dataset.down, 10), 1); }); });
+}
+/* Moves the entry at idx by direction (-1 = up/earlier, 1 = down/later) and
+   persists the new order – array order is exactly the display order used
+   both by the games dropdown on index.html and the testimonial rotation,
+   so this is the only thing that needs to change to reorder them there. */
+async function moveGame(idx, direction){
+  var target = idx + direction;
+  if(target < 0 || target >= games.length) return;
+  var tmp = games[idx]; games[idx] = games[target]; games[target] = tmp;
+  try{ await writeJson('games.json', games); renderGames(); }
+  catch(err){
+    /* revert the in-memory swap so the list doesn't silently drift out of
+       sync with the file if the write failed */
+    tmp = games[idx]; games[idx] = games[target]; games[target] = tmp;
+    showToast('Verschieben fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+/* Shared by both "add game" forms (career-page + blog-post-embedded) and
+   mirrored (simpler, no validation – no chess.js there) in guest-editor.html.
+   A game/fragment can start from any position: chess.js already honors a
+   PGN's own [SetUp "1"]/[FEN "..."] headers when loading it (see
+   createGameWidget above), so rather than making someone hand-write PGN
+   header tags, this form has one plain "Startposition" field and this
+   builds/strips the header for them. An empty PGN with a FEN becomes a
+   pure diagram (see createGameWidget's navEl.hidden – zero moves hides
+   the play/prev/next controls). */
+function extractFenHeader(pgnText){
+  var m = /\[FEN\s+"([^"]*)"\]/.exec(pgnText || '');
+  var hasSetup = /\[SetUp\s+"1"\]/.test(pgnText || '');
+  return (hasSetup && m) ? m[1] : '';
+}
+function buildPgnWithFen(pgnText, fen){
+  var stripped = (pgnText || '').replace(/\[(SetUp|FEN)\s+"[^"]*"\]\s*/g, '').trim();
+  fen = (fen || '').trim();
+  if(!fen) return stripped;
+  return '[SetUp "1"]\n[FEN "' + fen.replace(/"/g, '') + '"]\n\n' + (stripped || '*');
+}
+function openGameForm(idx){
+  var editing = idx != null;
+  var g = editing ? games[idx] : { title: '', meta: '', pgn: '' };
+  var titleSplit = splitLangValue(g.title);
+  var fenValue = extractFenHeader(g.pgn);
+  var slot = document.getElementById('games-form-slot');
+  slot.innerHTML =
+    '<form class="entry-form" id="game-form">' +
+    '<h3>' + (editing ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
+    '<div class="field"><label>Aus der PGN-Datenbank übernehmen (optional)</label>' +
+    '<span class="hint">Kopiert Titel und PGN einer bereits vorhandenen Partie hierher – danach frei anpassbar. Betrifft nur dieses Formular, die Original-Partie bleibt unverändert.</span>' +
+    '<select id="gf-copy-from"><option value="">Lädt Partien-Datenbank …</option></select></div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Titel (Englisch)</label>' +
+    '<div class="cover-row"><input type="text" id="gf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan" style="flex:1;">' +
+    '<button type="button" class="btn small" id="gf-title-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Titel (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Titel auch auf Deutsch angezeigt werden soll – oder automatisch übersetzen.</span>' +
+    '<div class="cover-row"><input type="text" id="gf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Pflichtsieg gegen GM Iniyan" style="flex:1;">' +
+    '<button type="button" class="btn small" id="gf-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '</div>' +
+    '<div class="field"><label>Kurzbeschreibung (optional)</label><input type="text" id="gf-meta" value="' + escapeHtml(g.meta) + '" placeholder="z. B. Riga Tech op-A · Runde 9"></div>' +
+    '<div class="field"><label>Startposition (FEN, optional)</label><span class="hint">Leer lassen für die normale Grundstellung. Ausgefüllt startet die Partie/das Fragment dort – z. B. für einen Partieausschnitt oder ein reines Diagramm (dann unten einfach kein Zugtext eintragen).</span>' +
+    '<input type="text" id="gf-fen" class="mono" value="' + escapeHtml(fenValue) + '" placeholder="z. B. r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 4 4"></div>' +
+    '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. – aus deiner Schach-App oder Turnierseite kopieren. Bei einer Startposition oben reicht auch nur der Zugtext, oder – für ein reines Diagramm – gar keiner.</span>' +
+    '<textarea id="gf-pgn" class="tall mono" placeholder="[Event &quot;...&quot;]&#10;[White &quot;...&quot;]&#10;[Black &quot;...&quot;]&#10;...&#10;1. e4 e5 2. Nf3 ...">' + escapeHtml(buildPgnWithFen(g.pgn, '')) + '</textarea></div>' +
+    '<div class="form-actions">' +
+    '<button type="submit" class="btn solid">Speichern</button>' +
+    '<button type="button" class="btn" id="gf-cancel">Abbrechen</button>' +
+    '</div></form>';
+  document.getElementById('gf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+  /* lets you start from a game that's already in the PGN database
+     (data/games.pgn) instead of re-pasting PGN text by hand – same
+     picker as the blog post games form, see openPostGameForm() for the
+     full rationale. Reads games.pgn fresh every time this opens, so a
+     game saved in ChessBase moments ago is already pickable here. */
+  var copyFromSelect = document.getElementById('gf-copy-from');
+  var pgnDatabaseEntries = [];
+  function labelForPgnEntryDirect(entry){
+    var h = entry.headers;
+    var nameLabel = (h.white && h.black) ? (h.white + ' – ' + h.black) : (h.event || '(unbenannte Partie)');
+    var known = null;
+    if(entry.websiteId){
+      known = games.find(function(gg){ return gg.id === entry.websiteId; });
+      if(!known){
+        blogPosts.some(function(p){
+          known = (p.games || []).find(function(gg){ return gg.id === entry.websiteId; });
+          return !!known;
+        });
+      }
+    }
+    var existingTitle = known ? previewLang(known.title) : '';
+    return existingTitle ? (nameLabel + ' – ' + existingTitle) : nameLabel;
+  }
+  fetchGamesPgnDatabase().then(function(entries){
+    if(!copyFromSelect) return; /* form may have been closed already */
+    if(entries === null){
+      copyFromSelect.innerHTML = '<option value="">Datenbank konnte nicht geladen werden</option>';
+      return;
+    }
+    pgnDatabaseEntries = entries;
+    if(!entries.length){
+      copyFromSelect.innerHTML = '<option value="">Noch keine Partien in der Datenbank</option>';
+      return;
+    }
+    copyFromSelect.innerHTML = '<option value="">– auswählen –</option>' +
+      entries.map(function(entry, i){ return '<option value="' + i + '">' + escapeHtml(labelForPgnEntryDirect(entry)) + '</option>'; }).join('');
+  });
+  if(copyFromSelect){
+    copyFromSelect.addEventListener('change', function(){
+      if(copyFromSelect.value === '') return;
+      var entry = pgnDatabaseEntries[parseInt(copyFromSelect.value, 10)];
+      if(!entry) return;
+      var known = entry.websiteId && games.find(function(gg){ return gg.id === entry.websiteId; });
+      var srcTitle = splitLangValue(known ? known.title : (entry.headers.white && entry.headers.black ? entry.headers.white + ' vs ' + entry.headers.black : entry.headers.event || ''));
+      document.getElementById('gf-title-en').value = srcTitle.en;
+      document.getElementById('gf-title-de').value = srcTitle.de;
+      document.getElementById('gf-meta').value = known ? (known.meta || '') : '';
+      document.getElementById('gf-fen').value = extractFenHeader(entry.pgn);
+      document.getElementById('gf-pgn').value = buildPgnWithFen(entry.pgn, '');
+      copyFromSelect.value = '';
+      showToast('Übernommen – unten anpassen und speichern ✓');
+    });
+  }
+  wireTranslateButton('gf-title-translate', 'gf-title-en', 'gf-title-de', 'EN', 'DE');
+  wireTranslateButton('gf-title-translate-rev', 'gf-title-de', 'gf-title-en', 'DE', 'EN');
+  document.getElementById('game-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var titleEn = document.getElementById('gf-title-en').value.trim();
+    var fenInput = document.getElementById('gf-fen').value.trim();
+    if(fenInput && typeof Chess !== 'undefined' && !(new Chess()).load(fenInput)){
+      showToast('Diese Startposition (FEN) ist ungültig.', true);
+      return;
+    }
+    var pgnWithFen = buildPgnWithFen(document.getElementById('gf-pgn').value.trim(), fenInput);
+    /* start from the existing entry (when editing) rather than a blank
+       object, so "id" and "annotations" – added by scripts/sync_games_pgn.py
+       for the ChessBase round-trip, never shown in this form – survive an
+       edit here instead of silently vanishing (which would break the link
+       to that game's entry in games.pgn and lose its comments/variations
+       until the next sync re-derives them from the possibly-now-stale pgn) */
+    var entry = Object.assign({}, editing ? games[idx] : {}, {
+      title: joinLangValue(titleEn, document.getElementById('gf-title-de').value) || 'Unbenannte Partie',
+      meta: document.getElementById('gf-meta').value.trim(),
+      pgn: pgnWithFen
+    });
+    if(!entry.pgn){ showToast('Bitte einen PGN-Text oder eine Startposition eingeben.', true); return; }
+    if(editing) games[idx] = entry; else games.push(entry);
+    try{
+      await writeJson('games.json', games);
+      slot.innerHTML = '';
+      renderGames();
+      showToast('Partie gespeichert ✓');
+    }catch(err){ showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
+  });
+}
+document.getElementById('games-add-btn').addEventListener('click', function(){ openGameForm(null); });
+async function deleteGame(idx){
+  if(!confirm('Diese Partie wirklich löschen?')) return;
+  games.splice(idx, 1);
+  try{ await writeJson('games.json', games); renderGames(); showToast('Partie gelöscht.'); }
+  catch(err){ showToast('Löschen fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
+}
+
+/* ============================================================
+   BLOG
+   ============================================================ */
+/* A "scheduled" post is a draft with a future publish date attached — it
+   stays hidden on the public site exactly like a plain draft until that
+   date arrives, then shows up on its own, with nothing else needing to
+   happen (no server, no cron job: the site itself checks the date fresh
+   on every page load, so this works whether or not this computer is even
+   on at the moment it "publishes" itself). Reuses the post's own "date"
+   field rather than a separate one, since that's the date it's shown
+   under once live anyway — they were always meant to be the same day. */
+function isScheduledPost(p){
+  return p.status === 'scheduled';
+}
+function isScheduledPostDue(p){
+  if(!isScheduledPost(p) || !p.date) return false;
+  var publishAt = new Date(p.date + 'T00:00:00');
+  return !isNaN(publishAt.getTime()) && publishAt <= new Date();
+}
+function renderBlog(){
+  var list = document.getElementById('blog-list');
+  if(!blogPosts.length){ list.innerHTML = '<div class="empty-note">Noch keine Beiträge. Die Website zeigt bis dahin ihre Platzhalter-Karten.</div>'; return; }
+  list.innerHTML = '';
+  blogPosts.forEach(function(p, idx){
+    var isDraft = p.status === 'draft';
+    var scheduled = isScheduledPost(p);
+    var due = scheduled && isScheduledPostDue(p);
+    var badge = isDraft ? '<span class="status-badge">Entwurf</span>'
+      : (scheduled ? '<span class="status-badge' + (due ? '' : ' scheduled') + '">' + (due ? 'Geplant — wird gleich sichtbar' : ('Geplant für ' + escapeHtml(formatBlogDate(p.date, 'de')))) + '</span>' : '');
+    /* p.submittedBy only exists on drafts guest-submit-worker.js created
+       via guest-editor.html – a normal save through this editor never
+       sets it, so its mere presence is enough to flag "someone else
+       wrote this, still needs your review" at a glance. */
+    var guestBadge = p.submittedBy ? '<span class="status-badge guest">Gastbeitrag' + (p.submittedBy.name ? ': ' + escapeHtml(p.submittedBy.name) : '') + '</span>' : '';
+    /* "Fertig" is purely an organisational marker for this list, entirely
+       separate from status – it never changes what's publicly visible
+       (only status/date do that). Lets a draft/scheduled post be flagged
+       "done, just waiting on me to hit publish" instead of getting lost
+       among ones still being worked on – so it's shown (and toggleable)
+       only pre-publish, a published post is trivially already "finished". */
+    var notYetLive = isDraft || scheduled;
+    var finishedBadge = (notYetLive && p.finished) ? '<span class="status-badge finished">✓ Fertig</span>' : '';
+    /* soft, informational only – Jakob can always still edit/save over it,
+       see the equivalent (hard, server-enforced) check for guest-editor.html
+       itself in guest-submit-worker.js */
+    var lock = activeEditLock(p);
+    var lockBadge = (p.guestEditable && lock) ? '<span class="status-badge locked" title="Läuft in ' + Math.max(1, Math.round((EDIT_LOCK_TTL_MS - (Date.now() - Date.parse(lock.since))) / 60000)) + ' Min. ab, falls niemand mehr speichert">⏳ Wird im Gast-Editor bearbeitet' + (lock.holderName ? ' (' + escapeHtml(lock.holderName) + ')' : '') + '</span>' : '';
+    var guestKey = getGuestAccessKey();
+    var shareRow = '';
+    if(notYetLive && p.slug && p.guestEditable){
+      var shareLink = guestKey ? (guestEditorLinkBase() + '?key=' + encodeURIComponent(guestKey) + '&slug=' + encodeURIComponent(p.slug)) : '';
+      shareRow = '<div class="item-sub">' +
+        (shareLink
+          ? '🔗 <a href="' + escapeHtml(shareLink) + '" target="_blank" rel="noopener">Gast-Editor-Link</a> <button type="button" class="btn small" data-copy-guest-link="' + idx + '">Kopieren</button>'
+          : '<span style="color:var(--err);">Bitte oben den Gast-Zugangsschlüssel eintragen, um den Link zu sehen.</span>') +
+        '</div>';
+    }
+    /* entry.guestVersion: a guest's alternative version of this shared
+       post (see toggleGuestEditable / guest-submit-worker.js) – never
+       merged automatically, just flagged here; reviewing/adopting it
+       happens inside the edit form (openBlogForm), not from the list,
+       to keep this row from growing yet another button. */
+    var altBadge = p.guestVersion ? '<span class="status-badge alt">🔀 Alternative Version</span>' : '';
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML =
+      '<div class="item-main">' +
+      (p.image ? '<img class="item-thumb" src="' + escapeHtml(p.image) + '" alt="">' : '') +
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(p.title) || '(ohne Titel)') + (badge ? ' ' + badge : '') + (finishedBadge ? ' ' + finishedBadge : '') + (guestBadge ? ' ' + guestBadge : '') + (lockBadge ? ' ' + lockBadge : '') + (altBadge ? ' ' + altBadge : '') + '</div>' +
+      '<div class="item-sub">' + escapeHtml(formatBlogDate(p.date, 'de')) + (p.date && p.excerpt ? ' · ' : '') + escapeHtml(previewLang(p.excerpt) || '') +
+      (p.submittedBy && p.submittedBy.contact ? ' · <span title="Kontakt der Gastautorin/des Gastautors">' + escapeHtml(p.submittedBy.contact) + '</span>' : '') +
+      '</div>' + shareRow + '</div>' +
+      '</div>' +
+      '<div class="item-actions">' +
+      '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
+      (p.slug ? '<button type="button" class="btn small" data-preview="' + idx + '" title="Öffnet die Live-Ansicht direkt, ohne erst das Bearbeiten-Formular zu öffnen">👁 Vorschau</button>' : '') +
+      '<details class="item-overflow"><summary class="btn small" title="Weitere Aktionen">⋯</summary><div class="item-overflow-menu">' +
+      '<button type="button" class="btn small" data-toggle-status="' + idx + '">' + (isDraft || scheduled ? 'Jetzt veröffentlichen' : 'Zu Entwurf') + '</button>' +
+      (notYetLive ? '<button type="button" class="btn small" data-toggle-finished="' + idx + '">' + (p.finished ? 'Fertig-Markierung entfernen' : 'Als fertig markieren') + '</button>' : '') +
+      (notYetLive && p.slug ? '<button type="button" class="btn small" data-toggle-guest-editable="' + idx + '">' + (p.guestEditable ? 'Gast-Freigabe aufheben' : 'Für Gast-Editor freigeben') + '</button>' : '') +
+      '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
+      '</div></details>' +
+      '</div>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openBlogForm(parseInt(b.dataset.edit, 10)); }); });
+  list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteBlog(parseInt(b.dataset.del, 10)); }); });
+  list.querySelectorAll('[data-toggle-status]').forEach(function(b){ b.addEventListener('click', function(){ toggleBlogStatus(parseInt(b.dataset.toggleStatus, 10)); }); });
+  list.querySelectorAll('[data-toggle-finished]').forEach(function(b){ b.addEventListener('click', function(){ toggleBlogFinished(parseInt(b.dataset.toggleFinished, 10)); }); });
+  list.querySelectorAll('[data-preview]').forEach(function(b){ b.addEventListener('click', function(){ openBlogPreview(parseInt(b.dataset.preview, 10)); }); });
+  list.querySelectorAll('[data-toggle-guest-editable]').forEach(function(b){ b.addEventListener('click', function(){ toggleGuestEditable(parseInt(b.dataset.toggleGuestEditable, 10)); }); });
+  list.querySelectorAll('[data-copy-guest-link]').forEach(function(b){ b.addEventListener('click', function(){ copyGuestLink(parseInt(b.dataset.copyGuestLink, 10)); }); });
+}
+/* shares one of Jakob's own drafts out for collaborative editing in
+   guest-editor.html – see the "guestEditable" field's server-side
+   handling in guest-submit-worker.js. Revoking it also drops any active
+   editLock, since there's no longer a shared draft left to lock. */
+async function toggleGuestEditable(idx){
+  var post = blogPosts[idx];
+  var old = !!post.guestEditable;
+  if(old && post.guestVersion && !confirm('Für diesen Beitrag liegt noch eine ungesichtete Alternative Version vom Gast-Editor vor. Freigabe wirklich aufheben und diese Version verwerfen?')) return;
+  post.guestEditable = !old;
+  if(!post.guestEditable){ post.editLock = null; post.guestVersion = null; }
+  try{
+    await writeJson('blog.json', blogPosts);
+    renderBlog();
+    showToast(post.guestEditable ? 'Für den Gast-Editor freigegeben ✓' : 'Freigabe aufgehoben.');
+  }catch(err){
+    post.guestEditable = old;
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+function copyGuestLink(idx){
+  var post = blogPosts[idx];
+  var guestKey = getGuestAccessKey();
+  if(!guestKey || !post.slug) return;
+  var link = guestEditorLinkBase() + '?key=' + encodeURIComponent(guestKey) + '&slug=' + encodeURIComponent(post.slug);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(function(){ showToast('Link kopiert ✓'); }, function(){ showToast('Kopieren fehlgeschlagen – Link von Hand markieren.', true); });
+  } else {
+    showToast('Kopieren wird von diesem Browser nicht unterstützt – Link von Hand markieren.', true);
+  }
+}
+/* ---- reviewing a guest's alternative version (entry.guestVersion) ----
+   Never merged automatically (see guest-submit-worker.js) – these three
+   are the only ways it ever changes the real post, and all three are
+   Jakob's own explicit choice, from inside the edit form. */
+function viewGuestVersion(idx){
+  var p = blogPosts[idx];
+  if(!p || !p.guestVersion || !p.slug) return;
+  var gv = p.guestVersion;
+  var preview = Object.assign({}, p, gv, { slug: p.slug, status: 'draft', date: p.date });
+  try{ localStorage.setItem('jlpBlogPreview:' + p.slug, JSON.stringify({ post: preview, savedAt: Date.now() })); }catch(e){}
+  var lang = (gv.title && gv.title.de) ? 'de' : 'en';
+  window.open('blog-post.html?slug=' + encodeURIComponent(p.slug) + '&lang=' + lang, '_blank');
+}
+async function adoptGuestVersion(idx){
+  var post = blogPosts[idx];
+  if(!post || !post.guestVersion) return;
+  if(!confirm('Diese Alternative Version wirklich übernehmen? Dein bisheriger Text an diesem Beitrag wird dabei ersetzt.')) return;
+  var gv = post.guestVersion;
+  var backup = Object.assign({}, post);
+  Object.assign(post, {
+    title: gv.title, category: gv.category, excerpt: gv.excerpt, lead: gv.lead, quote: gv.quote,
+    body: gv.body, image: gv.image || post.image, imageCaption: gv.imageCaption,
+    imageCredit: gv.imageCredit, games: gv.games, guestVersion: null
+  });
+  try{
+    await writeJson('blog.json', blogPosts);
+    renderBlog();
+    openBlogForm(idx);
+    showToast('Alternative Version übernommen ✓');
+  }catch(err){
+    Object.assign(post, backup);
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+async function discardGuestVersion(idx){
+  var post = blogPosts[idx];
+  if(!post || !post.guestVersion) return;
+  if(!confirm('Diese Alternative Version wirklich verwerfen? Sie kann danach nicht wiederhergestellt werden.')) return;
+  var old = post.guestVersion;
+  post.guestVersion = null;
+  try{
+    await writeJson('blog.json', blogPosts);
+    renderBlog();
+    openBlogForm(idx);
+    showToast('Alternative Version verworfen.');
+  }catch(err){
+    post.guestVersion = old;
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+/* opens the live view of an already-saved post directly from the list,
+   without first opening its edit form – the point being "direct", one
+   click. Re-stashes it into localStorage first (same mechanism the
+   in-form "Vorschau ansehen" button uses) purely so the preview is
+   guaranteed to reflect this exact saved state even if GitHub Pages
+   hasn't finished deploying the underlying commit yet. */
+function openBlogPreview(idx){
+  var p = blogPosts[idx];
+  if(!p || !p.slug) return;
+  try{
+    localStorage.setItem('jlpBlogPreview:' + p.slug, JSON.stringify({ post: p, savedAt: Date.now() }));
+  }catch(e){ /* localStorage unavailable – preview just falls back to waiting for deployment */ }
+  var lang = (p.title && typeof p.title === 'object' && p.title.de) ? 'de' : 'en';
+  window.open('blog-post.html?slug=' + encodeURIComponent(p.slug) + '&lang=' + lang, '_blank');
+}
+async function toggleBlogStatus(idx){
+  var post = blogPosts[idx];
+  var oldStatus = post.status;
+  var wasLive = oldStatus !== 'draft' && oldStatus !== 'scheduled';
+  post.status = wasLive ? 'draft' : 'published'; /* draft or scheduled -> publish immediately, overriding any date */
+  try{
+    await writeJson('blog.json', blogPosts);
+    renderBlog();
+    showToast(wasLive ? 'Als Entwurf markiert.' : 'Veröffentlicht ✓');
+  }catch(err){
+    post.status = oldStatus; /* revert the in-memory flip if the write failed */
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+/* purely organisational – see the comment above finishedBadge in
+   renderBlog() for why this never touches status/visibility */
+async function toggleBlogFinished(idx){
+  var post = blogPosts[idx];
+  var old = !!post.finished;
+  post.finished = !old;
+  try{
+    await writeJson('blog.json', blogPosts);
+    renderBlog();
+    showToast(post.finished ? 'Als fertig markiert ✓' : 'Fertig-Markierung entfernt.');
+  }catch(err){
+    post.finished = old;
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+function makeGameId(){
+  return 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+function openBlogForm(idx){
+  var editing = idx != null;
+  var p = editing ? blogPosts[idx] : { title:'', slug:'', category:'', date:'', author:'', image:'', imageCaption:'', imageCredit:'', excerpt:'', lead:'', body:{en:[],de:[]}, quote:'', games:[] };
+  /* new post -> today in Europe/Berlin (CET/CEST) as the publish date, still
+     freely editable; editing an existing post -> keep whatever date it has */
+  var dateValue = editing ? (p.date || '') : todayInBerlin();
+  var authorValue = p.author || DEFAULT_BLOG_AUTHOR;
+  var titleSplit = splitLangValue(p.title);
+  var categorySplit = splitCategoryValue(p.category);
+  var imageCaptionSplit = splitLangValue(p.imageCaption);
+  var excerptSplit = splitLangValue(p.excerpt);
+  var leadSplit = splitLangValue(p.lead);
+  var quoteSplit = splitLangValue(p.quote);
+  /* body used to be one flat array (same text shown in both languages);
+     it's now { en:[...], de:[...] } so each language can hold its own
+     translated paragraphs while [game:ID] / image markers stay in sync. */
+  var bodyEnParas = (p.body && p.body.en) || (Array.isArray(p.body) ? p.body : []);
+  var bodyDeParas = (p.body && p.body.de) || [];
+  var pendingCoverFile = null; /* newly picked cover photo, not saved to disk yet */
+  var coverRemoved = false;
+  var postGames = (p.games || []).map(function(g){ return { id: g.id || makeGameId(), title: g.title, meta: g.meta || '', pgn: g.pgn || '' }; });
+  var catOptionsEn = collectCategoryOptions('en').map(function(c){ return '<option value="' + escapeHtml(c) + '">'; }).join('');
+  var catOptionsDe = collectCategoryOptions('de').map(function(c){ return '<option value="' + escapeHtml(c) + '">'; }).join('');
+  /* new posts default to Entwurf, so writing something doesn't put it live
+     right away – has to be explicitly switched to "Veröffentlicht" here or
+     via the list's own toggle button. An existing post with no status at
+     all (saved before this field existed) counts as published, matching
+     what's already true for it on the live site. */
+  var statusValue = editing ? (p.status === 'draft' || p.status === 'scheduled' ? p.status : 'published') : 'draft';
+  var slot = document.getElementById('blog-form-slot');
+  slot.innerHTML =
+    '<form class="entry-form" id="blog-form">' +
+    '<h3>' + (editing ? 'Beitrag bearbeiten' : 'Neuer Beitrag') + '</h3>' +
+    (editing && activeEditLock(p)
+      ? '<div class="form-notice">⏳ Wird gerade im Gast-Editor bearbeitet' + (activeEditLock(p).holderName ? ' (von ' + escapeHtml(activeEditLock(p).holderName) + ')' : '') + '. Du kannst hier trotzdem speichern – deine Version überschreibt dann den dortigen Stand.</div>'
+      : '') +
+    (editing && p.guestVersion
+      ? '<div class="form-notice alt">🔀 Es liegt eine <strong>Alternative Version</strong> vom Gast-Editor vor' + (p.guestVersion.savedBy && p.guestVersion.savedBy.name ? ' (von ' + escapeHtml(p.guestVersion.savedBy.name) + ')' : '') + ', gespeichert am ' + escapeHtml(formatBlogDate((p.guestVersion.savedAt || '').slice(0, 10), 'de')) + '. Dein eigener Text oben ist davon unberührt.' +
+        '<div><button type="button" class="btn small" id="bf-alt-view-btn">👁 Ansehen</button> <button type="button" class="btn small" id="bf-alt-adopt-btn">✓ Übernehmen</button> <button type="button" class="btn small danger" id="bf-alt-discard-btn">Verwerfen</button></div></div>'
+      : '') +
+    '<div class="field"><label>Status</label><span class="hint">Ein Entwurf ist nicht im öffentlichen Blog gelistet – nur über einen direkten Link erreichbar (mit deutlichem Entwurf-Hinweis). „Geplant" ist genauso unsichtbar, wird aber automatisch veröffentlicht, sobald das Datum unten erreicht ist — dafür muss niemand mehr etwas tun, auch dieser Rechner nicht.</span>' +
+    '<select id="bf-status">' +
+    '<option value="draft"' + (statusValue === 'draft' ? ' selected' : '') + '>Entwurf</option>' +
+    '<option value="scheduled"' + (statusValue === 'scheduled' ? ' selected' : '') + '>Geplant (veröffentlicht sich selbst am unten eingetragenen Datum)</option>' +
+    '<option value="published"' + (statusValue === 'published' ? ' selected' : '') + '>Veröffentlicht</option>' +
+    '</select></div>' +
+    (statusValue !== 'published' ?
+      '<label class="checkbox-row"><input type="checkbox" id="bf-finished"' + (p.finished ? ' checked' : '') + '> Als fertig markieren (rein organisatorisch – ändert nichts an der Sichtbarkeit, „Status" oben bestimmt weiterhin allein, ob der Beitrag online ist)</label>' : '') +
+    '<div class="translate-row">' +
+    '<button type="button" class="btn solid" id="bf-ai-fill-btn">✨ Gesamten Beitrag von der KI erstellen lassen</button>' +
+    '<span class="status" id="bf-ai-fill-status"></span>' +
+    '</div>' +
+    '<div id="bf-ai-fill-panel" class="ai-panel" hidden></div>' +
+    '<span class="hint">Beschreibe Thema, Kernaussagen und Ton – die KI schreibt Titel, Kategorie, Kurztext, Einleitung, Haupttext und optional ein Zitat, jeweils auf Englisch und Deutsch, und füllt sie direkt unten aus. Titelfoto, Datum, Autor und Status bleiben unangetastet; alles Ausgefüllte bleibt danach frei editierbar, bevor du speicherst.</span>' +
+    '<div class="translate-row">' +
+    '<button type="button" class="btn" id="bf-translate-all">🌐 Gesamten Beitrag ins Deutsche übersetzen</button>' +
+    '<button type="button" class="btn" id="bf-translate-all-rev">🌐 Gesamten Beitrag ins Englische übersetzen</button>' +
+    '<span class="status" id="bf-translate-status"></span>' +
+    '</div>' +
+    '<div class="translate-row">' +
+    '<button type="button" class="btn" id="bf-translate-body">📝 Nur Haupttext ins Deutsche übersetzen</button>' +
+    '<button type="button" class="btn" id="bf-translate-body-rev">📝 Nur Haupttext ins Englische übersetzen</button>' +
+    '</div>' +
+    '<span class="hint">Schreibe zuerst auf Englisch, übersetze dann automatisch – die deutschen Felder bleiben danach frei bearbeitbar. Jedes Feld hat außerdem einen eigenen 🌐-Knopf für beide Richtungen. "Nur Haupttext" lässt Titel, Kategorie, Kurztext, Einleitung und Zitat unangetastet.</span>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Titel (Englisch)</label><div class="cover-row"><input type="text" id="bf-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Three opening mistakes I keep seeing" style="flex:1;"><button type="button" class="btn small" id="bf-title-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Titel (Deutsch)</label><div class="cover-row"><input type="text" id="bf-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Drei Eröffnungsfehler, die ich ständig sehe" style="flex:1;"><button type="button" class="btn small" id="bf-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Kategorien (Englisch)</label><span class="hint">Mehrere durch Komma trennen, z. B. "Openings, Training".</span><div class="cover-row"><input type="text" id="bf-category-en" list="bf-category-en-options" value="' + escapeHtml(categorySplit.en.join(', ')) + '" placeholder="z. B. Openings, Training" style="flex:1;"><datalist id="bf-category-en-options">' + catOptionsEn + '</datalist><button type="button" class="btn small" id="bf-category-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Kategorien (Deutsch)</label><span class="hint">Mehrere durch Komma trennen, z. B. "Eröffnungen, Training".</span><div class="cover-row"><input type="text" id="bf-category-de" list="bf-category-de-options" value="' + escapeHtml(categorySplit.de.join(', ')) + '" placeholder="z. B. Eröffnungen, Training" style="flex:1;"><datalist id="bf-category-de-options">' + catOptionsDe + '</datalist><button type="button" class="btn small" id="bf-category-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Datum</label><span class="hint">Bei einem neuen Beitrag automatisch das heutige Datum (MEZ/MESZ) – bei Bedarf änderbar.</span><input type="date" id="bf-date" value="' + escapeHtml(dateValue) + '"></div>' +
+    '<div class="field"><label>Autor</label><span class="hint">Standardmäßig du – bei Bedarf änderbar.</span><input type="text" id="bf-author" value="' + escapeHtml(authorValue) + '" placeholder="z. B. IM Jakob Leon Pajeken"></div>' +
+    '</div>' +
+    '<div class="field"><label>Titelfoto (optional)</label><span class="hint">Erscheint als Vorschaubild auf der Karte im Blog-Tab und oben im Beitrag.</span>' +
+    '<div class="cover-row">' +
+    '<div class="cover-preview" id="bf-cover-preview">' + (p.image ? '<img src="' + escapeHtml(p.image) + '" alt="">' : 'Kein Titelfoto') + '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px;">' +
+    '<input type="file" id="bf-cover-file" accept="image/*">' +
+    '<button type="button" class="btn small" id="bf-cover-remove"' + (p.image ? '' : ' hidden') + '>Titelfoto entfernen</button>' +
+    '<input type="text" id="bf-cover-credit" value="' + escapeHtml(p.imageCredit || '') + '" placeholder="Fotograf / Quelle (optional), z. B. Claus Qvist Jessen">' +
+    '</div></div></div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Bildunterschrift Titelfoto (Englisch)</label>' +
+    '<div class="cover-row"><input type="text" id="bf-cover-caption-en" value="' + escapeHtml(imageCaptionSplit.en) + '" placeholder="Optional – describes the photo, shown under it" style="flex:1;">' +
+    '<button type="button" class="btn small" id="bf-cover-caption-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Bildunterschrift Titelfoto (Deutsch)</label>' +
+    '<div class="cover-row"><input type="text" id="bf-cover-caption-de" value="' + escapeHtml(imageCaptionSplit.de) + '" placeholder="Optional – beschreibt das Foto, erscheint darunter" style="flex:1;">' +
+    '<button type="button" class="btn small" id="bf-cover-caption-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Vorschautext (Englisch)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-excerpt-en" placeholder="One or two sentences that pull the reader in." style="flex:1;">' + escapeHtml(excerptSplit.en) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-excerpt-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Vorschautext (Deutsch)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-excerpt-de" style="flex:1;">' + escapeHtml(excerptSplit.de) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-excerpt-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Einleitungssatz (Englisch, optional, wird größer dargestellt)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-lead-en" style="flex:1;">' + escapeHtml(leadSplit.en) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-lead-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Einleitungssatz (Deutsch, optional)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-lead-de" style="flex:1;">' + escapeHtml(leadSplit.de) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-lead-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '</div>' +
+    '<div class="field"><label>Text (Englisch)</label><span class="hint">Jeden Absatz durch eine Leerzeile trennen. Markierten Text mit <strong>F</strong>/<em>K</em>/<u>U</u> fett, kursiv bzw. unterstrichen machen. Mit den weiteren Knöpfen fügst du an der Cursor-Position ein Bild, einen Link (z. B. Affiliate-Link) oder eine Partie/ein Diagramm ein.</span>' +
+    '<div class="inline-image-row"><button type="button" class="btn small" id="bf-bold-btn" title="Fett"><strong>F</strong></button>' +
+    '<button type="button" class="btn small" id="bf-italic-btn" title="Kursiv"><em>K</em></button>' +
+    '<button type="button" class="btn small" id="bf-underline-btn" title="Unterstrichen"><u>U</u></button>' +
+    '<button type="button" class="btn small" id="bf-size-btn" title="Schriftgröße">🔠 Größe</button>' +
+    '<button type="button" class="btn small" id="bf-color-btn" title="Blau" style="color:#1e3a8a;font-weight:700;">F</button>' +
+    '<button type="button" class="btn small" id="bf-insert-image">🖼 Bild in Text einfügen</button>' +
+    '<button type="button" class="btn small" id="bf-insert-link">🔗 Link einfügen</button>' +
+    '<button type="button" class="btn small" id="bf-ai-btn" title="Markierten Text (oder alles) von der KI überarbeiten lassen">✨ KI-Hilfe</button>' +
+    '<input type="file" id="bf-body-image-file" accept="image/*" hidden></div>' +
+    '<div id="bf-ai-panel" class="ai-panel" hidden></div>' +
+    '<textarea id="bf-body-en" class="tall">' + escapeHtml(bodyEnParas.join('\n\n')) + '</textarea></div>' +
+    '<div class="field"><label>Text (Deutsch)</label><span class="hint">Wird Absatz für Absatz automatisch übersetzt (Bilder/Partien bleiben an der gleichen Stelle) – danach frei bearbeitbar. Markierten Text mit <strong>F</strong>/<em>K</em>/<u>U</u> fett, kursiv bzw. unterstrichen machen. Dieselben Knöpfe wie oben, für den deutschen Text.</span>' +
+    '<div class="inline-image-row"><button type="button" class="btn small" id="bf-bold-btn-de" title="Fett"><strong>F</strong></button>' +
+    '<button type="button" class="btn small" id="bf-italic-btn-de" title="Kursiv"><em>K</em></button>' +
+    '<button type="button" class="btn small" id="bf-underline-btn-de" title="Unterstrichen"><u>U</u></button>' +
+    '<button type="button" class="btn small" id="bf-size-btn-de" title="Schriftgröße">🔠 Größe</button>' +
+    '<button type="button" class="btn small" id="bf-color-btn-de" title="Blau" style="color:#1e3a8a;font-weight:700;">F</button>' +
+    '<button type="button" class="btn small" id="bf-insert-image-de">🖼 Bild in Text einfügen</button>' +
+    '<button type="button" class="btn small" id="bf-insert-link-de">🔗 Link einfügen</button>' +
+    '<button type="button" class="btn small" id="bf-ai-btn-de" title="Markierten Text (oder alles) von der KI überarbeiten lassen">✨ KI-Hilfe</button>' +
+    '<input type="file" id="bf-body-image-file-de" accept="image/*" hidden></div>' +
+    '<div id="bf-ai-panel-de" class="ai-panel" hidden></div>' +
+    '<textarea id="bf-body-de" class="tall">' + escapeHtml(bodyDeParas.join('\n\n')) + '</textarea></div>' +
+    '<div class="field"><label>Partien &amp; Diagramme in diesem Beitrag (optional)</label>' +
+    '<span class="hint">Hier hinzufügen, dann mit „In Text einfügen“ an der gewünschten Stelle einfügen – im englischen oder deutschen Text, je nachdem, wo der Cursor zuletzt stand. Für ein reines Diagramm im Partie-Formular eine Startposition (FEN) angeben und keinen Zugtext eintragen. Mehrere Partien ankreuzen und „Auswahl als ein Brett einfügen“ klicken, um sie wie auf der Karriere-Seite in einem gemeinsamen Brett mit Auswahlmenü darzustellen.</span>' +
+    '<div class="item-list" id="bf-games-list"></div>' +
+    '<div class="inline-image-row">' +
+    '<button type="button" class="btn small" id="bf-games-add-btn">+ Partie hinzufügen</button>' +
+    '<button type="button" class="btn small" id="bf-games-insert-group-btn">🎯 Auswahl als ein Brett einfügen</button>' +
+    '</div>' +
+    '<div id="bf-games-form-slot"></div></div>' +
+    '<div class="form-row">' +
+    '<div class="field"><label>Hervorgehobenes Zitat (Englisch, optional)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-quote-en" style="flex:1;">' + escapeHtml(quoteSplit.en) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-quote-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Hervorgehobenes Zitat (Deutsch, optional)</label>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="bf-quote-de" style="flex:1;">' + escapeHtml(quoteSplit.de) + '</textarea>' +
+    '<button type="button" class="btn small" id="bf-quote-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '</div>' +
+    '<div class="form-actions">' +
+    '<button type="submit" class="btn solid">Speichern</button>' +
+    '<button type="button" class="btn" id="bf-preview-btn" title="Speichert zuerst, dann öffnet sich die Partie- und Formatierungsansicht wie live auf der Website — inklusive Entwurf-Hinweis, falls der Status noch auf Entwurf steht.">👁 Speichern &amp; Vorschau ansehen</button>' +
+    '<button type="button" class="btn" id="bf-cancel">Abbrechen</button>' +
+    '</div></form>';
+  document.getElementById('bf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+
+  /* ---- per-field translate buttons (either direction) ---- */
+  wireTranslateButton('bf-title-translate', 'bf-title-en', 'bf-title-de', 'EN', 'DE');
+  wireTranslateButton('bf-title-translate-rev', 'bf-title-de', 'bf-title-en', 'DE', 'EN');
+  wireTranslateButton('bf-category-translate', 'bf-category-en', 'bf-category-de', 'EN', 'DE');
+  wireTranslateButton('bf-category-translate-rev', 'bf-category-de', 'bf-category-en', 'DE', 'EN');
+  wireTranslateButton('bf-cover-caption-translate', 'bf-cover-caption-en', 'bf-cover-caption-de', 'EN', 'DE');
+  wireTranslateButton('bf-cover-caption-translate-rev', 'bf-cover-caption-de', 'bf-cover-caption-en', 'DE', 'EN');
+  wireTranslateButton('bf-excerpt-translate', 'bf-excerpt-en', 'bf-excerpt-de', 'EN', 'DE');
+  wireTranslateButton('bf-excerpt-translate-rev', 'bf-excerpt-de', 'bf-excerpt-en', 'DE', 'EN');
+  wireTranslateButton('bf-lead-translate', 'bf-lead-en', 'bf-lead-de', 'EN', 'DE');
+  wireTranslateButton('bf-lead-translate-rev', 'bf-lead-de', 'bf-lead-en', 'DE', 'EN');
+  wireTranslateButton('bf-quote-translate', 'bf-quote-en', 'bf-quote-de', 'EN', 'DE');
+  wireTranslateButton('bf-quote-translate-rev', 'bf-quote-de', 'bf-quote-en', 'DE', 'EN');
+
+  /* ---- cover photo picking ---- */
+  var coverPreview = document.getElementById('bf-cover-preview');
+  var coverRemoveBtn = document.getElementById('bf-cover-remove');
+  document.getElementById('bf-cover-file').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if(!file) return;
+    pendingCoverFile = file;
+    coverRemoved = false;
+    coverPreview.innerHTML = '<img src="' + URL.createObjectURL(file) + '" alt="">';
+    coverRemoveBtn.hidden = false;
+  });
+  coverRemoveBtn.addEventListener('click', function(){
+    pendingCoverFile = null;
+    coverRemoved = true;
+    coverPreview.innerHTML = 'Kein Titelfoto';
+    coverRemoveBtn.hidden = true;
+    document.getElementById('bf-cover-file').value = '';
+  });
+
+  /* ---- inline image insertion, wired identically for both the English
+     and German body textareas – each has its own button/file-input pair
+     (see the "-de" suffixed ids in the form HTML above), so inserting a
+     photo into the German text never requires switching to English first. ---- */
+  var bodyTextarea = document.getElementById('bf-body-en');
+  var bodyTextareaDe = document.getElementById('bf-body-de');
+  /* tracks whichever body textarea was last focused, so the ONE shared
+     "Partie/Diagramm in Text einfügen" action below (games aren't
+     duplicated per language – a PGN isn't translated) knows which
+     language's text to insert into, instead of always assuming English. */
+  var lastFocusedBodyTextarea = bodyTextarea;
+  [bodyTextarea, bodyTextareaDe].forEach(function(ta){
+    ta.addEventListener('focus', function(){ lastFocusedBodyTextarea = ta; });
+  });
+  function wireInsertImage(idSuffix, textarea){
+    var insertImageBtn = document.getElementById('bf-insert-image' + idSuffix);
+    var bodyImageFile = document.getElementById('bf-body-image-file' + idSuffix);
+    if(!insertImageBtn || !bodyImageFile) return;
+    insertImageBtn.addEventListener('click', function(){ bodyImageFile.click(); });
+    bodyImageFile.addEventListener('change', async function(e){
+      var file = e.target.files && e.target.files[0];
+      bodyImageFile.value = '';
+      if(!file) return;
+      if(!githubToken){ showToast('Nicht verbunden.', true); return; }
+      var caption = window.prompt('Bildunterschrift (optional, kann leer bleiben):', '') || '';
+      var credit = window.prompt('Fotograf / Quelle (optional, kann leer bleiben) – erscheint als kleiner Hinweis unter dem Bild:', '') || '';
+      insertImageBtn.disabled = true;
+      try{
+        var path = await saveImageFile(file, caption || document.getElementById('bf-title-en').value || 'bild');
+        var marker = '![' + caption.replace(/[[\]]/g, '') + '](' + path + (credit.trim() ? ' "' + credit.replace(/"/g, '') + '"' : '') + ')';
+        var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+        var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+        var before = textarea.value.slice(0, start);
+        var after = textarea.value.slice(end);
+        /* a paragraph break needs a BLANK line (two newlines), not just one –
+           checking for only one newline (as this used to) misfires whenever
+           the cursor sits right before a normal line wrap inside an existing
+           paragraph, gluing the marker onto the following text with just a
+           single \n; the marker's own regex requires it on its own paragraph,
+           so a marker inserted that way silently failed to ever render. */
+        var needsLeadingBreak = before.length && (before.match(/\n*$/) || [''])[0].length < 2;
+        var needsTrailingBreak = after.length && (after.match(/^\n*/) || [''])[0].length < 2;
+        var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
+        textarea.value = before + insertText + after;
+        var caretPos = (before + insertText).length;
+        textarea.focus();
+        textarea.setSelectionRange(caretPos, caretPos);
+        showToast('Bild eingefügt ✓');
+      }catch(err){ showToast('Bild konnte nicht gespeichert werden.', true); }
+      insertImageBtn.disabled = false;
+    });
+  }
+  wireInsertImage('', bodyTextarea);
+  wireInsertImage('-de', bodyTextareaDe);
+
+  /* ---- bold / italic / underline / size, wired identically for both the
+     English and German body textareas (each needs its own set of buttons
+     – text typed or fixed up directly in German shouldn't require
+     switching over to the English field just to format it). Wraps the
+     current selection in the matching markers (the same ones renderInline()
+     in blog-post.html looks for); with nothing selected, drops in
+     placeholder markers around the cursor instead, ready to type into. */
+  /* Same toggle-off idea as wrapSelectionIn below, but for [size=N] where
+     N varies per use so it can't be matched as a fixed string. Checks
+     both the "selection includes the markers" and "markers sit right
+     outside the selection" cases, using a regex for the opening
+     [size=digits] instead of an exact string. Returns true (and has
+     already updated the textarea) if something was unwrapped; false if
+     there was nothing to toggle off, so the caller knows to fall
+     through to its normal "ask for a size, then wrap" flow instead. */
+  function toggleOffDynamicSize(textarea){
+    var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+    var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+    var value = textarea.value;
+    var selected = value.slice(start, end);
+    var before = value.slice(0, start);
+    var after = value.slice(end);
+    var closeMarker = '[/size]';
+
+    var selMatch = /^\[size=\d+\]/.exec(selected);
+    if(selMatch && selected.slice(selected.length - closeMarker.length) === closeMarker){
+      var innerA = selected.slice(selMatch[0].length, selected.length - closeMarker.length);
+      textarea.value = before + innerA + after;
+      textarea.focus();
+      textarea.setSelectionRange(start, start + innerA.length);
+      return true;
+    }
+
+    var openMatch = /\[size=\d+\]$/.exec(before);
+    if(openMatch && after.slice(0, closeMarker.length) === closeMarker){
+      var newBefore = before.slice(0, before.length - openMatch[0].length);
+      var newAfter = after.slice(closeMarker.length);
+      var innerB = selected;
+      textarea.value = newBefore + innerB + newAfter;
+      textarea.focus();
+      textarea.setSelectionRange(newBefore.length, newBefore.length + innerB.length);
+      return true;
+    }
+    return false;
+  }
+  /* Wraps the selection in openMarker/closeMarker – but toggles it off
+     instead if it's already wrapped, so clicking e.g. Bold a second time
+     on text that's already bold removes the markers rather than nesting
+     a second pair around it. Two ways "already wrapped" can look:
+     (a) the selection itself includes the markers as its own start/end
+         (the user selected "**fett**", markers and all), or
+     (b) the markers sit immediately outside the selection in the
+         surrounding text (the user selected just "fett" inside
+         "**fett**").
+     Only unwraps the CLOSEST pair, not every marker in the text, so
+     nesting other formatting around/inside it is unaffected. */
+  /* Bold (**) and italic (*) share the same marker character, so a naive
+     "does this text start/end with openMarker" check can't tell a genuine
+     lone italic star from the inner star of a bold pair – e.g. with
+     "**hello**" selected down to just "hello", italic's own single-'*'
+     check sees a '*' immediately on each side (correctly) but doesn't
+     notice that's really the SECOND star of "**", not a standalone one.
+     Toggling italic there used to silently strip one layer of bold
+     instead of nesting italic inside it – working if you pressed Bold
+     first then Italic, but not the other order, even though both are
+     just "make this bold AND italic" and should behave identically
+     regardless of which button was pressed first. These two checks guard
+     against that: a marker match only counts if it ISN'T immediately
+     extended by one more of the same character just outside it (which
+     would mean it's actually part of a longer run, e.g. bold's ** rather
+     than italic's *). Markers that don't repeat a character this way
+     (__, [size=N], [color=blue] – anything starting with a different
+     character than "one more of the same" could extend) are never
+     affected either way, so this is a no-op for them. */
+  function isExactMarkerBefore(str, idx, marker){
+    if(str.slice(idx - marker.length, idx) !== marker) return false;
+    var ch = marker.charAt(0);
+    var extendedIdx = idx - marker.length - 1;
+    return extendedIdx < 0 || str.charAt(extendedIdx) !== ch;
+  }
+  function isExactMarkerAfter(str, idx, marker){
+    if(str.slice(idx, idx + marker.length) !== marker) return false;
+    var ch = marker.charAt(marker.length - 1);
+    return str.charAt(idx + marker.length) !== ch;
+  }
+  function wrapSelectionIn(textarea, openMarker, closeMarker, placeholder){
+    if(closeMarker == null) closeMarker = openMarker;
+    var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+    var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+    var value = textarea.value;
+    var selected = value.slice(start, end);
+    var before = value.slice(0, start);
+    var after = value.slice(end);
+
+    if(selected.length >= openMarker.length + closeMarker.length &&
+       isExactMarkerAfter(selected, 0, openMarker) &&
+       isExactMarkerBefore(selected, selected.length, closeMarker)){
+      var innerA = selected.slice(openMarker.length, selected.length - closeMarker.length);
+      textarea.value = before + innerA + after;
+      textarea.focus();
+      textarea.setSelectionRange(start, start + innerA.length);
+      return;
+    }
+
+    if(isExactMarkerBefore(before, before.length, openMarker) &&
+       isExactMarkerAfter(after, 0, closeMarker)){
+      var newBefore = before.slice(0, before.length - openMarker.length);
+      var newAfter = after.slice(closeMarker.length);
+      var innerB = selected || placeholder;
+      textarea.value = newBefore + innerB + newAfter;
+      textarea.focus();
+      textarea.setSelectionRange(newBefore.length, newBefore.length + innerB.length);
+      return;
+    }
+
+    var toInsert = selected || placeholder;
+    textarea.value = before + openMarker + toInsert + closeMarker + after;
+    var selStart = before.length + openMarker.length;
+    textarea.focus();
+    textarea.setSelectionRange(selStart, selStart + toInsert.length);
+  }
+  function wireFormattingButtons(idSuffix, textarea){
+    var boldBtn = document.getElementById('bf-bold-btn' + idSuffix);
+    var italicBtn = document.getElementById('bf-italic-btn' + idSuffix);
+    var underlineBtn = document.getElementById('bf-underline-btn' + idSuffix);
+    var sizeBtn = document.getElementById('bf-size-btn' + idSuffix);
+    var colorBtn = document.getElementById('bf-color-btn' + idSuffix);
+    if(boldBtn) boldBtn.addEventListener('click', function(){ wrapSelectionIn(textarea, '**', null, 'fett'); });
+    if(italicBtn) italicBtn.addEventListener('click', function(){ wrapSelectionIn(textarea, '*', null, 'kursiv'); });
+    if(underlineBtn) underlineBtn.addEventListener('click', function(){ wrapSelectionIn(textarea, '__', null, 'unterstrichen'); });
+    if(sizeBtn){
+      sizeBtn.addEventListener('click', function(){
+        /* [size=N] carries a number that varies per use, so it can't be
+           toggled with a fixed marker like wrapSelectionIn's other
+           callers – detect an existing [size=ANY_NUMBER]...[/size]
+           around/in the selection first and just remove it (no prompt),
+           same toggle-off idea as Bold/Italic/etc. Only if nothing's
+           there does this fall through to asking for a size and
+           wrapping, as before. */
+        if(toggleOffDynamicSize(textarea)) return;
+        var input = window.prompt('Schriftgröße in Pixel (normaler Fließtext ist ca. 16):', '24');
+        if(input == null) return;
+        var px = parseInt(input.trim(), 10);
+        if(!px || px < 8 || px > 96){ showToast('Bitte eine Zahl zwischen 8 und 96 eingeben.', true); return; }
+        wrapSelectionIn(textarea, '[size=' + px + ']', '[/size]', 'größerer Text');
+      });
+    }
+    /* this button's own on-screen color (#1e3a8a, the brighter shade) is
+       just a toolbar icon and stays as-is for legibility in the small
+       UI – it does NOT have to match what actually gets applied. The
+       real rendered text color is #26385f (a more matte, darker navy),
+       set only in blog-post.html's .color-blue rule – not a free color
+       picker */
+    if(colorBtn) colorBtn.addEventListener('click', function(){ wrapSelectionIn(textarea, '[color=blue]', '[/color]', 'blauer Text'); });
+  }
+  wireFormattingButtons('', bodyTextarea);
+  wireFormattingButtons('-de', document.getElementById('bf-body-de'));
+
+  /* ---- optional AI writing help (Google Gemini) for the body text –
+     wired identically for English and German, same idea as the
+     formatting buttons above. Operates on the current text SELECTION if
+     there is one, otherwise the whole field; the reply is shown for
+     review in its own editable box before anything gets overwritten, so
+     a bad suggestion never destroys what was there without a chance to
+     back out first. */
+  function wireAiHelper(idSuffix, textarea){
+    var btn = document.getElementById('bf-ai-btn' + idSuffix);
+    var panel = document.getElementById('bf-ai-panel' + idSuffix);
+    if(!btn || !panel) return;
+    var isOpen = false;
+    function closePanel(){
+      panel.hidden = true;
+      panel.innerHTML = '';
+      isOpen = false;
+    }
+    function renderPanel(){
+      panel.innerHTML =
+        '<div class="field"><label>Anweisung an die KI</label>' +
+        '<textarea id="' + panel.id + '-instr" class="mono" rows="2">Verbessere diesen Text: behalte Bedeutung und Ton bei, aber verbessere Grammatik, Wortwahl und Lesefluss.</textarea></div>' +
+        '<div class="form-actions">' +
+        '<button type="button" class="btn solid small" id="' + panel.id + '-send">An KI senden</button>' +
+        '<button type="button" class="btn small" id="' + panel.id + '-close">Schließen</button>' +
+        '</div>' +
+        '<div id="' + panel.id + '-result"></div>';
+      document.getElementById(panel.id + '-close').addEventListener('click', closePanel);
+      document.getElementById(panel.id + '-send').addEventListener('click', async function(){
+        var instruction = document.getElementById(panel.id + '-instr').value.trim();
+        if(!instruction){ showToast('Bitte eine Anweisung eingeben.', true); return; }
+        var start = textarea.selectionStart == null ? 0 : textarea.selectionStart;
+        var end = textarea.selectionEnd == null ? 0 : textarea.selectionEnd;
+        var hasSelection = end > start;
+        var source = hasSelection ? textarea.value.slice(start, end) : textarea.value;
+        if(!source.trim()){ showToast('Kein Text vorhanden, den die KI bearbeiten könnte.', true); return; }
+        var sendBtn = document.getElementById(panel.id + '-send');
+        var resultEl = document.getElementById(panel.id + '-result');
+        sendBtn.disabled = true;
+        resultEl.innerHTML = '<p class="hint">KI denkt nach …</p>';
+        try{
+          var prompt = instruction + '\n\nText:\n' + source +
+            '\n\nGib ausschließlich den überarbeiteten Text zurück – ohne Erklärung, ohne Anführungszeichen, ohne Einleitung davor.';
+          var reply = await askAI(prompt, function(attempt, max){
+            resultEl.innerHTML = '<p class="hint">KI-Dienst gerade überlastet – neuer Versuch (' + (attempt + 1) + '/' + max + ') …</p>';
+          });
+          resultEl.innerHTML =
+            '<div class="field"><label>Vorschlag der KI – hier noch anpassbar</label>' +
+            '<textarea id="' + panel.id + '-reply" class="mono tall">' + escapeHtml(reply) + '</textarea></div>' +
+            '<div class="form-actions">' +
+            '<button type="button" class="btn solid small" id="' + panel.id + '-apply">' + (hasSelection ? '↩ Auswahl ersetzen' : '↩ Text ersetzen') + '</button>' +
+            '</div>';
+          document.getElementById(panel.id + '-apply').addEventListener('click', function(){
+            var finalText = document.getElementById(panel.id + '-reply').value;
+            if(hasSelection){
+              textarea.value = textarea.value.slice(0, start) + finalText + textarea.value.slice(end);
+              textarea.focus();
+              textarea.setSelectionRange(start, start + finalText.length);
+            } else {
+              textarea.value = finalText;
+            }
+            closePanel();
+            showToast('Übernommen ✓');
+          });
+        }catch(err){
+          resultEl.innerHTML = '<p class="hint" style="color:#b04e2e;">' + escapeHtml(err && err.message ? err.message : 'Unbekannter Fehler.') + '</p>';
+        }
+        sendBtn.disabled = false;
+      });
+    }
+    btn.addEventListener('click', function(){
+      if(!getGeminiKey()){
+        showToast('Bitte oben zuerst einen kostenlosen KI-Schlüssel eintragen.', true);
+        return;
+      }
+      isOpen = !isOpen;
+      panel.hidden = !isOpen;
+      if(isOpen) renderPanel();
+    });
+  }
+  wireAiHelper('', bodyTextarea);
+  wireAiHelper('-de', document.getElementById('bf-body-de'));
+
+  /* ---- "Gesamten Beitrag von der KI erstellen lassen" – unlike
+     wireAiHelper above (which only rewrites text already sitting in one
+     textarea), this understands the whole post form: it fills title,
+     category, cover caption, excerpt, lead, body and quote, in both
+     languages, from one free-text instruction. Titelfoto, Datum, Autor
+     and Status are deliberately left alone – not text content for an AI
+     to write. */
+  (function wireAiFillPost(){
+    var btn = document.getElementById('bf-ai-fill-btn');
+    var panel = document.getElementById('bf-ai-fill-panel');
+    var statusEl = document.getElementById('bf-ai-fill-status');
+    if(!btn || !panel) return;
+    var isOpen = false;
+    function closePanel(){ panel.hidden = true; panel.innerHTML = ''; isOpen = false; }
+    function renderPanel(){
+      panel.innerHTML =
+        '<div class="field"><label>Worum soll der Beitrag gehen?</label>' +
+        '<textarea id="bf-ai-fill-instr" class="mono tall" rows="4" placeholder="z. B. Ein Beitrag darüber, warum Anfänger zu früh mit Eröffnungstheorie beginnen, statt Taktik und Endspiele zu üben. Ton: ermutigend, konkret, mit einem Beispiel aus dem eigenen Training."></textarea></div>' +
+        '<div class="form-actions">' +
+        '<button type="button" class="btn solid small" id="bf-ai-fill-send">Generieren</button>' +
+        '<button type="button" class="btn small" id="bf-ai-fill-close">Schließen</button>' +
+        '</div>' +
+        '<div id="bf-ai-fill-result"></div>';
+      document.getElementById('bf-ai-fill-close').addEventListener('click', closePanel);
+      document.getElementById('bf-ai-fill-send').addEventListener('click', async function(){
+        var instruction = document.getElementById('bf-ai-fill-instr').value.trim();
+        if(!instruction){ showToast('Bitte kurz beschreiben, worum es gehen soll.', true); return; }
+        var checkIds = ['bf-title-en', 'bf-title-de', 'bf-excerpt-en', 'bf-excerpt-de', 'bf-lead-en', 'bf-lead-de', 'bf-body-en', 'bf-body-de', 'bf-quote-en', 'bf-quote-de'];
+        var hasExisting = checkIds.some(function(id){ var el = document.getElementById(id); return el && el.value.trim(); });
+        if(hasExisting && !confirm('Bestehender Titel, Kurztext, Einleitung, Haupttext und Zitat werden überschrieben. Fortfahren?')) return;
+        var sendBtn = document.getElementById('bf-ai-fill-send');
+        var resultEl = document.getElementById('bf-ai-fill-result');
+        sendBtn.disabled = true;
+        statusEl.textContent = 'KI schreibt den Beitrag …';
+        resultEl.innerHTML = '';
+        try{
+          var prompt = buildBlogFillPrompt(instruction, collectCategoryOptions('en'), collectCategoryOptions('de'));
+          var reply = await askAI(prompt, function(attempt, max){
+            statusEl.textContent = 'KI-Dienst gerade überlastet – neuer Versuch (' + (attempt + 1) + '/' + max + ') …';
+          });
+          var post = parseAiBlogPost(reply);
+          document.getElementById('bf-title-en').value = post.title.en;
+          document.getElementById('bf-title-de').value = post.title.de;
+          if(post.category.en) document.getElementById('bf-category-en').value = post.category.en;
+          if(post.category.de) document.getElementById('bf-category-de').value = post.category.de;
+          document.getElementById('bf-excerpt-en').value = post.excerpt.en;
+          document.getElementById('bf-excerpt-de').value = post.excerpt.de;
+          document.getElementById('bf-lead-en').value = post.lead.en;
+          document.getElementById('bf-lead-de').value = post.lead.de;
+          document.getElementById('bf-body-en').value = post.body.en.join('\n\n');
+          document.getElementById('bf-body-de').value = post.body.de.join('\n\n');
+          document.getElementById('bf-quote-en').value = post.quote.en;
+          document.getElementById('bf-quote-de').value = post.quote.de;
+          /* cover caption: only fill fields that are still empty – a cover
+             photo (and any caption the user already wrote for it) is
+             chosen independently of the AI, so don't clobber it */
+          var capEnEl = document.getElementById('bf-cover-caption-en');
+          var capDeEl = document.getElementById('bf-cover-caption-de');
+          if(capEnEl && !capEnEl.value.trim() && post.imageCaption.en) capEnEl.value = post.imageCaption.en;
+          if(capDeEl && !capDeEl.value.trim() && post.imageCaption.de) capDeEl.value = post.imageCaption.de;
+          statusEl.textContent = 'Beitrag erstellt ✓ – bitte prüfen, anpassen und Titelfoto ergänzen.';
+          showToast('Beitrag von der KI erstellt ✓ – bitte prüfen.');
+          closePanel();
+        }catch(err){
+          statusEl.textContent = '';
+          resultEl.innerHTML = '<p class="hint" style="color:#b04e2e;">' + escapeHtml(err && err.message ? err.message : 'Unbekannter Fehler.') + '</p>';
+        }
+        sendBtn.disabled = false;
+      });
+    }
+    btn.addEventListener('click', function(){
+      if(!getGeminiKey()){
+        showToast('Bitte oben zuerst einen kostenlosen KI-Schlüssel eintragen.', true);
+        return;
+      }
+      isOpen = !isOpen;
+      panel.hidden = !isOpen;
+      if(isOpen) renderPanel();
+    });
+  })();
+
+  /* ---- inline link insertion, wired identically for both body textareas
+     (see wireInsertImage above for the full rationale) – e.g. for
+     affiliate/partner links. Inserted inline at the cursor, not as its own
+     paragraph like the image button above, since a link normally sits
+     inside a sentence rather than being a standalone block. */
+  function wireInsertLink(idSuffix, textarea){
+    var btn = document.getElementById('bf-insert-link' + idSuffix);
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      var url = window.prompt('Ziel-URL (mit https://):', 'https://');
+      if(!url || !url.trim()) return;
+      url = url.trim();
+      if(!/^https?:\/\//i.test(url)){ showToast('Die URL muss mit http:// oder https:// beginnen.', true); return; }
+      var text = window.prompt('Anzeigetext des Links:', '') || url;
+      var marker = '[' + text.replace(/[[\]]/g, '') + '](' + url + ')';
+      var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+      var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+      textarea.value = textarea.value.slice(0, start) + marker + textarea.value.slice(end);
+      var caretPos = start + marker.length;
+      textarea.focus();
+      textarea.setSelectionRange(caretPos, caretPos);
+      showToast('Link eingefügt ✓');
+    });
+  }
+  wireInsertLink('', bodyTextarea);
+  wireInsertLink('-de', bodyTextareaDe);
+
+  /* ---- translate the whole post (EN -> DE) with one click ---- */
+  document.getElementById('bf-translate-all').addEventListener('click', async function(){
+    var btn = this;
+    var statusEl = document.getElementById('bf-translate-status');
+    var deIds = ['bf-title-de', 'bf-category-de', 'bf-cover-caption-de', 'bf-excerpt-de', 'bf-lead-de', 'bf-body-de', 'bf-quote-de'];
+    var hasExistingDe = deIds.some(function(id){ var el = document.getElementById(id); return el && el.value.trim(); });
+    if(hasExistingDe && !confirm('Bestehende deutsche Texte werden überschrieben. Fortfahren?')) return;
+    btn.disabled = true;
+    statusEl.textContent = 'Übersetze …';
+    try{
+      var titleEn = document.getElementById('bf-title-en').value.trim();
+      var categoryEn = document.getElementById('bf-category-en').value.trim();
+      var coverCaptionEn = document.getElementById('bf-cover-caption-en').value.trim();
+      var excerptEn = document.getElementById('bf-excerpt-en').value.trim();
+      var leadEn = document.getElementById('bf-lead-en').value.trim();
+      var quoteEn = document.getElementById('bf-quote-en').value.trim();
+      var bodyEnText = document.getElementById('bf-body-en').value.trim();
+      var bodyParas = bodyEnText ? bodyEnText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+      if(titleEn) document.getElementById('bf-title-de').value = await translateEnToDe(titleEn);
+      if(categoryEn) document.getElementById('bf-category-de').value = await translateEnToDe(categoryEn);
+      if(coverCaptionEn) document.getElementById('bf-cover-caption-de').value = await translateEnToDe(coverCaptionEn);
+      if(excerptEn) document.getElementById('bf-excerpt-de').value = await translateEnToDe(excerptEn);
+      if(leadEn) document.getElementById('bf-lead-de').value = await translateEnToDe(leadEn);
+      if(quoteEn) document.getElementById('bf-quote-de').value = await translateEnToDe(quoteEn);
+      if(bodyParas.length){
+        var translated = [];
+        for(var i = 0; i < bodyParas.length; i++){
+          statusEl.textContent = 'Übersetze Absatz ' + (i + 1) + ' von ' + bodyParas.length + ' …';
+          translated.push(await translateBodyParagraph(bodyParas[i], 'EN', 'DE'));
+        }
+        document.getElementById('bf-body-de').value = translated.join('\n\n');
+      }
+      statusEl.textContent = 'Übersetzt ✓ – bitte prüfen.';
+      showToast('Übersetzung eingefügt ✓ – bitte prüfen und ggf. anpassen.');
+    }catch(err){
+      statusEl.textContent = '';
+      showToast('Übersetzung fehlgeschlagen: ' + (err && err.message ? err.message : 'Verbindung zum Übersetzungsdienst nicht möglich.'), true);
+    }
+    btn.disabled = false;
+  });
+
+  /* ---- translate the whole post (DE -> EN) with one click – mirror of the
+     button above, for posts that were drafted in German first ---- */
+  document.getElementById('bf-translate-all-rev').addEventListener('click', async function(){
+    var btn = this;
+    var statusEl = document.getElementById('bf-translate-status');
+    var enIds = ['bf-title-en', 'bf-category-en', 'bf-cover-caption-en', 'bf-excerpt-en', 'bf-lead-en', 'bf-body-en', 'bf-quote-en'];
+    var hasExistingEn = enIds.some(function(id){ var el = document.getElementById(id); return el && el.value.trim(); });
+    if(hasExistingEn && !confirm('Bestehende englische Texte werden überschrieben. Fortfahren?')) return;
+    btn.disabled = true;
+    statusEl.textContent = 'Übersetze …';
+    try{
+      var titleDe = document.getElementById('bf-title-de').value.trim();
+      var categoryDe = document.getElementById('bf-category-de').value.trim();
+      var coverCaptionDe = document.getElementById('bf-cover-caption-de').value.trim();
+      var excerptDe = document.getElementById('bf-excerpt-de').value.trim();
+      var leadDe = document.getElementById('bf-lead-de').value.trim();
+      var quoteDe = document.getElementById('bf-quote-de').value.trim();
+      var bodyDeText = document.getElementById('bf-body-de').value.trim();
+      var bodyParasDe = bodyDeText ? bodyDeText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+      if(titleDe) document.getElementById('bf-title-en').value = await translateDeToEn(titleDe);
+      if(categoryDe) document.getElementById('bf-category-en').value = await translateDeToEn(categoryDe);
+      if(coverCaptionDe) document.getElementById('bf-cover-caption-en').value = await translateDeToEn(coverCaptionDe);
+      if(excerptDe) document.getElementById('bf-excerpt-en').value = await translateDeToEn(excerptDe);
+      if(leadDe) document.getElementById('bf-lead-en').value = await translateDeToEn(leadDe);
+      if(quoteDe) document.getElementById('bf-quote-en').value = await translateDeToEn(quoteDe);
+      if(bodyParasDe.length){
+        var translatedEn = [];
+        for(var j = 0; j < bodyParasDe.length; j++){
+          statusEl.textContent = 'Übersetze Absatz ' + (j + 1) + ' von ' + bodyParasDe.length + ' …';
+          translatedEn.push(await translateBodyParagraph(bodyParasDe[j], 'DE', 'EN'));
+        }
+        document.getElementById('bf-body-en').value = translatedEn.join('\n\n');
+      }
+      statusEl.textContent = 'Übersetzt ✓ – bitte prüfen.';
+      showToast('Übersetzung eingefügt ✓ – bitte prüfen und ggf. anpassen.');
+    }catch(err){
+      statusEl.textContent = '';
+      showToast('Übersetzung fehlgeschlagen: ' + (err && err.message ? err.message : 'Verbindung zum Übersetzungsdienst nicht möglich.'), true);
+    }
+    btn.disabled = false;
+  });
+
+  /* ---- translate only the body text (EN -> DE) – leaves title, category,
+     excerpt, lead and quote completely untouched, for when only the
+     main text changed and re-translating everything would be overkill
+     or would clobber hand-edited other fields ---- */
+  document.getElementById('bf-translate-body').addEventListener('click', async function(){
+    var btn = this;
+    var statusEl = document.getElementById('bf-translate-status');
+    var bodyDeEl = document.getElementById('bf-body-de');
+    if(bodyDeEl.value.trim() && !confirm('Der bestehende deutsche Haupttext wird überschrieben. Fortfahren?')) return;
+    btn.disabled = true;
+    statusEl.textContent = 'Übersetze Haupttext …';
+    try{
+      var bodyEnText = document.getElementById('bf-body-en').value.trim();
+      var bodyParas = bodyEnText ? bodyEnText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+      if(bodyParas.length){
+        var translated = [];
+        for(var i = 0; i < bodyParas.length; i++){
+          statusEl.textContent = 'Übersetze Absatz ' + (i + 1) + ' von ' + bodyParas.length + ' …';
+          translated.push(await translateBodyParagraph(bodyParas[i], 'EN', 'DE'));
+        }
+        bodyDeEl.value = translated.join('\n\n');
+      }
+      statusEl.textContent = 'Haupttext übersetzt ✓ – bitte prüfen.';
+      showToast('Haupttext übersetzt ✓ – bitte prüfen und ggf. anpassen.');
+    }catch(err){
+      statusEl.textContent = '';
+      showToast('Übersetzung fehlgeschlagen: ' + (err && err.message ? err.message : 'Verbindung zum Übersetzungsdienst nicht möglich.'), true);
+    }
+    btn.disabled = false;
+  });
+  /* ---- same, DE -> EN ---- */
+  document.getElementById('bf-translate-body-rev').addEventListener('click', async function(){
+    var btn = this;
+    var statusEl = document.getElementById('bf-translate-status');
+    var bodyEnEl = document.getElementById('bf-body-en');
+    if(bodyEnEl.value.trim() && !confirm('Der bestehende englische Haupttext wird überschrieben. Fortfahren?')) return;
+    btn.disabled = true;
+    statusEl.textContent = 'Übersetze Haupttext …';
+    try{
+      var bodyDeText = document.getElementById('bf-body-de').value.trim();
+      var bodyParasDe = bodyDeText ? bodyDeText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+      if(bodyParasDe.length){
+        var translatedEn = [];
+        for(var j = 0; j < bodyParasDe.length; j++){
+          statusEl.textContent = 'Übersetze Absatz ' + (j + 1) + ' von ' + bodyParasDe.length + ' …';
+          translatedEn.push(await translateBodyParagraph(bodyParasDe[j], 'DE', 'EN'));
+        }
+        bodyEnEl.value = translatedEn.join('\n\n');
+      }
+      statusEl.textContent = 'Haupttext übersetzt ✓ – bitte prüfen.';
+      showToast('Haupttext übersetzt ✓ – bitte prüfen und ggf. anpassen.');
+    }catch(err){
+      statusEl.textContent = '';
+      showToast('Übersetzung fehlgeschlagen: ' + (err && err.message ? err.message : 'Verbindung zum Übersetzungsdienst nicht möglich.'), true);
+    }
+    btn.disabled = false;
+  });
+
+  /* ---- helper: insert a marker string into the body textarea at the cursor, with blank-line spacing ---- */
+  /* targets whichever body textarea (EN or DE) was last focused – games
+     aren't duplicated per language (see lastFocusedBodyTextarea above), so
+     "In Text einfügen" needs to know which one the cursor was actually in. */
+  function insertMarkerIntoBody(marker){
+    var textarea = lastFocusedBodyTextarea;
+    var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+    var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+    var before = textarea.value.slice(0, start);
+    var after = textarea.value.slice(end);
+    /* needs a full BLANK line (two newlines), not just one – see the
+       matching comment on the image-insert handler above for why */
+    var needsLeadingBreak = before.length && (before.match(/\n*$/) || [''])[0].length < 2;
+    var needsTrailingBreak = after.length && (after.match(/^\n*/) || [''])[0].length < 2;
+    var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
+    textarea.value = before + insertText + after;
+    var caretPos = (before + insertText).length;
+    textarea.focus();
+    textarea.setSelectionRange(caretPos, caretPos);
+  }
+
+  /* ---- games embedded in this post (design follows the "Partienachspiel"
+     tool on the career page; can be inserted at any point in the body text
+     via the [game:ID] marker, parallel to the image marker above) ---- */
+  var gamesListEl = document.getElementById('bf-games-list');
+  var gamesFormSlot = document.getElementById('bf-games-form-slot');
+  function renderPostGames(){
+    if(!postGames.length){ gamesListEl.innerHTML = '<div class="empty-note">Noch keine Partien in diesem Beitrag.</div>'; return; }
+    gamesListEl.innerHTML = '';
+    postGames.forEach(function(g, gIdx){
+      var row = document.createElement('div');
+      row.className = 'item-row';
+      row.innerHTML =
+        '<div class="item-info" style="display:flex;align-items:flex-start;gap:12px;">' +
+        '<input type="checkbox" class="pg-select" data-idx="' + gIdx + '" title="Für gemeinsames Brett auswählen" style="margin-top:4px;">' +
+        '<div><div class="item-title">' + escapeHtml(previewLang(g.title) || '(ohne Titel)') + '</div>' +
+        '<div class="item-sub">' + escapeHtml(g.meta || '') + '</div></div></div>' +
+        '<div class="item-actions">' +
+        '<button type="button" class="btn small" data-insert="' + gIdx + '">In Text einfügen</button>' +
+        '<button type="button" class="btn small" data-edit="' + gIdx + '">Bearbeiten</button>' +
+        '<button type="button" class="btn small danger" data-del="' + gIdx + '">Löschen</button>' +
+        '</div>';
+      gamesListEl.appendChild(row);
+    });
+    gamesListEl.querySelectorAll('[data-insert]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var g = postGames[parseInt(b.dataset.insert, 10)];
+        insertMarkerIntoBody('[game:' + g.id + ']');
+        showToast('Partie in Text eingefügt ✓');
+      });
+    });
+    gamesListEl.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openPostGameForm(parseInt(b.dataset.edit, 10)); }); });
+    gamesListEl.querySelectorAll('[data-del]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var gIdx = parseInt(b.dataset.del, 10);
+        if(!confirm('Diese Partie wirklich aus dem Beitrag entfernen?')) return;
+        postGames.splice(gIdx, 1);
+        renderPostGames();
+        showToast('Partie entfernt. Eine vorhandene [game:...]-Markierung im Text bitte manuell löschen.');
+      });
+    });
+  }
+  function openPostGameForm(gIdx){
+    var editingGame = gIdx != null;
+    var g = editingGame ? postGames[gIdx] : { id: makeGameId(), title: '', meta: '', pgn: '' };
+    var titleSplit = splitLangValue(g.title);
+    var fenValue = extractFenHeader(g.pgn);
+    /* a plain <div>, not a <form> – this sits inside the outer #blog-form,
+       and browsers silently drop a nested <form> tag (forms cannot nest),
+       so the "save" action here is a regular button with a click handler
+       rather than a submit event. */
+    /* lets you start from a game that's already in the PGN database
+       (data/games.pgn) instead of re-pasting PGN text by hand. Copies
+       title/meta/pgn in as a starting point; this new entry still gets
+       its own fresh id once saved, so it's an independent copy from here
+       on, not a live link back to the original. Reads games.pgn fresh
+       every time this opens (see fetchGamesPgnDatabase()), not the
+       games/blogPosts arrays already loaded into this session, so a game
+       saved in ChessBase moments ago – before scripts/sync_games_pgn.py
+       has even had a sync cycle to notice it – is already pickable here. */
+    gamesFormSlot.innerHTML =
+      '<div class="entry-form" id="bf-game-form">' +
+      '<h3>' + (editingGame ? 'Partie bearbeiten' : 'Neue Partie') + '</h3>' +
+      '<div class="field"><label>Aus der PGN-Datenbank übernehmen (optional)</label>' +
+      '<span class="hint">Kopiert Titel und PGN einer bereits vorhandenen Partie hierher – danach frei anpassbar. Betrifft nur dieses Formular, die Original-Partie bleibt unverändert.</span>' +
+      '<select id="bfg-copy-from"><option value="">Lädt Partien-Datenbank …</option></select></div>' +
+      '<div class="form-row">' +
+      '<div class="field"><label>Titel (Englisch)</label>' +
+      '<div class="cover-row"><input type="text" id="bfg-title-en" value="' + escapeHtml(titleSplit.en) + '" placeholder="z. B. Must win vs GM Iniyan" style="flex:1;">' +
+      '<button type="button" class="btn small" id="bfg-title-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+      '<div class="field"><label>Titel (Deutsch, optional)</label><span class="hint">Leer lassen, wenn der englische Titel auch auf Deutsch angezeigt werden soll – oder automatisch übersetzen.</span>' +
+      '<div class="cover-row"><input type="text" id="bfg-title-de" value="' + escapeHtml(titleSplit.de) + '" placeholder="z. B. Pflichtsieg gegen GM Iniyan" style="flex:1;">' +
+      '<button type="button" class="btn small" id="bfg-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+      '</div>' +
+      '<div class="field"><label>Kurzbeschreibung (optional)</label><input type="text" id="bfg-meta" value="' + escapeHtml(g.meta) + '" placeholder="z. B. Riga Tech op-A · Runde 9"></div>' +
+      '<div class="field"><label>Startposition (FEN, optional)</label><span class="hint">Leer lassen für die normale Grundstellung. Ausgefüllt startet die Partie/das Fragment dort – z. B. für einen Partieausschnitt oder ein reines Diagramm (dann unten einfach kein Zugtext eintragen).</span>' +
+      '<input type="text" id="bfg-fen" class="mono" value="' + escapeHtml(fenValue) + '" placeholder="z. B. r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 4 4"></div>' +
+      '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. – aus deiner Schach-App oder Turnierseite kopieren. Bei einer Startposition oben reicht auch nur der Zugtext, oder – für ein reines Diagramm – gar keiner.</span>' +
+      '<textarea id="bfg-pgn" class="tall mono" placeholder="[Event &quot;...&quot;]&#10;[White &quot;...&quot;]&#10;[Black &quot;...&quot;]&#10;...&#10;1. e4 e5 2. Nf3 ...">' + escapeHtml(buildPgnWithFen(g.pgn, '')) + '</textarea></div>' +
+      '<div class="form-actions">' +
+      '<button type="button" class="btn" id="bfg-preview-btn">🔍 Vorschau prüfen</button>' +
+      '</div>' +
+      '<div id="bfg-preview"></div>' +
+      '<div class="form-actions">' +
+      '<button type="button" class="btn solid" id="bfg-save">Übernehmen</button>' +
+      '<button type="button" class="btn" id="bfg-cancel">Abbrechen</button>' +
+      '</div></div>';
+    document.getElementById('bfg-cancel').addEventListener('click', function(){ gamesFormSlot.innerHTML = ''; });
+    var copyFromSelect = document.getElementById('bfg-copy-from');
+    var pgnDatabaseEntries = [];
+    /* labels every entry primarily by the players (White – Black) – a
+       title is something you add afterward in the form below, not
+       something this list should need to guess at, so a game that has
+       none yet is just as easy to find by name as one that does. If this
+       exact game (matched by WebsiteId) already carries a title on the
+       site, that's appended too, so an already-catalogued game stays
+       just as recognisable as it always was. */
+    function labelForPgnEntry(entry){
+      var h = entry.headers;
+      var nameLabel = (h.white && h.black) ? (h.white + ' – ' + h.black) : (h.event || '(unbenannte Partie)');
+      var known = null;
+      if(entry.websiteId){
+        known = games.find(function(g){ return g.id === entry.websiteId; });
+        if(!known){
+          blogPosts.some(function(p){
+            known = (p.games || []).find(function(g){ return g.id === entry.websiteId; });
+            return !!known;
+          });
+        }
+      }
+      var existingTitle = known ? previewLang(known.title) : '';
+      return existingTitle ? (nameLabel + ' – ' + existingTitle) : nameLabel;
+    }
+    fetchGamesPgnDatabase().then(function(entries){
+      if(!copyFromSelect) return; /* form may have been closed already */
+      if(entries === null){
+        copyFromSelect.innerHTML = '<option value="">Datenbank konnte nicht geladen werden</option>';
+        return;
+      }
+      pgnDatabaseEntries = entries;
+      if(!entries.length){
+        copyFromSelect.innerHTML = '<option value="">Noch keine Partien in der Datenbank</option>';
+        return;
+      }
+      copyFromSelect.innerHTML = '<option value="">– auswählen –</option>' +
+        entries.map(function(entry, i){ return '<option value="' + i + '">' + escapeHtml(labelForPgnEntry(entry)) + '</option>'; }).join('');
+    });
+    if(copyFromSelect){
+      copyFromSelect.addEventListener('change', function(){
+        if(copyFromSelect.value === '') return;
+        var entry = pgnDatabaseEntries[parseInt(copyFromSelect.value, 10)];
+        if(!entry) return;
+        var known = entry.websiteId && games.find(function(g){ return g.id === entry.websiteId; });
+        var srcTitle = splitLangValue(known ? known.title : (entry.headers.white && entry.headers.black ? entry.headers.white + ' vs ' + entry.headers.black : entry.headers.event || ''));
+        document.getElementById('bfg-title-en').value = srcTitle.en;
+        document.getElementById('bfg-title-de').value = srcTitle.de;
+        document.getElementById('bfg-meta').value = known ? (known.meta || '') : '';
+        document.getElementById('bfg-fen').value = extractFenHeader(entry.pgn);
+        document.getElementById('bfg-pgn').value = buildPgnWithFen(entry.pgn, '');
+        copyFromSelect.value = '';
+        showToast('Übernommen – unten anpassen und speichern ✓');
+      });
+    }
+    wireTranslateButton('bfg-title-translate', 'bfg-title-en', 'bfg-title-de', 'EN', 'DE');
+    wireTranslateButton('bfg-title-translate-rev', 'bfg-title-de', 'bfg-title-en', 'DE', 'EN');
+    var previewEl = document.getElementById('bfg-preview');
+    function runPreview(){
+      var pgnVal = buildPgnWithFen(document.getElementById('bfg-pgn').value.trim(), document.getElementById('bfg-fen').value.trim());
+      if(!pgnVal){ previewEl.innerHTML = ''; return; }
+      previewEl.innerHTML = '<div class="game-preview"></div>';
+      createGameWidget(previewEl.firstElementChild, {
+        title: joinLangValue(document.getElementById('bfg-title-en').value.trim(), document.getElementById('bfg-title-de').value),
+        meta: document.getElementById('bfg-meta').value.trim(),
+        pgn: pgnVal
+      });
+    }
+    document.getElementById('bfg-preview-btn').addEventListener('click', runPreview);
+    if(g.pgn || fenValue) runPreview(); /* editing an existing game/diagram – show it right away */
+    document.getElementById('bfg-save').addEventListener('click', function(){
+      var titleEn = document.getElementById('bfg-title-en').value.trim();
+      var fenInput = document.getElementById('bfg-fen').value.trim();
+      if(fenInput && typeof Chess !== 'undefined' && !(new Chess()).load(fenInput)){
+        showToast('Diese Startposition (FEN) ist ungültig.', true);
+        return;
+      }
+      /* merge onto the existing game object (when editing) rather than
+         replacing it outright, so "annotations" – added by
+         scripts/sync_games_pgn.py for the ChessBase round-trip, never
+         shown in this form – survives an edit here instead of silently
+         vanishing until the next sync re-derives it from the pgn */
+      var entry = Object.assign({}, editingGame ? g : {}, {
+        id: g.id,
+        title: joinLangValue(titleEn, document.getElementById('bfg-title-de').value) || 'Unbenannte Partie',
+        meta: document.getElementById('bfg-meta').value.trim(),
+        pgn: buildPgnWithFen(document.getElementById('bfg-pgn').value.trim(), fenInput)
+      });
+      if(!entry.pgn){ showToast('Bitte einen PGN-Text oder eine Startposition eingeben.', true); return; }
+      if(editingGame) postGames[gIdx] = entry; else postGames.push(entry);
+      gamesFormSlot.innerHTML = '';
+      renderPostGames();
+      showToast('Partie übernommen ✓ (wird beim Speichern des Beitrags mitgespeichert)');
+    });
+  }
+  document.getElementById('bf-games-add-btn').addEventListener('click', function(){ openPostGameForm(null); });
+  document.getElementById('bf-games-insert-group-btn').addEventListener('click', function(){
+    var checked = Array.prototype.slice.call(gamesListEl.querySelectorAll('.pg-select:checked'));
+    var selectedGames = checked.map(function(cb){ return postGames[parseInt(cb.dataset.idx, 10)]; }).filter(Boolean);
+    if(selectedGames.length < 2){
+      showToast('Bitte mindestens zwei Partien ankreuzen.', true);
+      return;
+    }
+    insertMarkerIntoBody('[games:' + selectedGames.map(function(g){ return g.id; }).join(',') + ']');
+    gamesListEl.querySelectorAll('.pg-select:checked').forEach(function(cb){ cb.checked = false; });
+    showToast(selectedGames.length + ' Partien als gemeinsames Brett eingefügt ✓');
+  });
+  renderPostGames();
+
+  /* Shared by the normal "Speichern" submit and the "Vorschau ansehen"
+     button below — both need to persist the exact same entry, the only
+     difference is what happens afterward (close the form vs. keep it
+     open and jump to blog-post.html). Returns the saved entry's slug;
+     throws with a message that's safe to show directly in a toast. */
+  async function saveBlogPost(){
+    var titleEn = document.getElementById('bf-title-en').value.trim();
+    if(!titleEn) throw new Error('Bitte einen englischen Titel eingeben.');
+    var bodyEnText = document.getElementById('bf-body-en').value.trim();
+    var bodyDeText = document.getElementById('bf-body-de').value.trim();
+    var bodyEnList = bodyEnText ? bodyEnText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+    var bodyDeList = bodyDeText ? bodyDeText.split(/\n\s*\n/).map(function(s){ return s.trim(); }).filter(Boolean) : [];
+    var imagePath = p.image || '';
+    if(coverRemoved) imagePath = '';
+    else if(pendingCoverFile) imagePath = await saveImageFile(pendingCoverFile, titleEn);
+    var entry = {
+      title: joinLangValue(titleEn, document.getElementById('bf-title-de').value),
+      slug: editing ? (p.slug || uniqueSlug(titleEn, idx)) : uniqueSlug(titleEn, null),
+      status: document.getElementById('bf-status').value,
+      /* the checkbox only exists in the form while the post isn't
+         published yet (see above) – once published, "finished" no longer
+         means anything, so just carry over whatever it already was */
+      finished: document.getElementById('bf-finished') ? document.getElementById('bf-finished').checked : !!p.finished,
+      /* not shown/editable anywhere in this form itself – submittedBy is
+         set by guest-submit-worker.js, guestEditable/editLock are toggled
+         from the list row (see toggleGuestEditable) – just carried over
+         unchanged so a normal save here never silently drops them.
+         guestVersion (a guest's alternative version of this same post)
+         is likewise untouched by a normal save – it's reviewed/adopted/
+         discarded explicitly, above, never overwritten as a side effect
+         of Jakob saving his own text. */
+      submittedBy: p.submittedBy || null,
+      guestEditable: !!p.guestEditable,
+      editLock: p.editLock || null,
+      guestVersion: p.guestVersion || null,
+      category: joinCategoryValue(document.getElementById('bf-category-en').value, document.getElementById('bf-category-de').value),
+      date: document.getElementById('bf-date').value,
+      author: document.getElementById('bf-author').value.trim() || DEFAULT_BLOG_AUTHOR,
+      image: imagePath,
+      imageCaption: joinLangValue(document.getElementById('bf-cover-caption-en').value, document.getElementById('bf-cover-caption-de').value),
+      imageCredit: document.getElementById('bf-cover-credit').value.trim(),
+      excerpt: joinLangValue(document.getElementById('bf-excerpt-en').value, document.getElementById('bf-excerpt-de').value),
+      lead: joinLangValue(document.getElementById('bf-lead-en').value, document.getElementById('bf-lead-de').value),
+      body: { en: bodyEnList, de: bodyDeList },
+      quote: joinLangValue(document.getElementById('bf-quote-en').value, document.getElementById('bf-quote-de').value),
+      games: postGames
+    };
+    if(editing) blogPosts[idx] = entry; else blogPosts.push(entry);
+    /* a fresh post's own "editing"/"idx"/"p" stay stale after this first
+       save (they were captured when the form opened) — later saves in
+       the same still-open form (e.g. clicking "Vorschau ansehen" a
+       second time) would otherwise push a second, duplicate entry
+       instead of updating this one */
+    if(!editing){ editing = true; idx = blogPosts.length - 1; p = entry; }
+    await writeJson('blog.json', blogPosts);
+    return entry;
+  }
+  /* stashes the just-saved post in localStorage so blog-post.html can show
+     it instantly, instead of waiting for GitHub Pages to deploy the commit
+     (can take anywhere from a few seconds to a few minutes) */
+  function stashLocalPreview(entry){
+    try{
+      localStorage.setItem('jlpBlogPreview:' + entry.slug, JSON.stringify({ post: entry, savedAt: Date.now() }));
+    }catch(e){ /* localStorage unavailable – preview just falls back to waiting for deployment */ }
+  }
+  if(editing && p.guestVersion){
+    document.getElementById('bf-alt-view-btn').addEventListener('click', function(){ viewGuestVersion(idx); });
+    document.getElementById('bf-alt-adopt-btn').addEventListener('click', function(){ adoptGuestVersion(idx); });
+    document.getElementById('bf-alt-discard-btn').addEventListener('click', function(){ discardGuestVersion(idx); });
+  }
+  document.getElementById('blog-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    try{
+      await saveBlogPost();
+      slot.innerHTML = '';
+      renderBlog();
+      showToast('Beitrag gespeichert ✓');
+    }catch(err){
+      showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+      submitBtn.disabled = false;
+    }
+  });
+  document.getElementById('bf-preview-btn').addEventListener('click', async function(){
+    var btn = this;
+    btn.disabled = true;
+    try{
+      var savedEntry = await saveBlogPost();
+      stashLocalPreview(savedEntry);
+      var slug = savedEntry.slug;
+      renderBlog(); /* keep the list in sync in the background, but leave this form open */
+      var lang = document.getElementById('bf-title-de').value.trim() ? 'de' : 'en';
+      window.open('blog-post.html?slug=' + encodeURIComponent(slug) + '&lang=' + lang, '_blank');
+      showToast('Gespeichert — Vorschau öffnet sich in einem neuen Tab ✓');
+    }catch(err){
+      showToast('Vorschau fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+    }
+    btn.disabled = false;
+  });
+}
+document.getElementById('blog-add-btn').addEventListener('click', function(){ openBlogForm(null); });
+async function deleteBlog(idx){
+  if(!confirm('Diesen Beitrag wirklich löschen?')) return;
+  blogPosts.splice(idx, 1);
+  try{ await writeJson('blog.json', blogPosts); renderBlog(); showToast('Beitrag gelöscht.'); }
+  catch(err){ showToast('Löschen fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
+}
+
+/* ============================================================
+   TESTIMONIALS
+   ============================================================ */
+function renderTesti(){
+  var list = document.getElementById('testi-list');
+  if(!testimonials.length){ list.innerHTML = '<div class="empty-note">Noch keine Testimonials. Die Website zeigt bis dahin ihre Platzhalter-Karten.</div>'; return; }
+  list.innerHTML = '';
+  testimonials.forEach(function(t, idx){
+    var isInactive = t.active === false;
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    var quotePreview = previewLang(t.quote);
+    row.innerHTML =
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(t.who) || '(ohne Namen)') + (isInactive ? ' <span class="status-badge inactive">Inaktiv</span>' : '') + '</div>' +
+      '<div class="item-sub">' + (quotePreview ? '„' + escapeHtml(quotePreview) + '"' : '') + '</div></div>' +
+      '<div class="item-actions">' +
+      '<button type="button" class="btn small move-btn" data-up="' + idx + '" title="Nach oben" aria-label="Nach oben"' + (idx === 0 ? ' disabled' : '') + '>▲</button>' +
+      '<button type="button" class="btn small move-btn" data-down="' + idx + '" title="Nach unten" aria-label="Nach unten"' + (idx === testimonials.length - 1 ? ' disabled' : '') + '>▼</button>' +
+      '<button type="button" class="btn small" data-toggle-active="' + idx + '">' + (isInactive ? 'Aktivieren' : 'Deaktivieren') + '</button>' +
+      '<button type="button" class="btn small" data-edit="' + idx + '">Bearbeiten</button>' +
+      '<button type="button" class="btn small danger" data-del="' + idx + '">Löschen</button>' +
+      '</div>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click', function(){ openTestiForm(parseInt(b.dataset.edit, 10)); }); });
+  list.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click', function(){ deleteTesti(parseInt(b.dataset.del, 10)); }); });
+  list.querySelectorAll('[data-up]').forEach(function(b){ b.addEventListener('click', function(){ moveTesti(parseInt(b.dataset.up, 10), -1); }); });
+  list.querySelectorAll('[data-down]').forEach(function(b){ b.addEventListener('click', function(){ moveTesti(parseInt(b.dataset.down, 10), 1); }); });
+  list.querySelectorAll('[data-toggle-active]').forEach(function(b){ b.addEventListener('click', function(){ toggleTestiActive(parseInt(b.dataset.toggleActive, 10)); }); });
+}
+async function toggleTestiActive(idx){
+  var t = testimonials[idx];
+  var wasInactive = t.active === false;
+  t.active = wasInactive ? true : false; /* flip it */
+  try{
+    await writeJson('testimonials.json', testimonials);
+    renderTesti();
+    showToast(wasInactive ? 'Aktiviert ✓' : 'Deaktiviert.');
+  }catch(err){
+    t.active = !wasInactive; /* revert the in-memory flip if the write failed */
+    showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+/* same reasoning as moveGame() above – array order is the rotation order
+   shown on index.html */
+async function moveTesti(idx, direction){
+  var target = idx + direction;
+  if(target < 0 || target >= testimonials.length) return;
+  var tmp = testimonials[idx]; testimonials[idx] = testimonials[target]; testimonials[target] = tmp;
+  try{ await writeJson('testimonials.json', testimonials); renderTesti(); }
+  catch(err){
+    tmp = testimonials[idx]; testimonials[idx] = testimonials[target]; testimonials[target] = tmp;
+    showToast('Verschieben fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true);
+  }
+}
+function openTestiForm(idx){
+  var editing = idx != null;
+  var t = editing ? testimonials[idx] : { quote: '', who: '' };
+  var quoteSplit = splitLangValue(t.quote);
+  var whoSplit = splitLangValue(t.who);
+  var isActive = t.active !== false; /* missing "active" counts as active, same as on the live site */
+  var slot = document.getElementById('testi-form-slot');
+  slot.innerHTML =
+    '<form class="entry-form" id="testi-form">' +
+    '<h3>' + (editing ? 'Testimonial bearbeiten' : 'Neues Testimonial') + '</h3>' +
+    '<label class="checkbox-row"><input type="checkbox" id="tf-active"' + (isActive ? ' checked' : '') + '> Aktiv (in der Rotation auf der Website sichtbar)</label>' +
+    '<div class="field"><label>Zitat (Englisch)</label><span class="hint">Leer lassen, wenn nur die deutsche Version gebraucht wird – oder automatisch übersetzen.</span>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="tf-quote-en" placeholder="What changed in their game or how they train?" style="flex:1;">' + escapeHtml(quoteSplit.en) + '</textarea>' +
+    '<button type="button" class="btn small" id="tf-quote-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Zitat (Deutsch)</label><span class="hint">Leer lassen, wenn nur die englische Version gebraucht wird – oder automatisch übersetzen.</span>' +
+    '<div class="cover-row" style="align-items:flex-start;"><textarea id="tf-quote-de" placeholder="Was hat sich im Spiel oder im Training verändert?" style="flex:1;">' + escapeHtml(quoteSplit.de) + '</textarea>' +
+    '<button type="button" class="btn small" id="tf-quote-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Von (Englisch)</label><div class="cover-row"><input type="text" id="tf-who-en" value="' + escapeHtml(whoSplit.en) + '" placeholder="z. B. Anna, 1650 Elo" style="flex:1;">' +
+    '<button type="button" class="btn small" id="tf-who-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Von (Deutsch)</label><div class="cover-row"><input type="text" id="tf-who-de" value="' + escapeHtml(whoSplit.de) + '" placeholder="z. B. Anna, 1650 Elo" style="flex:1;">' +
+    '<button type="button" class="btn small" id="tf-who-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '<div class="form-actions">' +
+    '<button type="submit" class="btn solid">Speichern</button>' +
+    '<button type="button" class="btn" id="tf-cancel">Abbrechen</button>' +
+    '</div></form>';
+  document.getElementById('tf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+  wireTranslateButton('tf-quote-translate', 'tf-quote-en', 'tf-quote-de', 'EN', 'DE');
+  wireTranslateButton('tf-quote-translate-rev', 'tf-quote-de', 'tf-quote-en', 'DE', 'EN');
+  wireTranslateButton('tf-who-translate', 'tf-who-en', 'tf-who-de', 'EN', 'DE');
+  wireTranslateButton('tf-who-translate-rev', 'tf-who-de', 'tf-who-en', 'DE', 'EN');
+  document.getElementById('testi-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var quoteEn = document.getElementById('tf-quote-en').value.trim();
+    var quoteDe = document.getElementById('tf-quote-de').value.trim();
+    if(!quoteEn && !quoteDe){ showToast('Bitte ein Zitat eingeben.', true); return; }
+    var whoEn = document.getElementById('tf-who-en').value.trim();
+    var whoDe = document.getElementById('tf-who-de').value.trim();
+    var entry = { quote: joinLangValue(quoteEn, quoteDe), who: joinLangValue(whoEn, whoDe), active: document.getElementById('tf-active').checked };
+    if(editing) testimonials[idx] = entry; else testimonials.push(entry);
+    try{
+      await writeJson('testimonials.json', testimonials);
+      slot.innerHTML = '';
+      renderTesti();
+      showToast('Testimonial gespeichert ✓');
+    }catch(err){ showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
+  });
+}
+document.getElementById('testi-add-btn').addEventListener('click', function(){ openTestiForm(null); });
+async function deleteTesti(idx){
+  if(!confirm('Dieses Testimonial wirklich löschen?')) return;
+  testimonials.splice(idx, 1);
+  try{ await writeJson('testimonials.json', testimonials); renderTesti(); showToast('Testimonial gelöscht.'); }
+  catch(err){ showToast('Löschen fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
+}
+
+/* ============================================================
+   ERFOLGE (Career results: titles/norms, team, national, full list)
+   ============================================================ */
+/* newest first: pulls the leading year out of an entry's text (e.g. "2018 –
+   ..." or "2016, 2018 – ..." uses 2016, the first one) and sorts by that,
+   descending. Ties (same year) keep their existing relative order. */
+function extractResultYear(entry){
+  var text = (entry && typeof entry === 'object') ? (entry.de || entry.en || '') : (entry || '');
+  var m = /\d{4}/.exec(text);
+  return m ? parseInt(m[0], 10) : 0;
+}
+function sortResultsCategory(cat){
+  results[cat] = results[cat].map(function(entry, idx){ return { entry: entry, idx: idx }; })
+    .sort(function(a, b){ return extractResultYear(b.entry) - extractResultYear(a.entry) || a.idx - b.idx; })
+    .map(function(x){ return x.entry; });
+}
+var RESULTS_META = {
+  titles: { label: 'Normen & Titel', listId: 'er-titles-list', addBtnId: 'er-titles-add', formSlotId: 'er-titles-form-slot' },
+  team: { label: 'Mannschaftserfolge', listId: 'er-team-list', addBtnId: 'er-team-add', formSlotId: 'er-team-form-slot' },
+  national: { label: 'Nationale Erfolge', listId: 'er-national-list', addBtnId: 'er-national-add', formSlotId: 'er-national-form-slot' },
+  full: { label: 'Weiterer Turniererfolg', listId: 'er-full-list', addBtnId: 'er-full-add', formSlotId: 'er-full-form-slot' }
+};
+function renderResultsList(cat){
+  var meta = RESULTS_META[cat];
+  var list = document.getElementById(meta.listId);
+  var arr = results[cat] || [];
+  if(!arr.length){ list.innerHTML = '<div class="empty-note">Noch keine Einträge. Die Website zeigt bis dahin ihre eingebauten Standardeinträge.</div>'; return; }
+  list.innerHTML = '';
+  arr.forEach(function(entry, idx){
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML =
+      '<div class="item-info"><div class="item-title">' + escapeHtml(previewLang(entry)) + '</div></div>' +
+      '<div class="item-actions">' +
+      '<button type="button" class="btn small" data-edit-result="' + cat + ':' + idx + '">Bearbeiten</button>' +
+      '<button type="button" class="btn small danger" data-del-result="' + cat + ':' + idx + '">Löschen</button>' +
+      '</div>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll('[data-edit-result]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var parts = b.dataset.editResult.split(':');
+      openResultForm(parts[0], parseInt(parts[1], 10));
+    });
+  });
+  list.querySelectorAll('[data-del-result]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var parts = b.dataset.delResult.split(':');
+      deleteResultEntry(parts[0], parseInt(parts[1], 10));
+    });
+  });
+}
+function renderAllResultLists(){
+  Object.keys(RESULTS_META).forEach(renderResultsList);
+}
+function openResultForm(cat, idx){
+  var editing = idx != null;
+  var meta = RESULTS_META[cat];
+  var current = editing ? results[cat][idx] : '';
+  var split = splitLangValue(current);
+  var slot = document.getElementById(meta.formSlotId);
+  slot.innerHTML =
+    '<form class="entry-form" id="result-form-' + cat + '">' +
+    '<h3>' + (editing ? 'Eintrag bearbeiten' : 'Neuer Eintrag') + ' &mdash; ' + meta.label + '</h3>' +
+    '<div class="field"><label>Text (Englisch)</label><span class="hint">Leer lassen, wenn nur die deutsche Version gebraucht wird – oder automatisch übersetzen.</span>' +
+    '<div class="cover-row"><input type="text" id="rf-en" value="' + escapeHtml(split.en) + '" placeholder="z. B. 2026 – Winner, Example Open" style="flex:1;">' +
+    '<button type="button" class="btn small" id="rf-translate-rev" title="Ins Englische übersetzen">🌐</button></div></div>' +
+    '<div class="field"><label>Text (Deutsch)</label><span class="hint">Leer lassen, wenn nur die englische Version gebraucht wird – oder automatisch übersetzen.</span>' +
+    '<div class="cover-row"><input type="text" id="rf-de" value="' + escapeHtml(split.de) + '" placeholder="z. B. 2026 – Sieger, Beispiel-Open" style="flex:1;">' +
+    '<button type="button" class="btn small" id="rf-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
+    '<div class="form-actions">' +
+    '<button type="submit" class="btn solid">Speichern</button>' +
+    '<button type="button" class="btn" id="rf-cancel">Abbrechen</button>' +
+    '</div></form>';
+  document.getElementById('rf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
+  wireTranslateButton('rf-translate', 'rf-en', 'rf-de', 'EN', 'DE');
+  wireTranslateButton('rf-translate-rev', 'rf-de', 'rf-en', 'DE', 'EN');
+  document.getElementById('result-form-' + cat).addEventListener('submit', async function(e){
+    e.preventDefault();
+    var en = document.getElementById('rf-en').value.trim();
+    var de = document.getElementById('rf-de').value.trim();
+    if(!en && !de){ showToast('Bitte einen Text eingeben.', true); return; }
+    var value = joinLangValue(en, de);
+    if(editing) results[cat][idx] = value; else results[cat].push(value);
+    sortResultsCategory(cat); /* keep the newest-first order after every add/edit */
+    try{
+      await writeJson('results.json', results);
+      slot.innerHTML = '';
+      renderResultsList(cat);
+      showToast('Gespeichert ✓');
+    }catch(err){ showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
+  });
+}
+async function deleteResultEntry(cat, idx){
+  if(!confirm('Diesen Eintrag wirklich löschen?')) return;
+  results[cat].splice(idx, 1);
+  try{ await writeJson('results.json', results); renderResultsList(cat); showToast('Gelöscht.'); }
+  catch(err){ showToast('Löschen fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
+}
+Object.keys(RESULTS_META).forEach(function(cat){
+  document.getElementById(RESULTS_META[cat].addBtnId).addEventListener('click', function(){ openResultForm(cat, null); });
+});
+
+/* ============================================================
+   POPUP (data/popup.json) – the English-only, Coaching-tab-only
+   free-analysis popup on the live site. One settings object, not a
+   list, so this is a plain form instead of the add/edit/delete
+   pattern the other panels use.
+   ============================================================ */
+function renderPopupPanel(){
+  document.getElementById('pop-enabled').checked = !!popupSettings.enabled;
+  document.getElementById('pop-eyebrow').value = popupSettings.eyebrow;
+  document.getElementById('pop-heading').value = popupSettings.heading;
+  document.getElementById('pop-body').value = popupSettings.body;
+  document.getElementById('pop-cta').value = popupSettings.ctaText;
+  document.getElementById('pop-dismiss').value = popupSettings.dismissText;
+  document.getElementById('pop-twitch').value = popupSettings.twitchHandle;
+}
+document.getElementById('pop-save-btn').addEventListener('click', async function(){
+  popupSettings = {
+    enabled: document.getElementById('pop-enabled').checked,
+    eyebrow: document.getElementById('pop-eyebrow').value.trim(),
+    heading: document.getElementById('pop-heading').value.trim(),
+    body: document.getElementById('pop-body').value.trim(),
+    ctaText: document.getElementById('pop-cta').value.trim(),
+    dismissText: document.getElementById('pop-dismiss').value.trim(),
+    /* strip a pasted "twitch.tv/" or "@" by hand, so the field always
+       holds just the bare handle the live site's popup expects */
+    twitchHandle: document.getElementById('pop-twitch').value.trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?twitch\.tv\//i, '').replace(/\/$/, '')
+  };
+  try{
+    await writeJson('popup.json', popupSettings);
+    renderPopupPanel();
+    showToast('Gespeichert ✓');
+  }catch(err){ showToast('Speichern fehlgeschlagen: ' + (err && err.message ? err.message : 'unbekannter Fehler'), true); }
+});
