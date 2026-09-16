@@ -2063,7 +2063,8 @@ function openGameForm(idx){
       document.getElementById('gf-title-en').value = srcTitle.en;
       document.getElementById('gf-title-de').value = srcTitle.de;
       document.getElementById('gf-meta').value = known ? (known.meta || '') : '';
-      document.getElementById('gf-pgn').value = entry.pgn;
+      document.getElementById('gf-fen').value = extractFenHeader(entry.pgn);
+      document.getElementById('gf-pgn').value = buildPgnWithFen(entry.pgn, '');
       copyFromSelect.value = '';
       showToast('Übernommen – unten anpassen und speichern ✓');
     });
@@ -2073,6 +2074,12 @@ function openGameForm(idx){
   document.getElementById('game-form').addEventListener('submit', async function(e){
     e.preventDefault();
     var titleEn = document.getElementById('gf-title-en').value.trim();
+    var fenInput = document.getElementById('gf-fen').value.trim();
+    if(fenInput && typeof Chess !== 'undefined' && !(new Chess()).load(fenInput)){
+      showToast('Diese Startposition (FEN) ist ungültig.', true);
+      return;
+    }
+    var pgnWithFen = buildPgnWithFen(document.getElementById('gf-pgn').value.trim(), fenInput);
     /* start from the existing entry (when editing) rather than a blank
        object, so "id" and "annotations" – added by scripts/sync_games_pgn.py
        for the ChessBase round-trip, never shown in this form – survive an
@@ -2082,9 +2089,9 @@ function openGameForm(idx){
     var entry = Object.assign({}, editing ? games[idx] : {}, {
       title: joinLangValue(titleEn, document.getElementById('gf-title-de').value) || 'Unbenannte Partie',
       meta: document.getElementById('gf-meta').value.trim(),
-      pgn: document.getElementById('gf-pgn').value.trim()
+      pgn: pgnWithFen
     });
-    if(!entry.pgn){ showToast('Bitte einen PGN-Text einfügen.', true); return; }
+    if(!entry.pgn){ showToast('Bitte einen PGN-Text oder eine Startposition eingeben.', true); return; }
     if(editing) games[idx] = entry; else games.push(entry);
     try{
       await writeJson('games.json', games);
