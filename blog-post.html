@@ -1492,7 +1492,17 @@ function createGameWidget(container, gameOrGames){
     }
     historyVerbose = engine.history({ verbose: true });
     gameComments = Array.isArray(game.annotations) ? buildAnnotationIndex(game.annotations) : commentsMapToIndex(extractPgnComments(game.pgn || ''));
-    engine.reset();
+    var headers = parsePgnHeaders(game.pgn || '');
+    /* a game/fragment can start from any legal position, not just the
+       standard one – chess.js already applies [SetUp "1"]/[FEN "..."]
+       headers when parsing the PGN above; this just remembers that same
+       starting position so navigation can rewind to it instead of always
+       going back to the standard start (see resetToGameStart() above). */
+    startingFen = (headers.setup === '1' && headers.fen) ? headers.fen : null;
+    var startFenParts = startingFen ? startingFen.split(' ') : null;
+    startColor = (startFenParts && startFenParts[1] === 'b') ? 'b' : 'w';
+    startMoveNum = (startFenParts && parseInt(startFenParts[5], 10)) || 1;
+    resetToGameStart();
     activeLine = historyVerbose.map(function(m){ return m.san; });
     activeBranches = mainlineBranches();
     activeDefaultSans = activeLine.slice();
@@ -1501,7 +1511,6 @@ function createGameWidget(container, gameOrGames){
     moveIndex = 0;
     lastManualMove = null;
 
-    var headers = parsePgnHeaders(game.pgn || '');
     whiteName = headers.white || 'White';
     blackName = headers.black || 'Black';
     if(headers.whiteelo) whiteName += ' (' + headers.whiteelo + ')';
