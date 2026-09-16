@@ -1370,7 +1370,23 @@ function createGameWidget(container, gameOrGames){
     if(firstBtn) firstBtn.focus(); /* so the arrow keys have something to move from right away */
   }
   function hideMoveChoiceDialog(){
-    if(choiceDialog) choiceDialog.hidden = true;
+    if(!choiceDialog) return;
+    /* a focused choice button silently loses focus (to <body>, which
+       breaks every further keyboard press on this widget – the keydown
+       listener is on `container`, and body is its ancestor, not a
+       descendant, so events on body never reach it) the moment its
+       ancestor becomes hidden. That happens asynchronously, a beat after
+       this runs, not in the same tick – invisible in a same-tick check,
+       but very real by the time an actual next key press comes in. This
+       is exactly why arrow-key stepping used to go dead after the FIRST
+       variation choice in a game: the dialog closed, focus quietly
+       drained out of the widget, and no key press ever reached it again.
+       Rescue focus back onto the widget itself whenever it was actually
+       inside the dialog, so the very next arrow-key press keeps working
+       exactly like every other one. */
+    var focusWasInDialog = document.activeElement && choiceDialog.contains(document.activeElement);
+    choiceDialog.hidden = true;
+    if(focusWasInDialog) container.focus();
   }
   function isChoiceDialogOpen(){
     return !!(choiceDialog && !choiceDialog.hidden);
