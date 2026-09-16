@@ -3033,20 +3033,24 @@ function openBlogForm(idx){
   });
 
   /* ---- helper: insert a marker string into the body textarea at the cursor, with blank-line spacing ---- */
+  /* targets whichever body textarea (EN or DE) was last focused – games
+     aren't duplicated per language (see lastFocusedBodyTextarea above), so
+     "In Text einfügen" needs to know which one the cursor was actually in. */
   function insertMarkerIntoBody(marker){
-    var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
-    var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
-    var before = bodyTextarea.value.slice(0, start);
-    var after = bodyTextarea.value.slice(end);
+    var textarea = lastFocusedBodyTextarea;
+    var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+    var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+    var before = textarea.value.slice(0, start);
+    var after = textarea.value.slice(end);
     /* needs a full BLANK line (two newlines), not just one – see the
        matching comment on the image-insert handler above for why */
     var needsLeadingBreak = before.length && (before.match(/\n*$/) || [''])[0].length < 2;
     var needsTrailingBreak = after.length && (after.match(/^\n*/) || [''])[0].length < 2;
     var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
-    bodyTextarea.value = before + insertText + after;
+    textarea.value = before + insertText + after;
     var caretPos = (before + insertText).length;
-    bodyTextarea.focus();
-    bodyTextarea.setSelectionRange(caretPos, caretPos);
+    textarea.focus();
+    textarea.setSelectionRange(caretPos, caretPos);
   }
 
   /* ---- games embedded in this post (design follows the "Partienachspiel"
