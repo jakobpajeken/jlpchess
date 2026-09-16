@@ -669,6 +669,18 @@ function createGameWidget(container, gameOrGames){
   if(choiceCancelEl) choiceCancelEl.textContent = document.documentElement.lang === 'de' ? 'Abbrechen' : 'Cancel';
 
   var engine = null, historyVerbose = [], moveIndex = 0, gameComments = {}, currentGame = null;
+  /* set by loadGame() from the PGN's own [SetUp "1"]/[FEN "..."] headers,
+     if present (chess.js already honors them when loading the game) –
+     null means "standard starting position". Every place that rewinds
+     the engine to the beginning of THIS game must load this instead of
+     calling engine.reset(), which always goes back to the standard
+     position and would silently desync every move after it. startColor/
+     startMoveNum drive the move-list's own numbering (e.g. a fragment
+     starting "15...Nf3" instead of assuming move 1, White to move). */
+  var startingFen = null, startColor = 'w', startMoveNum = 1;
+  function resetToGameStart(){
+    if(startingFen) engine.load(startingFen); else engine.reset();
+  }
   /* the SAN path (from move 1) of whatever line is currently being viewed –
      the mainline by default, or a variation's own path once you click into
      one. Arrow keys and the prev/next/start/end buttons all step through
@@ -1218,7 +1230,7 @@ function createGameWidget(container, gameOrGames){
      in – line can be the mainline or any variation's own path. */
   function goToLineIndex(line, branches, idx, defaultSans, entries){
     hideMoveChoiceDialog();
-    engine.reset();
+    resetToGameStart();
     for(var i = 0; i < idx; i++){ engine.move(line[i]); }
     activeLine = line;
     activeBranches = branches;
