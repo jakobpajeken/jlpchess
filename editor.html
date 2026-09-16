@@ -2628,6 +2628,35 @@ function openBlogForm(idx){
          "**fett**").
      Only unwraps the CLOSEST pair, not every marker in the text, so
      nesting other formatting around/inside it is unaffected. */
+  /* Bold (**) and italic (*) share the same marker character, so a naive
+     "does this text start/end with openMarker" check can't tell a genuine
+     lone italic star from the inner star of a bold pair – e.g. with
+     "**hello**" selected down to just "hello", italic's own single-'*'
+     check sees a '*' immediately on each side (correctly) but doesn't
+     notice that's really the SECOND star of "**", not a standalone one.
+     Toggling italic there used to silently strip one layer of bold
+     instead of nesting italic inside it – working if you pressed Bold
+     first then Italic, but not the other order, even though both are
+     just "make this bold AND italic" and should behave identically
+     regardless of which button was pressed first. These two checks guard
+     against that: a marker match only counts if it ISN'T immediately
+     extended by one more of the same character just outside it (which
+     would mean it's actually part of a longer run, e.g. bold's ** rather
+     than italic's *). Markers that don't repeat a character this way
+     (__, [size=N], [color=blue] – anything starting with a different
+     character than "one more of the same" could extend) are never
+     affected either way, so this is a no-op for them. */
+  function isExactMarkerBefore(str, idx, marker){
+    if(str.slice(idx - marker.length, idx) !== marker) return false;
+    var ch = marker.charAt(0);
+    var extendedIdx = idx - marker.length - 1;
+    return extendedIdx < 0 || str.charAt(extendedIdx) !== ch;
+  }
+  function isExactMarkerAfter(str, idx, marker){
+    if(str.slice(idx, idx + marker.length) !== marker) return false;
+    var ch = marker.charAt(marker.length - 1);
+    return str.charAt(idx + marker.length) !== ch;
+  }
   function wrapSelectionIn(textarea, openMarker, closeMarker, placeholder){
     if(closeMarker == null) closeMarker = openMarker;
     var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
@@ -2638,8 +2667,8 @@ function openBlogForm(idx){
     var after = value.slice(end);
 
     if(selected.length >= openMarker.length + closeMarker.length &&
-       selected.slice(0, openMarker.length) === openMarker &&
-       selected.slice(selected.length - closeMarker.length) === closeMarker){
+       isExactMarkerAfter(selected, 0, openMarker) &&
+       isExactMarkerBefore(selected, selected.length, closeMarker)){
       var innerA = selected.slice(openMarker.length, selected.length - closeMarker.length);
       textarea.value = before + innerA + after;
       textarea.focus();
@@ -2647,8 +2676,8 @@ function openBlogForm(idx){
       return;
     }
 
-    if(before.slice(before.length - openMarker.length) === openMarker &&
-       after.slice(0, closeMarker.length) === closeMarker){
+    if(isExactMarkerBefore(before, before.length, openMarker) &&
+       isExactMarkerAfter(after, 0, closeMarker)){
       var newBefore = before.slice(0, before.length - openMarker.length);
       var newAfter = after.slice(closeMarker.length);
       var innerB = selected || placeholder;
