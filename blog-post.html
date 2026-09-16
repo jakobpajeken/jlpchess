@@ -232,6 +232,11 @@
       -1px 1px 0 var(--piece-white), 1px 1px 0 var(--piece-white);
   }
   .embedded-game .board-nav{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;}
+  /* a "diagram" (a game/fragment with zero recorded moves – see loadGame's
+     navEl.hidden below) has nothing to play through, so the transport
+     buttons are hidden entirely; same [hidden]-losing-the-cascade issue
+     as index.html's .article-cover, needs the same explicit override */
+  .embedded-game .board-nav[hidden]{display:none;}
   .embedded-game .board-nav button{
     background:none;border:1px solid var(--line);color:var(--ivory-dim);
     padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.9rem;
@@ -649,6 +654,7 @@ function createGameWidget(container, gameOrGames){
     '</div>';
 
   var selectEl = container.querySelector('[data-role="game-select"]');
+  var navEl = container.querySelector('.board-nav');
   var boardEl = container.querySelector('.chess-board');
   var arrowsEl = container.querySelector('[data-role="arrows"]');
   var listEl = container.querySelector('[data-role="movelist"]');
