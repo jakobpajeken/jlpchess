@@ -37651,5 +37651,856 @@
         }
       }
     ]
+  },
+  {
+    "id": "pajeken-jakob-leon-vs-hacker-jonas-36",
+    "title": {
+      "en": "Pajeken, Jakob Leon vs Hacker, Jonas",
+      "de": ""
+    },
+    "meta": "",
+    "pgn": "[Event \"Kiel Doppelbauer GM 2nd\"]\n[Site \"Kiel\"]\n[Date \"2022.07.04\"]\n[Round \"8\"]\n[White \"Pajeken, Jakob Leon\"]\n[Black \"Hacker, Jonas\"]\n[Result \"1-0\"]\n[Annotator \"Pajeken,J\"]\n[ECO \"E04\"]\n[WhiteElo \"2434\"]\n[BlackElo \"2471\"]\n[WhiteFideId \"-1\"]\n[BlackFideId \"-1\"]\n[SetUp \"1\"]\n[FEN \"4nrk1/1Rp1rppp/2B5/8/8/4P1P1/5P1P/2R3K1 w - - 0 29\"]\n[PlyCount \"69\"]\n[GameId \"2193730602961848\"]\n[EventDate \"2022.06.29\"]\n[EventType \"tourn\"]\n[EventRounds \"9\"]\n[EventCountry \"GER\"]\n[EventCategory \"10\"]\n[SourceTitle \"CBM 209 Extra\"]\n[Source \"ChessBase\"]\n[SourceDate \"2022.09.30\"]\n[SourceVersion \"1\"]\n[SourceVersionDate \"2022.09.30\"]\n[SourceQuality \"1\"]\n[WebsiteId \"pajeken-jakob-leon-vs-hacker-jonas-36\"]\n[WebsiteSource \"games.json\"]\n\n{ [%evp 0,69,91,86,87,85,71,70,85,76,71,61,77,60,81,63,85,68,77,72,76,67,94,64,82,68,87,68,93,58,76,87,83,44,96,55,74,91,70,70,86,58,94,76,99,75,84,89,118,61,89,97,123,87,94,92,32767,126,135,70,133,111,126,61,136,90,162,133,432,447,452,444] [#] }\n29. Ba4\n{ The situation before the game was the following: I knew that if I won this game, I would have a direct chance to play for a GM norm in the final round. So I wanted to win this game more than anything. However, after a good preparation, I missed the chance to gain a bigger advantage and very soon found myself in this endgame. I was already a bit frustrated, and I was seriously considering playing Bxe8 and trying out the 4-vs-3 pawn endgame, while more or less accepting the draw. But then I remembered the principle of “Do Not Rush” and realized that I could postpone that decision for quite some time. I even consciously thought: “I’m literally just going to annoy him by waiting and doing nothing.” My opponent, however, was completely unfazed by this strategy. He simply matched my energy and also did nothing. What he missed, though, was the crucial moment when I switched from stalling to improving. With an insane number of Kg7–Kg8 waiting moves from Black, I gradually improved my position without my opponent realizing. Eventually, I managed to win. }\n29... h5 30. Kg2 g6 31. Kf3 Kg7 32. h4 Kg8 33. Ra7 Kg7 34. Ke2 Kg8 35. Rc5 Kg7\n36. Rc4 Kg8 37. Rc6 Kg7 38. Rc3 Kg8 39. Kd3 Kg7 40. Rc4 Kg8 41. Rc5 Kg7 42. Rc6\nRd7+ 43. Ke2 Re7 44. Kf3 Re5 45. Rc4 Re7 46. Rc2 Kg8 47. Ke2 Kg7 48. Rc3 Kg8\n49. Rc5 Kg7 50. Bc2 Kg8 51. f3 Kg7 52. Bd3 ( 52. e4 $1 $14\n{ to prevent f5 would have already been an slight edge for white. } ) 52... Kg8\n53. e4 $14 Kg7 54. f4 $6 { letting black escape by improving his knight. } (\n54. Bc2 $1\n{ [%cal Ge2f2,Ge4e5] preparing the e5 adavance without allowing any counterplay. }\n) 54... Kg8 ( 54... Nf6 $1 55. e5 Rc8 56. Ba6 Rce8 { [%cal Gf6g8,Gg8h6,Gh6f5] }\n) 55. Kf3 Kg7 56. Bc2 Kg8 57. e5 Kg7 58. Ba4 Kg8 59. Rc3 Kg7 60. Ra8 Kg8 $4\n{ thats too much. The game is lost. } ( 60... c5 $1\n{ [%csl Yc7][%cal Ge8c7] vacating the c7-square for the knight would have given black an 0.00 again, however not a draw yet. }\n) 61. Rd3 { [%csl Re8,Rf8,Rg8][%cal Gd3d8] } 61... c6 ( 61... Ng7 62. Rxf8+\nKxf8 63. Rd8+ Ne8 64. Bd7 { and black is completely paralized. } ) 62. Rdd8 Re6\n63. Rac8 1-0",
+    "annotations": [
+      {
+        "ply": 0,
+        "san": null,
+        "nag": "",
+        "comment": {
+          "de": "[#]",
+          "en": "[#]"
+        },
+        "variations": []
+      },
+      {
+        "ply": 1,
+        "san": "Ba4",
+        "nag": "",
+        "comment": {
+          "de": "Die Situation vor der Partie war folgende: Ich wusste, dass ich, wenn ich diese Partie gewinnen würde, in der letzten Runde eine direkte Chance hätte, um eine GM-Norm zu spielen. Deshalb wollte ich diese Partie um alles in der Welt gewinnen. Doch trotz guter Vorbereitung verpasste ich die Chance, einen größeren Vorteil herauszuspielen, und geriet sehr bald in dieses Endspiel. Ich war bereits etwas frustriert und erwog ernsthaft, Lxe8 zu spielen und das 4-gegen-3-Bauern-Endspiel auszuprobieren, wobei ich mich mehr oder weniger mit dem Remis abgefunden hätte. Doch dann erinnerte ich mich an das Prinzip „Nicht überstürzen“ und erkannte, dass ich diese Entscheidung noch eine ganze Weile hinauszögern konnte. Ich dachte sogar ganz bewusst: „Ich werde ihn buchstäblich nur ärgern, indem ich warte und nichts tue.“ Mein Gegner ließ sich von dieser Strategie jedoch überhaupt nicht aus der Ruhe bringen. Er passte sich einfach meiner Energie an und tat ebenfalls nichts. Was er jedoch übersah, war der entscheidende Moment, in dem ich vom Hinauszögern zum Verbessern überging. Mit einer unglaublichen Anzahl von Wartezügen Kg7–Kg8 von Schwarz verbesserte ich nach und nach meine Stellung, ohne dass mein Gegner es bemerkte. Schließlich gelang es mir, zu gewinnen.",
+          "en": "The situation before the game was the following: I knew that if I won this game, I would have a direct chance to play for a GM norm in the final round. So I wanted to win this game more than anything. However, after a good preparation, I missed the chance to gain a bigger advantage and very soon found myself in this endgame. I was already a bit frustrated, and I was seriously considering playing Bxe8 and trying out the 4-vs-3 pawn endgame, while more or less accepting the draw. But then I remembered the principle of “Do Not Rush” and realized that I could postpone that decision for quite some time. I even consciously thought: “I’m literally just going to annoy him by waiting and doing nothing.” My opponent, however, was completely unfazed by this strategy. He simply matched my energy and also did nothing. What he missed, though, was the crucial moment when I switched from stalling to improving. With an insane number of Kg7–Kg8 waiting moves from Black, I gradually improved my position without my opponent realizing. Eventually, I managed to win."
+        }
+      },
+      {
+        "ply": 2,
+        "san": "h5",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 3,
+        "san": "Kg2",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 4,
+        "san": "g6",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 5,
+        "san": "Kf3",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 6,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 7,
+        "san": "h4",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 8,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 9,
+        "san": "Ra7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 10,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 11,
+        "san": "Ke2",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 12,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 13,
+        "san": "Rc5",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 14,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 15,
+        "san": "Rc4",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 16,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 17,
+        "san": "Rc6",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 18,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 19,
+        "san": "Rc3",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 20,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 21,
+        "san": "Kd3",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 22,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 23,
+        "san": "Rc4",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 24,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 25,
+        "san": "Rc5",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 26,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 27,
+        "san": "Rc6",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 28,
+        "san": "Rd7+",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 29,
+        "san": "Ke2",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 30,
+        "san": "Re7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 31,
+        "san": "Kf3",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 32,
+        "san": "Re5",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 33,
+        "san": "Rc4",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 34,
+        "san": "Re7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 35,
+        "san": "Rc2",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 36,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 37,
+        "san": "Ke2",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 38,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 39,
+        "san": "Rc3",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 40,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 41,
+        "san": "Rc5",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 42,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 43,
+        "san": "Bc2",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 44,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 45,
+        "san": "f3",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 46,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        },
+        "variations": [
+          [
+            {
+              "ply": 47,
+              "san": "e4",
+              "nag": "!⩲",
+              "comment": {
+                "de": "Hätte man F5 verhindert, hätte Weiß bereits einen leichten Vorteil gehabt.",
+                "en": "to prevent f5 would have already been an slight edge for white."
+              }
+            }
+          ]
+        ]
+      },
+      {
+        "ply": 47,
+        "san": "Bd3",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 48,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 49,
+        "san": "e4",
+        "nag": "⩲",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 50,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        },
+        "variations": [
+          [
+            {
+              "ply": 51,
+              "san": "Bc2",
+              "nag": "!",
+              "comment": {
+                "de": "den Vorstoß mit e5 vorbereiten, ohne jegliches Gegenspiel zuzulassen.",
+                "en": "preparing the e5 adavance without allowing any counterplay."
+              },
+              "arrows": [
+                {
+                  "color": "G",
+                  "from": "e2",
+                  "to": "f2"
+                },
+                {
+                  "color": "G",
+                  "from": "e4",
+                  "to": "e5"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "ply": 51,
+        "san": "f4",
+        "nag": "?!",
+        "comment": {
+          "de": "wodurch Schwarz durch die Verbesserung seines Springers entkommen kann.",
+          "en": "letting black escape by improving his knight."
+        },
+        "variations": [
+          [
+            {
+              "ply": 52,
+              "san": "Nf6",
+              "nag": "!",
+              "comment": {
+                "de": "",
+                "en": ""
+              }
+            },
+            {
+              "ply": 53,
+              "san": "e5",
+              "nag": "",
+              "comment": {
+                "de": "",
+                "en": ""
+              }
+            },
+            {
+              "ply": 54,
+              "san": "Rc8",
+              "nag": "",
+              "comment": {
+                "de": "",
+                "en": ""
+              }
+            },
+            {
+              "ply": 55,
+              "san": "Ba6",
+              "nag": "",
+              "comment": {
+                "de": "",
+                "en": ""
+              }
+            },
+            {
+              "ply": 56,
+              "san": "Rce8",
+              "nag": "",
+              "comment": {
+                "de": "",
+                "en": ""
+              },
+              "arrows": [
+                {
+                  "color": "G",
+                  "from": "f6",
+                  "to": "g8"
+                },
+                {
+                  "color": "G",
+                  "from": "g8",
+                  "to": "h6"
+                },
+                {
+                  "color": "G",
+                  "from": "h6",
+                  "to": "f5"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "ply": 52,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 53,
+        "san": "Kf3",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 54,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 55,
+        "san": "Bc2",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 56,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 57,
+        "san": "e5",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 58,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 59,
+        "san": "Ba4",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 60,
+        "san": "Kg8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 61,
+        "san": "Rc3",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 62,
+        "san": "Kg7",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 63,
+        "san": "Ra8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        },
+        "variations": [
+          [
+            {
+              "ply": 64,
+              "san": "c5",
+              "nag": "!",
+              "comment": {
+                "de": "Hätte Schwarz das Feld c7 für den Springer freigemacht, hätte er wieder 0,00 erhalten, allerdings noch kein Remis.",
+                "en": "vacating the c7-square for the knight would have given black an 0.00 again, however not a draw yet."
+              },
+              "arrows": [
+                {
+                  "color": "G",
+                  "from": "e8",
+                  "to": "c7"
+                }
+              ],
+              "highlights": [
+                {
+                  "color": "Y",
+                  "square": "c7"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "ply": 64,
+        "san": "Kg8",
+        "nag": "??",
+        "comment": {
+          "de": "Das ist zu viel. Das Spiel ist verloren.",
+          "en": "thats too much. The game is lost."
+        }
+      },
+      {
+        "ply": 65,
+        "san": "Rd3",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        },
+        "arrows": [
+          {
+            "color": "G",
+            "from": "d3",
+            "to": "d8"
+          }
+        ],
+        "highlights": [
+          {
+            "color": "R",
+            "square": "e8"
+          },
+          {
+            "color": "R",
+            "square": "f8"
+          },
+          {
+            "color": "R",
+            "square": "g8"
+          }
+        ],
+        "variations": [
+          [
+            {
+              "ply": 66,
+              "san": "Ng7",
+              "nag": "",
+              "comment": {
+                "de": "",
+                "en": ""
+              }
+            },
+            {
+              "ply": 67,
+              "san": "Rxf8+",
+              "nag": "",
+              "comment": {
+                "de": "",
+                "en": ""
+              }
+            },
+            {
+              "ply": 68,
+              "san": "Kxf8",
+              "nag": "",
+              "comment": {
+                "de": "",
+                "en": ""
+              }
+            },
+            {
+              "ply": 69,
+              "san": "Rd8+",
+              "nag": "",
+              "comment": {
+                "de": "",
+                "en": ""
+              }
+            },
+            {
+              "ply": 70,
+              "san": "Ne8",
+              "nag": "",
+              "comment": {
+                "de": "",
+                "en": ""
+              }
+            },
+            {
+              "ply": 71,
+              "san": "Bd7",
+              "nag": "",
+              "comment": {
+                "de": "und Schwarz ist völlig gelähmt.",
+                "en": "and black is completely paralized."
+              }
+            }
+          ]
+        ]
+      },
+      {
+        "ply": 66,
+        "san": "c6",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 67,
+        "san": "Rdd8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 68,
+        "san": "Re6",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      },
+      {
+        "ply": 69,
+        "san": "Rac8",
+        "nag": "",
+        "comment": {
+          "de": "",
+          "en": ""
+        }
+      }
+    ]
   }
 ]
