@@ -3096,8 +3096,10 @@ function openBlogForm(idx){
       '<button type="button" class="btn small" id="bfg-title-translate" title="Ins Deutsche übersetzen">🌐</button></div></div>' +
       '</div>' +
       '<div class="field"><label>Kurzbeschreibung (optional)</label><input type="text" id="bfg-meta" value="' + escapeHtml(g.meta) + '" placeholder="z. B. Riga Tech op-A · Runde 9"></div>' +
-      '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. – aus deiner Schach-App oder Turnierseite kopieren.</span>' +
-      '<textarea id="bfg-pgn" class="tall mono" placeholder="[Event &quot;...&quot;]&#10;[White &quot;...&quot;]&#10;[Black &quot;...&quot;]&#10;...&#10;1. e4 e5 2. Nf3 ...">' + escapeHtml(g.pgn) + '</textarea></div>' +
+      '<div class="field"><label>Startposition (FEN, optional)</label><span class="hint">Leer lassen für die normale Grundstellung. Ausgefüllt startet die Partie/das Fragment dort – z. B. für einen Partieausschnitt oder ein reines Diagramm (dann unten einfach kein Zugtext eintragen).</span>' +
+      '<input type="text" id="bfg-fen" class="mono" value="' + escapeHtml(fenValue) + '" placeholder="z. B. r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 4 4"></div>' +
+      '<div class="field"><label>PGN</label><span class="hint">Kompletter Partietext inkl. [White ""] [Black ""] usw. – aus deiner Schach-App oder Turnierseite kopieren. Bei einer Startposition oben reicht auch nur der Zugtext, oder – für ein reines Diagramm – gar keiner.</span>' +
+      '<textarea id="bfg-pgn" class="tall mono" placeholder="[Event &quot;...&quot;]&#10;[White &quot;...&quot;]&#10;[Black &quot;...&quot;]&#10;...&#10;1. e4 e5 2. Nf3 ...">' + escapeHtml(buildPgnWithFen(g.pgn, '')) + '</textarea></div>' +
       '<div class="form-actions">' +
       '<button type="button" class="btn" id="bfg-preview-btn">🔍 Vorschau prüfen</button>' +
       '</div>' +
@@ -3156,7 +3158,8 @@ function openBlogForm(idx){
         document.getElementById('bfg-title-en').value = srcTitle.en;
         document.getElementById('bfg-title-de').value = srcTitle.de;
         document.getElementById('bfg-meta').value = known ? (known.meta || '') : '';
-        document.getElementById('bfg-pgn').value = entry.pgn;
+        document.getElementById('bfg-fen').value = extractFenHeader(entry.pgn);
+        document.getElementById('bfg-pgn').value = buildPgnWithFen(entry.pgn, '');
         copyFromSelect.value = '';
         showToast('Übernommen – unten anpassen und speichern ✓');
       });
