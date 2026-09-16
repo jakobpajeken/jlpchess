@@ -3809,9 +3809,23 @@
     "imageCaption": "",
     "imageCredit": "",
     "excerpt": "",
-    "lead": "",
+    "lead": "There is a certain moment in chess when the position seems to demand action. You have more space, a better-placed piece, an extra pawn, or perhaps a weakness in the opponent’s camp that can be attacked. The natural reaction is to look for a way to convert these advantages into something concrete. We want to do something. We want to make progress. But sometimes the most accurate move is to do almost nothing.",
     "body": {
-      "en": [],
+      "en": [
+        "Mikhail Shereshevsky, in Endgame Strategy, describes the principle of “Do Not Rush” as the idea of maximally improving the position before making an important strategic decision. The logic is simple: if a position is already good, there is often no reason to force matters. Improve the pieces, restrict the opponent, remove counterplay, and only then commit to the transformation of the position.",
+        "There is, however, another side to this principle that I find even more interesting.",
+        "Imagine a position in which you have a long-term strategic advantage. You are a pawn up. Your pieces are better placed. Your opponent has no real counterplay and is forced into passive defence. There may be no immediate tactical breakthrough, but the evaluation of the position is stable: your advantage is not going anywhere.",
+        "So why should you do anything?",
+        "This is where “Do Not Rush” can acquire a different meaning. It can mean waiting. It can mean playing cat and mouse.",
+        "If the opponent is tied down to a passive defence, there is often no reason to release the tension. You can move a piece back and forth. You can make a small threat and then make another move instead of carrying it out. You can improve one piece by a single square, then improve another. You can leave the basic structure of the position completely unchanged.",
+        "The important thing is that you are not actually giving your opponent anything.",
+        "You are simply asking him to continue defending.",
+        "And this is much harder for a human being than it sounds.",
+        "There are relatively few positions in chess where doing almost nothing is genuinely the correct approach. Most of the time, we are trained to look for improvement, activity, threats and concrete plans. When we have an advantage, we instinctively want to use it. When nothing seems to be happening, we feel that we must make something happen.",
+        "That instinct is often useful.",
+        "But in precisely those rare positions where the advantage is static and the opponent has no counterplay, it can become a weakness.",
+        "[size=24][color=blue]**Vokhidov–Erigaisi: When Nothing to Do Becomes the Problem**[/color][/size]"
+      ],
       "de": []
     },
     "quote": "",
