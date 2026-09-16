@@ -2517,43 +2517,60 @@ function openBlogForm(idx){
     document.getElementById('bf-cover-file').value = '';
   });
 
-  /* ---- inline image insertion into the (English) body text ---- */
+  /* ---- inline image insertion, wired identically for both the English
+     and German body textareas – each has its own button/file-input pair
+     (see the "-de" suffixed ids in the form HTML above), so inserting a
+     photo into the German text never requires switching to English first. ---- */
   var bodyTextarea = document.getElementById('bf-body-en');
-  var insertImageBtn = document.getElementById('bf-insert-image');
-  var bodyImageFile = document.getElementById('bf-body-image-file');
-  insertImageBtn.addEventListener('click', function(){ bodyImageFile.click(); });
-  bodyImageFile.addEventListener('change', async function(e){
-    var file = e.target.files && e.target.files[0];
-    bodyImageFile.value = '';
-    if(!file) return;
-    if(!githubToken){ showToast('Nicht verbunden.', true); return; }
-    var caption = window.prompt('Bildunterschrift (optional, kann leer bleiben):', '') || '';
-    var credit = window.prompt('Fotograf / Quelle (optional, kann leer bleiben) – erscheint als kleiner Hinweis unter dem Bild:', '') || '';
-    insertImageBtn.disabled = true;
-    try{
-      var path = await saveImageFile(file, caption || document.getElementById('bf-title-en').value || 'bild');
-      var marker = '![' + caption.replace(/[[\]]/g, '') + '](' + path + (credit.trim() ? ' "' + credit.replace(/"/g, '') + '"' : '') + ')';
-      var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
-      var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
-      var before = bodyTextarea.value.slice(0, start);
-      var after = bodyTextarea.value.slice(end);
-      /* a paragraph break needs a BLANK line (two newlines), not just one –
-         checking for only one newline (as this used to) misfires whenever
-         the cursor sits right before a normal line wrap inside an existing
-         paragraph, gluing the marker onto the following text with just a
-         single \n; the marker's own regex requires it on its own paragraph,
-         so a marker inserted that way silently failed to ever render. */
-      var needsLeadingBreak = before.length && (before.match(/\n*$/) || [''])[0].length < 2;
-      var needsTrailingBreak = after.length && (after.match(/^\n*/) || [''])[0].length < 2;
-      var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
-      bodyTextarea.value = before + insertText + after;
-      var caretPos = (before + insertText).length;
-      bodyTextarea.focus();
-      bodyTextarea.setSelectionRange(caretPos, caretPos);
-      showToast('Bild eingefügt ✓');
-    }catch(err){ showToast('Bild konnte nicht gespeichert werden.', true); }
-    insertImageBtn.disabled = false;
+  var bodyTextareaDe = document.getElementById('bf-body-de');
+  /* tracks whichever body textarea was last focused, so the ONE shared
+     "Partie/Diagramm in Text einfügen" action below (games aren't
+     duplicated per language – a PGN isn't translated) knows which
+     language's text to insert into, instead of always assuming English. */
+  var lastFocusedBodyTextarea = bodyTextarea;
+  [bodyTextarea, bodyTextareaDe].forEach(function(ta){
+    ta.addEventListener('focus', function(){ lastFocusedBodyTextarea = ta; });
   });
+  function wireInsertImage(idSuffix, textarea){
+    var insertImageBtn = document.getElementById('bf-insert-image' + idSuffix);
+    var bodyImageFile = document.getElementById('bf-body-image-file' + idSuffix);
+    if(!insertImageBtn || !bodyImageFile) return;
+    insertImageBtn.addEventListener('click', function(){ bodyImageFile.click(); });
+    bodyImageFile.addEventListener('change', async function(e){
+      var file = e.target.files && e.target.files[0];
+      bodyImageFile.value = '';
+      if(!file) return;
+      if(!githubToken){ showToast('Nicht verbunden.', true); return; }
+      var caption = window.prompt('Bildunterschrift (optional, kann leer bleiben):', '') || '';
+      var credit = window.prompt('Fotograf / Quelle (optional, kann leer bleiben) – erscheint als kleiner Hinweis unter dem Bild:', '') || '';
+      insertImageBtn.disabled = true;
+      try{
+        var path = await saveImageFile(file, caption || document.getElementById('bf-title-en').value || 'bild');
+        var marker = '![' + caption.replace(/[[\]]/g, '') + '](' + path + (credit.trim() ? ' "' + credit.replace(/"/g, '') + '"' : '') + ')';
+        var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+        var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+        var before = textarea.value.slice(0, start);
+        var after = textarea.value.slice(end);
+        /* a paragraph break needs a BLANK line (two newlines), not just one –
+           checking for only one newline (as this used to) misfires whenever
+           the cursor sits right before a normal line wrap inside an existing
+           paragraph, gluing the marker onto the following text with just a
+           single \n; the marker's own regex requires it on its own paragraph,
+           so a marker inserted that way silently failed to ever render. */
+        var needsLeadingBreak = before.length && (before.match(/\n*$/) || [''])[0].length < 2;
+        var needsTrailingBreak = after.length && (after.match(/^\n*/) || [''])[0].length < 2;
+        var insertText = (needsLeadingBreak ? '\n\n' : '') + marker + (needsTrailingBreak ? '\n\n' : '');
+        textarea.value = before + insertText + after;
+        var caretPos = (before + insertText).length;
+        textarea.focus();
+        textarea.setSelectionRange(caretPos, caretPos);
+        showToast('Bild eingefügt ✓');
+      }catch(err){ showToast('Bild konnte nicht gespeichert werden.', true); }
+      insertImageBtn.disabled = false;
+    });
+  }
+  wireInsertImage('', bodyTextarea);
+  wireInsertImage('-de', bodyTextareaDe);
 
   /* ---- bold / italic / underline / size, wired identically for both the
      English and German body textareas (each needs its own set of buttons
