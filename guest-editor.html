@@ -642,6 +642,25 @@ document.getElementById('g-lang').addEventListener('change', function(){
 
 /* same toggle-on-second-click wrap/unwrap behaviour as editor.html's own
    formatting buttons (see there for the full rationale) */
+/* Bold (**) and italic (*) share the same marker character, so a naive
+   "does this text start/end with openMarker" check can't tell a genuine
+   lone italic star from the inner star of a bold pair – see editor.html's
+   identical pair of helpers for the full rationale (mirrored here): this
+   used to make Bold-then-Italic silently strip one layer of bold instead
+   of nesting italic inside it, while Italic-then-Bold worked fine, even
+   though both should just mean "make this bold AND italic" regardless of
+   which button was pressed first. */
+function isExactMarkerBefore(str, idx, marker){
+  if(str.slice(idx - marker.length, idx) !== marker) return false;
+  var ch = marker.charAt(0);
+  var extendedIdx = idx - marker.length - 1;
+  return extendedIdx < 0 || str.charAt(extendedIdx) !== ch;
+}
+function isExactMarkerAfter(str, idx, marker){
+  if(str.slice(idx, idx + marker.length) !== marker) return false;
+  var ch = marker.charAt(marker.length - 1);
+  return str.charAt(idx + marker.length) !== ch;
+}
 function wrapSelectionIn(textarea, openMarker, closeMarker, placeholder){
   if(closeMarker == null) closeMarker = openMarker;
   var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
@@ -652,16 +671,16 @@ function wrapSelectionIn(textarea, openMarker, closeMarker, placeholder){
   var after = value.slice(end);
 
   if(selected.length >= openMarker.length + closeMarker.length &&
-     selected.slice(0, openMarker.length) === openMarker &&
-     selected.slice(selected.length - closeMarker.length) === closeMarker){
+     isExactMarkerAfter(selected, 0, openMarker) &&
+     isExactMarkerBefore(selected, selected.length, closeMarker)){
     var innerA = selected.slice(openMarker.length, selected.length - closeMarker.length);
     textarea.value = before + innerA + after;
     textarea.focus();
     textarea.setSelectionRange(start, start + innerA.length);
     return;
   }
-  if(before.slice(before.length - openMarker.length) === openMarker &&
-     after.slice(0, closeMarker.length) === closeMarker){
+  if(isExactMarkerBefore(before, before.length, openMarker) &&
+     isExactMarkerAfter(after, 0, closeMarker)){
     var newBefore = before.slice(0, before.length - openMarker.length);
     var newAfter = after.slice(closeMarker.length);
     var innerB = selected || placeholder;
