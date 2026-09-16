@@ -1457,10 +1457,39 @@ function createGameWidget(container, gameOrGames){
     }
     return comments;
   }
+  /* same [%cal ...]/[%csl ...] (ChessBase arrow/highlight shorthand)
+     parsing as editor.html's own extractArrowsAndHighlights – needed here
+     too, not just in the editor's live preview: a game/diagram only gets
+     its arrows/highlights pre-parsed into game.annotations once Jakob
+     runs scripts/sync_games_pgn.py (a manual, local step), so a freshly
+     saved post – before that's happened – falls back to parsing them
+     straight out of the raw pgn, right here, same as the editor already
+     does while the PGN is still fresh off the textarea. Kept in sync. */
+  function extractArrowsAndHighlights(comment){
+    var arrows = [], highlights = [], m;
+    var calRe = /\[%cal ([^\]]*)\]/g;
+    while((m = calRe.exec(comment || '')) !== null){
+      m[1].split(',').forEach(function(item){
+        var mm = /^([A-Za-z])([a-h][1-8])([a-h][1-8])$/.exec(item.trim());
+        if(mm) arrows.push({ color: mm[1].toUpperCase(), from: mm[2], to: mm[3] });
+      });
+    }
+    var cslRe = /\[%csl ([^\]]*)\]/g;
+    while((m = cslRe.exec(comment || '')) !== null){
+      m[1].split(',').forEach(function(item){
+        var mm = /^([A-Za-z])([a-h][1-8])$/.exec(item.trim());
+        if(mm) highlights.push({ color: mm[1].toUpperCase(), square: mm[2] });
+      });
+    }
+    return { arrows: arrows, highlights: highlights };
+  }
   function commentsMapToIndex(comments){
     var index = {};
     Object.keys(comments || {}).forEach(function(ply){
-      index[ply] = { comment: comments[ply], variations: [] };
+      var raw = comments[ply];
+      var parsed = extractArrowsAndHighlights(raw);
+      var cleanText = raw.replace(/\[%cal [^\]]*\]/g, '').replace(/\[%csl [^\]]*\]/g, '').replace(/\s+/g, ' ').trim();
+      index[ply] = { comment: { en: cleanText, de: cleanText }, arrows: parsed.arrows, highlights: parsed.highlights, variations: [] };
     });
     return index;
   }
