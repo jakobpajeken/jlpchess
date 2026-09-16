@@ -306,12 +306,16 @@ Kb7 Qb6+ 119. Ka8 Kc6 120. Rc7+ Kd5 121. Rd7+ Kc5 122. Rc7+ Qxc7 1/2-1/2
 [White "Vokhidov, Shamsiddin"]
 [Black "Erigaisi, Arjun Kumar"]
 [Result "0-1"]
+[Annotator "Pajeken,J"]
 [ECO "C60"]
 [WhiteElo "2644"]
 [BlackElo "2782"]
 [WhiteFideId "-1"]
 [BlackFideId "-1"]
-[PlyCount "137"]
+[SetUp "1"]
+[FEN "2r3k1/4rpb1/1q1p2p1/1p1P3p/pP2P3/P1pQN2P/4RPP1/4R1K1 b - - 0 37"]
+[PlyCount "64"]
+[GameId "2354938389518675"]
 [EventDate "2025.06.18"]
 [EventType "tourn"]
 [EventRounds "9"]
@@ -324,5 +328,5 @@ Kb7 Qb6+ 119. Ka8 Kc6 120. Rc7+ Kd5 121. Rd7+ Kc5 122. Rc7+ Qxc7 1/2-1/2
 [SourceVersionDate "2025.07.31"]
 [SourceQuality "1"]
 
-{[%evp 0,137,12,17,25,12,19,14,23,14,4,25,26,10,54,30,30,35,28,24,31,42,36,43,45,65,89,27,40,2,16,38,41,43,48,49,49,45,52,52,4,14,23,8,8,5,49,-37,-54,-32,-52,-61,-73,-68,-82,-79,-99,-99,-107,-123,-121,-140,-142,-155,-121,-142,-105,-141,-127,-100,-129,-184,-143,-85,-86,-84,-84,-97,-102,-77,-82,-82,-66,-93,-95,-86,-83,-65,1,-67,-78,-62,-17,-108,-79,-36,-72,-75,-66,-85,-75,-42,-52,-59,-56,-61,-38,-112,-54,-71,-129,-91,-110,-155,-113,-130,-122,-94,-106,-125,32767,32767,-140,-172,-263,-288,-264,-247,-150,-267,-297,-441,-339,-362,-291,-344,-374,-317,-358,-445]} 1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O d6 6. c3 Bd7 7. d4 g6 8. Re1 Bg7 9. h3 O-O 10. Nbd2 exd4 11. cxd4 Nb4 12. Bxd7 Qxd7 13. Nf1 c5 14. a3 Nc6 15. d5 Na5 16. Bd2 Nc4 17. Bc3 b5 18. b3 Nb6 19. Qd2 a5 20. Ng3 a4 21. b4 Nc4 22. Qd3 Rfe8 23. Nd2 Ne5 24. Bxe5 c4 25. Qc2 Rxe5 26. Rad1 Rae8 27. Re2 R5e7 28. Rde1 Qb7 29. Nf3 Nd7 30. Re3 Qb6 31. R3e2 h5 32. Nf1 Rc8 33. Ne3 Ne5 34. Nxe5 Bxe5 35. Nf1 c3 36. Ne3 Bg7 37. Qd3 h4 38. Kf1 Qb7 39. Rc1 Qd7 40. Rce1 Kf8 41. Rc1 Kg8 42. Rce1 Kh8 43. Rc1 Rc7 44. Rce1 Kh7 45. Rc1 Kg8 46. Rce1 Kh8 47. Rc1 Rc8 48. Rce1 Qe8 49. f3 Kg8 50. Rc1 Rec7 51. Rcc2 Kh8 52. Ke1 Qe5 53. Kd1 Re7 54. Ng4 Qf4 55. Qxb5 f5 56. Nf2 Qh2 57. Nd3 fxe4 58. Rxe4 Rxe4 59. fxe4 Qg1+ 60. Ne1 Be5 61. Re2 Bg3 62. Kc2 Bxe1 63. Qd7 Rg8 64. Qxd6 Qf1 65. Qe5+ Kh7 66. Kd3 c2 67. Qc7+ Rg7 68. Qxc2 Bg3 69. Kd4 0-1
+{[%evp 0,137,12,17,25,12,19,14,23,14,4,25,26,10,54,30,30,35,28,24,31,42,36,43,45,65,89,27,40,2,16,38,41,43,48,49,49,45,52,52,4,14,23,8,8,5,49,-37,-54,-32,-52,-61,-73,-68,-82,-79,-99,-99,-107,-123,-121,-140,-142,-155,-121,-142,-105,-141,-127,-100,-129,-184,-143,-85,-86,-84,-84,-97,-102,-77,-82,-82,-66,-93,-95,-86,-83,-65,1,-67,-78,-62,-17,-108,-79,-36,-72,-75,-66,-85,-75,-42,-52,-59,-56,-61,-38,-112,-54,-71,-129,-91,-110,-155,-113,-130,-122,-94,-106,-125,32767,32767,-140,-172,-263,-288,-264,-247,-150,-267,-297,-441,-339,-362,-291,-344,-374,-317,-358,-445]} 37... h4 $1 {Here, Erigaisi’s mastery begins. The position is clearly better for Black: White’s knight lacks a good outpost, while the passed pawn on c3 provides a long-term advantage and also restricts White’s position. Black has more space, better control of both semi-open files, and sustained pressure against the e4-pawn. Just watch how Erigaisi manages to win by simply letting Vokhidov do all the work, essentially allowing him to self-destruct.} 38. Kf1 Qb7 39. Rc1 Qd7 40. Rce1 Kf8 41. Rc1 Kg8 42. Rce1 Kh8 43. Rc1 Rc7 44. Rce1 Kh7 45. Rc1 Kg8 46. Rce1 Kh8 47. Rc1 Rc8 48. Rce1 Qe8 49. f3 $6 {Alltough this move doesn't really change the evaluation of the position it's the first step in the wrong direction, giving up control over important black squares next to the king.} Kg8 {Erigaisi just keeps doing nothing.} 50. Rc1 Rec7 51. Rcc2 Kh8 52. Ke1 Qe5 53. Kd1 $2 {Vokhidov struggles to maintain the tension and worsens his position further.} (53. Ng4 $1 Qg3+ 54. Kf1 $17 {[%cal Gd3e3,Ge3g5]}) 53... Re7 54. Ng4 Qf4 55. Qxb5 $2 {The final mistake.} (55. Qe3 Qg3 56. Qb6 Rce8 57. Qxb5 f5 58. exf5 gxf5 59. Qxe8+ Rxe8 60. Rxe8+ Kh7 61. Ne3 Qg6 $19 {The position remains lost, however not entirely hopeless.}) 55... f5 $19 56. Nf2 Qh2 57. Nd3 fxe4 58. Rxe4 Rxe4 59. fxe4 Qg1+ 60. Ne1 Be5 $1 {[%csl Gc3,Rd1,Re1][%cal Ge5g3,Gc3d2,Gc3b2]} 61. Re2 Bg3 62. Kc2 Bxe1 63. Qd7 Rg8 64. Qxd6 Qf1 65. Qe5+ Kh7 66. Kd3 c2 67. Qc7+ Rg7 68. Qxc2 Bg3 69. Kd4 0-1
 
