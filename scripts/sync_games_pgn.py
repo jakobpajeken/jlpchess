@@ -353,25 +353,63 @@ def build_comment_cache(tree):
 
 
 def translate_comment(raw_comment, cache_key, cache):
-    """Comments are assumed to be written in German — ChessBase is Jakob's
-    own working tool, and German is the natural language for his own
-    analysis notes. The original German is kept as typed (in "de"); "en"
-    is filled in by machine translation. The one deliberate exception to
+    """ChessBase is Jakob's own working tool, but a comment there can
+    legitimately be typed in EITHER language — most of his own analysis
+    notes are German, but nothing stops him (or an engine's own output he
+    pastes in, or a note copied from an English source) from being English
+    instead. So: detect which language this comment is actually in first
+    (DeepL's own auto-detect, falling back to detect_language_heuristic()
+    if the proxy can't be reached), keep THAT side exactly as typed, and
+    machine-translate to fill in the other side — in whichever direction
+    is actually needed, not always DE->EN. The one deliberate exception to
     "as typed": em dashes (—) become en dashes (–), the site's house
-    style, so a dash typed the "wrong" way in ChessBase — or introduced
-    by machine translation, which favours em dashes — doesn't propagate
-    to the site. Reuses a cached translation instead of re-calling the
-    API when this exact German text was already seen at this exact move
-    last time, so an unattended sync running every ~10s doesn't
+    style, so a dash typed the "wrong" way in ChessBase — or introduced by
+    machine translation, which favours em dashes — doesn't propagate to
+    the site. A chess move mentioned inline in the prose ("with Sf3...")
+    gets its piece letter converted to the target language's own notation
+    too (see convert_inline_notation()), not just left as literal text.
+    Reuses a cached translation instead of re-calling the API when this
+    exact text (in whichever language it's in) was already seen at this
+    exact move last time, so an unattended sync running every ~10s doesn't
     re-translate every comment in the database on every single cycle —
     only ones that actually changed."""
     text = normalize_dashes(strip_pgn_commands(raw_comment))
     if not text:
         return {"de": "", "en": ""}
     cached = cache.get(cache_key)
-    if cached and (cached.get("de") or "").strip() == text:
+    if cached and text in ((cached.get("de") or "").strip(), (cached.get("en") or "").strip()):
         return cached
-    return {"de": text, "en": normalize_dashes(translate_text(text, "DE", "EN"))}
+
+    detected = None
+    translated = None
+    try:
+        translated, detected = translate_via_deepl_autodetect(text, "EN")
+        if detected not in ("DE", "EN"):
+            detected = None
+    except Exception:
+        pass
+
+    if detected == "EN":
+        # already have the EN->? translation from the autodetect call above,
+        # but that was translated TO English (source was English) — meaningless;
+        # redo it in the direction we actually need: EN source -> DE target.
+        translated = None
+
+    if detected is None:
+        detected = detect_language_heuristic(text)
+
+    if detected == "EN":
+        en_text = text
+        de_text = translated if translated is not None else None
+        if de_text is None:
+            de_text = translate_text(text, "EN", "DE")
+        de_text = convert_inline_notation(normalize_dashes(de_text), _EN_TO_DE_PIECE)
+        return {"de": de_text, "en": en_text}
+    else:
+        de_text = text
+        en_text = translated if translated is not None else translate_text(text, "DE", "EN")
+        en_text = convert_inline_notation(normalize_dashes(en_text), _DE_TO_EN_PIECE)
+        return {"de": de_text, "en": en_text}
 
 
 def serialize_line(node, board, cache):
