@@ -475,6 +475,10 @@
     background:none;border:none;color:var(--ivory-dim);cursor:pointer;
     font-family:'Inter',sans-serif;font-size:0.92rem;padding:2px 5px;
   }
+  /* see blog-post.html's identical rule for the full rationale (mirrored
+     here) – the mainline stands out from any side variation shown with it. */
+  .move-btn:not(.variation-move-btn){font-weight:700;}
+  .move-btn.variation-move-btn{font-weight:400;}
   .move-btn:hover{color:var(--ivory);}
   .move-btn.active{color:var(--gold-bright);background:rgba(31,58,95,0.14);}
   /* small dot under any move with a comment/variation attached, so it's
@@ -503,6 +507,7 @@
   .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:10px;max-width:200px;width:100%;box-shadow:0 8px 26px rgba(0,0,0,0.28);}
   .move-choice-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;}
   .move-choice-btn{background:none;border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:0.88rem;padding:6px 10px;cursor:pointer;text-align:left;border-radius:2px;}
+  .move-choice-btn.is-mainline{font-weight:700;}
   .move-choice-btn:hover,.move-choice-btn:focus{border-color:var(--gold);color:var(--gold-bright);background:rgba(31,58,95,0.06);outline:none;}
   .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.78rem;cursor:pointer;padding:2px 0;text-decoration:underline;}
   .move-choice-cancel:hover{color:var(--gold-bright);}
@@ -2466,7 +2471,9 @@ function tryAdvance(){
     var defaultBranchesFull = prefixBranches.concat(tail.branches);
     var defaultSansFull = prefixDefaultSans.concat(tail.defaultSans);
     var defaultEntriesFull = prefixEntries.concat(tail.entries);
-    options.push({ san: activeDefaultSans[moveIndex], nag: '', go: function(){ manualGoToLine(defaultLine, defaultBranchesFull, moveIndex + 1, defaultSansFull, defaultEntriesFull); } });
+    /* isMainline/nag: see blog-post.html's identical tryAdvance() for the
+       full rationale (mirrored here). */
+    options.push({ san: activeDefaultSans[moveIndex], nag: (tail.entries[0] && tail.entries[0].nag) || '', isMainline: true, go: function(){ manualGoToLine(defaultLine, defaultBranchesFull, moveIndex + 1, defaultSansFull, defaultEntriesFull); } });
   }
   branches.forEach(function(varLine){
     if(!varLine || !varLine.length) return;
@@ -2531,7 +2538,7 @@ function showMoveChoiceDialog(options){
   options.forEach(function(opt){
     var btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'move-choice-btn';
+    btn.className = 'move-choice-btn' + (opt.isMainline ? ' is-mainline' : '');
     btn.textContent = displaySan(opt.san) + (opt.nag || '');
     btn.addEventListener('click', function(){ hideMoveChoiceDialog(); opt.go(); });
     list.appendChild(btn);

@@ -276,6 +276,13 @@
     background:none;border:none;color:var(--ivory-dim);cursor:pointer;
     font-family:'Inter',sans-serif;font-size:0.92rem;padding:2px 5px;
   }
+  /* the mainline (what was actually played) stands out from any side
+     variation wherever the two appear together – general rule, not just
+     inside the choice dialog above: a variation move always carries
+     .variation-move-btn (see renderVariationLine), a mainline move never
+     does, so this needs no extra bookkeeping of its own. */
+  .embedded-game .move-btn:not(.variation-move-btn){font-weight:700;}
+  .embedded-game .move-btn.variation-move-btn{font-weight:400;}
   .embedded-game .move-btn:hover{color:var(--ivory);}
   .embedded-game .move-btn.active{color:var(--gold-bright);background:rgba(31,58,95,0.14);}
   .embedded-game .move-btn.annotated{box-shadow:0 2px 0 0 var(--gold-bright);}
@@ -291,6 +298,10 @@
   .embedded-game .move-choice-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:4px;padding:10px;max-width:200px;width:100%;box-shadow:0 8px 26px rgba(0,0,0,0.28);}
   .embedded-game .move-choice-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;}
   .embedded-game .move-choice-btn{background:none;border:1px solid var(--line);color:var(--ivory);font-family:'Inter',sans-serif;font-size:0.88rem;padding:6px 10px;cursor:pointer;text-align:left;border-radius:2px;}
+  /* the option that was actually played, set apart from the alternative(s)
+     below it – lets you tell at a glance which one just continues the
+     real game before reading any of the move text itself */
+  .embedded-game .move-choice-btn.is-mainline{font-weight:700;}
   .embedded-game .move-choice-btn:hover,.embedded-game .move-choice-btn:focus{border-color:var(--gold);color:var(--gold-bright);background:rgba(31,58,95,0.06);outline:none;}
   .embedded-game .move-choice-cancel{background:none;border:none;color:var(--ivory-dim);font-family:'Inter',sans-serif;font-size:0.78rem;cursor:pointer;padding:2px 0;text-decoration:underline;}
   .embedded-game .move-choice-cancel:hover{color:var(--gold-bright);}
@@ -1308,7 +1319,13 @@ function createGameWidget(container, gameOrGames){
       var defaultBranchesFull = prefixBranches.concat(tail.branches);
       var defaultSansFull = prefixDefaultSans.concat(tail.defaultSans);
       var defaultEntriesFull = prefixEntries.concat(tail.entries);
-      options.push({ san: activeDefaultSans[moveIndex], nag: '', go: function(){ manualGoToLine(defaultLine, defaultBranchesFull, moveIndex + 1, defaultSansFull, defaultEntriesFull); } });
+      /* isMainline: true marks this one as what was actually played, so
+         showMoveChoiceDialog() can set it apart (bold) from the
+         alternative(s) below it – makes it obvious at a glance which
+         option just continues the real game. nag comes from the entry
+         itself now, not hardcoded empty – the mainline move can have its
+         own real annotation (e.g. "Kd1?") same as any variation move. */
+      options.push({ san: activeDefaultSans[moveIndex], nag: (tail.entries[0] && tail.entries[0].nag) || '', isMainline: true, go: function(){ manualGoToLine(defaultLine, defaultBranchesFull, moveIndex + 1, defaultSansFull, defaultEntriesFull); } });
     }
     branches.forEach(function(varLine){
       if(!varLine || !varLine.length) return;
@@ -1343,7 +1360,7 @@ function createGameWidget(container, gameOrGames){
     options.forEach(function(opt){
       var btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'move-choice-btn';
+      btn.className = 'move-choice-btn' + (opt.isMainline ? ' is-mainline' : '');
       btn.textContent = displaySan(opt.san) + (opt.nag || '');
       btn.addEventListener('click', function(){ hideMoveChoiceDialog(); opt.go(); });
       choiceListEl.appendChild(btn);
