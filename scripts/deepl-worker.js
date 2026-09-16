@@ -69,8 +69,14 @@ export default {
       });
     }
     /* defaults to EN->DE (what editor.html always sends); a caller can
-       also request the other direction, e.g. { text, source: "DE", target: "EN" } */
-    var sourceLang = (body.source || 'EN').toUpperCase();
+       also request the other direction, e.g. { text, source: "DE", target: "EN" } –
+       or, to have DeepL figure out the source language itself (used by
+       scripts/sync_games_pgn.py for game comments, which can legitimately
+       be typed in either language), pass source: "auto" or omit it AND
+       set autoDetect: true. DeepL's own source_lang parameter is optional;
+       leaving it off entirely switches DeepL into auto-detect mode. */
+    var autoDetect = body.autoDetect === true || (body.source || '').toUpperCase() === 'AUTO';
+    var sourceLang = autoDetect ? null : (body.source || 'EN').toUpperCase();
     var targetLang = (body.target || 'DE').toUpperCase();
     if(!env.DEEPL_API_KEY){
       return new Response(JSON.stringify({ error: 'DEEPL_API_KEY is not configured on this Worker' }), {
@@ -79,17 +85,15 @@ export default {
     }
 
     try{
+      var deeplBody = { text: [text], target_lang: targetLang };
+      if(sourceLang) deeplBody.source_lang = sourceLang;
       var deeplResp = await fetch(DEEPL_URL, {
         method: 'POST',
         headers: {
           'Authorization': 'DeepL-Auth-Key ' + env.DEEPL_API_KEY,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          text: [text],
-          source_lang: sourceLang,
-          target_lang: targetLang
-        })
+        body: JSON.stringify(deeplBody)
       });
       if(!deeplResp.ok){
         var errText = await deeplResp.text();
@@ -98,8 +102,11 @@ export default {
         });
       }
       var data = await deeplResp.json();
-      var translatedText = (data.translations && data.translations[0] && data.translations[0].text) || '';
-      return new Response(JSON.stringify({ translatedText: translatedText }), {
+      var translation = (data.translations && data.translations[0]) || {};
+      return new Response(JSON.stringify({
+        translatedText: translation.text || '',
+        detectedSourceLang: translation.detected_source_language || sourceLang || ''
+      }), {
         headers: corsHeaders(origin)
       });
     }catch(err){
