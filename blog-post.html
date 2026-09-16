@@ -1563,8 +1563,6 @@ function createGameWidget(container, gameOrGames){
        dragging pieces all still work exactly as for a full game). */
     if(navEl) navEl.hidden = historyVerbose.length === 0;
     gameComments = Array.isArray(game.annotations) ? buildAnnotationIndex(game.annotations) : commentsMapToIndex(extractPgnComments(game.pgn || ''));
-    window.__debugGameComments = window.__debugGameComments || [];
-    window.__debugGameComments.push({ slug: game && game.id, isArr: Array.isArray(game.annotations), annotations: game.annotations, extractedRaw: extractPgnComments(game.pgn || ''), gameComments: JSON.parse(JSON.stringify(gameComments)), rawPgn: game.pgn });
     var headers = parsePgnHeaders(game.pgn || '');
     /* a game/fragment can start from any legal position, not just the
        standard one – chess.js already applies [SetUp "1"]/[FEN "..."]
