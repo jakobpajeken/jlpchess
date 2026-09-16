@@ -1072,8 +1072,27 @@ function createGameWidget(container, gameOrGames){
     var mainlineSans = historyVerbose.map(function(m){ return m.san; });
     var mlEntries = mainlineEntries();
     appendInlineAnnotation(gameComments[0], [], [], mainlineSans.slice(0, 1), []); /* comment before move 1, if any */
-    for(var i = 0; i < historyVerbose.length; i += 2){
-      var moveNum = (i / 2) + 1;
+    var i = 0;
+    /* a fragment that starts with Black to move (see startColor, set in
+       loadGame() from the PGN's own [SetUp]/[FEN] headers) opens with one
+       lone Black move ("15...Nf3"), then falls into the normal White+Black
+       pairing below from the next move on. */
+    if(startColor === 'b' && historyVerbose.length){
+      var loneBlackPly = 1;
+      var lonePair = document.createElement('span');
+      lonePair.className = 'move-pair';
+      var loneNum = document.createElement('span');
+      loneNum.className = 'move-num';
+      loneNum.textContent = startMoveNum + '...';
+      lonePair.appendChild(loneNum);
+      lonePair.appendChild(makeMoveBtn(historyVerbose[0].san, loneBlackPly));
+      listEl.appendChild(lonePair);
+      appendInlineAnnotation(gameComments[loneBlackPly], mainlineSans.slice(0, 1), mainlineBranches().slice(0, 1), mainlineSans.slice(0, 2), mlEntries.slice(0, 1));
+      i = 1;
+    }
+    var pairStartNum = startColor === 'b' ? startMoveNum + 1 : startMoveNum;
+    for(; i < historyVerbose.length; i += 2){
+      var moveNum = pairStartNum + Math.floor((startColor === 'b' ? i - 1 : i) / 2);
       var whitePly = i + 1, blackPly = i + 2;
       var whitePair = document.createElement('span');
       whitePair.className = 'move-pair';
