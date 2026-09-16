@@ -1406,12 +1406,31 @@ function createGameWidget(container, game){
   }
   function renderMoveList(){
     listEl.innerHTML = '';
-    for(var i = 0; i < historyVerbose.length; i += 2){
+    var i = 0;
+    /* a fragment starting with Black to move opens with one lone Black
+       move ("15..."), then the normal White+Black pairing continues from
+       there – see blog-post.html's renderMoveList for the full rationale
+       (mirrored here, minus variations, which this mainline-only preview
+       doesn't support). */
+    if(startColor === 'b' && historyVerbose.length){
+      var lonePair = document.createElement('span');
+      lonePair.className = 'move-pair';
+      var loneNum = document.createElement('span');
+      loneNum.className = 'move-num';
+      loneNum.textContent = startMoveNum + '...';
+      lonePair.appendChild(loneNum);
+      lonePair.appendChild(makeMoveBtn(historyVerbose[0].san, 1));
+      listEl.appendChild(lonePair);
+      i = 1;
+    }
+    var pairStartNum = startColor === 'b' ? startMoveNum + 1 : startMoveNum;
+    for(; i < historyVerbose.length; i += 2){
+      var moveNum = pairStartNum + Math.floor((startColor === 'b' ? i - 1 : i) / 2);
       var pair = document.createElement('span');
       pair.className = 'move-pair';
       var num = document.createElement('span');
       num.className = 'move-num';
-      num.textContent = (i / 2 + 1) + '.';
+      num.textContent = moveNum + '.';
       pair.appendChild(num);
       pair.appendChild(makeMoveBtn(historyVerbose[i].san, i + 1));
       if(historyVerbose[i + 1]) pair.appendChild(makeMoveBtn(historyVerbose[i + 1].san, i + 2));
@@ -1498,10 +1517,15 @@ function createGameWidget(container, game){
   }
   historyVerbose = engine.history({ verbose: true });
   entryData = parsePgnAnnotations(game.pgn || '');
-  engine.reset();
+  if(navEl) navEl.hidden = historyVerbose.length === 0; /* see blog-post.html's identical check for the "diagram" rationale */
+  var headers = parsePgnHeaders(game.pgn || '');
+  startingFen = (headers.setup === '1' && headers.fen) ? headers.fen : null;
+  var startFenParts = startingFen ? startingFen.split(' ') : null;
+  startColor = (startFenParts && startFenParts[1] === 'b') ? 'b' : 'w';
+  startMoveNum = (startFenParts && parseInt(startFenParts[5], 10)) || 1;
+  resetToGameStart();
   moveIndex = 0;
 
-  var headers = parsePgnHeaders(game.pgn || '');
   whiteName = headers.white || 'White';
   blackName = headers.black || 'Black';
   if(headers.whiteelo) whiteName += ' (' + headers.whiteelo + ')';
