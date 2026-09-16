@@ -2671,8 +2671,17 @@ function buildAnnotationIndex(tree){
   return index;
 }
 function pgnMoveNumberPrefix(ply, isFirstInLine){
-  var moveNum = Math.ceil(ply / 2);
-  var isWhite = (ply % 2) === 1;
+  /* see blog-post.html's identical function for the full rationale
+     (mirrored here) – ply counts halfmoves from wherever this game/
+     fragment starts (startColor/startMoveNum), not always White/move 1. */
+  var isWhite, moveNum;
+  if(startColor === 'b'){
+    isWhite = (ply % 2) === 0;
+    moveNum = startMoveNum + Math.floor(ply / 2);
+  } else {
+    isWhite = (ply % 2) === 1;
+    moveNum = startMoveNum + Math.floor((ply - 1) / 2);
+  }
   if(isWhite) return moveNum + '.';
   return isFirstInLine ? moveNum + '...' : '';
 }
@@ -2703,7 +2712,12 @@ function loadGameObject(g){
   }
   historyVerbose = gameEngine.history({ verbose: true });
   gameComments = Array.isArray(g.annotations) ? buildAnnotationIndex(g.annotations) : commentsMapToIndex(extractPgnComments(g.pgn));
-  gameEngine.reset();
+  var headers = parsePgnHeaders(g.pgn);
+  startingFen = (headers.setup === '1' && headers.fen) ? headers.fen : null;
+  var startFenParts = startingFen ? startingFen.split(' ') : null;
+  startColor = (startFenParts && startFenParts[1] === 'b') ? 'b' : 'w';
+  startMoveNum = (startFenParts && parseInt(startFenParts[5], 10)) || 1;
+  resetToGameStart();
   activeLine = historyVerbose.map(function(m){ return m.san; });
   activeBranches = mainlineBranches();
   activeDefaultSans = activeLine.slice();
@@ -2712,7 +2726,6 @@ function loadGameObject(g){
   moveIndex = 0;
   lastManualMove = null;
 
-  var headers = parsePgnHeaders(g.pgn);
   var whiteName = headers.white || 'White';
   var blackName = headers.black || 'Black';
   if(headers.whiteelo) whiteName += ' (' + headers.whiteelo + ')';
