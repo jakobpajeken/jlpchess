@@ -3794,7 +3794,7 @@
     },
     "slug": "do-not-rush",
     "status": "draft",
-    "finished": false,
+    "finished": true,
     "submittedBy": null,
     "guestEditable": false,
     "editLock": null,
