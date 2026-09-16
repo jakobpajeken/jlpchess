@@ -2864,25 +2864,32 @@ function openBlogForm(idx){
     });
   })();
 
-  /* ---- inline link insertion into the (English) body text – e.g. for
+  /* ---- inline link insertion, wired identically for both body textareas
+     (see wireInsertImage above for the full rationale) – e.g. for
      affiliate/partner links. Inserted inline at the cursor, not as its own
      paragraph like the image button above, since a link normally sits
      inside a sentence rather than being a standalone block. */
-  document.getElementById('bf-insert-link').addEventListener('click', function(){
-    var url = window.prompt('Ziel-URL (mit https://):', 'https://');
-    if(!url || !url.trim()) return;
-    url = url.trim();
-    if(!/^https?:\/\//i.test(url)){ showToast('Die URL muss mit http:// oder https:// beginnen.', true); return; }
-    var text = window.prompt('Anzeigetext des Links:', '') || url;
-    var marker = '[' + text.replace(/[[\]]/g, '') + '](' + url + ')';
-    var start = bodyTextarea.selectionStart == null ? bodyTextarea.value.length : bodyTextarea.selectionStart;
-    var end = bodyTextarea.selectionEnd == null ? bodyTextarea.value.length : bodyTextarea.selectionEnd;
-    bodyTextarea.value = bodyTextarea.value.slice(0, start) + marker + bodyTextarea.value.slice(end);
-    var caretPos = start + marker.length;
-    bodyTextarea.focus();
-    bodyTextarea.setSelectionRange(caretPos, caretPos);
-    showToast('Link eingefügt ✓');
-  });
+  function wireInsertLink(idSuffix, textarea){
+    var btn = document.getElementById('bf-insert-link' + idSuffix);
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      var url = window.prompt('Ziel-URL (mit https://):', 'https://');
+      if(!url || !url.trim()) return;
+      url = url.trim();
+      if(!/^https?:\/\//i.test(url)){ showToast('Die URL muss mit http:// oder https:// beginnen.', true); return; }
+      var text = window.prompt('Anzeigetext des Links:', '') || url;
+      var marker = '[' + text.replace(/[[\]]/g, '') + '](' + url + ')';
+      var start = textarea.selectionStart == null ? textarea.value.length : textarea.selectionStart;
+      var end = textarea.selectionEnd == null ? textarea.value.length : textarea.selectionEnd;
+      textarea.value = textarea.value.slice(0, start) + marker + textarea.value.slice(end);
+      var caretPos = start + marker.length;
+      textarea.focus();
+      textarea.setSelectionRange(caretPos, caretPos);
+      showToast('Link eingefügt ✓');
+    });
+  }
+  wireInsertLink('', bodyTextarea);
+  wireInsertLink('-de', bodyTextareaDe);
 
   /* ---- translate the whole post (EN -> DE) with one click ---- */
   document.getElementById('bf-translate-all').addEventListener('click', async function(){
