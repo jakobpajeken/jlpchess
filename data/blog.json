@@ -5743,7 +5743,7 @@
   {
     "title": {
       "en": "What is an Endgame?",
-      "de": "Was ist ein Endspiel"
+      "de": "Was ist ein Endspiel ?"
     },
     "slug": "what-is-an-endgame",
     "status": "draft",
@@ -5754,7 +5754,10 @@
     "guestVersion": null,
     "category": {
       "en": [],
-      "de": []
+      "de": [
+        "Endspiel",
+        "Allgemeines Schachwissen"
+      ]
     },
     "date": "2026-09-17",
     "author": "IM Jakob Leon Pajeken",
