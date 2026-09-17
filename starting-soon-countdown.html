@@ -27,31 +27,54 @@
     background:radial-gradient(circle at 50% 44%, #121a26 0%, #121a26 38%, #0c1220 100%);
   }
   .content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
-  .logo-wrap{position:relative;width:340px;height:340px;display:flex;align-items:center;justify-content:center;}
+  .logo-wrap{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center;}
   .logo-wrap::before{
     content:'';position:absolute;inset:-46%;
     background:radial-gradient(circle, rgba(241,242,240,0.60) 0%, rgba(241,242,240,0.20) 42%, rgba(241,242,240,0) 72%);
     filter:blur(4px);
   }
   .logo-wrap img{position:relative;width:100%;height:100%;object-fit:contain;}
-  .rule{width:120px;height:3px;background:#5a6980;margin:38px 0 34px;}
+  .rule{width:120px;height:3px;background:#5a6980;margin:30px 0 26px;}
   h1{
-    margin:0;font-family:'Spectral',serif;font-weight:600;font-size:80px;
+    margin:0;font-family:'Spectral',serif;font-weight:600;font-size:72px;
     color:#f1f2f0;text-align:center;letter-spacing:0.01em;text-wrap:balance;
   }
   #countdown-label{
-    margin:26px 0 6px;font-size:26px;color:#9aa3b2;letter-spacing:0.04em;
+    margin:20px 0 6px;font-size:24px;color:#9aa3b2;letter-spacing:0.04em;
     text-transform:uppercase;
   }
   #countdown-number{
-    font-family:'Spectral',serif;font-weight:700;font-size:150px;line-height:1;
+    font-family:'Spectral',serif;font-weight:700;font-size:132px;line-height:1;
     color:#f1f2f0;letter-spacing:0.02em;font-variant-numeric:tabular-nums;
   }
+  .ticker{
+    margin-top:40px;display:flex;flex-direction:column;align-items:center;width:1000px;
+  }
+  .ticker-tag{
+    font-size:15px;font-weight:400;color:#9cc5e2;letter-spacing:0.14em;
+    text-transform:uppercase;margin-bottom:10px;
+    opacity:0;transform:translateY(6px);transition:opacity 0.5s ease, transform 0.5s ease;
+  }
+  .ticker-text{
+    font-size:30px;line-height:1.35;color:#dfe2e6;text-align:center;text-wrap:balance;
+    min-height:82px;display:flex;align-items:center;justify-content:center;
+    opacity:0;transform:translateY(6px);transition:opacity 0.5s ease, transform 0.5s ease;
+  }
+  .ticker-tag.visible,.ticker-text.visible{opacity:1;transform:translateY(0);}
+  .ticker-dots{margin-top:18px;display:flex;gap:9px;}
+  .ticker-dots span{
+    width:7px;height:7px;border-radius:50%;background:rgba(154,163,178,0.32);
+    transition:background 0.4s ease, transform 0.4s ease;
+  }
+  .ticker-dots span.active{background:#9cc5e2;transform:scale(1.25);}
   .footer{
     position:absolute;left:0;right:0;bottom:74px;z-index:2;
     text-align:center;font-size:22px;color:#9aa3b2;letter-spacing:0.02em;
   }
   .footer span{margin:0 22px;}
+  @media (prefers-reduced-motion: reduce){
+    .ticker-tag,.ticker-text{transition:opacity 0.4s ease;transform:none !important;}
+  }
 </style>
 </head>
 <body>
@@ -63,6 +86,11 @@
     <h1>Starting Soon</h1>
     <div id="countdown-label">Live in</div>
     <div id="countdown-number">05:00</div>
+    <div class="ticker">
+      <div class="ticker-tag" id="ticker-tag"></div>
+      <div class="ticker-text" id="ticker-text"></div>
+      <div class="ticker-dots" id="ticker-dots"></div>
+    </div>
   </div>
   <div class="footer">
     <span>twitch.tv/jpchess64</span><span>youtube.com/@jpchess64</span><span>jp-chess.com</span>
@@ -94,6 +122,45 @@
   }
   render();
   timer = setInterval(render, 250);
+})();
+
+(function(){
+  var SNIPPETS = [
+    { tag: 'Rating', text: '2,482 FIDE — #710 in the world, with two GM norms already earned toward the Grandmaster title.' },
+    { tag: 'Did you know', text: '“Checkmate” comes from the Persian shah māt — “the king is helpless.”' },
+    { tag: 'Coaching', text: 'One-on-one coaching for every level, from first steps to tournament prep — jp-chess.com.' },
+    { tag: 'Did you know', text: 'There are more possible chess games than atoms in the observable universe.' },
+    { tag: 'On stream', text: 'Curious about an opening, a plan, or the position on screen? Drop it in chat.' },
+    { tag: 'Did you know', text: 'The longest rated tournament game ran 269 moves — over 20 hours at the board.' },
+    { tag: 'Blog', text: 'New annotated games and articles go up every week at jp-chess.com.' },
+    { tag: 'Did you know', text: 'Every piece but the knight is blocked in the starting position — it can move first.' }
+  ];
+  var tagEl = document.getElementById('ticker-tag');
+  var textEl = document.getElementById('ticker-text');
+  var dotsEl = document.getElementById('ticker-dots');
+  var dots = [];
+  SNIPPETS.forEach(function(_, i){
+    var d = document.createElement('span');
+    dotsEl.appendChild(d);
+    dots.push(d);
+  });
+  var index = -1;
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function showNext(){
+    index = (index + 1) % SNIPPETS.length;
+    var s = SNIPPETS[index];
+    tagEl.classList.remove('visible');
+    textEl.classList.remove('visible');
+    dots.forEach(function(d, i){ d.classList.toggle('active', i === index); });
+    setTimeout(function(){
+      tagEl.textContent = s.tag;
+      textEl.textContent = s.text;
+      tagEl.classList.add('visible');
+      textEl.classList.add('visible');
+    }, reduceMotion ? 0 : 380);
+  }
+  showNext();
+  setInterval(showNext, 7000);
 })();
 </script>
 </body>
