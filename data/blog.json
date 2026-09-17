@@ -5753,7 +5753,10 @@
     "editLock": null,
     "guestVersion": null,
     "category": {
-      "en": [],
+      "en": [
+        "Endgame",
+        "General Chess Knowledge"
+      ],
       "de": [
         "Endspiel",
         "Allgemeines Schachwissen"
@@ -5766,11 +5769,38 @@
     "imageCredit": "",
     "excerpt": "",
     "lead": {
-      "en": "",
+      "en": "Many chess players would initially answer this question quite simply: An endgame begins when the queens have left the board. While this is a useful rule of thumb, it doesn’t really capture the nature of the endgame. Even without queens, a position can still be very much characterized by the middlegame. Conversely, a position with queens can already exhibit typical endgame characteristics.",
       "de": "Viele Schachspieler würden diese Frage zunächst ganz einfach beantworten: Ein Endspiel beginnt, wenn die Damen vom Brett verschwunden sind. Das ist zwar eine brauchbare Faustregel, trifft den Charakter des Endspiels aber nicht wirklich. Denn auch ohne Damen kann eine Stellung noch ganz vom Mittelspiel geprägt sein. Und umgekehrt kann eine Stellung mit Damen bereits typische Endspielmerkmale aufweisen."
     },
     "body": {
-      "en": [],
+      "en": [
+        "Emanuel Lasker described the unique nature of the endgame in terms of three factors:",
+        "*\"The three factors that give the endgame its distinctive character: the king's attacking power, the passed pawn, and zugzwang\"*",
+        "**– Emanuel Lasker**",
+        "**Passes Pawns, King activity, and Zugzwang.**",
+        "For me, this is a very helpful approach to answering the question of when a position is actually an endgame. My thesis would be:**At least two of these three factors must characterize the position for it to be meaningful to refer to it as an endgame.**",
+        "[color=blue][size=24]**1. The Passed Pawn, From Checkmate to Promotion**[/size][/color]",
+        "In chess, the primary objective is initially to attack the opponent’s king. In the endgame, this is often simply no longer possible: the position has changed so much that direct attacks on the king no longer matter. Instead, a different objective takes center stage: creating a passed pawn and promoting it.",
+        "***__[color=blue]An existing passed pawn thus becomes one of the most important factors in the position. If there isn't one yet, one of the key tasks is often to create one.[/color]__***",
+        "[size=24][color=blue]**2. The King, From Spectator to Player**[/color][/size]",
+        "In the endgame, the king loses his role as a piece that needs to be protected and becomes an active participant in the game. The king himself is not a weak piece; it’s just that in other phases of the game, he faces the risk of being checkmated. In the endgame, it’s different: he no longer needs to be merely protected, but can actively participate in the action. Often, it is even advisable to prioritize the king’s activity over that of a minor piece.",
+        "**The king must be activated–always**. However, one should keep the following in mind: As Mikhail Shereshevsky points out in*Endgame Strategy*, activating the king is never wrong in principle; only the timing can be wrong.",
+        "***__[color=blue]So the key question isn't whether the king should be activated, but when.[/color]__***",
+        "**[color=blue][size=24]3. Zugzwang–when a small number of pieces make tempo important[/size][/color]**",
+        "Zugzwang is easy to explain: The player whose turn it is must make a move, even though every possible move worsens his position.",
+        "Why do we encounter this phenomenon so often in the endgame? Because there are only a few pieces left on the board at that point.",
+        "That, to me, is the really interesting point. The small number of pieces is a key feature of the endgame. It means there are fewer ways to avoid an unfavorable situation. A single pawn move or a lost tempo can suddenly change the entire position.",
+        "The zugzwang itself doesnt always come with the endgame. It is just a possible consequence of having fewer pieces.",
+        "That is why I would phrase Lasker's third factor a little differently here:",
+        "[color=blue]***__For me, it is not the zugzwang itself that is the defining characteristic, but rather the small number of pieces that makes zugzwang possible in this form in the first place.__***[/color]",
+        "[size=24][color=blue]**Three Factors, One Character**[/color][/size]",
+        "Lasker's three factors illustrate very well what changes during the transition from the middlegame to the endgame. For my own definition, I just phrase the third point differently.",
+        "The passed pawn changes the objective: Instead of attacking the king, the goal becomes leading a pawn to promotion, or creating a free pawn in the first place.",
+        "The king's role is changing: he is transforming from a monarch who needs to be protected into an active fighter.",
+        "And the small number of pieces changes the logic of position: individual pawns, squares, and tempi take on much greater significance. One possible result of this is zugzwang.",
+        "I would state: A endgame exists when at least two of these three characteristics significantly define the position: a passed pawn, an active king, and a significantly reduced number of pieces.",
+        "This also explains why the absence of queens is not a useful defining criterion. A position without queens can still be a middlegame. And a position with queens can already have the character of an endgame if, for example, the king is actively involved in the play and a passed pawn has become the decisive factor."
+      ],
       "de": [
         "Emanuel Lasker hat den besonderen Charakter des Endspiels über drei Faktoren beschrieben:",
         "*  „The three factors which give the endgame its specific character: the attacking power of the king, the passed pawn and zugzwang\"*",
@@ -5788,9 +5818,9 @@
         "Der Zugzwang ist schnell erklärt: Wer am Zug ist, muss ziehen, obwohl jeder mögliche Zug seine Stellung verschlechtert.",
         "Warum begegnet uns dieses Phänomen gerade im Endspiel so häufig? Weil dann nur noch wenige Figuren auf dem Brett stehen.",
         "Das ist für mich der eigentlich interessante Punkt. Die geringe Zahl der Figuren ist ein wesentliches Merkmal des Endspiels. Sie führt dazu, dass es weniger Möglichkeiten gibt, einer unangenehmen Situation auszuweichen. Ein einzelner Bauernzug oder ein verlorenes Tempo kann plötzlich die gesamte Stellung verändern.",
-        "Der Zugzwang ist dabei nicht zwingend vorhanden. Er ist eine mögliche Folge von weniger Figuren",
+        "Der Zugzwang ist dabei nicht zwingend vorhanden. Er ist eine mögliche Folge von weniger Figuren.",
         "Deshalb würde ich an dieser Stelle Laskers dritten Faktor etwas anders fassen:",
-        "[color=blue]***__\nNicht der Zugzwang selbst ist für mich das entscheidende Merkmal, sondern die geringe Zahl der Figuren, die einen Zugzwang überhaupt erst in dieser Form möglich macht.\n__***[/color]",
+        "[color=blue]***__\nNicht der Zugzwang selbst ist für mich das entscheidende Merkmal, sondern die geringe Zahl der Figuren, die einen Zugzwang überhaupt erst in dieser Form möglich macht. __***[/color]",
         "[size=24][color=blue]**Drei Faktoren, ein Charakter**[/color][/size]",
         "Laskers drei Faktoren zeigen sehr gut, was sich beim Übergang vom Mittelspiel zum Endspiel verändert. Für meine eigene Definition formuliere ich den dritten Punkt anders.",
         "Der Freibauer verändert das Ziel: Aus dem Angriff auf den König wird die Aufgabe, einen Bauern zur Umwandlung zu führen – oder zunächst überhaupt einen Freibauern zu schaffen.",
@@ -5801,7 +5831,7 @@
       ]
     },
     "quote": {
-      "en": "",
+      "en": "So the endgame doesn't simply begin where the queens have disappeared. It begins where the objective, the king's role, and the significance of the remaining pieces have changed to such an extent that the game is played according to a different logic.",
       "de": "Das Endspiel beginnt also nicht einfach dort, wo die Damen verschwunden sind. Es beginnt dort, wo sich das Ziel, die Rolle des Königs und die Bedeutung des verbliebenen Materials so weit verändert haben, dass die Partie nach einer anderen Logik gespielt wird."
     },
     "games": []
