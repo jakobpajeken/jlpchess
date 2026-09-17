@@ -5762,12 +5762,45 @@
     "imageCaption": "",
     "imageCredit": "",
     "excerpt": "",
-    "lead": "",
+    "lead": {
+      "en": "",
+      "de": "Viele Schachspieler würden diese Frage zunächst ganz einfach beantworten: Ein Endspiel beginnt, wenn die Damen vom Brett verschwunden sind. Das ist zwar eine brauchbare Faustregel, trifft den Charakter des Endspiels aber nicht wirklich. Denn auch ohne Damen kann eine Stellung noch ganz vom Mittelspiel geprägt sein. Und umgekehrt kann eine Stellung mit Damen bereits typische Endspielmerkmale aufweisen."
+    },
     "body": {
       "en": [],
-      "de": []
+      "de": [
+        "Emanuel Lasker hat den besonderen Charakter des Endspiels über drei Faktoren beschrieben:",
+        "*  „The three factors which give the endgame its specific character: the attacking power of the king, the passed pawn and zugzwang\"*",
+        "**\n– Emanuel Lasker**",
+        "**Freibauer, König und Zugzwang.**",
+        "Für mich ist das ein sehr hilfreicher Ansatz, um die Frage zu beantworten, wann eine Stellung tatsächlich ein Endspiel ist. Meine These wäre: **Mindestens zwei dieser drei Faktoren müssen die Stellung prägen, damit man sinnvoll von einem Endspiel sprechen kann.**",
+        "[color=blue][size=24]** 1. Der Freibauer – vom Mattangriff zur Umwandlung**[/size][/color]",
+        "Im Schach ist das grundlegende Ziel zunächst der Angriff auf den gegnerischen König. Im Endspiel ist das oft schlicht nicht mehr möglich: Die Stellung ist so weit verändert, dass direkte Angriffe auf den König keine Rolle mehr spielen. Stattdessen rückt ein anderes Ziel in den Vordergrund: einen Freibauern zu schaffen und ihn zur Umwandlung zu führen.",
+        "***__[color=blue]Ein vorhandener Freibauer wird damit zu einem der wichtigsten Faktoren der Stellung. Gibt es noch keinen, besteht eine der zentralen Aufgaben häufig darin, einen zu schaffen. [/color]__***",
+        "[size=24][color=blue]**\n2. Der König – vom Zuschauer zum Mitspieler**[/color][/size]",
+        "Im Endspiel verliert der König seine Rolle als zu schützende Figur und wird selbst zum aktiven Teil des Spiels. Der König selbst ist keine Schwache Figur, hat nur in anderen Phasen den Spiels das Problem dass er mattgesetzt werden könnte. Im Endspiel ist das anders: Er muss nun nicht mehr nur geschützt werden, sondern kann aktiv am geschehen Teilnehmen. Oftmals ist es sogar ratsam die Aktivität des Königs der einer Leichtfigur vorzuziehen.",
+        "**Der König muss aktiviert werden – immer**. Man sollte allerdings folgendes beachten: Wie Mikhail Shereshevsky in *Endgame Strategy *formuliert ist die Aktivierung des Königs ist als Prinzip nie falsch,  falsch kann lediglich der Zeitpunkt sein.",
+        "***__[color=blue]Entscheidend ist also nicht, ob der König aktiviert werden soll, sondern wann.[/color]__***",
+        "**[color=blue][size=24]3. Zugzwang – wenn wenige Figuren das Tempo wichtig machen[/size][/color]**",
+        "Der Zugzwang ist schnell erklärt: Wer am Zug ist, muss ziehen, obwohl jeder mögliche Zug seine Stellung verschlechtert.",
+        "Warum begegnet uns dieses Phänomen gerade im Endspiel so häufig? Weil dann nur noch wenige Figuren auf dem Brett stehen.",
+        "Das ist für mich der eigentlich interessante Punkt. Die geringe Zahl der Figuren ist ein wesentliches Merkmal des Endspiels. Sie führt dazu, dass es weniger Möglichkeiten gibt, einer unangenehmen Situation auszuweichen. Ein einzelner Bauernzug oder ein verlorenes Tempo kann plötzlich die gesamte Stellung verändern.",
+        "Der Zugzwang ist dabei nicht zwingend vorhanden. Er ist eine mögliche Folge von weniger Figuren",
+        "Deshalb würde ich an dieser Stelle Laskers dritten Faktor etwas anders fassen:",
+        "[color=blue]***__\nNicht der Zugzwang selbst ist für mich das entscheidende Merkmal, sondern die geringe Zahl der Figuren, die einen Zugzwang überhaupt erst in dieser Form möglich macht.\n__***[/color]",
+        "[size=24][color=blue]**Drei Faktoren, ein Charakter**[/color][/size]",
+        "Laskers drei Faktoren zeigen sehr gut, was sich beim Übergang vom Mittelspiel zum Endspiel verändert. Für meine eigene Definition formuliere ich den dritten Punkt anders.",
+        "Der Freibauer verändert das Ziel: Aus dem Angriff auf den König wird die Aufgabe, einen Bauern zur Umwandlung zu führen – oder zunächst überhaupt einen Freibauern zu schaffen.",
+        "Der König verändert seine Rolle: Aus dem zu schützenden Monarchen wird ein aktiver Kämpfer.",
+        "Und die geringe Zahl der Figuren verändert die Stellungslogik: Einzelne Bauern, Felder und Tempi bekommen ein viel größeres Gewicht. Ein mögliches Ergebnis davon ist der Zugzwang.",
+        "Daher würde ich sagen: Ein Endspiel liegt dann vor, wenn mindestens zwei dieser drei Merkmale die Stellung wesentlich bestimmen: Freibauer, aktiver König und eine deutlich reduzierte Zahl an Figuren.",
+        "Das erklärt auch, warum das Fehlen der Damen kein brauchbares Definitionskriterium ist. Eine Stellung kann ohne Damen noch ein Mittelspiel sein. Und eine Stellung mit Damen kann bereits Endspielcharakter haben, wenn beispielsweise der König aktiv ins Spiel eingreift und ein Freibauer zum entscheidenden Faktor geworden ist."
+      ]
     },
-    "quote": "",
+    "quote": {
+      "en": "",
+      "de": "Das Endspiel beginnt also nicht einfach dort, wo die Damen verschwunden sind. Es beginnt dort, wo sich das Ziel, die Rolle des Königs und die Bedeutung des verbliebenen Materials so weit verändert haben, dass die Partie nach einer anderen Logik gespielt wird."
+    },
     "games": []
   },
   {
