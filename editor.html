@@ -3567,6 +3567,8 @@ function openResultForm(cat, idx){
   var meta = RESULTS_META[cat];
   var current = editing ? results[cat][idx] : '';
   var split = splitLangValue(current);
+  var yearPrefix = new Date().getFullYear() + ' – ';
+  if(!editing){ split = { en: yearPrefix, de: yearPrefix }; }
   var slot = document.getElementById(meta.formSlotId);
   slot.innerHTML =
     '<form class="entry-form" id="result-form-' + cat + '">' +
@@ -3584,10 +3586,15 @@ function openResultForm(cat, idx){
   document.getElementById('rf-cancel').addEventListener('click', function(){ slot.innerHTML = ''; });
   wireTranslateButton('rf-translate', 'rf-en', 'rf-de', 'EN', 'DE');
   wireTranslateButton('rf-translate-rev', 'rf-de', 'rf-en', 'DE', 'EN');
+  var enInput = document.getElementById('rf-en');
+  enInput.focus();
+  enInput.setSelectionRange(enInput.value.length, enInput.value.length);
+  /* a field still holding only the pre-filled year counts as empty */
+  function withoutBareYear(v){ return v.trim() === yearPrefix.trim() ? '' : v.trim(); }
   document.getElementById('result-form-' + cat).addEventListener('submit', async function(e){
     e.preventDefault();
-    var en = document.getElementById('rf-en').value.trim();
-    var de = document.getElementById('rf-de').value.trim();
+    var en = withoutBareYear(document.getElementById('rf-en').value);
+    var de = withoutBareYear(document.getElementById('rf-de').value);
     if(!en && !de){ showToast('Bitte einen Text eingeben.', true); return; }
     var value = joinLangValue(en, de);
     /* new entries go in at the very top; the stable year sort afterwards only
