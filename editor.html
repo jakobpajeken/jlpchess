@@ -3590,8 +3590,10 @@ function openResultForm(cat, idx){
     var de = document.getElementById('rf-de').value.trim();
     if(!en && !de){ showToast('Bitte einen Text eingeben.', true); return; }
     var value = joinLangValue(en, de);
-    if(editing) results[cat][idx] = value; else results[cat].push(value);
-    sortResultsCategory(cat); /* keep the newest-first order after every add/edit */
+    /* new entries go in at the very top; the stable year sort afterwards only
+       moves them down if an entry from a later year exists */
+    if(editing) results[cat][idx] = value; else results[cat].unshift(value);
+    sortResultsCategory(cat);
     try{
       await writeJson('results.json', results);
       slot.innerHTML = '';
