@@ -35,11 +35,43 @@ try {
     # here (e.g. Python or the "chess" package missing) is logged but never
     # stops the rest of the sync — the ordinary JSON-editor workflow must
     # keep working even if this piece breaks.
-    $pgnSyncOutput = python scripts/sync_games_pgn.py 2>&1
+    # The bare "python" command can resolve to the Microsoft Store stub (which
+    # just prints "Python wurde nicht gefunden"), so use a real installed
+    # interpreter when there is one.
+    $python = "python"
+    $installed = Get-ChildItem "$env:LOCALAPPDATA\Programs\Python\Python3*\python.exe" -ErrorAction SilentlyContinue |
+        Sort-Object FullName -Descending | Select-Object -First 1
+    if ($installed) { $python = $installed.FullName }
+
+    $pgnSyncOutput = & $python scripts/sync_games_pgn.py 2>&1
     if ($LASTEXITCODE -ne 0) {
         Write-Log "games.pgn sync failed (non-fatal): $pgnSyncOutput"
     } elseif ($pgnSyncOutput -notmatch "already in sync") {
         Write-Log "games.pgn sync: $pgnSyncOutput"
+    }
+
+    # Monthly FIDE rating + world ranking refresh. The GitHub Actions workflow
+    # for this gets blocked by FIDE's server (fails at the download step every
+    # month), so it is done here instead, from this PC: once rating.json's
+    # "updated" date is no longer in the current month, try to refresh it - at
+    # most once every 6 hours, so a FIDE outage doesn't mean a request every
+    # 10 seconds. The change rides along on the commit below.
+    $ratingFile = Join-Path $repoRoot "rating.json"
+    $fideAttemptFile = Join-Path $repoRoot "scripts\fide-attempt.log"
+    $thisMonth = Get-Date -Format "yyyy-MM"
+    $ratingRaw = if (Test-Path $ratingFile) { Get-Content $ratingFile -Raw } else { "" }
+    $updatedMonth = if ($ratingRaw -match '"updated":\s*"(\d{4}-\d{2})') { $Matches[1] } else { "" }
+    if ($updatedMonth -ne $thisMonth) {
+        $lastAttempt = if (Test-Path $fideAttemptFile) { (Get-Item $fideAttemptFile).LastWriteTime } else { [datetime]::MinValue }
+        if (((Get-Date) - $lastAttempt).TotalHours -ge 6) {
+            Set-Content -Path $fideAttemptFile -Value (Get-Date -Format "o")
+            $fideOutput = & $python scripts/update_fide_rating.py 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Log "FIDE rating update failed (non-fatal, retries in 6h): $fideOutput"
+            } else {
+                Write-Log "FIDE rating update: $fideOutput"
+            }
+        }
     }
 
     $status = git status --porcelain 2>&1
